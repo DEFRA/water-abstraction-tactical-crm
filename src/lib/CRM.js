@@ -37,14 +37,10 @@ function createNewEntity(request, reply) {
 }
 
 function getEntity(request, reply) {
-  console.log('called getEntity !!!!!!!!!!!')
   var responseData = {};
-  var query = `
-    select * from crm.entity where entity_id=$1 or entity_nm=$1
-  `
+  var query = `select * from crm.entity where entity_id=$1 or entity_nm=$1`
   var queryParams = [request.params.entity_id]
-  console.log(query)
-  console.log(queryParams)
+  console.log(`${query} with ${queryParams}`)
   DB.query(query, queryParams)
     .then((res) => {
       if(res.data[0]){
@@ -54,7 +50,7 @@ function getEntity(request, reply) {
         responseData.entity = res.data;
         var entityId=0
       }
-      console.log(res.data)
+      console.log(`getEntity returns ${res.data.length} rows`)
       //get upstream entities
       var query = `
     select a.*, eu.entity_nm entity_up_nm, ed.entity_nm entity_down_nm
@@ -76,17 +72,14 @@ where a.entity_down_id=$1
         .then((res) => {
           responseData.entityAssociations = res.data;
           var query = `
-        select * from crm.document_header where owner_entity_id=$1
+        select * from crm.document_header where lower(owner_entity_id)=lower($1)
       `
           var queryParams = [entityId]
-          console.log(query)
-          console.log(queryParams)
           DB.query(query, queryParams)
             .then((res) => {
-              console.log('document headers')
-              console.log(res)
+              console.log(`${res.data.length} document headers listed for owner ${entityId}`)
               responseData.documentAssociations = res.data;
-              console.log(responseData)
+
               return reply({
                 error: res.error,
                 data: responseData
@@ -194,7 +187,6 @@ function updateEntityAssociation(request, reply) {
   ]
   DB.query(query, queryParams)
     .then((res) => {
-      console.log(res)
       return reply({
         error: res.error,
         data: {}
