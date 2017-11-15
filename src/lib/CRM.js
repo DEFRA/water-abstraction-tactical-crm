@@ -38,7 +38,7 @@ function createNewEntity(request, reply) {
 
 function getEntity(request, reply) {
   var responseData = {};
-  var query = `select * from crm.entity where entity_id=$1 or entity_nm=$1`
+  var query = `select * from crm.entity where lower(entity_id)=lower($1) or lower(entity_nm)=lower($1)`
   var queryParams = [request.params.entity_id]
   console.log(`${query} with ${queryParams}`)
   DB.query(query, queryParams)
@@ -55,9 +55,9 @@ function getEntity(request, reply) {
       var query = `
     select a.*, eu.entity_nm entity_up_nm, ed.entity_nm entity_down_nm
 from crm.entity_association a
-join crm.entity eu on a.entity_up_id = eu.entity_id
-join crm.entity ed on a.entity_down_id = ed.entity_id
-where a.entity_up_id=$1
+join crm.entity eu on lower(a.entity_up_id) = lower(eu.entity_id)
+join crm.entity ed on lower(a.entity_down_id) = lower(ed.entity_id)
+where lower(a.entity_up_id)=lower($1)
 
     union
 
@@ -65,7 +65,7 @@ select a.*, eu.entity_nm entity_up_nm, ed.entity_nm entity_down_nm
 from crm.entity_association a
 join crm.entity eu on a.entity_up_id = eu.entity_id
 join crm.entity ed on a.entity_down_id = ed.entity_id
-where a.entity_down_id=$1
+where lower(a.entity_down_id)=lower($1)
     `
       var queryParams = [entityId]
       DB.query(query, queryParams)
