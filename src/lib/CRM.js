@@ -328,6 +328,28 @@ function deleteDocumentHeader(request, reply) {
   return reply({})
 }
 
+
+function setDocumentOwner(request, reply) {
+  console.log(request.payload)
+  var query = `
+    update crm.document_header set owner_entity_id=$1 where document_id=$2
+  `
+  var queryParams = [
+
+    request.payload.entity_id,
+    request.params.document_id
+  ]
+  console.log(query)
+  console.log(queryParams)
+  DB.query(query, queryParams)
+    .then((res) => {
+      return reply({
+        error: res.error,
+        document_id: request.params.document_id
+      })
+    })
+}
+
 module.exports = {
   getAllEntities: getAllEntities,
   createNewEntity: createNewEntity,
@@ -343,5 +365,6 @@ module.exports = {
   createDocumentHeader: createDocumentHeader,
   getDocumentHeader: getDocumentHeader,
   updateDocumentHeader: updateDocumentHeader,
-  deleteDocumentHeader: deleteDocumentHeader
+  deleteDocumentHeader: deleteDocumentHeader,
+  setDocumentOwner:setDocumentOwner
 }
