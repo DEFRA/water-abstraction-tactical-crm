@@ -37,7 +37,12 @@ var yar_options = {
   }
 }
 
-server.register(
+server.register([{
+  register: require('yar'),
+  options: yar_options
+},
+
+
   {
       register: require('node-hapi-airbrake'),
       options: {
@@ -51,12 +56,7 @@ server.register(
     options: {
       showAuth: true
     }
-  },{
-  register: require('yar'),
-  options: yar_options
-}, function (err) { })
-
-server.register([require('hapi-auth-basic'), require('hapi-auth-jwt2'), require('inert'), require('vision')], (err) => {
+  },require('hapi-auth-basic'), require('hapi-auth-jwt2'), require('inert'), require('vision')], (err) => {
   if (err) {
     throw err
   }
