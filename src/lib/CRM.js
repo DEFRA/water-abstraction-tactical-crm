@@ -72,9 +72,16 @@ where lower(a.entity_down_id)=lower($1)
         .then((res) => {
           responseData.entityAssociations = res.data;
           var query = `
-        select * from crm.document_header where lower(owner_entity_id)=lower($1)
+          select * from crm.document_header
+where document_id in (select document_id from crm.document_association where entity_id=$1)
+
+
       `
           var queryParams = [entityId]
+  console.log('permissions')
+console.log(query)
+console.log(queryParams)
+
           DB.query(query, queryParams)
             .then((res) => {
               console.log(`${res.data.length} document headers listed for owner ${entityId}`)
@@ -236,12 +243,33 @@ function createDocumentHeader(request, reply) {
   ]
   DB.query(query, queryParams)
     .then((res) => {
-      return reply({
-        error: res.error,
-        data: {
-          document_id: guid
-        }
-      })
+
+
+
+      var query = `
+        insert into crm.document_association(
+          document_association_id,
+          document_id,
+          entity_id
+        )
+          values ($1,$2,$3)
+      `
+      var queryParams = [
+        Helpers.createGUID(),
+        guid,
+        request.payload.owner_entity_id
+      ]
+      DB.query(query, queryParams)
+        .then((res) => {
+          return reply({
+            error: res.error,
+            data: {
+              document_id: guid
+            }
+          })
+        })
+
+
     })
 }
 
@@ -261,10 +289,27 @@ function getDocumentHeader(request, reply) {
 
   DB.query(query, queryParams)
     .then((res) => {
+      var returnData=res.data;
+      var query = `
+        select crm.document_association.*, crm.entity.entity_nm from crm.document_association
+        join crm.entity on crm.entity.entity_id=crm.document_association.entity_id
+        where document_id = $1
+      `
+      console.log(query)
+      console.log(queryParams)
+      var queryParams = [request.params.document_id]
+
+      DB.query(query, queryParams)
+        .then((res) => {
+
+      //now get access
+        returnData[0].access=res.data
+        console.log(returnData)
       return reply({
         error: res.error,
-        data: res.data
+        data: returnData
       })
+    })
     })
 }
 
@@ -331,22 +376,33 @@ function deleteDocumentHeader(request, reply) {
 
 function setDocumentOwner(request, reply) {
   console.log(request.payload)
+  var guid = Helpers.createGUID();
   var query = `
     update crm.document_header set owner_entity_id=$1 where document_id=$2
   `
   var queryParams = [
 
     request.payload.entity_id,
-    request.params.document_id
+    request.params.document_id,
+    guid
   ]
   console.log(query)
   console.log(queryParams)
   DB.query(query, queryParams)
     .then((res) => {
+      var query = `
+
+        insert into crm.document_association(document_association_id,document_id,entity_id) values ($3,$2,$1)
+      `
+
+      DB.query(query, queryParams)
+        .then((res) => {
+
       return reply({
         error: res.error,
         document_id: request.params.document_id
       })
+    })
     })
 }
 
