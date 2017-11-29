@@ -1,5 +1,6 @@
 const Helpers = require('./helpers')
 const DB = require('./connectors/db')
+
 function getAllEntities(request, reply) {
   if (request.query.entity_type) {
     var query = `
@@ -43,12 +44,12 @@ function getEntity(request, reply) {
   console.log(`${query} with ${queryParams}`)
   DB.query(query, queryParams)
     .then((res) => {
-      if(res.data[0]){
+      if (res.data[0]) {
         responseData.entity = res.data;
-        var entityId=res.data[0].entity_id
+        var entityId = res.data[0].entity_id
       } else {
         responseData.entity = res.data;
-        var entityId=0
+        var entityId = 0
       }
       console.log(`getEntity returns ${res.data.length} rows`)
       //get upstream entities
@@ -78,9 +79,9 @@ where document_id in (select document_id from crm.document_association where ent
 
       `
           var queryParams = [entityId]
-  console.log('permissions')
-console.log(query)
-console.log(queryParams)
+          console.log('permissions')
+          console.log(query)
+          console.log(queryParams)
 
           DB.query(query, queryParams)
             .then((res) => {
@@ -207,9 +208,41 @@ function deleteEntityAssociation(request, reply) {
 
 function getDocumentHeaders(request, reply) {
   var query = `
-    select * from crm.document_header
+  SELECT
+  	H.*,
+  	E.entity_nm,
+    E.entity_id,
+  	M.value as name
+  FROM
+  	crm.document_header H
+  	LEFT OUTER JOIN crm.document_association A ON H.document_id = A.document_id
+  	LEFT OUTER JOIN crm.entity E ON A.entity_id = E.entity_id
+  	LEFT OUTER JOIN crm.entity_document_metadata M ON (
+  	M.entity_id = E.entity_id
+  	)
+    where 0=0
   `
-  DB.query(query)
+  var queryParams = []
+  if (request.payload && request.payload.filter) {
+    if (request.payload.filter.email) {
+      queryParams.push(request.payload.filter.email)
+      query += ` and lower(e.entity_nm)=lower($${queryParams.length})`
+    }
+
+    if (request.payload.filter.entity_id) {
+      queryParams.push(request.payload.filter.entity_id)
+      query += ` and e.entity_id=$${queryParams.length}`
+    }
+
+    if (request.payload.filter.string) {
+      queryParams.push(request.payload.filter.string)
+      query += ` and ( h.metadata->>'Name' ilike $${queryParams.length} or M.value ilike $${queryParams.length})`
+
+    }
+  }
+  console.log(query)
+  console.log(queryParams)
+  DB.query(query,queryParams)
     .then((res) => {
       return reply({
         error: res.error,
@@ -289,7 +322,7 @@ function getDocumentHeader(request, reply) {
 
   DB.query(query, queryParams)
     .then((res) => {
-      var returnData=res.data;
+      var returnData = res.data;
       var query = `
         select crm.document_association.*, crm.entity.entity_nm from crm.document_association
         join crm.entity on crm.entity.entity_id=crm.document_association.entity_id
@@ -302,14 +335,14 @@ function getDocumentHeader(request, reply) {
       DB.query(query, queryParams)
         .then((res) => {
 
-      //now get access
-        returnData[0].access=res.data
-        console.log(returnData)
-      return reply({
-        error: res.error,
-        data: returnData
-      })
-    })
+          //now get access
+          returnData[0].access = res.data
+          console.log(returnData)
+          return reply({
+            error: res.error,
+            data: returnData
+          })
+        })
     })
 }
 
@@ -398,11 +431,11 @@ function setDocumentOwner(request, reply) {
       DB.query(query, queryParams)
         .then((res) => {
 
-      return reply({
-        error: res.error,
-        document_id: request.params.document_id
-      })
-    })
+          return reply({
+            error: res.error,
+            document_id: request.params.document_id
+          })
+        })
     })
 }
 
@@ -422,5 +455,5 @@ module.exports = {
   getDocumentHeader: getDocumentHeader,
   updateDocumentHeader: updateDocumentHeader,
   deleteDocumentHeader: deleteDocumentHeader,
-  setDocumentOwner:setDocumentOwner
+  setDocumentOwner: setDocumentOwner
 }
