@@ -251,11 +251,14 @@ function getDocumentHeaders(request, reply) {
     }
 
     if (request.payload.filter.string) {
-      queryParams.push(request.payload.filter.string)
-      query += ` and ( h.metadata->>'Name' ilike $${queryParams.length} or M.value ilike $${queryParams.length})`
+      queryParams.push(`%${request.payload.filter.string}%`);
+      query += ` and ( h.metadata->>'Name' ilike $${queryParams.length} or M.value ilike $${queryParams.length} OR H.system_external_id ilike $${queryParams.length} )`
 
     }
   }
+
+
+  
   console.log(query)
   console.log(queryParams)
   DB.query(query, queryParams)
