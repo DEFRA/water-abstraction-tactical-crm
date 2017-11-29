@@ -1,5 +1,6 @@
 const Helpers = require('./helpers')
 const DB = require('./connectors/db')
+
 function getAllEntities(request, reply) {
   if (request.query.entity_type) {
     var query = `
@@ -43,12 +44,12 @@ function getEntity(request, reply) {
   console.log(`${query} with ${queryParams}`)
   DB.query(query, queryParams)
     .then((res) => {
-      if(res.data[0]){
+      if (res.data[0]) {
         responseData.entity = res.data;
-        var entityId=res.data[0].entity_id
+        var entityId = res.data[0].entity_id
       } else {
         responseData.entity = res.data;
-        var entityId=0
+        var entityId = 0
       }
       console.log(`getEntity returns ${res.data.length} rows`)
       //get upstream entities
@@ -78,9 +79,9 @@ where document_id in (select document_id from crm.document_association where ent
 
       `
           var queryParams = [entityId]
-  console.log('permissions')
-console.log(query)
-console.log(queryParams)
+          console.log('permissions')
+          console.log(query)
+          console.log(queryParams)
 
           DB.query(query, queryParams)
             .then((res) => {
@@ -206,9 +207,6 @@ function deleteEntityAssociation(request, reply) {
 }
 
 function getDocumentHeaders(request, reply) {
-
-
-
   var query = `
   SELECT
   	H.*,
@@ -224,25 +222,21 @@ function getDocumentHeaders(request, reply) {
   	)
     where 0=0
   `
-  var queryParams=[]
-  if(request.payload && request.payload.filter){
-    if(request.payload.filter.email){
-      query+=` and e.entity_nm='${request.payload.filter.email}'`
+  var queryParams = []
+  if (request.payload && request.payload.filter) {
+    if (request.payload.filter.email) {
+      query += ` and lower(e.entity_nm)=lower('${request.payload.filter.email}')`
       queryParams.push(request.payload.filter.email)
-    } else {
-    }
+    } else {}
 
-    if(request.payload.filter.entity_id){
-      query+=` and e.entity_id='${request.payload.filter.entity_id}'`
-    } else {
-    }
+    if (request.payload.filter.entity_id) {
+      query += ` and e.entity_id='${request.payload.filter.entity_id}'`
+    } else {}
 
-    if(request.payload.filter.string){
-      query+=` and ( h.metadata->>'Name' ilike '%${request.payload.filter.string}%' or M.value ilike '%${request.payload.filter.string}%')`
+    if (request.payload.filter.string) {
+      query += ` and ( h.metadata->>'Name' ilike '%${request.payload.filter.string}%' or M.value ilike '%${request.payload.filter.string}%')`
     }
   }
-  console.log(query)
-
   DB.query(query)
     .then((res) => {
       return reply({
@@ -323,7 +317,7 @@ function getDocumentHeader(request, reply) {
 
   DB.query(query, queryParams)
     .then((res) => {
-      var returnData=res.data;
+      var returnData = res.data;
       var query = `
         select crm.document_association.*, crm.entity.entity_nm from crm.document_association
         join crm.entity on crm.entity.entity_id=crm.document_association.entity_id
@@ -336,14 +330,14 @@ function getDocumentHeader(request, reply) {
       DB.query(query, queryParams)
         .then((res) => {
 
-      //now get access
-        returnData[0].access=res.data
-        console.log(returnData)
-      return reply({
-        error: res.error,
-        data: returnData
-      })
-    })
+          //now get access
+          returnData[0].access = res.data
+          console.log(returnData)
+          return reply({
+            error: res.error,
+            data: returnData
+          })
+        })
     })
 }
 
@@ -432,11 +426,11 @@ function setDocumentOwner(request, reply) {
       DB.query(query, queryParams)
         .then((res) => {
 
-      return reply({
-        error: res.error,
-        document_id: request.params.document_id
-      })
-    })
+          return reply({
+            error: res.error,
+            document_id: request.params.document_id
+          })
+        })
     })
 }
 
@@ -456,5 +450,5 @@ module.exports = {
   getDocumentHeader: getDocumentHeader,
   updateDocumentHeader: updateDocumentHeader,
   deleteDocumentHeader: deleteDocumentHeader,
-  setDocumentOwner:setDocumentOwner
+  setDocumentOwner: setDocumentOwner
 }
