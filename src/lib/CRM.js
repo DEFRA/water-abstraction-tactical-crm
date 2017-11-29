@@ -206,9 +206,43 @@ function deleteEntityAssociation(request, reply) {
 }
 
 function getDocumentHeaders(request, reply) {
+
+
+
   var query = `
-    select * from crm.document_header
+  SELECT
+  	H.*,
+  	E.entity_nm,
+    E.entity_id,
+  	M.value as name
+  FROM
+  	crm.document_header H
+  	LEFT OUTER JOIN crm.document_association A ON H.document_id = A.document_id
+  	LEFT OUTER JOIN crm.entity E ON A.entity_id = E.entity_id
+  	LEFT OUTER JOIN crm.entity_document_metadata M ON (
+  	M.entity_id = E.entity_id
+  	)
+    where 0=0
   `
+  var queryParams=[]
+  if(request.payload && request.payload.filter){
+    if(request.payload.filter.email){
+      query+=` and e.entity_nm='${request.payload.filter.email}'`
+      queryParams.push(request.payload.filter.email)
+    } else {
+    }
+
+    if(request.payload.filter.entity_id){
+      query+=` and e.entity_id='${request.payload.filter.entity_id}'`
+    } else {
+    }
+
+    if(request.payload.filter.string){
+      query+=` and ( h.metadata->>'Name' ilike '%${request.payload.filter.string}%' or M.value ilike '%${request.payload.filter.string}%')`
+    }
+  }
+  console.log(query)
+
   DB.query(query)
     .then((res) => {
       return reply({
