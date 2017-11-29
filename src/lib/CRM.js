@@ -436,9 +436,54 @@ function setDocumentOwner(request, reply) {
             document_id: request.params.document_id
           })
         })
+
     })
 }
 
+function getDocumentNameForUser(request, reply) {
+  var query = `
+      select value from crm.entity_document_metadata where entity_id=$2 and document_id=$1 and key='name'
+    `
+  var queryParams = [
+    request.params.document_id,
+    request.params.entity_id
+  ]
+
+  DB.query(query, queryParams)
+    .then((res) => {
+      return reply({
+        error: res.error,
+        data: res.data
+      })
+    }).catch((err) => {
+      return reply(err)
+    })
+}
+
+function setDocumentNameForUser(request, reply) {
+  //note: uses onconflict for upsert
+  var query = `
+      insert into crm.entity_document_metadata (document_id,entity_id,key,value)
+      values($1,$2,'name',$3)
+      ON CONFLICT (document_id,entity_id,key) DO UPDATE
+      SET value = $3;
+    `
+  var queryParams = [
+    request.params.document_id,
+    request.params.entity_id,
+    request.payload.name
+  ]
+
+
+  DB.query(query, queryParams)
+    .then((res) => {
+      getDocumentNameForUser(request, reply)
+    }).catch((err) => {
+      return reply(err)
+    })
+
+
+}
 module.exports = {
   getAllEntities: getAllEntities,
   createNewEntity: createNewEntity,
@@ -455,5 +500,7 @@ module.exports = {
   getDocumentHeader: getDocumentHeader,
   updateDocumentHeader: updateDocumentHeader,
   deleteDocumentHeader: deleteDocumentHeader,
-  setDocumentOwner: setDocumentOwner
+  setDocumentOwner: setDocumentOwner,
+  getDocumentNameForUser: getDocumentNameForUser,
+  setDocumentNameForUser: setDocumentNameForUser
 }
