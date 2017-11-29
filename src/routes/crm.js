@@ -23,10 +23,8 @@ module.exports = [
   {  method: 'DELETE', path: '/crm/' + version + '/entityAssociation/{entity_association_id}', handler: CRM.deleteEntityAssociation ,config:{description:'Delete specified association'}},
   {  method: 'GET', path: '/crm/' + version + '/documentHeader', handler: CRM.getDocumentHeaders ,config:{description:'Get all document headers'}},
   {  method: 'POST', path: '/crm/' + version + '/documentHeader', handler: CRM.createDocumentHeader ,config:{description:'Create new document header'}},
-
   {  method: 'GET', path: '/crm/' + version + '/documentHeader/{document_id}/entity/{entity_id}/name', handler: CRM.getDocumentNameForUser ,config:{description:'Get custom name for document'}},
   {  method: 'POST', path: '/crm/' + version + '/documentHeader/{document_id}/entity/{entity_id}/name', handler: CRM.setDocumentNameForUser ,config:{description:'Set custom name for document'}},
-
   {  method: 'GET', path: '/crm/' + version + '/documentHeader/{document_id}', handler: CRM.getDocumentHeader ,config:{description:'Get specified document header by document id'}},
   {  method: 'GET', path: '/crm/' + version + '/documentHeader/{system_id}/{system_internal_id}', handler: CRM.getDocumentHeader ,config:{description:'Get specified document header by external system & external system document id'}},
   {  method: 'PUT', path: '/crm/' + version + '/documentHeader/{document_id}', handler: CRM.updateDocumentHeader ,config:{description:'Update specified document header by document id'}},
@@ -35,84 +33,7 @@ module.exports = [
   {  method: 'DELETE', path: '/crm/' + version + '/documentHeader/{system_id}/{system_internal_id}', handler: CRM.deleteDocumentHeader ,config:{description:'Delete specified document header by external system & external system document id'}},
   {  method: 'POST', path: '/crm/' + version + '/documentHeader/filter', handler: CRM.getDocumentHeaders ,config:{description:'Search for document headers by posted filter criteria'}},
   {  method: 'PUT', path: '/crm/' + version + '/documentHeader/{document_id}/owner', handler: CRM.setDocumentOwner ,config:{description:'Search for document headers by posted filter criteria'}},
-
-
-{  method: 'POST', path: '/crm/' + version + '/entity/{entity_id}/roles', handler: CRM.addEntityRole ,config:{description:'Add role to specified entity'}},
-{  method: 'GET', path: '/crm/' + version + '/entity/{entity_id}/roles', handler: CRM.getEntityRoles ,config:{description:'Get roles for specified entity'}},
-{  method: 'DELETE', path: '/crm/' + version + '/entity/{entity_id}/roles/{role_id}', handler: CRM.deleteEntityRole ,config:{description:'Delete role from specified entity'}}
+  {  method: 'POST', path: '/crm/' + version + '/entity/{entity_id}/roles', handler: CRM.addEntityRole ,config:{description:'Add role to specified entity'}},
+  {  method: 'GET', path: '/crm/' + version + '/entity/{entity_id}/roles', handler: CRM.getEntityRoles ,config:{description:'Get roles for specified entity'}},
+  {  method: 'DELETE', path: '/crm/' + version + '/entity/{entity_id}/roles/{role_id}', handler: CRM.deleteEntityRole ,config:{description:'Delete role from specified entity'}}
 ]
-
-/**
-
-CREATE SCHEMA crm
-    AUTHORIZATION postgres;
-    -- Table: crm.document_header
-
-    -- DROP TABLE crm.document_header;
-
-    CREATE TABLE crm.document_header
-    (
-        document_id character varying COLLATE pg_catalog."default",
-        regime_entity_id character varying COLLATE pg_catalog."default",
-        system_id character varying COLLATE pg_catalog."default",
-        system_internal_id character varying COLLATE pg_catalog."default",
-        system_external_id character varying COLLATE pg_catalog."default",
-        metadata json
-    )
-    WITH (
-        OIDS = FALSE
-    )
-    TABLESPACE pg_default;
-
-    ALTER TABLE crm.document_header
-        OWNER to postgres;
-
-    GRANT ALL ON TABLE crm.document_header TO postgres;
-
-    -- Table: crm.entity
-
--- DROP TABLE crm.entity;
-
-CREATE TABLE crm.entity
-(
-    entity_id character varying COLLATE pg_catalog."default" NOT NULL,
-    entity_nm character varying COLLATE pg_catalog."default" NOT NULL,
-    entity_type character varying COLLATE pg_catalog."default" NOT NULL,
-    entity_definition json,
-    CONSTRAINT entity_pkey PRIMARY KEY (entity_id, entity_nm, entity_type)
-)
-WITH (
-    OIDS = FALSE
-)
-TABLESPACE pg_default;
-
-ALTER TABLE crm.entity
-    OWNER to postgres;
-
-GRANT ALL ON TABLE crm.entity TO postgres;
-
--- Table: crm.entity_association
-
--- DROP TABLE crm.entity_association;
-
-CREATE TABLE crm.entity_association
-(
-    entity_association_id character varying COLLATE pg_catalog."default" NOT NULL,
-    entity_up_type character varying COLLATE pg_catalog."default" NOT NULL,
-    entity_up_id character varying COLLATE pg_catalog."default" NOT NULL,
-    entity_down_type character varying COLLATE pg_catalog."default" NOT NULL,
-    entity_down_id character varying COLLATE pg_catalog."default" NOT NULL,
-    access_type character varying COLLATE pg_catalog."default",
-    inheritable character varying COLLATE pg_catalog."default",
-    CONSTRAINT entity_association_pkey PRIMARY KEY (entity_association_id, entity_up_type, entity_up_id, entity_down_type, entity_down_id)
-)
-WITH (
-    OIDS = FALSE
-)
-TABLESPACE pg_default;
-
-ALTER TABLE crm.entity_association
-    OWNER to postgres;
-
-GRANT ALL ON TABLE crm.entity_association TO postgres;
-**/
