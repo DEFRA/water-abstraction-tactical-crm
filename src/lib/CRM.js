@@ -500,6 +500,76 @@ function setDocumentNameForUser(request, reply) {
 
 
 }
+
+function addEntityRole(request, reply) {
+  //Add role to entity
+  var entity_role_id = Helpers.createGUID()
+  var entity_id = request.params.entity_id
+  var role = request.payload.role
+  if (request.payload.regime) {
+    var regime_entity_id = request.payload.regime
+  } else {
+    var regime_entity_id = null
+  }
+  if (request.payload.company) {
+    var company_entity_id = request.payload.company
+  } else {
+    var company_entity_id = null
+  }
+  if (request.payload.is_primary) {
+    var is_primary = 1
+  } else {
+    var is_primary = 0
+  }
+  query = `insert into crm.entity_roles (entity_role_id, entity_id,role,regime_entity_id,company_entity_id,is_primary)
+  values($1,$2,$3,$4,$5,$6)`
+
+  queryParams = [
+    entity_role_id, entity_id, role, regime_entity_id, company_entity_id, is_primary
+  ]
+
+  DB.query(query, queryParams)
+    .then((res) => {
+      return reply(res)
+    }).catch((err) => {
+      return reply(err)
+    })
+
+}
+
+function deleteEntityRole(request, reply) {
+  var entity_role_id = request.params.role_id
+  query = `delete from crm.entity_roles where entity_role_id = $1`
+
+  queryParams = [
+    entity_role_id
+  ]
+
+  DB.query(query, queryParams)
+    .then((res) => {
+      return reply(res)
+    }).catch((err) => {
+      return reply(err)
+    })
+
+}
+
+function getEntityRoles(request, reply) {
+  var entity_id = request.params.entity_id
+  query = `select * from crm.entity_roles where entity_id = $1`
+
+  queryParams = [
+    entity_id
+  ]
+
+  DB.query(query, queryParams)
+    .then((res) => {
+      return reply(res)
+    }).catch((err) => {
+      return reply(err)
+    })
+}
+
 module.exports = {
   getAllEntities: getAllEntities,
   createNewEntity: createNewEntity,
@@ -518,5 +588,9 @@ module.exports = {
   deleteDocumentHeader: deleteDocumentHeader,
   setDocumentOwner: setDocumentOwner,
   getDocumentNameForUser: getDocumentNameForUser,
-  setDocumentNameForUser: setDocumentNameForUser
+  setDocumentNameForUser: setDocumentNameForUser,
+  addEntityRole: addEntityRole,
+  deleteEntityRole: deleteEntityRole,
+  getEntityRoles: getEntityRoles
+
 }
