@@ -406,6 +406,13 @@ function setDocumentOwner(request, reply) {
     })
 }
 
+function getDocumentNameForUser(){
+
+}
+
+function setDocumentNameForUser(){
+
+}
 module.exports = {
   getAllEntities: getAllEntities,
   createNewEntity: createNewEntity,
@@ -422,5 +429,7 @@ module.exports = {
   getDocumentHeader: getDocumentHeader,
   updateDocumentHeader: updateDocumentHeader,
   deleteDocumentHeader: deleteDocumentHeader,
-  setDocumentOwner:setDocumentOwner
+  setDocumentOwner:setDocumentOwner,
+  getDocumentNameForUser:setDocumentNameForUser
+  setDocumentNameForUser:setDocumentNameForUser
 }
