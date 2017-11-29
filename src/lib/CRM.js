@@ -208,9 +208,41 @@ function deleteEntityAssociation(request, reply) {
 
 function getDocumentHeaders(request, reply) {
   var query = `
-    select * from crm.document_header
+  SELECT
+  	H.*,
+  	E.entity_nm,
+    E.entity_id,
+  	M.value as name
+  FROM
+  	crm.document_header H
+  	LEFT OUTER JOIN crm.document_association A ON H.document_id = A.document_id
+  	LEFT OUTER JOIN crm.entity E ON A.entity_id = E.entity_id
+  	LEFT OUTER JOIN crm.entity_document_metadata M ON (
+  	M.entity_id = E.entity_id
+  	)
+    where 0=0
   `
-  DB.query(query)
+  var queryParams = []
+  if (request.payload && request.payload.filter) {
+    if (request.payload.filter.email) {
+      queryParams.push(request.payload.filter.email)
+      query += ` and lower(e.entity_nm)=lower($${queryParams.length})`
+    }
+
+    if (request.payload.filter.entity_id) {
+      queryParams.push(request.payload.filter.entity_id)
+      query += ` and e.entity_id=$${queryParams.length}`
+    }
+
+    if (request.payload.filter.string) {
+      queryParams.push(request.payload.filter.string)
+      query += ` and ( h.metadata->>'Name' ilike $${queryParams.length} or M.value ilike $${queryParams.length})`
+
+    }
+  }
+  console.log(query)
+  console.log(queryParams)
+  DB.query(query,queryParams)
     .then((res) => {
       return reply({
         error: res.error,
@@ -404,6 +436,7 @@ function setDocumentOwner(request, reply) {
             document_id: request.params.document_id
           })
         })
+
     })
 }
 
