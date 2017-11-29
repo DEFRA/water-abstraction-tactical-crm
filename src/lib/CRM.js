@@ -88,9 +88,25 @@ where document_id in (select document_id from crm.document_association where ent
               console.log(`${res.data.length} document headers listed for owner ${entityId}`)
               responseData.documentAssociations = res.data;
 
-              return reply({
-                error: res.error,
-                data: responseData
+
+              var query = `
+              select * from crm.entity_roles where entity_id=$1
+              `
+              var queryParams = [entityId]
+              console.log('permissions')
+              console.log(query)
+              console.log(queryParams)
+
+              DB.query(query, queryParams).then((res) => {
+
+
+                responseData.roles=res.data
+
+
+                return reply({
+                  error: res.error,
+                  data: responseData
+                })
               })
             })
         })
@@ -242,7 +258,7 @@ function getDocumentHeaders(request, reply) {
   }
   console.log(query)
   console.log(queryParams)
-  DB.query(query,queryParams)
+  DB.query(query, queryParams)
     .then((res) => {
       return reply({
         error: res.error,
