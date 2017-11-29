@@ -1,5 +1,6 @@
 const Helpers = require('./helpers')
 const DB = require('./connectors/db')
+
 function getAllEntities(request, reply) {
   if (request.query.entity_type) {
     var query = `
@@ -43,12 +44,12 @@ function getEntity(request, reply) {
   console.log(`${query} with ${queryParams}`)
   DB.query(query, queryParams)
     .then((res) => {
-      if(res.data[0]){
+      if (res.data[0]) {
         responseData.entity = res.data;
-        var entityId=res.data[0].entity_id
+        var entityId = res.data[0].entity_id
       } else {
         responseData.entity = res.data;
-        var entityId=0
+        var entityId = 0
       }
       console.log(`getEntity returns ${res.data.length} rows`)
       //get upstream entities
@@ -78,9 +79,9 @@ where document_id in (select document_id from crm.document_association where ent
 
       `
           var queryParams = [entityId]
-  console.log('permissions')
-console.log(query)
-console.log(queryParams)
+          console.log('permissions')
+          console.log(query)
+          console.log(queryParams)
 
           DB.query(query, queryParams)
             .then((res) => {
@@ -289,7 +290,7 @@ function getDocumentHeader(request, reply) {
 
   DB.query(query, queryParams)
     .then((res) => {
-      var returnData=res.data;
+      var returnData = res.data;
       var query = `
         select crm.document_association.*, crm.entity.entity_nm from crm.document_association
         join crm.entity on crm.entity.entity_id=crm.document_association.entity_id
@@ -302,14 +303,14 @@ function getDocumentHeader(request, reply) {
       DB.query(query, queryParams)
         .then((res) => {
 
-      //now get access
-        returnData[0].access=res.data
-        console.log(returnData)
-      return reply({
-        error: res.error,
-        data: returnData
-      })
-    })
+          //now get access
+          returnData[0].access = res.data
+          console.log(returnData)
+          return reply({
+            error: res.error,
+            data: returnData
+          })
+        })
     })
 }
 
@@ -398,19 +399,56 @@ function setDocumentOwner(request, reply) {
       DB.query(query, queryParams)
         .then((res) => {
 
+          return reply({
+            error: res.error,
+            document_id: request.params.document_id
+          })
+        })
+    })
+}
+
+function getDocumentNameForUser(request, reply) {
+  var query = `
+      select value from crm.entity_document_metadata where entity_id=$2 and document_id=$1 and key='name'
+    `
+  var queryParams = [
+    request.params.document_id,
+    request.params.entity_id
+  ]
+
+  DB.query(query, queryParams)
+    .then((res) => {
       return reply({
         error: res.error,
-        document_id: request.params.document_id
+        data: res.data
       })
-    })
+    }).catch((err) => {
+      return reply(err)
     })
 }
 
-function getDocumentNameForUser(){
+function setDocumentNameForUser(request, reply) {
+  //note: uses onconflict for upsert
+  var query = `
+      insert into crm.entity_document_metadata (document_id,entity_id,key,value)
+      values($1,$2,'name',$3)
+      ON CONFLICT (document_id,entity_id,key) DO UPDATE
+      SET value = $3;
+    `
+  var queryParams = [
+    request.params.document_id,
+    request.params.entity_id,
+    request.payload.name
+  ]
 
-}
 
-function setDocumentNameForUser(){
+  DB.query(query, queryParams)
+    .then((res) => {
+      getDocumentNameForUser(request, reply)
+    }).catch((err) => {
+      return reply(err)
+    })
+
 
 }
 module.exports = {
@@ -429,7 +467,7 @@ module.exports = {
   getDocumentHeader: getDocumentHeader,
   updateDocumentHeader: updateDocumentHeader,
   deleteDocumentHeader: deleteDocumentHeader,
-  setDocumentOwner:setDocumentOwner,
-  getDocumentNameForUser:setDocumentNameForUser
-  setDocumentNameForUser:setDocumentNameForUser
+  setDocumentOwner: setDocumentOwner,
+  getDocumentNameForUser: getDocumentNameForUser,
+  setDocumentNameForUser: setDocumentNameForUser
 }
