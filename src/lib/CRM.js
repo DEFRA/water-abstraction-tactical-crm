@@ -225,19 +225,24 @@ function getDocumentHeaders(request, reply) {
   var queryParams = []
   if (request.payload && request.payload.filter) {
     if (request.payload.filter.email) {
-      query += ` and lower(e.entity_nm)=lower('${request.payload.filter.email}')`
       queryParams.push(request.payload.filter.email)
-    } else {}
+      query += ` and lower(e.entity_nm)=lower($${queryParams.length})`
+    }
 
     if (request.payload.filter.entity_id) {
-      query += ` and e.entity_id='${request.payload.filter.entity_id}'`
-    } else {}
+      queryParams.push(request.payload.filter.entity_id)
+      query += ` and e.entity_id=$${queryParams.length}`
+    }
 
     if (request.payload.filter.string) {
-      query += ` and ( h.metadata->>'Name' ilike '%${request.payload.filter.string}%' or M.value ilike '%${request.payload.filter.string}%')`
+      queryParams.push(request.payload.filter.string)
+      query += ` and ( h.metadata->>'Name' ilike $${queryParams.length} or M.value ilike $${queryParams.length})`
+
     }
   }
-  DB.query(query)
+  console.log(query)
+  console.log(queryParams)
+  DB.query(query,queryParams)
     .then((res) => {
       return reply({
         error: res.error,
