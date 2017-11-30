@@ -307,6 +307,9 @@ function deleteEntityAssociation(request, reply) {
  * @return {Promise} resolves with array of licence data
  */
 function getDocumentHeaders(request, reply) {
+
+  console.log(request.payload);
+
   var query = `
   SELECT
   	H.*,
@@ -318,7 +321,7 @@ function getDocumentHeaders(request, reply) {
   	LEFT OUTER JOIN crm.document_association A ON H.document_id = A.document_id
   	LEFT OUTER JOIN crm.entity E ON A.entity_id = E.entity_id
   	LEFT OUTER JOIN crm.entity_document_metadata M ON (
-  	M.document_id = E.document_id
+  	M.document_id = H.document_id
   	)
     where 0=0
   `
@@ -347,7 +350,7 @@ function getDocumentHeaders(request, reply) {
 
     // Sorting
     // e.g. {document_id : 1}
-    if (request.payload.sort) {
+    if (request.payload.sort && Object.keys(request.payload.sort).length) {
       const sortFields = {
         document_id : 'H.document_id',
         name : ` h.metadata->>'Name' `
@@ -601,11 +604,11 @@ function setDocumentNameForUser(request, reply) {
     request.payload.name
   ]
 
-
   DB.query(query, queryParams)
     .then((res) => {
       getDocumentNameForUser(request, reply)
     }).catch((err) => {
+      console.log(err);
       return reply(err)
     })
 
