@@ -148,7 +148,7 @@ function getEntity(request, reply) {
     responseData.entity = entity;
     var entityId = entity.entity_id
   }).catch((err) => {
-    comnsole.log(err)
+    console.log(err)
     responseData.entity = {};
     var entityId = 0
   }).then(() => {
