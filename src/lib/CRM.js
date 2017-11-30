@@ -1,3 +1,7 @@
+/**
+ * Provides HAPI HTTP handlers for working with CRM data
+ * @module lib/CRM
+ */
 const Helpers = require('./helpers')
 const DB = require('./connectors/db')
 const map = require('lodash/map');
