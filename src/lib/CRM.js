@@ -318,7 +318,7 @@ function getDocumentHeaders(request, reply) {
   	LEFT OUTER JOIN crm.document_association A ON H.document_id = A.document_id
   	LEFT OUTER JOIN crm.entity E ON A.entity_id = E.entity_id
   	LEFT OUTER JOIN crm.entity_document_metadata M ON (
-  	M.entity_id = E.entity_id
+  	M.document_id = E.document_id
   	)
     where 0=0
   `
@@ -591,8 +591,8 @@ function getDocumentNameForUser(request, reply) {
 function setDocumentNameForUser(request, reply) {
   //note: uses onconflict for upsert
   var query = `
-      insert into crm.entity_document_metadata (document_id,key,value)
-      values($1,'name',$2)
+      insert into crm.entity_document_metadata (entity_id,document_id,key,value)
+      values(0,$1,'name',$2)
       ON CONFLICT (document_id,key) DO UPDATE
       SET value = $2;
     `
