@@ -571,11 +571,10 @@ function setDocumentOwner(request, reply) {
 
 function getDocumentNameForUser(request, reply) {
   var query = `
-      select value from crm.entity_document_metadata where entity_id=$2 and document_id=$1 and key='name'
+      select value from crm.entity_document_metadata where document_id=$1 and key='name'
     `
   var queryParams = [
-    request.params.document_id,
-    request.params.entity_id
+    request.params.document_id
   ]
 
   DB.query(query, queryParams)
@@ -592,14 +591,13 @@ function getDocumentNameForUser(request, reply) {
 function setDocumentNameForUser(request, reply) {
   //note: uses onconflict for upsert
   var query = `
-      insert into crm.entity_document_metadata (document_id,entity_id,key,value)
-      values($1,$2,'name',$3)
-      ON CONFLICT (document_id,entity_id,key) DO UPDATE
-      SET value = $3;
+      insert into crm.entity_document_metadata (document_id,key,value)
+      values($1,'name',$2)
+      ON CONFLICT (document_id,key) DO UPDATE
+      SET value = $2;
     `
   var queryParams = [
     request.params.document_id,
-    request.params.entity_id,
     request.payload.name
   ]
 
