@@ -148,7 +148,7 @@ function getEntity(request, reply) {
     responseData.entity = entity;
     var entityId = entity.entity_id
   }).catch((err) => {
-    comnsole.log(err)
+    console.log(err)
     responseData.entity = {};
     var entityId = 0
   }).then(() => {
@@ -318,7 +318,7 @@ function getDocumentHeaders(request, reply) {
   	LEFT OUTER JOIN crm.document_association A ON H.document_id = A.document_id
   	LEFT OUTER JOIN crm.entity E ON A.entity_id = E.entity_id
   	LEFT OUTER JOIN crm.entity_document_metadata M ON (
-  	M.entity_id = E.entity_id
+  	M.document_id = E.document_id
   	)
     where 0=0
   `
@@ -571,11 +571,10 @@ function setDocumentOwner(request, reply) {
 
 function getDocumentNameForUser(request, reply) {
   var query = `
-      select value from crm.entity_document_metadata where entity_id=$2 and document_id=$1 and key='name'
+      select value from crm.entity_document_metadata where document_id=$1 and key='name'
     `
   var queryParams = [
-    request.params.document_id,
-    request.params.entity_id
+    request.params.document_id
   ]
 
   DB.query(query, queryParams)
@@ -592,14 +591,13 @@ function getDocumentNameForUser(request, reply) {
 function setDocumentNameForUser(request, reply) {
   //note: uses onconflict for upsert
   var query = `
-      insert into crm.entity_document_metadata (document_id,entity_id,key,value)
-      values($1,$2,'name',$3)
-      ON CONFLICT (document_id,entity_id,key) DO UPDATE
-      SET value = $3;
+      insert into crm.entity_document_metadata (entity_id,document_id,key,value)
+      values(0,$1,'name',$2)
+      ON CONFLICT (document_id,key) DO UPDATE
+      SET value = $2;
     `
   var queryParams = [
     request.params.document_id,
-    request.params.entity_id,
     request.payload.name
   ]
 
