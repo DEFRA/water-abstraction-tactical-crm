@@ -38,80 +38,144 @@ function createNewEntity(request, reply) {
     })
 }
 
+/**
+ * Get entity record from CRM
+ * @param {string} entity_identifier - the guid or entity_nm of the entity
+ * @return {Promise} resolves with entity data
+ */
+function _getEntityRecord(entity_identifier) {
+  return new Promise((resolve, reject) => {
+    console.log('_getEntityRecord')
+    var query = `select * from crm.entity where lower(entity_id)=lower($1) or lower(entity_nm)=lower($1)`
+    var queryParams = [entity_identifier]
+    //      console.log(`${query} with ${queryParams}`)
+    DB.query(query, queryParams).then((res) => {
+      console.log(res.data[0])
+      resolve(res.data[0])
+    }).catch((err) => {
+      reject(err)
+    })
+  })
+}
+
+/**
+ * Get entity roles from CRM
+ * @param {string} entity_identifier - the guid of the entity
+ * @return {Promise} resolves with entity role data
+ */
+function _getEntityRoles(entity_identifier) {
+  return new Promise((resolve, reject) => {
+    console.log('_getEntityRoles')
+    var query = `select r.*, re.entity_nm as regime_nm, ce.entity_nm as company_nm from crm.entity_roles r
+      left outer join crm.entity re on r.regime_entity_id = re.entity_id
+      left outer join crm.entity ce on r.company_entity_id = ce.entity_id
+      where r.entity_id=$1`
+    var queryParams = [entity_identifier]
+    console.log(`${query} with ${queryParams}`)
+    DB.query(query, queryParams)
+      .then((res) => {
+        console.log(res)
+        resolve(res.data)
+      }).catch((err) => {
+        console.log(err)
+        reject(err)
+      })
+  })
+}
+
+/**
+ * Get entity roles from CRM
+ * @param {array} rolesArray - an array of role objects
+ * @return {Promise} resolves with document available to role
+ */
+function _getRoleDocuments(rolesArray) {
+  return new Promise((resolve, reject) => {
+    console.log('_getRoleDocuments')
+    var documents = [];
+    var query = ''
+    queryParams = [];
+
+    for (role in rolesArray) {
+      if (query && query.length && query.length > 0) {
+        query += ' union all '
+      }
+      var thisRole = rolesArray[role]
+      query += `select '${thisRole.role}' as role, '${thisRole.entity_role_id}' as role_id, h.* from crm.document_header h where `
+      if (thisRole.regime_entity_id && thisRole.regime_entity_id.length > 0) {
+        queryParams.push(thisRole.regime_entity_id)
+        query += ' h.regime_entity_id=$' + queryParams.length
+      }
+      if (thisRole.company_entity_id && thisRole.company_entity_id.length > 0) {
+        queryParams.push(thisRole.company_entity_id)
+        query += ' h.company_entity_id=$' + queryParams.length
+      }
+
+
+    }
+    console.log(query)
+    console.log(queryParams)
+
+
+    DB.query(query, queryParams)
+      .then((res) => {
+        console.log('got role documents')
+        console.log(res.data)
+        resolve(res.data)
+      }).catch((err) => {
+        console.log('error getting role documents')
+        console.log(err)
+        reject(err)
+      })
+
+  })
+}
+
+/**
+ * Get documents by the supplied search/filter/sort criteria
+ * @param {Object} request - the HAPI request instance
+ * @param {Object} request.params - the data from the HTTP query string
+ * @param {Object} [request.params.entity_id] - entity id for entity
+ * @return {object} Returns object containing entity data
+ */
 function getEntity(request, reply) {
   var responseData = {};
-  var query = `select * from crm.entity where lower(entity_id)=lower($1) or lower(entity_nm)=lower($1)`
-  var queryParams = [request.params.entity_id]
-  console.log(`${query} with ${queryParams}`)
-  DB.query(query, queryParams)
-    .then((res) => {
-      if (res.data[0]) {
-        responseData.entity = res.data;
-        var entityId = res.data[0].entity_id
-      } else {
-        responseData.entity = res.data;
-        var entityId = 0
-      }
-      console.log(`getEntity returns ${res.data.length} rows`)
-      //get upstream entities
-      var query = `
-    select a.*, eu.entity_nm entity_up_nm, ed.entity_nm entity_down_nm
-from crm.entity_association a
-join crm.entity eu on lower(a.entity_up_id) = lower(eu.entity_id)
-join crm.entity ed on lower(a.entity_down_id) = lower(ed.entity_id)
-where lower(a.entity_up_id)=lower($1)
+  var entityId
+  _getEntityRecord(request.params.entity_id).then((entity) => {
+    responseData.entity = entity;
+    var entityId = entity.entity_id
+  }).catch((err) => {
+    comnsole.log(err)
+    responseData.entity = {};
+    var entityId = 0
+  }).then(() => {
+    //get upstream entities deprecated but not yet removed...
+    responseData.entityAssociations = []
+    //get entity roles
+    _getEntityRoles(request.params.entity_id).then((entityRoles) => {
+      console.log(`get entity roles for ${request.params.entity_id}`)
+      console.log(entityRoles)
+      responseData.entityRoles = entityRoles
+    }).catch((err) => {
+      console.log(err)
+      responseData.entityRoles = []
+    }).then(() => {
 
-    union
-
-select a.*, eu.entity_nm entity_up_nm, ed.entity_nm entity_down_nm
-from crm.entity_association a
-join crm.entity eu on a.entity_up_id = eu.entity_id
-join crm.entity ed on a.entity_down_id = ed.entity_id
-where lower(a.entity_down_id)=lower($1)
-    `
-      var queryParams = [entityId]
-      DB.query(query, queryParams)
-        .then((res) => {
-          responseData.entityAssociations = res.data;
-          var query = `
-          select * from crm.document_header
-where document_id in (select document_id from crm.document_association where entity_id=$1)
-
-
-      `
-          var queryParams = [entityId]
-          console.log('permissions')
-          console.log(query)
-          console.log(queryParams)
-
-          DB.query(query, queryParams)
-            .then((res) => {
-              console.log(`${res.data.length} document headers listed for owner ${entityId}`)
-              responseData.documentAssociations = res.data;
-
-
-              var query = `
-              select * from crm.entity_roles where entity_id=$1
-              `
-              var queryParams = [entityId]
-              console.log('permissions')
-              console.log(query)
-              console.log(queryParams)
-
-              DB.query(query, queryParams).then((res) => {
-
-
-                responseData.roles=res.data
-
-
-                return reply({
-                  error: res.error,
-                  data: responseData
-                })
-              })
-            })
+      _getRoleDocuments(responseData.entityRoles)
+        .then((roleDocuments) => {
+          console.log(`get entity roleDocuments for ${request.params.entity_id}`)
+          console.log(responseData.roleDocuments)
+          responseData.roleDocuments = roleDocuments
+        }).catch((err) => {
+          console.log(err)
+          responseData.roleDocuments = []
+        }).then(() => {
+          return reply({
+            error: null,
+            data: responseData
+          })
         })
     })
+  })
 }
 
 function updateEntity(request, reply) {
