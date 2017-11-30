@@ -1,5 +1,6 @@
 const Helpers = require('./helpers')
 const DB = require('./connectors/db')
+const map = require('lodash/map');
 
 function getAllEntities(request, reply) {
   if (request.query.entity_type) {
@@ -222,6 +223,21 @@ function deleteEntityAssociation(request, reply) {
   return reply({}).code(501)
 }
 
+
+/**
+ * Get documents by the supplied search/filter/sort criteria
+ * @param {Object} request - the HAPI request instance
+ * @param {Object} request.payload - the data from the HTTP post body
+ * @param {Object} [request.payload.filter] - licence filter criteria
+ * @param {String} [request.payload.email] - filter licences by owner email address
+ * @param {String} [request.payload.entity_id] - filter licence by user entity ID
+ * @param {String} [request.payload.string] - search string, searches licences on name/licence number fields
+ * @param {String} [request.payload.document_id] - filters on a particular licence document_id
+ * @param {Object} [request.payload.sort] - sort criteria
+ * @param {Number} [request.payload.sort.document_id] - sort by document_id +1 : ascending, -1 : descending
+ * @param {Number} [request.payload.sort.name] - sort on document name +1 : ascending, -1 : descending
+ * @return {Promise} resolves with array of licence data
+ */
 function getDocumentHeaders(request, reply) {
   var query = `
   SELECT
@@ -259,7 +275,29 @@ function getDocumentHeaders(request, reply) {
       queryParams.push(request.payload.filter.document_id);
       query += ` and H.document_id=$${queryParams.length} `;
     }
+
+
+    // Sorting
+    // e.g. {document_id : 1}
+    if (request.payload.sort) {
+      const sortFields = {
+        document_id : 'H.document_id',
+        name : ` h.metadata->>'Name' `
+      };
+
+      const sort = map(request.payload.sort, (isAscending, sortField) => {
+        if(!(sortField in sortFields)) {
+          throw new Error(`Unsupported search field ${ sortField }`);
+        }
+        return `${ sortFields[sortField] } ${isAscending===-1 ? 'DESC' : 'ASC'}`;
+      });
+      query += ` ORDER BY ${ sort.join(',')}`;
+    }
   }
+
+
+
+
 
 
 
