@@ -41,6 +41,7 @@
     "hapi-auth-jwt2": "^7.3.0",
     "inert": "^4.2.1",
     "jsonwebtoken": "^7.4.3",
+    "lodash": "^4.17.4",
     "moment": "^2.18.1",
     "node-hapi-airbrake": "0.0.6",
     "notifications-node-client": "^3.2.0",
