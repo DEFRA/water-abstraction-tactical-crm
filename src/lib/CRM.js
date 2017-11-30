@@ -1,3 +1,7 @@
+/**
+ * Provides HAPI HTTP handlers for working with CRM data
+ * @module lib/CRM
+ */
 const Helpers = require('./helpers')
 const DB = require('./connectors/db')
 const map = require('lodash/map');
@@ -100,14 +104,14 @@ function _getRoleDocuments(rolesArray) {
         query += ' union all '
       }
       var thisRole = rolesArray[role]
-      query += `select '${thisRole.role}' as role, '${thisRole.entity_role_id}' as role_id, h.* from crm.document_header h where `
+      query += `select '${thisRole.role}' as role, '${thisRole.entity_role_id}' as role_id, h.* from crm.document_header h where 0=0 `
       if (thisRole.regime_entity_id && thisRole.regime_entity_id.length > 0) {
         queryParams.push(thisRole.regime_entity_id)
-        query += ' h.regime_entity_id=$' + queryParams.length
+        query += ' and h.regime_entity_id=$' + queryParams.length
       }
       if (thisRole.company_entity_id && thisRole.company_entity_id.length > 0) {
         queryParams.push(thisRole.company_entity_id)
-        query += ' h.company_entity_id=$' + queryParams.length
+        query += ' and h.company_entity_id=$' + queryParams.length
       }
 
 
