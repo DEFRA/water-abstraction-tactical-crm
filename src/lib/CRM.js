@@ -322,7 +322,7 @@ function getDocumentHeaders(request, reply) {
   if (request.payload && request.payload.filter) {
     if (request.payload.filter.email) {
       queryParams.push(request.payload.filter.email)
-      query += ` and lower(individual_name)=lower($${queryParams.length})`
+      query += ` and lower(individual_nm)=lower($${queryParams.length})`
     }
 
     if (request.payload.filter.entity_id) {
