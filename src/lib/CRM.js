@@ -572,7 +572,8 @@ function getDocumentNameForUser(request, reply) {
   var queryParams = [
     request.params.document_id
   ]
-
+  console.log(query)
+  console.log(queryParams)
   DB.query(query, queryParams)
     .then((res) => {
       return reply({
@@ -589,16 +590,22 @@ function setDocumentNameForUser(request, reply) {
   var query = `
       insert into crm.entity_document_metadata (entity_id,document_id,key,value)
       values(0,$1,'name',$2)
-      ON CONFLICT (document_id,key) DO UPDATE
+      ON CONFLICT (entity_id,document_id,key) DO UPDATE
       SET value = $2;
     `
+
+    console.log(request.payload.name)
   var queryParams = [
     request.params.document_id,
-    request.payload.name
+    request.payload['name']
   ]
+
+  console.log(query,queryParams)
+
 
   DB.query(query, queryParams)
     .then((res) => {
+      console.log(res)
       getDocumentNameForUser(request, reply)
     }).catch((err) => {
       console.log(err);
