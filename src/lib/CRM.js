@@ -345,7 +345,7 @@ function getDocumentHeaders(request, reply) {
     // e.g. {document_id : 1}
     if (request.payload.sort && Object.keys(request.payload.sort).length) {
       const sortFields = {
-        document_id : 'document_id',
+        document_id : 'system_external_id',
         name : ` document_custom_name `
       };
 
@@ -369,8 +369,6 @@ function getDocumentHeaders(request, reply) {
   console.log(queryParams)
   DB.query(query, queryParams)
     .then((res) => {
-      console.log(res.error)
-      console.log(res.data)
       return reply({
         error: res.error,
         data: res.data
