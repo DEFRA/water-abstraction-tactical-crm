@@ -315,14 +315,14 @@ function getDocumentHeaders(request, reply) {
 
   SELECT
   	distinct
-    document_id,system_internal_id, system_external_id,metadata->>'Name' as document_original_name,document_custom_name
+    individual_nm, document_id,system_internal_id, system_external_id,metadata->>'Name' as document_original_name,document_custom_name
     from crm.role_document_access where 0=0
   `
   var queryParams = []
   if (request.payload && request.payload.filter) {
     if (request.payload.filter.email) {
       queryParams.push(request.payload.filter.email)
-      query += ` and lower(individual_name)=lower($${queryParams.length})`
+      query += ` and lower(individual_nm)=lower($${queryParams.length})`
     }
 
     if (request.payload.filter.entity_id) {
