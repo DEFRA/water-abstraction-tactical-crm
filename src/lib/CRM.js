@@ -70,10 +70,9 @@ function _getEntityRecord(entity_identifier) {
 function _getEntityRoles(entity_identifier) {
   return new Promise((resolve, reject) => {
     console.log('_getEntityRoles')
-    var query = `select r.*, re.entity_nm as regime_nm, ce.entity_nm as company_nm from crm.entity_roles r
-      left outer join crm.entity re on r.regime_entity_id = re.entity_id
-      left outer join crm.entity ce on r.company_entity_id = ce.entity_id
-      where r.entity_id=$1`
+    var query = `select distinct
+    entity_role_id,role, individual_entity_id,company_entity_id,regime_entity_id from crm.role_document_access
+      where individual_entity_id=$1 or individual_nm=$1`
     var queryParams = [entity_identifier]
     console.log(`${query} with ${queryParams}`)
     DB.query(query, queryParams)
@@ -173,10 +172,12 @@ function getEntity(request, reply) {
           console.log(err)
           responseData.roleDocuments = []
         }).then(() => {
-          return reply({
+          var response={
             error: null,
             data: responseData
-          })
+          }
+          console.log(response)
+          return reply(response)
         })
     })
   })
@@ -307,44 +308,34 @@ function deleteEntityAssociation(request, reply) {
  * @return {Promise} resolves with array of licence data
  */
 function getDocumentHeaders(request, reply) {
+  console.log("get docuyment headers")
 
   console.log(request.payload);
 
   var query = `
   SELECT
-  	H.*,
-  	E.entity_nm,
-    E.entity_id,
-  	M.value as name
-  FROM
-  	crm.document_header H
-  	LEFT OUTER JOIN crm.document_association A ON H.document_id = A.document_id
-  	LEFT OUTER JOIN crm.entity E ON A.entity_id = E.entity_id
-  	LEFT OUTER JOIN crm.entity_document_metadata M ON (
-  	M.document_id = H.document_id
-  	)
-    where 0=0
+  	* from crm.role_document_access where 0=0
   `
   var queryParams = []
   if (request.payload && request.payload.filter) {
     if (request.payload.filter.email) {
       queryParams.push(request.payload.filter.email)
-      query += ` and lower(e.entity_nm)=lower($${queryParams.length})`
+      query += ` and lower(individual_name)=lower($${queryParams.length})`
     }
 
     if (request.payload.filter.entity_id) {
       queryParams.push(request.payload.filter.entity_id)
-      query += ` and e.entity_id=$${queryParams.length}`
+      query += ` and individual_entity_id=$${queryParams.length}`
     }
 
     if (request.payload.filter.string) {
       queryParams.push(`%${request.payload.filter.string}%`);
-      query += ` and ( h.metadata->>'Name' ilike $${queryParams.length} or M.value ilike $${queryParams.length} OR H.system_external_id ilike $${queryParams.length} )`
+      query += ` and ( metadata->>'Name' ilike $${queryParams.length} or document_custom_name ilike $${queryParams.length} OR H.system_external_id ilike $${queryParams.length} )`
     }
 
     if (request.payload.filter.document_id) {
       queryParams.push(request.payload.filter.document_id);
-      query += ` and H.document_id=$${queryParams.length} `;
+      query += ` and document_id=$${queryParams.length} `;
     }
 
 
@@ -352,7 +343,7 @@ function getDocumentHeaders(request, reply) {
     // e.g. {document_id : 1}
     if (request.payload.sort && Object.keys(request.payload.sort).length) {
       const sortFields = {
-        document_id : 'H.document_id',
+        document_id : 'document_id',
         name : ` h.metadata->>'Name' `
       };
 
@@ -376,6 +367,8 @@ function getDocumentHeaders(request, reply) {
   console.log(queryParams)
   DB.query(query, queryParams)
     .then((res) => {
+      console.log(res.error)
+      console.log(res.data)
       return reply({
         error: res.error,
         data: res.data
@@ -389,7 +382,7 @@ function createDocumentHeader(request, reply) {
     insert into crm.document_header(
       document_id,
       regime_entity_id,
-      company_entity_id,
+      owner_entity_id,
       system_id,
       system_internal_id,
       system_external_id,
@@ -400,7 +393,7 @@ function createDocumentHeader(request, reply) {
   var queryParams = [
     guid,
     request.payload.regime_entity_id,
-    request.payload.company_entity_id,
+    request.payload.owner_entity_id,
     request.payload.system_id,
     request.payload.system_internal_id,
     request.payload.system_external_id,
@@ -422,7 +415,7 @@ function createDocumentHeader(request, reply) {
       var queryParams = [
         Helpers.createGUID(),
         guid,
-        request.payload.company_entity_id
+        request.payload.owner_entity_id
       ]
       DB.query(query, queryParams)
         .then((res) => {
@@ -484,7 +477,7 @@ function updateDocumentHeader(request, reply) {
       update crm.document_header
       set
         regime_entity_id=$3,
-        company_entity_id=$4,
+        owner_entity_id=$4,
         system_id=$5,
         system_internal_id=$6,
         system_external_id=$7,
@@ -495,7 +488,7 @@ function updateDocumentHeader(request, reply) {
       request.params.system_id,
       request.params.system_internal_id,
       request.payload.regime_entity_id,
-      request.payload.company_entity_id,
+      request.payload.owner_entity_id,
       request.payload.system_id,
       request.payload.system_internal_id,
       request.payload.system_external_id,
@@ -506,7 +499,7 @@ function updateDocumentHeader(request, reply) {
       update crm.document_header
       set
         regime_entity_id=$2,
-        company_entity_id=$3,
+        owner_entity_id=$3,
         system_id=$4,
         system_internal_id=$5,
         system_external_id=$6,
@@ -516,7 +509,7 @@ function updateDocumentHeader(request, reply) {
     var queryParams = [
       request.params.document_id,
       request.payload.regime_entity_id,
-      request.payload.company_entity_id,
+      request.payload.owner_entity_id,
       request.payload.system_id,
       request.payload.system_internal_id,
       request.payload.system_external_id,
@@ -543,7 +536,7 @@ function setDocumentOwner(request, reply) {
   console.log(request.payload)
   var guid = Helpers.createGUID();
   var query = `
-    update crm.document_header set company_entity_id=$1 where document_id=$2
+    update crm.document_header set owner_entity_id=$1 where document_id=$2
   `
   var queryParams = [
 
