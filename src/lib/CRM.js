@@ -308,14 +308,15 @@ function deleteEntityAssociation(request, reply) {
  * @return {Promise} resolves with array of licence data
  */
 function getDocumentHeaders(request, reply) {
-  console.log("&&&&&&&&&&&&&&& *****get docuyment headers")
-
   console.log(request.payload);
   console.log(request.params);
 
   var query = `
+
   SELECT
-  	distinct  on (document_id) document_id,system_internal_id, system_external_id,metadata,document_custom_name from crm.role_document_access where 0=0
+  	distinct
+    document_id,system_internal_id, system_external_id,metadata->>'Name' as document_original_name,document_custom_name
+    from crm.role_document_access where 0=0
   `
   var queryParams = []
   if (request.payload && request.payload.filter) {
@@ -331,7 +332,7 @@ function getDocumentHeaders(request, reply) {
 
     if (request.payload.filter.string) {
       queryParams.push(`%${request.payload.filter.string}%`);
-      query += ` and ( metadata->>'Name' ilike $${queryParams.length} or document_custom_name ilike $${queryParams.length} OR system_external_id ilike $${queryParams.length} )`
+      query += ` and ( document_original_name ilike $${queryParams.length} or document_custom_name ilike $${queryParams.length} OR system_external_id ilike $${queryParams.length} )`
     }
 
     if (request.payload.filter.document_id) {
@@ -345,7 +346,7 @@ function getDocumentHeaders(request, reply) {
     if (request.payload.sort && Object.keys(request.payload.sort).length) {
       const sortFields = {
         document_id : 'document_id',
-        name : ` metadata->>'Name' `
+        name : ` document_custom_name `
       };
 
       const sort = map(request.payload.sort, (isAscending, sortField) => {
