@@ -344,7 +344,7 @@ function getDocumentHeaders(request, reply) {
     if (request.payload.sort && Object.keys(request.payload.sort).length) {
       const sortFields = {
         document_id : 'document_id',
-        name : ` h.metadata->>'Name' `
+        name : ` metadata->>'Name' `
       };
 
       const sort = map(request.payload.sort, (isAscending, sortField) => {
