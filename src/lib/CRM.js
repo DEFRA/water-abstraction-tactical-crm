@@ -308,9 +308,10 @@ function deleteEntityAssociation(request, reply) {
  * @return {Promise} resolves with array of licence data
  */
 function getDocumentHeaders(request, reply) {
-  console.log("get docuyment headers")
+  console.log("&&&&&&&&&&&&&&& *****get docuyment headers")
 
   console.log(request.payload);
+  console.log(request.params);
 
   var query = `
   SELECT
@@ -330,7 +331,7 @@ function getDocumentHeaders(request, reply) {
 
     if (request.payload.filter.string) {
       queryParams.push(`%${request.payload.filter.string}%`);
-      query += ` and ( metadata->>'Name' ilike $${queryParams.length} or document_custom_name ilike $${queryParams.length} OR H.system_external_id ilike $${queryParams.length} )`
+      query += ` and ( metadata->>'Name' ilike $${queryParams.length} or document_custom_name ilike $${queryParams.length} OR system_external_id ilike $${queryParams.length} )`
     }
 
     if (request.payload.filter.document_id) {
