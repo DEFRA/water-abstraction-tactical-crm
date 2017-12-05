@@ -172,7 +172,7 @@ function getEntity(request, reply) {
           console.log(err)
           responseData.roleDocuments = []
         }).then(() => {
-          var response={
+          var response = {
             error: null,
             data: responseData
           }
@@ -311,8 +311,22 @@ function getDocumentHeaders(request, reply) {
   console.log(request.payload);
   console.log(request.params);
 
-  var query = `
+  var response={
+    error: null,
+    data: null,
+    summary: null,
+  }
 
+var query = `
+select count(role),role from crm.role_document_access where individual_entity_id=$1 group by role
+`
+var queryParams = [request.payload.filter.entity_id]
+
+DB.query(query, queryParams)
+  .then((res) => {
+    response.summary=res.data
+
+  var query = `
   SELECT
   	distinct
     individual_nm, document_id,system_internal_id, system_external_id,metadata->>'Name' as document_original_name,document_custom_name
@@ -345,12 +359,12 @@ function getDocumentHeaders(request, reply) {
     // e.g. {document_id : 1}
     if (request.payload.sort && Object.keys(request.payload.sort).length) {
       const sortFields = {
-        document_id : 'system_external_id',
-        name : ` document_custom_name `
+        document_id: 'system_external_id',
+        name: ` document_custom_name `
       };
 
       const sort = map(request.payload.sort, (isAscending, sortField) => {
-        if(!(sortField in sortFields)) {
+        if (!(sortField in sortFields)) {
           throw new Error(`Unsupported search field ${ sortField }`);
         }
         return `${ sortFields[sortField] } ${isAscending===-1 ? 'DESC' : 'ASC'}`;
@@ -369,11 +383,15 @@ function getDocumentHeaders(request, reply) {
   console.log(queryParams)
   DB.query(query, queryParams)
     .then((res) => {
-      return reply({
-        error: res.error,
-        data: res.data
-      })
+      response.data=res.data
+      return reply(response)
     })
+  }).catch((err)=>{
+    console.log(err)
+    response.error=err;
+    return reply(response)
+
+  })
 }
 
 function createDocumentHeader(request, reply) {
@@ -594,13 +612,13 @@ function setDocumentNameForUser(request, reply) {
       SET value = $2;
     `
 
-    console.log(request.payload.name)
+  console.log(request.payload.name)
   var queryParams = [
     request.params.document_id,
     request.payload['name']
   ]
 
-  console.log(query,queryParams)
+  console.log(query, queryParams)
 
 
   DB.query(query, queryParams)
@@ -684,6 +702,66 @@ function getEntityRoles(request, reply) {
     })
 }
 
+function getColleagues(request, reply) {
+
+  var entity_id = request.params.entity_id
+  /**
+  identify user roles who the supplied user can admin
+    i.e. users with a different entity id who have role that have the same company
+  **/
+
+  query =`
+    select
+    distinct
+    grantee_role.entity_role_id,
+    grantee_role.individual_entity_id,
+    grantee_role.individual_nm,
+    grantee_role.role,
+    grantee_role.regime_entity_id,
+    grantee_role.company_entity_id,
+    grantee_role.created_at,
+    grantee_role.created_by
+    from crm.entity_roles granter_role
+    left outer join crm.role_document_access grantee_role on (
+    (
+    	granter_role.regime_entity_id = grantee_role.regime_entity_id and
+    	granter_role.company_entity_id is null
+    )
+    or
+    (
+    	granter_role.company_entity_id = grantee_role.company_entity_id
+    )
+    )
+    where
+    granter_role.entity_id=$1
+    and ( granter_role.role='admin' or granter_role.is_primary=1 )
+    and grantee_role.individual_entity_id !=$1
+    `
+
+  queryParams = [
+    entity_id
+  ]
+
+  console.log(query, queryParams)
+
+  DB.query(query, queryParams)
+    .then((res) => {
+      return reply(res.data)
+    }).catch((err) => {
+      return reply(err)
+    })
+
+
+}
+
+function deleteColleague(request,reply){
+  //TODO: remove colleage using entity & role id
+}
+
+function createColleague(request,reply){
+  //TODO: invite colleage using email -> (notify && create account / existing account)
+}
+
 module.exports = {
   getAllEntities: getAllEntities,
   createNewEntity: createNewEntity,
@@ -705,6 +783,9 @@ module.exports = {
   setDocumentNameForUser: setDocumentNameForUser,
   addEntityRole: addEntityRole,
   deleteEntityRole: deleteEntityRole,
-  getEntityRoles: getEntityRoles
+  getEntityRoles: getEntityRoles,
+  getColleagues: getColleagues,
+  deleteColleague:deleteColleague,
+  createColleague:createColleague
 
 }
