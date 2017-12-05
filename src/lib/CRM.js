@@ -320,8 +320,12 @@ function getDocumentHeaders(request, reply) {
 var query = `
 select count(role),role from crm.role_document_access where individual_entity_id=$1 group by role
 `
-var queryParams = [request.payload.filter.entity_id]
 
+if(request.payload && request.payload.filter){
+var queryParams = [request.payload.filter.entity_id]
+} else {
+var queryParams = [0]
+}
 DB.query(query, queryParams)
   .then((res) => {
     response.summary=res.data
