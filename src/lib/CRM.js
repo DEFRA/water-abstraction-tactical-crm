@@ -201,8 +201,22 @@ function updateEntity(request, reply) {
     })
 }
 
+/**
+ * Delete an entity with the specified GUID
+ * @param {Object} request - the HAPI HTTP request
+ * @param {String} request.params.entity_id - the entity GUID
+ * @param {Object} reply - HAPI HTTP response
+ */
 function deleteEntity(request, reply) {
-  return reply({}).code(501)
+  const query = `DELETE FROM crm.entity WHERE entity_id=$1`;
+  const queryParams = [request.params.entity_id];
+  DB.query(query, queryParams)
+    .then((res) => {
+      return reply({
+        error: res.error,
+        data: {}
+      })
+    })
 }
 
 function getEntityAssociations(request, reply) {
