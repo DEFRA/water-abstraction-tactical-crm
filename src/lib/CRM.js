@@ -333,7 +333,8 @@ DB.query(query, queryParams)
   var query = `
   SELECT
   	distinct
-    document_id,system_internal_id, system_external_id,metadata->>'Name' as document_original_name,document_custom_name
+    document_id,system_internal_id, system_external_id,metadata->>'Name' as document_original_name,document_custom_name,
+    company_entity_id,regime_entity_id, system_id
     from crm.role_document_access where 0=0
   `
   var queryParams = []
