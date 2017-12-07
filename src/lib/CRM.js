@@ -6,6 +6,44 @@ const Helpers = require('./helpers')
 const DB = require('./connectors/db')
 const map = require('lodash/map');
 
+
+
+/**
+ * Create new verification record
+ * @param {Object} request - HAPI HTTP request
+ * @param {String} request.payload.entity_id - the GUID of the current individual's entity
+ * @param {String} request.payload.company_entity_id - the GUID of the current individual's company
+ * @param {String} request.payload.verification_code - verification code in plaintext
+ * @param {String} request.payload.method - the verification method - post|phone
+ * @param {Object} reply - the HAPI HTTP reply
+ */
+function createNewVerification(request, reply) {
+  const guid = Helpers.createGUID();
+
+  // @TODO maybe generate verification code in here?
+
+  Helpers.createHash(request.payload.verification_code)
+    .then((hashedCode) => {
+      const query = `
+        insert into crm.verification(verification_id, entity_id, company_entity_id, verification_code, date_created, method
+        values ($1,$2,$3,$4, NOW(), 'post'
+      `;
+      const queryParams = [guid, request.payload.entity_id, request.payload.company_entity_id, hashedCode, request.payload.method];
+      console.log(query, queryParams);
+      return DB.query(query)
+    })
+    .then((res) => {
+      return reply({
+        error: res.error,
+        data: {
+          verification_id: guid
+        }
+      })
+    });
+}
+
+
+
 function getAllEntities(request, reply) {
   if (request.query.entity_type) {
     var query = `
@@ -812,6 +850,7 @@ module.exports = {
   getEntityRoles: getEntityRoles,
   getColleagues: getColleagues,
   deleteColleague:deleteColleague,
-  createColleague:createColleague
+  createColleague:createColleague,
+  createNewVerification
 
 }

@@ -1,5 +1,21 @@
 //contains generic functions unrelated to a specific component
 var rp = require('request-promise-native');
+var bcrypt = require('bcrypt');
+
+
+
+function createHash(string){
+  return new Promise((resolve, reject) => {
+  const saltRounds = 10;
+  bcrypt.hash(string, saltRounds, function(err, hash) {
+    if(err){
+      reject(err)
+    }
+    resolve(hash)
+  })
+});
+}
+
 
 //make a simple http request (without a body), uses promises
 function makeURIRequest(uri) {
@@ -68,6 +84,7 @@ function createGUID() {
 }
 
 module.exports = {
+  createHash,
   createGUID: createGUID,
   makeURIRequest: makeURIRequest,
   makeURIRequestWithBody: makeURIRequestWithBody
