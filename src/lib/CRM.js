@@ -564,7 +564,15 @@ function updateDocumentHeader(request, reply) {
 }
 
 function deleteDocumentHeader(request, reply) {
-  return reply({})
+  const query = `DELETE FROM crm.document_header WHERE document_id=$1`;
+  const queryParams = [request.params.document_id];
+  DB.query(query, queryParams)
+    .then((res) => {
+      return reply({
+        error: res.error,
+        data: {}
+      })
+    })
 }
 
 
