@@ -1,7 +1,14 @@
-DROP VIEW if exists "crm"."role_document_access";
+ALTER TABLE crm.entity_roles ADD COLUMN created_at TIMESTAMP;
+ALTER TABLE crm.entity_roles ALTER COLUMN created_at SET DEFAULT now();
+ALTER TABLE crm.entity_roles ADD COLUMN created_by varchar;
+
+DROP VIEW "crm"."role_document_access";
 
 CREATE VIEW "crm"."role_document_access" AS  SELECT e.entity_role_id,
     e.role,
+		e.created_at,
+		e.created_by,
+    ei.entity_id AS individual_entity_id,
     ei.entity_nm AS individual_nm,
     ei.entity_definition AS individual_definition,
     ec.entity_nm AS company_nm,
