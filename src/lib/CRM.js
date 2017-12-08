@@ -172,7 +172,7 @@ function getEntity(request, reply) {
           console.log(err)
           responseData.roleDocuments = []
         }).then(() => {
-          var response={
+          var response = {
             error: null,
             data: responseData
           }
@@ -311,18 +311,37 @@ function getDocumentHeaders(request, reply) {
   console.log(request.payload);
   console.log(request.params);
 
-  var query = `
+  var response={
+    error: null,
+    data: null,
+    summary: null,
+  }
 
+var query = `
+select count(role),role from crm.role_document_access where individual_entity_id=$1 group by role
+`
+
+if(request.payload && request.payload.filter){
+var queryParams = [request.payload.filter.entity_id]
+} else {
+var queryParams = [0]
+}
+DB.query(query, queryParams)
+  .then((res) => {
+    response.summary=res.data
+
+  var query = `
   SELECT
   	distinct
-    document_id,system_internal_id, system_external_id,metadata->>'Name' as document_original_name,document_custom_name
+    document_id,system_internal_id, system_external_id,metadata->>'Name' as document_original_name,document_custom_name,
+    company_entity_id,regime_entity_id, system_id
     from crm.role_document_access where 0=0
   `
   var queryParams = []
   if (request.payload && request.payload.filter) {
     if (request.payload.filter.email) {
       queryParams.push(request.payload.filter.email)
-      query += ` and lower(individual_name)=lower($${queryParams.length})`
+      query += ` and lower(individual_nm)=lower($${queryParams.length})`
     }
 
     if (request.payload.filter.entity_id) {
@@ -345,12 +364,12 @@ function getDocumentHeaders(request, reply) {
     // e.g. {document_id : 1}
     if (request.payload.sort && Object.keys(request.payload.sort).length) {
       const sortFields = {
-        document_id : 'system_external_id',
-        name : ` document_custom_name `
+        document_id: 'system_external_id',
+        name: ` document_custom_name `
       };
 
       const sort = map(request.payload.sort, (isAscending, sortField) => {
-        if(!(sortField in sortFields)) {
+        if (!(sortField in sortFields)) {
           throw new Error(`Unsupported search field ${ sortField }`);
         }
         return `${ sortFields[sortField] } ${isAscending===-1 ? 'DESC' : 'ASC'}`;
@@ -369,11 +388,15 @@ function getDocumentHeaders(request, reply) {
   console.log(queryParams)
   DB.query(query, queryParams)
     .then((res) => {
-      return reply({
-        error: res.error,
-        data: res.data
-      })
+      response.data=res.data
+      return reply(response)
     })
+  }).catch((err)=>{
+    console.log(err)
+    response.error=err;
+    return reply(response)
+
+  })
 }
 
 function createDocumentHeader(request, reply) {
@@ -382,7 +405,6 @@ function createDocumentHeader(request, reply) {
     insert into crm.document_header(
       document_id,
       regime_entity_id,
-      owner_entity_id,
       system_id,
       system_internal_id,
       system_external_id,
@@ -393,7 +415,6 @@ function createDocumentHeader(request, reply) {
   var queryParams = [
     guid,
     request.payload.regime_entity_id,
-    request.payload.owner_entity_id,
     request.payload.system_id,
     request.payload.system_internal_id,
     request.payload.system_external_id,
@@ -404,28 +425,13 @@ function createDocumentHeader(request, reply) {
 
 
 
-      var query = `
-        insert into crm.document_association(
-          document_association_id,
-          document_id,
-          entity_id
-        )
-          values ($1,$2,$3)
-      `
-      var queryParams = [
-        Helpers.createGUID(),
-        guid,
-        request.payload.owner_entity_id
-      ]
-      DB.query(query, queryParams)
-        .then((res) => {
+
           return reply({
             error: res.error,
             data: {
               document_id: guid
             }
           })
-        })
 
 
     })
@@ -477,7 +483,7 @@ function updateDocumentHeader(request, reply) {
       update crm.document_header
       set
         regime_entity_id=$3,
-        owner_entity_id=$4,
+        company_entity_id=$4,
         system_id=$5,
         system_internal_id=$6,
         system_external_id=$7,
@@ -488,7 +494,7 @@ function updateDocumentHeader(request, reply) {
       request.params.system_id,
       request.params.system_internal_id,
       request.payload.regime_entity_id,
-      request.payload.owner_entity_id,
+      request.payload.company_entity_id,
       request.payload.system_id,
       request.payload.system_internal_id,
       request.payload.system_external_id,
@@ -499,7 +505,7 @@ function updateDocumentHeader(request, reply) {
       update crm.document_header
       set
         regime_entity_id=$2,
-        owner_entity_id=$3,
+        company_entity_id=$3,
         system_id=$4,
         system_internal_id=$5,
         system_external_id=$6,
@@ -509,7 +515,7 @@ function updateDocumentHeader(request, reply) {
     var queryParams = [
       request.params.document_id,
       request.payload.regime_entity_id,
-      request.payload.owner_entity_id,
+      request.payload.company_entity_id,
       request.payload.system_id,
       request.payload.system_internal_id,
       request.payload.system_external_id,
@@ -536,7 +542,7 @@ function setDocumentOwner(request, reply) {
   console.log(request.payload)
   var guid = Helpers.createGUID();
   var query = `
-    update crm.document_header set owner_entity_id=$1 where document_id=$2
+    update crm.document_header set company_entity_id=$1 where document_id=$2
   `
   var queryParams = [
 
@@ -594,13 +600,13 @@ function setDocumentNameForUser(request, reply) {
       SET value = $2;
     `
 
-    console.log(request.payload.name)
+  console.log(request.payload.name)
   var queryParams = [
     request.params.document_id,
     request.payload['name']
   ]
 
-  console.log(query,queryParams)
+  console.log(query, queryParams)
 
 
   DB.query(query, queryParams)
@@ -684,6 +690,66 @@ function getEntityRoles(request, reply) {
     })
 }
 
+function getColleagues(request, reply) {
+
+  var entity_id = request.params.entity_id
+  /**
+  identify user roles who the supplied user can admin
+    i.e. users with a different entity id who have role that have the same company
+  **/
+
+  query =`
+    select
+    distinct
+    grantee_role.entity_role_id,
+    grantee_role.individual_entity_id,
+    grantee_role.individual_nm,
+    grantee_role.role,
+    grantee_role.regime_entity_id,
+    grantee_role.company_entity_id,
+    grantee_role.created_at,
+    grantee_role.created_by
+    from crm.entity_roles granter_role
+    left outer join crm.role_document_access grantee_role on (
+    (
+    	granter_role.regime_entity_id = grantee_role.regime_entity_id and
+    	granter_role.company_entity_id is null
+    )
+    or
+    (
+    	granter_role.company_entity_id = grantee_role.company_entity_id
+    )
+    )
+    where
+    granter_role.entity_id=$1
+    and ( granter_role.role='admin' or granter_role.is_primary=1 )
+    and grantee_role.individual_entity_id !=$1
+    `
+
+  queryParams = [
+    entity_id
+  ]
+
+  console.log(query, queryParams)
+
+  DB.query(query, queryParams)
+    .then((res) => {
+      return reply(res.data)
+    }).catch((err) => {
+      return reply(err)
+    })
+
+
+}
+
+function deleteColleague(request,reply){
+  //TODO: remove colleage using entity & role id
+}
+
+function createColleague(request,reply){
+  //TODO: invite colleage using email -> (notify && create account / existing account)
+}
+
 module.exports = {
   getAllEntities: getAllEntities,
   createNewEntity: createNewEntity,
@@ -705,6 +771,9 @@ module.exports = {
   setDocumentNameForUser: setDocumentNameForUser,
   addEntityRole: addEntityRole,
   deleteEntityRole: deleteEntityRole,
-  getEntityRoles: getEntityRoles
+  getEntityRoles: getEntityRoles,
+  getColleagues: getColleagues,
+  deleteColleague:deleteColleague,
+  createColleague:createColleague
 
 }
