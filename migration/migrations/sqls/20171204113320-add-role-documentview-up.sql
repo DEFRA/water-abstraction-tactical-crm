@@ -1,4 +1,4 @@
-DROP VIEW "crm"."role_document_access";
+DROP VIEW if exists "crm"."role_document_access";
 
 CREATE VIEW "crm"."role_document_access" AS  SELECT e.entity_role_id,
     e.role,
