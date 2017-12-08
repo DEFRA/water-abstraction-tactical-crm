@@ -405,7 +405,6 @@ function createDocumentHeader(request, reply) {
     insert into crm.document_header(
       document_id,
       regime_entity_id,
-      owner_entity_id,
       system_id,
       system_internal_id,
       system_external_id,
@@ -416,7 +415,6 @@ function createDocumentHeader(request, reply) {
   var queryParams = [
     guid,
     request.payload.regime_entity_id,
-    request.payload.owner_entity_id,
     request.payload.system_id,
     request.payload.system_internal_id,
     request.payload.system_external_id,
@@ -427,28 +425,13 @@ function createDocumentHeader(request, reply) {
 
 
 
-      var query = `
-        insert into crm.document_association(
-          document_association_id,
-          document_id,
-          entity_id
-        )
-          values ($1,$2,$3)
-      `
-      var queryParams = [
-        Helpers.createGUID(),
-        guid,
-        request.payload.owner_entity_id
-      ]
-      DB.query(query, queryParams)
-        .then((res) => {
+
           return reply({
             error: res.error,
             data: {
               document_id: guid
             }
           })
-        })
 
 
     })
@@ -500,7 +483,7 @@ function updateDocumentHeader(request, reply) {
       update crm.document_header
       set
         regime_entity_id=$3,
-        owner_entity_id=$4,
+        company_entity_id=$4,
         system_id=$5,
         system_internal_id=$6,
         system_external_id=$7,
@@ -511,7 +494,7 @@ function updateDocumentHeader(request, reply) {
       request.params.system_id,
       request.params.system_internal_id,
       request.payload.regime_entity_id,
-      request.payload.owner_entity_id,
+      request.payload.company_entity_id,
       request.payload.system_id,
       request.payload.system_internal_id,
       request.payload.system_external_id,
@@ -522,7 +505,7 @@ function updateDocumentHeader(request, reply) {
       update crm.document_header
       set
         regime_entity_id=$2,
-        owner_entity_id=$3,
+        company_entity_id=$3,
         system_id=$4,
         system_internal_id=$5,
         system_external_id=$6,
@@ -532,7 +515,7 @@ function updateDocumentHeader(request, reply) {
     var queryParams = [
       request.params.document_id,
       request.payload.regime_entity_id,
-      request.payload.owner_entity_id,
+      request.payload.company_entity_id,
       request.payload.system_id,
       request.payload.system_internal_id,
       request.payload.system_external_id,
@@ -559,7 +542,7 @@ function setDocumentOwner(request, reply) {
   console.log(request.payload)
   var guid = Helpers.createGUID();
   var query = `
-    update crm.document_header set owner_entity_id=$1 where document_id=$2
+    update crm.document_header set company_entity_id=$1 where document_id=$2
   `
   var queryParams = [
 
