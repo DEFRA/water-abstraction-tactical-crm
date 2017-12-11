@@ -149,7 +149,33 @@ lab.experiment('Check verification', () => {
     })
   });
 
-  lab.test('The page should verify', async () => {
+
+
+  // * @param {String} request.payload.entity_id - the GUID of the current individual's entity
+  // * @param {String} request.payload.company_entity_id - the GUID of the current individual's company
+  // * @param {String} request.payload.method - the verification method - post|phone
+  // * @param {Object} reply - the HAPI HTTP reply
+  lab.test('The API should create a verification code', async () => {
+    const request = {
+      method: 'POST',
+      url: `/crm/1.0/verification`,
+      headers: {
+        Authorization: process.env.JWT_TOKEN
+      },
+      payload: {
+        entity_id : individualEntityId,
+        company_entity_id : companyEntityId,
+        method : 'post'
+      }
+    }
+    const res = await server.inject(request);
+    Code.expect(res.statusCode).to.equal(200);
+
+    // Check payload
+    const payload = JSON.parse(res.payload);
+    Code.expect(payload.error).to.equal(null);
+    Code.expect(payload.data.verification_id).to.have.length(36);
+    Code.expect(payload.data.verification_code).to.have.length(5);
 
   })
 

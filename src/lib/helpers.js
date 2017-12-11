@@ -4,6 +4,25 @@ var bcrypt = require('bcrypt');
 
 
 
+
+/**
+ * Generates a pseudo-random alphanumeric string of the specified length
+ * (default 5)
+ * @see {@link http://fiznool.com/blog/2014/11/16/short-id-generation-in-javascript/}
+ * @param {Number} length - the length of the random code
+ * @return {String} - the random code
+ */
+function createShortCode(length = 5) {
+  const alphabet = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  let str = '';
+  for (let i = 0; i < length; i++) {
+    str += alphabet.charAt(Math.floor(Math.random() * alphabet.length));
+  }
+  return str;
+}
+
+
+
 function createHash(string){
   return new Promise((resolve, reject) => {
   const saltRounds = 10;
@@ -85,6 +104,7 @@ function createGUID() {
 
 module.exports = {
   createHash,
+  createShortCode,
   createGUID: createGUID,
   makeURIRequest: makeURIRequest,
   makeURIRequestWithBody: makeURIRequestWithBody
