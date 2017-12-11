@@ -7,7 +7,7 @@ API operations only - NO UI
 const version = '1.0'
 
 const CRM = require('../lib/CRM')
-
+const Joi = require('joi');
 
 module.exports = [
   { method: 'GET', path: '/status', handler: function(request,reply){return reply('ok').code(200)}, config:{auth: false,description:'Get all entities'}},
@@ -41,7 +41,16 @@ module.exports = [
   {  method: 'POST', path: '/crm/' + version + '/entity/{entity_id}/roles', handler: CRM.addEntityRole ,config:{description:'Add role to specified entity'}},
   {  method: 'GET', path: '/crm/' + version + '/entity/{entity_id}/roles', handler: CRM.getEntityRoles ,config:{description:'Get roles for specified entity'}},
   {  method: 'DELETE', path: '/crm/' + version + '/entity/{entity_id}/roles/{role_id}', handler: CRM.deleteEntityRole ,config:{description:'Delete role from specified entity'}},
-  {  method: 'POST', path: '/crm/' + version + '/verification', handler: CRM.createNewVerification ,config:{description:'Create new verification for user/company combination'}}
+  {  method: 'POST', path: '/crm/' + version + '/verification', handler: CRM.createNewVerification ,config:{
+    description:'Create new verification for user/company combination',
+    validate: {
+      payload : {
+        entity_id : Joi.string().required().guid(),
+        company_entity_id : Joi.string().required().guid(),
+        method : Joi.string().required().regex(/^post|phone$/)
+      }
+    }}}
+
 
 ,
 
