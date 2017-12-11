@@ -6,37 +6,43 @@ const Helpers = require('./helpers')
 const DB = require('./connectors/db')
 const map = require('lodash/map');
 
+/**
+ * @TODO update multiple entities
+ */
 
 
 /**
  * Create new verification record
+ * A random verification code string is generated as part of this call and returned
+ * in the JSON body along with the verification_id
+ * The verification_id can be used in other tables so that when the user enters
+ * the code, all documentHeader records related to this verification can be updated
+ *
  * @param {Object} request - HAPI HTTP request
  * @param {String} request.payload.entity_id - the GUID of the current individual's entity
  * @param {String} request.payload.company_entity_id - the GUID of the current individual's company
- * @param {String} request.payload.verification_code - verification code in plaintext
  * @param {String} request.payload.method - the verification method - post|phone
  * @param {Object} reply - the HAPI HTTP reply
  */
 function createNewVerification(request, reply) {
   const guid = Helpers.createGUID();
+  const verification_code = Helpers.createShortCode();
 
-  // @TODO maybe generate verification code in here?
-
-  Helpers.createHash(request.payload.verification_code)
+  Helpers.createHash(verification_code)
     .then((hashedCode) => {
       const query = `
-        insert into crm.verification(verification_id, entity_id, company_entity_id, verification_code, date_created, method
-        values ($1,$2,$3,$4, NOW(), 'post'
+        insert into crm.verification(verification_id, entity_id, company_entity_id, verification_code, date_created, method)
+        values ($1,$2,$3,$4, NOW(), $5)
       `;
       const queryParams = [guid, request.payload.entity_id, request.payload.company_entity_id, hashedCode, request.payload.method];
-      console.log(query, queryParams);
-      return DB.query(query)
+      return DB.query(query, queryParams);
     })
     .then((res) => {
       return reply({
         error: res.error,
         data: {
-          verification_id: guid
+          verification_id: guid,
+          verification_code
         }
       })
     });
@@ -246,7 +252,7 @@ function updateEntity(request, reply) {
  * @param {Object} reply - HAPI HTTP response
  */
 function deleteEntity(request, reply) {
-  const query = `DELETE FROM crm.entity WHERE entity_id=$1`;
+  const query = `DELETE FROM crm.entity WHERE entity_id=$1 LIMIT 1`;
   const queryParams = [request.params.entity_id];
   DB.query(query, queryParams)
     .then((res) => {
@@ -602,7 +608,7 @@ function updateDocumentHeader(request, reply) {
 }
 
 function deleteDocumentHeader(request, reply) {
-  const query = `DELETE FROM crm.document_header WHERE document_id=$1`;
+  const query = `DELETE FROM crm.document_header WHERE document_id=$1 LIMIT 1`;
   const queryParams = [request.params.document_id];
   DB.query(query, queryParams)
     .then((res) => {
@@ -735,7 +741,7 @@ function addEntityRole(request, reply) {
 
 function deleteEntityRole(request, reply) {
   var entity_role_id = request.params.role_id
-  query = `delete from crm.entity_roles where entity_role_id = $1`
+  query = `delete from crm.entity_roles where entity_role_id = $1 LIMIT 1`
 
   queryParams = [
     entity_role_id
