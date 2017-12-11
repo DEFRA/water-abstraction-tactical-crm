@@ -511,6 +511,11 @@ function createDocumentHeader(request, reply) {
     })
 }
 
+function deleteDocumentHeader(request, reply) {
+  console.log('Not implemented');
+  return reply({}).statusCode(501);
+}
+
 function getDocumentHeader(request, reply) {
   if (request.params.system_id) {
     var query = `
@@ -859,7 +864,7 @@ module.exports = {
   getDocumentHeader: getDocumentHeader,
   updateDocumentHeader: updateDocumentHeader,
   updateDocumentHeaderVerified : updateDocumentHeaderVerified,
-  // deleteDocumentHeader: deleteDocumentHeader,
+  deleteDocumentHeader: deleteDocumentHeader,
   setDocumentOwner: setDocumentOwner,
   getDocumentNameForUser: getDocumentNameForUser,
   setDocumentNameForUser: setDocumentNameForUser,
