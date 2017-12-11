@@ -607,16 +607,27 @@ function updateDocumentHeader(request, reply) {
     })
 }
 
-function deleteDocumentHeader(request, reply) {
-  const query = `DELETE FROM crm.document_header WHERE document_id=$1 LIMIT 1`;
-  const queryParams = [request.params.document_id];
+
+
+
+/**
+ * A method to set the verified flag on document headers based on the verification ID
+ * @param {Object} request - the HAPI HTTP request
+ * @param {Object} request.params - URL params
+ * @param {String} request.params.verification_id - the cureent verification taking place
+ * @param {Object} reply - the HAPI HTTP reply
+ */
+function updateDocumentHeaderVerified(request, reply) {
+  // Find verification
+  const query = `UPDATE crm.document_header SET verified=1 WHERE verification_id=$1`;
+  const queryParams = [request.params.verification_id];
   DB.query(query, queryParams)
     .then((res) => {
-      return reply({
-        error: res.error,
-        data: {}
-      })
+      return reply({error: null, data : []});
     })
+    .catch((err) => {
+      return reply(err)
+    });
 }
 
 
@@ -847,7 +858,8 @@ module.exports = {
   createDocumentHeader: createDocumentHeader,
   getDocumentHeader: getDocumentHeader,
   updateDocumentHeader: updateDocumentHeader,
-  deleteDocumentHeader: deleteDocumentHeader,
+  updateDocumentHeaderVerified : updateDocumentHeaderVerified,
+  // deleteDocumentHeader: deleteDocumentHeader,
   setDocumentOwner: setDocumentOwner,
   getDocumentNameForUser: getDocumentNameForUser,
   setDocumentNameForUser: setDocumentNameForUser,
