@@ -546,7 +546,7 @@ function createDocumentHeader(request, reply) {
       system_external_id,
       metadata
     )
-      values ($1,$2,$3,$4,$5,$6,$7)
+      values ($1,$2,$3,$4,$5,$6)
   `
   var queryParams = [
     guid,
