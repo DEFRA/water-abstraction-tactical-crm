@@ -547,6 +547,11 @@ function createDocumentHeader(request, reply) {
       metadata
     )
       values ($1,$2,$3,$4,$5,$6)
+      on conflict (system_id,system_internal_id,regime_entity_id) do update set
+      document_id=EXCLUDED.document_id,
+      system_external_id=EXCLUDED.system_external_id,
+      metadata=EXCLUDED.metadata
+
   `
   var queryParams = [
     guid,
@@ -556,6 +561,10 @@ function createDocumentHeader(request, reply) {
     request.payload.system_external_id,
     request.payload.metadata
   ]
+
+  console.log(query)
+  console.log(queryParams)
+
   DB.query(query, queryParams)
     .then((res) => {
 
@@ -570,6 +579,9 @@ function createDocumentHeader(request, reply) {
           })
 
 
+    }).catch((err) => {
+      console.log(err)
+      
     })
 }
 
