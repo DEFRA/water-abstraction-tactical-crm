@@ -7,7 +7,7 @@ API operations only - NO UI
 const version = '1.0'
 
 const CRM = require('../lib/CRM')
-
+const Joi = require('joi');
 
 module.exports = [
   { method: 'GET', path: '/status', handler: function(request,reply){return reply('ok').code(200)}, config:{auth: false,description:'Get all entities'}},
@@ -30,6 +30,21 @@ module.exports = [
   {  method: 'POST', path: '/crm/' + version + '/documentHeader', handler: CRM.createDocumentHeader ,config:{description:'Create new document header'}},
   {  method: 'GET', path: '/crm/' + version + '/documentHeader/{document_id}/entity/{entity_id}/name', handler: CRM.getDocumentNameForUser ,config:{description:'Get custom name for document'}},
   {  method: 'POST', path: '/crm/' + version + '/documentHeader/{document_id}/entity/{entity_id}/name', handler: CRM.setDocumentNameForUser ,config:{description:'Set custom name for document'}},
+  {  method: 'PATCH', path: '/crm/' + version + '/documentHeaders', handler: CRM.updateDocumentHeaders, config : {
+    description: 'Bulk update a set of document headers based on supplied query conditions',
+    validate: {
+      payload : {
+        query : {
+          verification_id : Joi.string().guid(),
+          document_id : Joi.array()
+        },
+        set : {
+          verification_id : Joi.string().guid(),
+          verified : Joi.number()
+        }
+      }
+    }
+  }},
   {  method: 'GET', path: '/crm/' + version + '/documentHeader/{document_id}', handler: CRM.getDocumentHeader ,config:{description:'Get specified document header by document id'}},
   {  method: 'GET', path: '/crm/' + version + '/documentHeader/{system_id}/{system_internal_id}', handler: CRM.getDocumentHeader ,config:{description:'Get specified document header by external system & external system document id'}},
   {  method: 'PUT', path: '/crm/' + version + '/documentHeader/{document_id}', handler: CRM.updateDocumentHeader ,config:{description:'Update specified document header by document id'}},
@@ -40,7 +55,35 @@ module.exports = [
   {  method: 'PUT', path: '/crm/' + version + '/documentHeader/{document_id}/owner', handler: CRM.setDocumentOwner ,config:{description:'Search for document headers by posted filter criteria'}},
   {  method: 'POST', path: '/crm/' + version + '/entity/{entity_id}/roles', handler: CRM.addEntityRole ,config:{description:'Add role to specified entity'}},
   {  method: 'GET', path: '/crm/' + version + '/entity/{entity_id}/roles', handler: CRM.getEntityRoles ,config:{description:'Get roles for specified entity'}},
-  {  method: 'DELETE', path: '/crm/' + version + '/entity/{entity_id}/roles/{role_id}', handler: CRM.deleteEntityRole ,config:{description:'Delete role from specified entity'}}
+  {  method: 'DELETE', path: '/crm/' + version + '/entity/{entity_id}/roles/{role_id}', handler: CRM.deleteEntityRole ,config:{description:'Delete role from specified entity'}},
+  {  method: 'POST', path: '/crm/' + version + '/verification', handler: CRM.createNewVerification ,config:{
+    description:'Create new verification for user/company combination',
+    validate: {
+      payload : {
+        entity_id : Joi.string().required().guid(),
+        company_entity_id : Joi.string().required().guid(),
+        method : Joi.string().required().regex(/^post|phone$/)
+      }
+    }}},
+    {  method: 'PATCH', path: '/crm/' + version + '/verification/{verification_id}', handler: CRM.updateVerification ,config:{
+      description:'Set the date_verified timestamp for the specified verification record',
+      validate: {
+        params : {
+          verification_id : Joi.string().required().guid()
+        },
+        payload : {
+          date_verified : Joi.string().required()
+        }
+      }}},
+      {  method: 'POST', path: '/crm/' + version + '/verification/check', handler: CRM.checkVerificationCode ,config:{
+        description:'Checks a verification code',
+        validate: {
+          payload : {
+            entity_id : Joi.string().required().guid(),
+            company_entity_id : Joi.string().required().guid(),
+            verification_code: Joi.string().required()
+          }
+        }}}
 
 ,
 
