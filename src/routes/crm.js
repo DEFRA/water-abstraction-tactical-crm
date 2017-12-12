@@ -30,11 +30,18 @@ module.exports = [
   {  method: 'POST', path: '/crm/' + version + '/documentHeader', handler: CRM.createDocumentHeader ,config:{description:'Create new document header'}},
   {  method: 'GET', path: '/crm/' + version + '/documentHeader/{document_id}/entity/{entity_id}/name', handler: CRM.getDocumentNameForUser ,config:{description:'Get custom name for document'}},
   {  method: 'POST', path: '/crm/' + version + '/documentHeader/{document_id}/entity/{entity_id}/name', handler: CRM.setDocumentNameForUser ,config:{description:'Set custom name for document'}},
-  {  method: 'PATCH', path: '/crm/' + version + '/documentHeader/{verification_id}/verify', handler: CRM.updateDocumentHeaderVerified, config : {
-    description: 'Set a group of document headers to verified with supplied verification_id',
+  {  method: 'PATCH', path: '/crm/' + version + '/documentHeaders', handler: CRM.updateDocumentHeaders, config : {
+    description: 'Bulk update a set of document headers based on supplied query conditions',
     validate: {
-      params : {
-        verification_id : Joi.string().required().guid()
+      payload : {
+        query : {
+          verification_id : Joi.string().guid(),
+          document_id : Joi.array()
+        },
+        set : {
+          verification_id : Joi.string().guid(),
+          verified : Joi.number()
+        }
       }
     }
   }},
@@ -57,8 +64,26 @@ module.exports = [
         company_entity_id : Joi.string().required().guid(),
         method : Joi.string().required().regex(/^post|phone$/)
       }
-    }}}
-
+    }}},
+    {  method: 'PATCH', path: '/crm/' + version + '/verification/{verification_id}', handler: CRM.updateVerification ,config:{
+      description:'Set the date_verified timestamp for the specified verification record',
+      validate: {
+        params : {
+          verification_id : Joi.string().required().guid()
+        },
+        payload : {
+          date_verified : Joi.string().required()
+        }
+      }}},
+      {  method: 'POST', path: '/crm/' + version + '/verification/check', handler: CRM.checkVerificationCode ,config:{
+        description:'Checks a verification code',
+        validate: {
+          payload : {
+            entity_id : Joi.string().required().guid(),
+            company_entity_id : Joi.string().required().guid(),
+            verification_code: Joi.string().required()
+          }
+        }}}
 
 ,
 
