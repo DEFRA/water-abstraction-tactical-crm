@@ -5,6 +5,116 @@
 const Helpers = require('./helpers')
 const DB = require('./connectors/db')
 const map = require('lodash/map');
+const moment = require('moment');
+
+/**
+ * @TODO update multiple entities
+ */
+
+
+/**
+ * Create new verification record
+ * A random verification code string is generated as part of this call and returned
+ * in the JSON body along with the verification_id
+ * The verification_id can be used in other tables so that when the user enters
+ * the code, all documentHeader records related to this verification can be updated
+ *
+ * @param {Object} request - HAPI HTTP request
+ * @param {String} request.payload.entity_id - the GUID of the current individual's entity
+ * @param {String} request.payload.company_entity_id - the GUID of the current individual's company
+ * @param {String} request.payload.method - the verification method - post|phone
+ * @param {Object} reply - the HAPI HTTP reply
+ */
+function createNewVerification(request, reply) {
+  const guid = Helpers.createGUID();
+  const verification_code = Helpers.createShortCode();
+
+  Helpers.createHash(verification_code)
+    .then((hashedCode) => {
+      const query = `
+        insert into crm.verification(verification_id, entity_id, company_entity_id, verification_code, date_created, method)
+        values ($1,$2,$3,$4, NOW(), $5)
+      `;
+      const queryParams = [guid, request.payload.entity_id, request.payload.company_entity_id, hashedCode, request.payload.method];
+      return DB.query(query, queryParams);
+    })
+    .then((res) => {
+      return reply({
+        error: res.error,
+        data: {
+          verification_id: guid,
+          verification_code
+        }
+      })
+    });
+}
+
+/**
+ * Update a verification record with date_verified timestamp
+ * Can only be done once - i.e. date_verified must be null
+ * @param {Object} request - HAPI HTTP request
+ * @param {String} request.params.verification_id - the GUID of the verification record
+ * @param {String} request.payload.date_verified - timestamp for when verification took place
+ * @param {Object} reply - the HAPI HTTP reply
+ */
+function updateVerification(request, reply) {
+  const query = `UPDATE crm.verification
+    SET date_verified=$1
+    WHERE verification_id=$2`;
+  const queryParams = [moment(request.payload.date_verified).format('YYYY-MM-DD HH:mm:ss'), request.params.verification_id];
+  DB.query(query, queryParams)
+    .then((res) => {
+      console.log(res);
+      return reply(res);
+    });
+}
+
+
+/**
+ * Checks a verification code
+ * @param {Object} request - HAPI HTTP request
+ * @param {Object} request.payload
+ * @param {String} request.payload.entity_id - the individual's entity_id
+ * @param {String} request.payload.company_entity_id - the company entity_id
+ * @param {Object} reply - the HAPI HTTP reply
+ */
+function checkVerificationCode(request,reply) {
+  const query = `SELECT *
+    FROM crm.verification
+    WHERE entity_id=$1
+      AND company_entity_id=$2
+    LIMIT 1`;
+  const queryParams = [request.payload.entity_id, request.payload.company_entity_id];
+  DB.query(query, queryParams)
+    .then((res) => {
+
+      // Stop now if DB error
+      if(res.error) {
+        return reply(res);
+      }
+      // Record found
+      else if(res.data && res.data.length==1) {
+        // Check supplied code
+        return Helpers.compareHash(request.payload.verification_code, res.data[0].verification_code);
+      }
+      else {
+        return reply({error : 'Verification record not found', data : []});
+      }
+
+    })
+    .then((code) => {
+      if(code === 200) {
+        return reply({error : null, data : []}).code(200);
+      }
+      else {
+        return reply({error : 'Verification failed', data : []}).code(code);
+      }
+    })
+    .catch((err) => {
+      console.error(err);
+      return reply({error : err, data : []});
+    });
+}
 
 function getAllEntities(request, reply) {
   if (request.query.entity_type) {
@@ -201,8 +311,22 @@ function updateEntity(request, reply) {
     })
 }
 
+/**
+ * Delete an entity with the specified GUID
+ * @param {Object} request - the HAPI HTTP request
+ * @param {String} request.params.entity_id - the entity GUID
+ * @param {Object} reply - HAPI HTTP response
+ */
 function deleteEntity(request, reply) {
-  return reply({}).code(501)
+  const query = `DELETE FROM crm.entity WHERE entity_id=$1`;
+  const queryParams = [request.params.entity_id];
+  DB.query(query, queryParams)
+    .then((res) => {
+      return reply({
+        error: res.error,
+        data: {}
+      })
+    })
 }
 
 function getEntityAssociations(request, reply) {
@@ -437,6 +561,11 @@ function createDocumentHeader(request, reply) {
     })
 }
 
+function deleteDocumentHeader(request, reply) {
+  console.log('Not implemented');
+  return reply({}).code(501);
+}
+
 function getDocumentHeader(request, reply) {
   if (request.params.system_id) {
     var query = `
@@ -533,9 +662,56 @@ function updateDocumentHeader(request, reply) {
     })
 }
 
-function deleteDocumentHeader(request, reply) {
-  return reply({})
-}
+
+
+/**
+ * A method to bulk-update a group of document header records for verification steps
+ * @param {Object} request - the HAPI HTTP request
+ * @param {Object} request.payload.query - a query specifying which docs to update
+ * @param {Array} [request.payload.query.document_id] - an array of document IDs to update
+ * @param {String} [request.payload.query.verification_id] - identifies a group of docs to update based on a verification record
+ * @param {String} [request.payload.set.verification_id] - sets the verification_id on the queried documents
+ * @param {Number} [request.payload.set.verified] - sets whether verified
+ * @param {Object} reply - the HAPI HTTP reply
+ */
+ function updateDocumentHeaders(request, reply) {
+   let query = 'UPDATE crm.document_header';
+   const queryParams = [];
+
+   // Update verification ID
+   if(request.payload.set.verification_id) {
+     queryParams.push(request.payload.set.verification_id);
+     query += ` SET verification_id= $${ queryParams.length } `;
+   }
+   else if(request.payload.set.verified) {
+     queryParams.push(request.payload.set.verified);
+     query += ` SET verified= $${ queryParams.length } `;
+   }
+
+   // Query on document ID
+   query += ' WHERE ';
+   if(request.payload.query.document_id) {
+     queryParams.push(request.payload.query.document_id.join(','));
+     query += ` document_id IN ($${ queryParams.length }) `;
+   }
+   // Update on verification ID
+   else if(request.payload.query.verification_id) {
+     queryParams.push(request.payload.query.verification_id);
+     query += ` verification_id=$${ queryParams.length } `;
+   }
+
+   DB.query(query, queryParams)
+     .then((res) => {
+       return reply(res);
+     })
+     .catch((err) => {
+       return reply(err)
+     });
+
+ }
+
+
+
 
 
 function setDocumentOwner(request, reply) {
@@ -765,6 +941,7 @@ module.exports = {
   createDocumentHeader: createDocumentHeader,
   getDocumentHeader: getDocumentHeader,
   updateDocumentHeader: updateDocumentHeader,
+  updateDocumentHeaders,
   deleteDocumentHeader: deleteDocumentHeader,
   setDocumentOwner: setDocumentOwner,
   getDocumentNameForUser: getDocumentNameForUser,
@@ -774,6 +951,9 @@ module.exports = {
   getEntityRoles: getEntityRoles,
   getColleagues: getColleagues,
   deleteColleague:deleteColleague,
-  createColleague:createColleague
+  createColleague:createColleague,
+  createNewVerification,
+  updateVerification,
+  checkVerificationCode
 
 }
