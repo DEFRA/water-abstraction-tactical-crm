@@ -482,7 +482,7 @@ DB.query(query, queryParams)
 
     if (request.payload.filter.entity_id) {
       queryParams.push(request.payload.filter.entity_id)
-      query += ` and document_id in (select document_id from crm.role_document_access where individual_entity_id=$${queryParams.length}) `
+      query += ` and document_id in (select document_id from crm.role_document_access where individual_entity_id=$${queryParams.length}) `;
     }
 
     if (request.payload.filter.string) {
