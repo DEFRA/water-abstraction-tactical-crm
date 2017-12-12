@@ -11,6 +11,7 @@
 
 const Lab = require('lab')
 const lab = exports.lab = Lab.script()
+const moment = require('moment');
 
 const Code = require('code')
 const server = require('../index')
@@ -19,7 +20,8 @@ let regimeEntityId = null;
 let individualEntityId = null;
 let companyEntityId = null;
 let documentHeaderId = null;
-
+let verificationId = null;
+let verificationCode = null;
 
 /**
  * Create a document header for testing purposes
@@ -177,10 +179,120 @@ lab.experiment('Check verification', () => {
     Code.expect(payload.data.verification_id).to.have.length(36);
     Code.expect(payload.data.verification_code).to.have.length(5);
 
+    verificationId = payload.data.verification_id;
+    verificationCode = payload.data.verification_code;
+
   })
 
+  lab.test('The API should update documents with verification_id', async () => {
 
+    // @TODO company ID set at this stage 
 
+    const request = {
+      method: 'PATCH',
+      url: `/crm/1.0/documentHeaders`,
+      headers: {
+        Authorization: process.env.JWT_TOKEN
+      },
+      payload: {
+        query : {
+          document_id : [documentHeaderId]
+        },
+        set : {
+          verification_id : verificationId
+        }
+      }
+    };
+    const res = await server.inject(request);
+    Code.expect(res.statusCode).to.equal(200);
+
+    const payload = JSON.parse(res.payload);
+    Code.expect(payload.error).to.equal(null);
+  })
+
+  lab.test('The API should update documents to verified by verification_id', async () => {
+    const request = {
+      method: 'PATCH',
+      url: `/crm/1.0/documentHeaders`,
+      headers: {
+        Authorization: process.env.JWT_TOKEN
+      },
+      payload: {
+        query : {
+          verification_id : verificationId
+        },
+        set : {
+          verified : 1
+        }
+      }
+    };
+    const res = await server.inject(request);
+    Code.expect(res.statusCode).to.equal(200);
+  })
+
+  lab.test('The API should update verification record to supplied timestamp', async () => {
+    const request = {
+      method: 'PATCH',
+      url: `/crm/1.0/verification/${ verificationId }`,
+      headers: {
+        Authorization: process.env.JWT_TOKEN
+      },
+      payload: {
+        date_verified : moment().format()
+      }
+    };
+    const res = await server.inject(request);
+    Code.expect(res.statusCode).to.equal(200);
+
+    // Check payload
+    const payload = JSON.parse(res.payload);
+    Code.expect(payload.error).to.equal(null);
+  })
+
+  lab.test('The API should return 200 for correct verification code', async () => {
+    const request = {
+      method: 'POST',
+      url: `/crm/1.0/verification/check`,
+      headers: {
+        Authorization: process.env.JWT_TOKEN
+      },
+      payload: {
+        entity_id : individualEntityId,
+        company_entity_id : companyEntityId,
+        verification_code : verificationCode
+      }
+    };
+
+    const res = await server.inject(request);
+    Code.expect(res.statusCode).to.equal(200);
+
+    // Check payload
+    const payload = JSON.parse(res.payload);
+    Code.expect(payload.error).to.equal(null);
+  })
+
+  lab.test('The API should return error for incorrect verification code', async () => {
+    const request = {
+      method: 'POST',
+      url: `/crm/1.0/verification/check`,
+      headers: {
+        Authorization: process.env.JWT_TOKEN
+      },
+      payload: {
+        entity_id : individualEntityId,
+        company_entity_id : companyEntityId,
+        verification_code : 'WRONG'
+      }
+    };
+
+    const res = await server.inject(request);
+    // Code.expect(res.statusCode).to.equal(200);
+
+    // Check payload
+    const payload = JSON.parse(res.payload);
+    console.log(payload);
+    // Code.expect(payload.error).to.equal(null);
+  })
 
 
 })
