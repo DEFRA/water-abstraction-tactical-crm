@@ -18,16 +18,14 @@ function promiseQuery (queryString, params) {
 function query (queryString, params, cb) {
   pool.query(queryString, params)
     .then((res) => {
-//      console.log(res)
       cb({data: res.rows, error: null})
-    }) // brianc
+    })
     .catch(err => {
+      console.log(err)
       cb({error: err.stack, data: null})
     })
 }
 
 module.exports = {
-
   query: promiseQuery
-
 }

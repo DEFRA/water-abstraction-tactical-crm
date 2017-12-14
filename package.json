@@ -7,7 +7,8 @@
     "heroku-prebuild": "npm install --only=dev",
     "heroku-postbuild": "gulp clean && gulp copy-govuk-files && gulp install-govuk-files && gulp copy-static-assets && gulp sass",
     "test": "lab -t 90 -m 0",
-    "test-cov-html": "lab -r html -o coverage.html"
+    "test-cov-html": "lab -r html -o coverage.html",
+    "docs": "jsdoc -c conf.jsdoc.json && cd ./out && serve -o -p 3012"
   },
   "author": "",
   "license": "ISC",
@@ -25,6 +26,7 @@
   "dependencies": {
     "async-waterfall": "^0.1.5",
     "bcrypt": "^1.0.3",
+    "blipp": "^2.3.0",
     "boom": "^5.2.0",
     "dotenv": "^4.0.0",
     "gulp": "^3.9.1",
@@ -40,7 +42,9 @@
     "hapi-auth-jwt2": "^7.3.0",
     "inert": "^4.2.1",
     "jsonwebtoken": "^7.4.3",
+    "lodash": "^4.17.4",
     "moment": "^2.18.1",
+    "node-hapi-airbrake": "0.0.6",
     "notifications-node-client": "^3.2.0",
     "path": "^0.12.7",
     "pg": "^7.1.0",
