@@ -4,8 +4,9 @@
  */
 const Helpers = require('./helpers')
 const DB = require('./connectors/db')
-const map = require('lodash/map');
 const moment = require('moment');
+const {SqlConditionBuilder, SqlSortBuilder} = require('./sql');
+
 
 /**
  * @TODO update multiple entities
@@ -429,15 +430,22 @@ function deleteEntityAssociation(request, reply) {
 }
 
 
+
+
+
+
+
 /**
  * Get documents by the supplied search/filter/sort criteria
  * @param {Object} request - the HAPI request instance
  * @param {Object} request.payload - the data from the HTTP post body
  * @param {Object} [request.payload.filter] - licence filter criteria
- * @param {String} [request.payload.email] - filter licences by owner email address
- * @param {String} [request.payload.entity_id] - filter licence by user entity ID
- * @param {String} [request.payload.string] - search string, searches licences on name/licence number fields
- * @param {String} [request.payload.document_id] - filters on a particular licence document_id
+ * @param {String} [request.payload.filter.email] - filter licences by owner email address
+ * @param {String} [request.payload.filter.entity_id] - filter licence by user entity ID
+ * @param {String} [request.payload.filter.string] - search string, searches licences on name/licence number fields
+ * @param {String} [request.payload.filter.document_id] - filters on a particular licence document_id
+ * @param {String|Array} [request.payload.filter.system_external_id] - filters on 1 or more licence numbers
+ * @param {Number} [request.payload.filter.verified] - filters on whether verified 0|1
  * @param {Object} [request.payload.sort] - sort criteria
  * @param {Number} [request.payload.sort.document_id] - sort by document_id +1 : ascending, -1 : descending
  * @param {Number} [request.payload.sort.name] - sort on document name +1 : ascending, -1 : descending
@@ -453,33 +461,48 @@ function getDocumentHeaders(request, reply) {
     summary: null,
   }
 
-var query = `
-select count(role),role from crm.role_document_access where individual_entity_id=$1 group by role
-`
-
-if(request.payload && request.payload.filter){
-var queryParams = [request.payload.filter.entity_id]
-} else {
-var queryParams = [0]
-}
-DB.query(query, queryParams)
-  .then((res) => {
-    response.summary=res.data
-
   var query = `
+  select count(role),role from crm.role_document_access where individual_entity_id=$1 group by role
+  `
+
+  if(request.payload && request.payload.filter){
+  var queryParams = [request.payload.filter.entity_id]
+  } else {
+  var queryParams = [0]
+  }
+  DB.query(query, queryParams)
+    .then((res) => {
+      response.summary=res.data
+
+      const builder = new SqlConditionBuilder();
+
+  let queryParams;
+  let query = `
   SELECT
   	distinct
     document_id,system_internal_id, system_external_id,metadata->>'Name' as document_original_name,document_custom_name,
     company_entity_id,regime_entity_id, system_id
     from crm.role_document_access where 0=0
   `
-  var queryParams = []
+  // var queryParams = []
   if (request.payload && request.payload.filter) {
-    if (request.payload.filter.email) {
-      queryParams.push(request.payload.filter.email)
-      query += ` and lower(individual_nm)=lower($${queryParams.length})`
+
+    // email filter
+    if(request.payload.filter.email) {
+      builder.andCaseInsensitive('individual_nm', request.payload.filter.email);
     }
 
+    // standard field filters
+    ['document_id', 'system_external_id', 'verified', 'verification_id'].forEach((field) => {
+      if(field in request.payload.filter) {
+        builder.and(field, request.payload.filter[field]);
+      }
+    });
+
+    queryParams = builder.getParams();
+    query += builder.getSql();
+
+    // special filters
     if (request.payload.filter.entity_id) {
       queryParams.push(request.payload.filter.entity_id)
       query += ` and document_id in (select document_id from crm.role_document_access where individual_entity_id=$${queryParams.length}) `;
@@ -490,38 +513,15 @@ DB.query(query, queryParams)
       query += ` and ( metadata->>'Name' ilike $${queryParams.length} or document_custom_name ilike $${queryParams.length} OR system_external_id ilike $${queryParams.length} )`
     }
 
-    if (request.payload.filter.document_id) {
-      queryParams.push(request.payload.filter.document_id);
-      query += ` and document_id=$${queryParams.length} `;
-    }
-
 
     // Sorting
     // e.g. {document_id : 1}
     if (request.payload.sort && Object.keys(request.payload.sort).length) {
-      const sortFields = {
-        document_id: 'system_external_id',
-        name: ` document_custom_name `
-      };
-
-      const sort = map(request.payload.sort, (isAscending, sortField) => {
-        if (!(sortField in sortFields)) {
-          throw new Error(`Unsupported search field ${ sortField }`);
-        }
-        return `${ sortFields[sortField] } ${isAscending===-1 ? 'DESC' : 'ASC'}`;
-      });
-      query += ` ORDER BY ${ sort.join(',')}`;
+        const sort = new SqlSortBuilder();
+        query += sort.add(request.payload.sort).getSql()
     }
   }
 
-
-
-
-
-
-
-  console.log(query)
-  console.log(queryParams)
   DB.query(query, queryParams)
     .then((res) => {
       response.data=res.data
@@ -581,7 +581,7 @@ function createDocumentHeader(request, reply) {
 
     }).catch((err) => {
       console.log(err)
-      
+
     })
 }
 
