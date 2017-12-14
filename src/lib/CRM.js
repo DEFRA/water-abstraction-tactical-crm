@@ -452,8 +452,7 @@ function deleteEntityAssociation(request, reply) {
  * @return {Promise} resolves with array of licence data
  */
 function getDocumentHeaders(request, reply) {
-  console.log(request.payload);
-  console.log(request.params);
+
 
   var response={
     error: null,
@@ -480,7 +479,10 @@ function getDocumentHeaders(request, reply) {
   let query = `
   SELECT
   	distinct
-    document_id,system_internal_id, system_external_id,metadata->>'Name' as document_original_name,document_custom_name,
+    document_id,system_internal_id, system_external_id,
+    metadata->>'Name' as document_original_name,
+    metadata->>'Postcode' as document_postcode,
+    document_custom_name,
     company_entity_id,regime_entity_id, system_id
     from crm.role_document_access where 0=0
   `
@@ -521,6 +523,8 @@ function getDocumentHeaders(request, reply) {
         query += sort.add(request.payload.sort).getSql()
     }
   }
+
+  console.log(query, queryParams);
 
   DB.query(query, queryParams)
     .then((res) => {
