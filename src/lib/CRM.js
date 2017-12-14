@@ -481,7 +481,14 @@ function getDocumentHeaders(request, reply) {
   	distinct
     document_id,system_internal_id, system_external_id,
     metadata->>'Name' as document_original_name,
+    metadata->>'AddressLine1' as document_address_line_1,
+    metadata->>'AddressLine2' as document_address_line_2,
+    metadata->>'AddressLine3' as document_address_line_3,
+    metadata->>'AddressLine4' as document_address_line_4,
+    metadata->>'Town' as document_town,
+    metadata->>'County' as document_county,
     metadata->>'Postcode' as document_postcode,
+    metadata->>'Country' as document_country,
     document_custom_name,
     company_entity_id,regime_entity_id, system_id
     from crm.role_document_access where 0=0
