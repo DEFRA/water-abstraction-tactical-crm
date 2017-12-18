@@ -11,6 +11,10 @@ DROP CONSTRAINT IF EXISTS "unique_role";
 ALTER TABLE "crm"."entity_roles"
   ADD CONSTRAINT "unique_role" UNIQUE ("entity_id", "regime_entity_id", "company_entity_id");
 
+-- create water-abstraction regime
+insert into crm.entity (	entity_id,entity_nm,entity_type) values (uuid_in(md5(random()::text || now()::text)::cstring),'water-abstraction','regime') on conflict (entity_nm,entity_type) DO NOTHING;
+
+
 -- create companioes for initial licences
 insert into crm.entity (	entity_id,entity_nm,entity_type) values (uuid_in(md5(random()::text || now()::text)::cstring),'***REMOVED***','company') on conflict (entity_nm,entity_type) DO NOTHING;
 insert into crm.entity (	entity_id,entity_nm,entity_type) values (uuid_in(md5(random()::text || now()::text)::cstring),'***REMOVED***','company') on conflict (entity_nm,entity_type) DO NOTHING;
