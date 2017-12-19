@@ -85,6 +85,25 @@ class SqlConditionBuilder {
   getParams() {
     return this.params;
   }
+
+  /**
+   * Add param
+   * @param {mixed} param - the value to add
+   * @return {SqlConditionBuilder} this
+   */
+  addParam(value) {
+    this.params.push(value);
+    return this;
+  }
+
+  /**
+   * Get param count
+   * @return {number}
+   */
+  getParamCount() {
+    return this.params.length;
+  }
+
 }
 
 
