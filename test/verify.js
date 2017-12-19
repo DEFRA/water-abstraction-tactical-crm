@@ -186,7 +186,7 @@ lab.experiment('Check verification', () => {
 
   lab.test('The API should update documents with verification_id', async () => {
 
-    // @TODO company ID set at this stage 
+    // @TODO company ID set at this stage
 
     const request = {
       method: 'PATCH',
@@ -222,7 +222,8 @@ lab.experiment('Check verification', () => {
           verification_id : verificationId
         },
         set : {
-          verified : 1
+          verified : 1,
+          company_entity_id : companyEntityId
         }
       }
     };

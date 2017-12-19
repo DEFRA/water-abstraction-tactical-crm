@@ -40,7 +40,8 @@ module.exports = [
         },
         set : {
           verification_id : Joi.string().guid(),
-          verified : Joi.number()
+          verified : Joi.number(),
+          company_entity_id : Joi.string().guid()
         }
       }
     }
