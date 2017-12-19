@@ -76,6 +76,7 @@ function updateVerification(request, reply) {
  * @param {String} companyEntityId - the company entity ID
  * @return {Promise} - resolves with verification record if found and matched
  */
+ /*
 async function _checkVerificationCode(entityId, companyEntityId, verificationCode) {
 
   const query = `SELECT *
@@ -99,6 +100,7 @@ async function _checkVerificationCode(entityId, companyEntityId, verificationCod
 
   return match ? res.data[0] : null;
 }
+*/
 
 /**
  * Checks a verification code
@@ -108,6 +110,7 @@ async function _checkVerificationCode(entityId, companyEntityId, verificationCod
  * @param {String} request.payload.company_entity_id - the company entity_id
  * @param {Object} reply - the HAPI HTTP reply
  */
+ /*
 function checkVerificationCode(request,reply) {
 
   const {entity_id, company_entity_id, verification_code} = request.payload;
@@ -132,6 +135,7 @@ function checkVerificationCode(request,reply) {
     });
 
 }
+*/
 
 function getAllEntities(request, reply) {
   if (request.query.entity_type) {
@@ -1011,7 +1015,7 @@ module.exports = {
   deleteColleague:deleteColleague,
   createColleague:createColleague,
   createNewVerification,
-  updateVerification,
-  checkVerificationCode
+  updateVerification
+  // checkVerificationCode
 
 }
