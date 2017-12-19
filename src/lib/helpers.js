@@ -35,28 +35,9 @@ function createHash(string){
 });
 }
 
-function compareHash(string1,string2){
-  return new Promise((resolve, reject) => {
-    try{
-
-    bcrypt.compare(string1,string2, (err, res)=> {
-      if(res){
-        //console.log('compareHash: resolve')
-        resolve(200)
-      } else {
-        //console.log('compareHash: reject as not correct hash')
-        reject(400)
-      }
-    })
-  }catch(e){
-    //console.log('compareHash: reject for error')
-    resolve(500)
-  }
-
-  });
 
 
-}
+const compareHash = require('bluebird').promisify(bcrypt.compare);
 
 
 //make a simple http request (without a body), uses promises

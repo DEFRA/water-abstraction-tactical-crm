@@ -72,6 +72,34 @@ function updateVerification(request, reply) {
 
 
 /**
+ * @param {String} entityId - the individual entity ID
+ * @param {String} companyEntityId - the company entity ID
+ * @return {Promise} - resolves with verification record if found and matched
+ */
+async function _checkVerificationCode(entityId, companyEntityId, verificationCode) {
+
+  const query = `SELECT *
+    FROM crm.verification
+    WHERE entity_id=$1
+      AND company_entity_id=$2
+    LIMIT 1`;
+  const queryParams = [entityId, companyEntityId];
+
+  const res = await DB.query(query, queryParams);
+
+  if(res.error) {
+    throw res.error;
+  }
+  // No verification record found
+  if(res.data.length != 1) {
+    throw {name : 'VerificationCodeNotFound'};
+  }
+  const match = await Helpers.compareHash(verificationCode, res.data[0].verification_code);
+
+  return match ? res.data[0] : null;
+}
+
+/**
  * Checks a verification code
  * @param {Object} request - HAPI HTTP request
  * @param {Object} request.payload
@@ -80,41 +108,28 @@ function updateVerification(request, reply) {
  * @param {Object} reply - the HAPI HTTP reply
  */
 function checkVerificationCode(request,reply) {
-  const query = `SELECT *
-    FROM crm.verification
-    WHERE entity_id=$1
-      AND company_entity_id=$2
-    LIMIT 1`;
-  const queryParams = [request.payload.entity_id, request.payload.company_entity_id];
-  DB.query(query, queryParams)
-    .then((res) => {
 
-      // Stop now if DB error
-      if(res.error) {
-        return reply(res);
-      }
-      // Record found
-      else if(res.data && res.data.length==1) {
-        // Check supplied code
-        return Helpers.compareHash(request.payload.verification_code, res.data[0].verification_code);
-      }
-      else {
-        return reply({error : 'Verification record not found', data : []});
-      }
+  const {entity_id, company_entity_id, verification_code} = request.payload;
 
-    })
-    .then((code) => {
-      if(code === 200) {
-        return reply({error : null, data : []}).code(200);
+  _checkVerificationCode(entity_id, company_entity_id, verification_code)
+    .then((data) => {
+      console.log('data', data);
+      if(!data) {
+        throw {name : 'InvalidCodeError'};
       }
-      else {
-        return reply({error : 'Verification failed', data : []}).code(code);
-      }
+      return reply({error : null, data});
     })
-    .catch((err) => {
-      console.error(err);
-      return reply({error : err, data : []});
+    .catch((error) => {
+      let code = 500;
+      if(error.name === 'VerificationCodeNotFound') {
+        code = 404;
+      }
+      else if(error.name === 'InvalidCodeError') {
+        code = 401;
+      }
+      return reply({error, data : []}).code(code);
     });
+
 }
 
 function getAllEntities(request, reply) {
@@ -453,7 +468,6 @@ function deleteEntityAssociation(request, reply) {
  */
 function getDocumentHeaders(request, reply) {
 
-
   var response={
     error: null,
     data: null,
@@ -710,30 +724,38 @@ function updateDocumentHeader(request, reply) {
  * @param {Object} reply - the HAPI HTTP reply
  */
  function updateDocumentHeaders(request, reply) {
-   let query = 'UPDATE crm.document_header';
-   const queryParams = [];
+   let query = 'UPDATE crm.document_header SET ';
+   const builder = new SqlConditionBuilder();
 
    // Update verification ID
-   if(request.payload.set.verification_id) {
-     queryParams.push(request.payload.set.verification_id);
-     query += ` SET verification_id= $${ queryParams.length } `;
+   const set = [];
+   if('verification_id' in request.payload.set) {
+     builder.addParam(request.payload.set.verification_id);
+     set.push(` verification_id= $${ builder.params.length } `);
    }
-   else if(request.payload.set.verified) {
-     queryParams.push(request.payload.set.verified);
-     query += ` SET verified= $${ queryParams.length } `;
+   if('verified' in request.payload.set) {
+     builder.addParam(request.payload.set.verified);
+     set.push(` verified= $${ builder.params.length } `);
+   }
+   if('company_entity_id' in request.payload.set) {
+     builder.addParam(request.payload.set.company_entity_id);
+     set.push(` company_entity_id= $${ builder.params.length } `);
    }
 
    // Query on document ID
-   query += ' WHERE ';
+   query += set.join(',') + ' WHERE 0=0 ';
+
    if(request.payload.query.document_id) {
-     queryParams.push(request.payload.query.document_id.join(','));
-     query += ` document_id IN ($${ queryParams.length }) `;
+     builder.and('document_id', request.payload.query.document_id);
    }
-   // Update on verification ID
-   else if(request.payload.query.verification_id) {
-     queryParams.push(request.payload.query.verification_id);
-     query += ` verification_id=$${ queryParams.length } `;
+   if(request.payload.query.verification_id) {
+     builder.and('verification_id', request.payload.query.verification_id);
    }
+
+   query += builder.getSql();
+   queryParams = builder.getParams();
+
+   console.log(query, queryParams);
 
    DB.query(query, queryParams)
      .then((res) => {
