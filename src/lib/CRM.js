@@ -94,7 +94,8 @@ async function _checkVerificationCode(entityId, companyEntityId, verificationCod
   if(res.data.length != 1) {
     throw {name : 'VerificationCodeNotFound'};
   }
-  const match = await Helpers.compareHash(verificationCode, res.data[0].verification_code);
+  //const match = await Helpers.compareHash(verificationCode, res.data[0].verification_code);
+  const match = verificationCode === res.data[0].verification_code;
 
   return match ? res.data[0] : null;
 }
