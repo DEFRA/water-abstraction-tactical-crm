@@ -21,8 +21,7 @@ function query (queryString, params, cb) {
       cb({data: res.rows, error: null})
     })
     .catch(err => {
-      console.log(err)
-      cb({error: err.stack, data: null})
+      cb({error: { stack : err.stack, code : err.code}, data: null})
     })
 }
 

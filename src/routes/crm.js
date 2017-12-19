@@ -8,6 +8,19 @@ const version = '1.0'
 
 const CRM = require('../lib/CRM')
 const Joi = require('joi');
+const Helpers = require('../lib/helpers');
+
+const HAPIRestAPI = require('../lib/rest-api');
+const VerificationApi = new HAPIRestAPI({
+  table : 'crm.verification',
+  primaryKey : 'verification_id',
+  endpoint : '/crm/' + version + '/verification',
+  onCreateTimestamp : 'date_created',
+  preInsert : (data) => {
+    return Object.assign({
+      verification_code : Helpers.createShortCode()}, data);
+  }
+});
 
 module.exports = [
   { method: 'GET', path: '/status', handler: function(request,reply){return reply('ok').code(200)}, config:{auth: false,description:'Get all entities'}},
@@ -57,25 +70,32 @@ module.exports = [
   {  method: 'POST', path: '/crm/' + version + '/entity/{entity_id}/roles', handler: CRM.addEntityRole ,config:{description:'Add role to specified entity'}},
   {  method: 'GET', path: '/crm/' + version + '/entity/{entity_id}/roles', handler: CRM.getEntityRoles ,config:{description:'Get roles for specified entity'}},
   {  method: 'DELETE', path: '/crm/' + version + '/entity/{entity_id}/roles/{role_id}', handler: CRM.deleteEntityRole ,config:{description:'Delete role from specified entity'}},
-  {  method: 'POST', path: '/crm/' + version + '/verification', handler: CRM.createNewVerification ,config:{
-    description:'Create new verification for user/company combination',
-    validate: {
-      payload : {
-        entity_id : Joi.string().required().guid(),
-        company_entity_id : Joi.string().required().guid(),
-        method : Joi.string().required().regex(/^post|phone$/)
-      }
-    }}},
-    {  method: 'PATCH', path: '/crm/' + version + '/verification/{verification_id}', handler: CRM.updateVerification ,config:{
-      description:'Set the date_verified timestamp for the specified verification record',
-      validate: {
-        params : {
-          verification_id : Joi.string().required().guid()
-        },
-        payload : {
-          date_verified : Joi.string().required()
-        }
-      }}},
+
+
+  ...VerificationApi.getRoutes(),
+
+  // {  method: 'POST', path: '/crm/' + version + '/verification', handler: CRM.createNewVerification ,config:{
+  //   description:'Create new verification for user/company combination',
+  //   validate: {
+  //     payload : {
+  //       entity_id : Joi.string().required().guid(),
+  //       company_entity_id : Joi.string().required().guid(),
+  //       method : Joi.string().required().regex(/^post|phone$/)
+  //     }
+  //   }}},
+  //   {  method: 'PATCH', path: '/crm/' + version + '/verification/{verification_id}', handler: CRM.updateVerification ,config:{
+  //     description:'Set the date_verified timestamp for the specified verification record',
+  //     validate: {
+  //       params : {
+  //         verification_id : Joi.string().required().guid()
+  //       },
+  //       payload : {
+  //         date_verified : Joi.string().required()
+  //       }
+  //     }}},
+
+
+
       {  method: 'POST', path: '/crm/' + version + '/verification/check', handler: CRM.checkVerificationCode ,config:{
         description:'Checks a verification code',
         validate: {
