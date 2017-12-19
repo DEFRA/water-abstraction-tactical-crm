@@ -115,6 +115,7 @@ const deleteDocumentHeader = async(documentId) => {
 lab.experiment('Check verification', () => {
 
   lab.before((cb) => {
+
     createEntity('regime')
       .then((res) => {
         regimeEntityId = res.entity_id;
@@ -158,6 +159,9 @@ lab.experiment('Check verification', () => {
   // * @param {String} request.payload.method - the verification method - post|phone
   // * @param {Object} reply - the HAPI HTTP reply
   lab.test('The API should create a verification code', async () => {
+
+    console.log('The API should create a verification code');
+
     const request = {
       method: 'POST',
       url: `/crm/1.0/verification`,
@@ -170,11 +174,19 @@ lab.experiment('Check verification', () => {
         method : 'post'
       }
     }
+
+    console.log('here1');
+
     const res = await server.inject(request);
-    Code.expect(res.statusCode).to.equal(200);
+    console.log('here2');
+    console.log(res);
+    Code.expect(res.statusCode).to.equal(201);
+
+
 
     // Check payload
     const payload = JSON.parse(res.payload);
+
     Code.expect(payload.error).to.equal(null);
     Code.expect(payload.data.verification_id).to.have.length(36);
     Code.expect(payload.data.verification_code).to.have.length(5);
@@ -182,11 +194,14 @@ lab.experiment('Check verification', () => {
     verificationId = payload.data.verification_id;
     verificationCode = payload.data.verification_code;
 
+    console.log('verificationId', verificationId, 'verificationCode', verificationCode);
+
   })
 
   lab.test('The API should update documents with verification_id', async () => {
 
     // @TODO company ID set at this stage
+    console.log('The API should update documents with verification_id');
 
     const request = {
       method: 'PATCH',
@@ -203,6 +218,9 @@ lab.experiment('Check verification', () => {
         }
       }
     };
+
+    console.log(JSON.stringify(request.payload, null, 2));
+
     const res = await server.inject(request);
     Code.expect(res.statusCode).to.equal(200);
 
@@ -211,6 +229,9 @@ lab.experiment('Check verification', () => {
   })
 
   lab.test('The API should update documents to verified by verification_id', async () => {
+
+    console.log('The API should update documents to verified by verification_id');
+
     const request = {
       method: 'PATCH',
       url: `/crm/1.0/documentHeaders`,
@@ -227,11 +248,18 @@ lab.experiment('Check verification', () => {
         }
       }
     };
+
+
+
+
     const res = await server.inject(request);
     Code.expect(res.statusCode).to.equal(200);
   })
 
   lab.test('The API should update verification record to supplied timestamp', async () => {
+
+    console.log('The API should update verification record to supplied timestamp');
+
     const request = {
       method: 'PATCH',
       url: `/crm/1.0/verification/${ verificationId }`,
@@ -239,7 +267,7 @@ lab.experiment('Check verification', () => {
         Authorization: process.env.JWT_TOKEN
       },
       payload: {
-        date_verified : moment().format()
+        date_verified : moment().format('YYYY-MM-DD HH:mm:ss')
       }
     };
     const res = await server.inject(request);
@@ -251,6 +279,9 @@ lab.experiment('Check verification', () => {
   })
 
   lab.test('The API should return 200 for correct verification code', async () => {
+
+    console.log('The API should return 200 for correct verification code');
+
     const request = {
       method: 'POST',
       url: `/crm/1.0/verification/check`,
@@ -273,6 +304,9 @@ lab.experiment('Check verification', () => {
   })
 
   lab.test('The API should return error for incorrect verification code', async () => {
+
+    console.log('The API should return error for incorrect verification code');
+
     const request = {
       method: 'POST',
       url: `/crm/1.0/verification/check`,

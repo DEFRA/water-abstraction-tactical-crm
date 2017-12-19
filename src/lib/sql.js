@@ -136,7 +136,7 @@ class SqlSortBuilder {
    * @return {String}
    */
   getSql() {
-    return ` ORDER BY ${this.sortFields.join(', ')} `;
+    return this.sortFields.length ? ` ORDER BY ${this.sortFields.join(', ')} ` : '';
   }
 }
 
