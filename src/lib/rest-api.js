@@ -23,8 +23,12 @@ const Helpers = require('./helpers');
  */
 function HAPIRestAPI(config) {
 
-  this.config = Object.assign({
+  // Require validation
+  if(!config.validation) {
+    throw `Validation missing from API config`;
+  }
 
+  this.config = Object.assign({
     // Modify data pre-insert
     preInsert : (data) => data
   }, config);
@@ -36,6 +40,7 @@ function HAPIRestAPI(config) {
    */
   this.errorHandler = (res, reply) => {
     const {stack, code} = res.error;
+    console.error(res.error);
     return reply({ error : {code, stack}, data : null }).code(400);
   }
 
@@ -153,15 +158,13 @@ function HAPIRestAPI(config) {
     queryParams.push(request.params.id);
     const query = `UPDATE ${ table } SET ${ set.join(',') } WHERE ${ primaryKey }=$${ queryParams.length }`;
 
-    console.log(query,queryParams);
-
     Db.query(query, queryParams)
       .then((res) => {
         if(res.error) {
           return this.errorHandler(res, reply);
         }
         else {
-          reply({error : null, data}).code(201);
+          reply({error : null, data : []});
         }
       })
       .catch((error) => {
@@ -209,19 +212,31 @@ function HAPIRestAPI(config) {
    * @return {Array} - HAPI route config
    */
   this.getRoutes = () => {
-    const {endpoint, table} = this.config;
+    const {endpoint, table, validation, primaryKey} = this.config;
+
     return [
       { method: 'GET', path : endpoint, handler : this.findMany, config : {
         description : 'Get many ' + table + ' records'
       }},
       { method: 'GET', path : endpoint + '/{id}', handler : this.findOne, config : {
-        description : 'Get single ' + table + ' record'
+        description : 'Get single ' + table + ' record',
+        validate : {
+          params : {
+            id : validation[primaryKey]
+          }
+        }
       }},
       { method: 'POST', path : endpoint, handler : this.create, config : {
-        description : 'Create new ' + table + ' record'
+        description : 'Create new ' + table + ' record',
+        validate : {
+          payload : validation
+        }
       }},
       { method: 'PATCH', path : endpoint + '/{id}', handler : this.update, config : {
-        description : 'Patch single ' + table + ' record'
+        description : 'Patch single ' + table + ' record',
+        validate : {
+          payload : validation
+        }
       }},
       { method : 'PUT', path : endpoint + '/{id}', handler : this.replace, config : {
         description : 'Replace single ' + table + ' record'

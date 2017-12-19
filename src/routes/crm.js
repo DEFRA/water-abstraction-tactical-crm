@@ -16,6 +16,15 @@ const VerificationApi = new HAPIRestAPI({
   primaryKey : 'verification_id',
   endpoint : '/crm/' + version + '/verification',
   onCreateTimestamp : 'date_created',
+  validation : {
+    verification_id : Joi.string().guid(),
+    entity_id : Joi.string().guid(),
+    company_entity_id : Joi.string().guid(),
+    verification_code : Joi.string(),
+    date_verified : Joi.string(),
+    date_created : Joi.string(),
+    method : Joi.string()
+  },
   preInsert : (data) => {
     return Object.assign({
       verification_code : Helpers.createShortCode()}, data);
@@ -96,17 +105,17 @@ module.exports = [
 
 
 
-      {  method: 'POST', path: '/crm/' + version + '/verification/check', handler: CRM.checkVerificationCode ,config:{
-        description:'Checks a verification code',
-        validate: {
-          payload : {
-            entity_id : Joi.string().required().guid(),
-            company_entity_id : Joi.string().required().guid(),
-            verification_code: Joi.string().required()
-          }
-        }}}
+      // {  method: 'POST', path: '/crm/' + version + '/verification/check', handler: CRM.checkVerificationCode ,config:{
+      //   description:'Checks a verification code',
+      //   validate: {
+      //     payload : {
+      //       entity_id : Joi.string().required().guid(),
+      //       company_entity_id : Joi.string().required().guid(),
+      //       verification_code: Joi.string().required()
+      //     }
+      //   }}}
 
-,
+
 
 
 
