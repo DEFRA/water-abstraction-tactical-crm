@@ -581,7 +581,7 @@ function createDocumentHeader(request, reply) {
 
     }).catch((err) => {
       console.log(err)
-      
+
     })
 }
 
@@ -899,31 +899,37 @@ function getColleagues(request, reply) {
   **/
 
   query =`
-    select
-    distinct
-    grantee_role.entity_role_id,
-    grantee_role.individual_entity_id,
-    grantee_role.individual_nm,
-    grantee_role.role,
-    grantee_role.regime_entity_id,
-    grantee_role.company_entity_id,
-    grantee_role.created_at,
-    grantee_role.created_by
-    from crm.entity_roles granter_role
-    left outer join crm.role_document_access grantee_role on (
-    (
-    	granter_role.regime_entity_id = grantee_role.regime_entity_id and
-    	granter_role.company_entity_id is null
-    )
-    or
-    (
-    	granter_role.company_entity_id = grantee_role.company_entity_id
-    )
-    )
-    where
-    granter_role.entity_id=$1
-    and ( granter_role.role='admin' or granter_role.is_primary=1 )
-    and grantee_role.individual_entity_id !=$1
+  select
+  distinct
+  grantee_role.entity_role_id,
+  grantee_role.entity_id as individual_entity_id,
+  entity.entity_nm,
+  grantee_role.role,
+  grantee_role.regime_entity_id,
+  grantee_role.company_entity_id,
+  grantee_role.created_at,
+  grantee_role.created_by
+  from crm.entity_roles grantee_role
+  join crm.entity_roles granter_role on (
+
+  (
+   granter_role.entity_id=$1 and
+   granter_role.regime_entity_id = grantee_role.regime_entity_id and
+   granter_role.company_entity_id is null
+  )
+  or
+  (
+   granter_role.entity_id=$1 and
+   granter_role.company_entity_id = grantee_role.company_entity_id
+  )
+  )
+  join crm.entity entity on (
+   grantee_role.entity_id = entity.entity_id
+  )
+
+where
+( granter_role.role='admin' or granter_role.is_primary=1 )
+  and grantee_role.entity_id !=$1
     `
 
   queryParams = [
@@ -938,16 +944,64 @@ function getColleagues(request, reply) {
     }).catch((err) => {
       return reply(err)
     })
-
-
 }
 
 function deleteColleague(request,reply){
-  //TODO: remove colleage using entity & role id
+
+    var entity_role_id = request.params.role_id
+    query =`
+    delete from crm.entity_roles where entity_role_id=$1
+      `
+    queryParams = [
+      entity_role_id
+    ]
+
+    console.log(query, queryParams)
+
+    DB.query(query, queryParams)
+      .then((res) => {
+        console.log('woo! delete!')
+        return reply(res.data)
+      }).catch((err) => {
+        console.log('BOO! delete!',err)
+        return reply(err)
+      })
 }
 
 function createColleague(request,reply){
-  //TODO: invite colleage using email -> (notify && create account / existing account)
+  //TODO: make this query less fugly
+  var entity_id = request.params.entity_id
+  var email = request.payload.email
+  query =`
+  insert into crm.entity_roles
+    select
+    uuid_in(md5(random()::text || now()::text)::cstring),
+    e.entity_id,
+    'user',
+    r.regime_entity_id,
+    r.company_entity_id,
+    0,
+    CURRENT_TIMESTAMP,
+    '${request.params.entity_id}'
+     from crm.entity_roles r
+     join crm.entity e on (e.entity_nm = '${email}')
+
+     where r.entity_id='${request.params.entity_id}' on conflict (entity_id,regime_entity_id,company_entity_id)
+     DO UPDATE set role='user'
+    `
+
+  console.log(query)
+
+  DB.query(query)
+    .then((res) => {
+      return reply(res.data)
+    }).catch((err) => {
+      return reply(err)
+    })
+
+
+
+
 }
 
 module.exports = {
