@@ -925,6 +925,7 @@ function getEntityRoles(request, reply) {
 
 function getColleagues(request, reply) {
 
+console.log(request.query)
   var entity_id = request.params.entity_id
   /**
   identify user roles who the supplied user can admin
@@ -963,13 +964,19 @@ function getColleagues(request, reply) {
 where
 ( granter_role.role='admin' or granter_role.is_primary=1 )
   and grantee_role.entity_id !=$1
+
     `
 
   queryParams = [
     entity_id
   ]
+  if(request.query.direction == 1 ){
+    query+=' order by '+request.query.sort+' asc'
+  } else {
+    query+=' order by '+request.query.sort+' desc'
 
-  console.log(query, queryParams)
+  }
+
 
   DB.query(query, queryParams)
     .then((res) => {
@@ -989,7 +996,6 @@ function deleteColleague(request,reply){
       entity_role_id
     ]
 
-    console.log(query, queryParams)
 
     DB.query(query, queryParams)
       .then((res) => {
