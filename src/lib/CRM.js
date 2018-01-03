@@ -471,7 +471,7 @@ function deleteEntityAssociation(request, reply) {
  * @param {Number} [request.payload.sort.name] - sort on document name +1 : ascending, -1 : descending
  * @return {Promise} resolves with array of licence data
  */
-function getDocumentHeaders(request, reply) {
+function getRoleDocuments(request, reply) {
 
   var response={
     error: null,
@@ -999,7 +999,7 @@ module.exports = {
   getEntityAssociation: getEntityAssociation,
   updateEntityAssociation: updateEntityAssociation,
   deleteEntityAssociation: deleteEntityAssociation,
-  getDocumentHeaders: getDocumentHeaders,
+  getRoleDocuments,
   createDocumentHeader: createDocumentHeader,
   getDocumentHeader: getDocumentHeader,
   updateDocumentHeader: updateDocumentHeader,
