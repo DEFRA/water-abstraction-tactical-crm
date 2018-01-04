@@ -578,7 +578,6 @@ function createDocumentHeader(request, reply) {
     )
       values ($1,$2,$3,$4,$5,$6)
       on conflict (system_id,system_internal_id,regime_entity_id) do update set
-      document_id=EXCLUDED.document_id,
       system_external_id=EXCLUDED.system_external_id,
       metadata=EXCLUDED.metadata
 
