@@ -4,8 +4,9 @@
  */
 const Helpers = require('./helpers')
 const DB = require('./connectors/db')
-const map = require('lodash/map');
 const moment = require('moment');
+const {SqlConditionBuilder, SqlSortBuilder} = require('./sql');
+
 
 /**
  * @TODO update multiple entities
@@ -71,6 +72,37 @@ function updateVerification(request, reply) {
 
 
 /**
+ * @param {String} entityId - the individual entity ID
+ * @param {String} companyEntityId - the company entity ID
+ * @return {Promise} - resolves with verification record if found and matched
+ */
+ /*
+async function _checkVerificationCode(entityId, companyEntityId, verificationCode) {
+
+  const query = `SELECT *
+    FROM crm.verification
+    WHERE entity_id=$1
+      AND company_entity_id=$2
+    LIMIT 1`;
+  const queryParams = [entityId, companyEntityId];
+
+  const res = await DB.query(query, queryParams);
+
+  if(res.error) {
+    throw res.error;
+  }
+  // No verification record found
+  if(res.data.length != 1) {
+    throw {name : 'VerificationCodeNotFound'};
+  }
+  //const match = await Helpers.compareHash(verificationCode, res.data[0].verification_code);
+  const match = verificationCode === res.data[0].verification_code;
+
+  return match ? res.data[0] : null;
+}
+*/
+
+/**
  * Checks a verification code
  * @param {Object} request - HAPI HTTP request
  * @param {Object} request.payload
@@ -78,43 +110,32 @@ function updateVerification(request, reply) {
  * @param {String} request.payload.company_entity_id - the company entity_id
  * @param {Object} reply - the HAPI HTTP reply
  */
+ /*
 function checkVerificationCode(request,reply) {
-  const query = `SELECT *
-    FROM crm.verification
-    WHERE entity_id=$1
-      AND company_entity_id=$2
-    LIMIT 1`;
-  const queryParams = [request.payload.entity_id, request.payload.company_entity_id];
-  DB.query(query, queryParams)
-    .then((res) => {
 
-      // Stop now if DB error
-      if(res.error) {
-        return reply(res);
-      }
-      // Record found
-      else if(res.data && res.data.length==1) {
-        // Check supplied code
-        return Helpers.compareHash(request.payload.verification_code, res.data[0].verification_code);
-      }
-      else {
-        return reply({error : 'Verification record not found', data : []});
-      }
+  const {entity_id, company_entity_id, verification_code} = request.payload;
 
-    })
-    .then((code) => {
-      if(code === 200) {
-        return reply({error : null, data : []}).code(200);
+  _checkVerificationCode(entity_id, company_entity_id, verification_code)
+    .then((data) => {
+      console.log('data', data);
+      if(!data) {
+        throw {name : 'InvalidCodeError'};
       }
-      else {
-        return reply({error : 'Verification failed', data : []}).code(code);
-      }
+      return reply({error : null, data});
     })
-    .catch((err) => {
-      console.error(err);
-      return reply({error : err, data : []});
+    .catch((error) => {
+      let code = 500;
+      if(error.name === 'VerificationCodeNotFound') {
+        code = 404;
+      }
+      else if(error.name === 'InvalidCodeError') {
+        code = 401;
+      }
+      return reply({error, data : []}).code(code);
     });
+
 }
+*/
 
 function getAllEntities(request, reply) {
   if (request.query.entity_type) {
@@ -429,23 +450,28 @@ function deleteEntityAssociation(request, reply) {
 }
 
 
+
+
+
+
+
 /**
  * Get documents by the supplied search/filter/sort criteria
  * @param {Object} request - the HAPI request instance
  * @param {Object} request.payload - the data from the HTTP post body
  * @param {Object} [request.payload.filter] - licence filter criteria
- * @param {String} [request.payload.email] - filter licences by owner email address
- * @param {String} [request.payload.entity_id] - filter licence by user entity ID
- * @param {String} [request.payload.string] - search string, searches licences on name/licence number fields
- * @param {String} [request.payload.document_id] - filters on a particular licence document_id
+ * @param {String} [request.payload.filter.email] - filter licences by owner email address
+ * @param {String} [request.payload.filter.entity_id] - filter licence by user entity ID
+ * @param {String} [request.payload.filter.string] - search string, searches licences on name/licence number fields
+ * @param {String} [request.payload.filter.document_id] - filters on a particular licence document_id
+ * @param {String|Array} [request.payload.filter.system_external_id] - filters on 1 or more licence numbers
+ * @param {Number} [request.payload.filter.verified] - filters on whether verified 0|1
  * @param {Object} [request.payload.sort] - sort criteria
  * @param {Number} [request.payload.sort.document_id] - sort by document_id +1 : ascending, -1 : descending
  * @param {Number} [request.payload.sort.name] - sort on document name +1 : ascending, -1 : descending
  * @return {Promise} resolves with array of licence data
  */
-function getDocumentHeaders(request, reply) {
-  console.log(request.payload);
-  console.log(request.params);
+function getRoleDocuments(request, reply) {
 
   var response={
     error: null,
@@ -453,33 +479,58 @@ function getDocumentHeaders(request, reply) {
     summary: null,
   }
 
-var query = `
-select count(role),role from crm.role_document_access where individual_entity_id=$1 group by role
-`
-
-if(request.payload && request.payload.filter){
-var queryParams = [request.payload.filter.entity_id]
-} else {
-var queryParams = [0]
-}
-DB.query(query, queryParams)
-  .then((res) => {
-    response.summary=res.data
-
   var query = `
+  select count(role),role from crm.role_document_access where individual_entity_id=$1 group by role
+  `
+
+  if(request.payload && request.payload.filter){
+  var queryParams = [request.payload.filter.entity_id]
+  } else {
+  var queryParams = [0]
+  }
+  DB.query(query, queryParams)
+    .then((res) => {
+      response.summary=res.data
+
+      const builder = new SqlConditionBuilder();
+
+  let queryParams;
+  let query = `
   SELECT
   	distinct
-    document_id,system_internal_id, system_external_id,metadata->>'Name' as document_original_name,document_custom_name,
+    document_id,system_internal_id, system_external_id,
+    metadata->>'Name' as document_original_name,
+    metadata->>'AddressLine1' as document_address_line_1,
+    metadata->>'AddressLine2' as document_address_line_2,
+    metadata->>'AddressLine3' as document_address_line_3,
+    metadata->>'AddressLine4' as document_address_line_4,
+    metadata->>'Town' as document_town,
+    metadata->>'County' as document_county,
+    metadata->>'Postcode' as document_postcode,
+    metadata->>'Country' as document_country,
+    document_custom_name,
     company_entity_id,regime_entity_id, system_id
     from crm.role_document_access where 0=0
   `
-  var queryParams = []
+  // var queryParams = []
   if (request.payload && request.payload.filter) {
-    if (request.payload.filter.email) {
-      queryParams.push(request.payload.filter.email)
-      query += ` and lower(individual_nm)=lower($${queryParams.length})`
+
+    // email filter
+    if(request.payload.filter.email) {
+      builder.andCaseInsensitive('individual_nm', request.payload.filter.email);
     }
 
+    // standard field filters
+    ['document_id', 'system_external_id', 'verified', 'verification_id'].forEach((field) => {
+      if(field in request.payload.filter) {
+        builder.and(field, request.payload.filter[field]);
+      }
+    });
+
+    queryParams = builder.getParams();
+    query += builder.getSql();
+
+    // special filters
     if (request.payload.filter.entity_id) {
       queryParams.push(request.payload.filter.entity_id)
       query += ` and document_id in (select document_id from crm.role_document_access where individual_entity_id=$${queryParams.length}) `;
@@ -490,38 +541,17 @@ DB.query(query, queryParams)
       query += ` and ( metadata->>'Name' ilike $${queryParams.length} or document_custom_name ilike $${queryParams.length} OR system_external_id ilike $${queryParams.length} )`
     }
 
-    if (request.payload.filter.document_id) {
-      queryParams.push(request.payload.filter.document_id);
-      query += ` and document_id=$${queryParams.length} `;
-    }
-
 
     // Sorting
     // e.g. {document_id : 1}
     if (request.payload.sort && Object.keys(request.payload.sort).length) {
-      const sortFields = {
-        document_id: 'system_external_id',
-        name: ` document_custom_name `
-      };
-
-      const sort = map(request.payload.sort, (isAscending, sortField) => {
-        if (!(sortField in sortFields)) {
-          throw new Error(`Unsupported search field ${ sortField }`);
-        }
-        return `${ sortFields[sortField] } ${isAscending===-1 ? 'DESC' : 'ASC'}`;
-      });
-      query += ` ORDER BY ${ sort.join(',')}`;
+        const sort = new SqlSortBuilder();
+        query += sort.add(request.payload.sort).getSql()
     }
   }
 
+  console.log(query, queryParams);
 
-
-
-
-
-
-  console.log(query)
-  console.log(queryParams)
   DB.query(query, queryParams)
     .then((res) => {
       response.data=res.data
@@ -548,7 +578,6 @@ function createDocumentHeader(request, reply) {
     )
       values ($1,$2,$3,$4,$5,$6)
       on conflict (system_id,system_internal_id,regime_entity_id) do update set
-      document_id=EXCLUDED.document_id,
       system_external_id=EXCLUDED.system_external_id,
       metadata=EXCLUDED.metadata
 
@@ -581,7 +610,7 @@ function createDocumentHeader(request, reply) {
 
     }).catch((err) => {
       console.log(err)
-      
+
     })
 }
 
@@ -699,30 +728,38 @@ function updateDocumentHeader(request, reply) {
  * @param {Object} reply - the HAPI HTTP reply
  */
  function updateDocumentHeaders(request, reply) {
-   let query = 'UPDATE crm.document_header';
-   const queryParams = [];
+   let query = 'UPDATE crm.document_header SET ';
+   const builder = new SqlConditionBuilder();
 
    // Update verification ID
-   if(request.payload.set.verification_id) {
-     queryParams.push(request.payload.set.verification_id);
-     query += ` SET verification_id= $${ queryParams.length } `;
+   const set = [];
+   if('verification_id' in request.payload.set) {
+     builder.addParam(request.payload.set.verification_id);
+     set.push(` verification_id= $${ builder.params.length } `);
    }
-   else if(request.payload.set.verified) {
-     queryParams.push(request.payload.set.verified);
-     query += ` SET verified= $${ queryParams.length } `;
+   if('verified' in request.payload.set) {
+     builder.addParam(request.payload.set.verified);
+     set.push(` verified= $${ builder.params.length } `);
+   }
+   if('company_entity_id' in request.payload.set) {
+     builder.addParam(request.payload.set.company_entity_id);
+     set.push(` company_entity_id= $${ builder.params.length } `);
    }
 
    // Query on document ID
-   query += ' WHERE ';
+   query += set.join(',') + ' WHERE 0=0 ';
+
    if(request.payload.query.document_id) {
-     queryParams.push(request.payload.query.document_id.join(','));
-     query += ` document_id IN ($${ queryParams.length }) `;
+     builder.and('document_id', request.payload.query.document_id);
    }
-   // Update on verification ID
-   else if(request.payload.query.verification_id) {
-     queryParams.push(request.payload.query.verification_id);
-     query += ` verification_id=$${ queryParams.length } `;
+   if(request.payload.query.verification_id) {
+     builder.and('verification_id', request.payload.query.verification_id);
    }
+
+   query += builder.getSql();
+   queryParams = builder.getParams();
+
+   console.log(query, queryParams);
 
    DB.query(query, queryParams)
      .then((res) => {
@@ -892,6 +929,7 @@ function getEntityRoles(request, reply) {
 
 function getColleagues(request, reply) {
 
+console.log(request.query)
   var entity_id = request.params.entity_id
   /**
   identify user roles who the supplied user can admin
@@ -899,38 +937,50 @@ function getColleagues(request, reply) {
   **/
 
   query =`
-    select
-    distinct
-    grantee_role.entity_role_id,
-    grantee_role.individual_entity_id,
-    grantee_role.individual_nm,
-    grantee_role.role,
-    grantee_role.regime_entity_id,
-    grantee_role.company_entity_id,
-    grantee_role.created_at,
-    grantee_role.created_by
-    from crm.entity_roles granter_role
-    left outer join crm.role_document_access grantee_role on (
-    (
-    	granter_role.regime_entity_id = grantee_role.regime_entity_id and
-    	granter_role.company_entity_id is null
-    )
-    or
-    (
-    	granter_role.company_entity_id = grantee_role.company_entity_id
-    )
-    )
-    where
-    granter_role.entity_id=$1
-    and ( granter_role.role='admin' or granter_role.is_primary=1 )
-    and grantee_role.individual_entity_id !=$1
+  select
+  distinct
+  grantee_role.entity_role_id,
+  grantee_role.entity_id as individual_entity_id,
+  entity.entity_nm,
+  grantee_role.role,
+  grantee_role.regime_entity_id,
+  grantee_role.company_entity_id,
+  grantee_role.created_at,
+  grantee_role.created_by
+  from crm.entity_roles grantee_role
+  join crm.entity_roles granter_role on (
+
+  (
+   granter_role.entity_id=$1 and
+   granter_role.regime_entity_id = grantee_role.regime_entity_id and
+   granter_role.company_entity_id is null
+  )
+  or
+  (
+   granter_role.entity_id=$1 and
+   granter_role.company_entity_id = grantee_role.company_entity_id
+  )
+  )
+  join crm.entity entity on (
+   grantee_role.entity_id = entity.entity_id
+  )
+
+where
+( granter_role.role='admin' or granter_role.is_primary=1 )
+  and grantee_role.entity_id !=$1
+
     `
 
   queryParams = [
     entity_id
   ]
+  if(request.query.direction == 1 ){
+    query+=' order by '+request.query.sort+' asc'
+  } else {
+    query+=' order by '+request.query.sort+' desc'
 
-  console.log(query, queryParams)
+  }
+
 
   DB.query(query, queryParams)
     .then((res) => {
@@ -938,16 +988,63 @@ function getColleagues(request, reply) {
     }).catch((err) => {
       return reply(err)
     })
-
-
 }
 
 function deleteColleague(request,reply){
-  //TODO: remove colleage using entity & role id
+
+    var entity_role_id = request.params.role_id
+    query =`
+    delete from crm.entity_roles where entity_role_id=$1
+      `
+    queryParams = [
+      entity_role_id
+    ]
+
+
+    DB.query(query, queryParams)
+      .then((res) => {
+        console.log('woo! delete!')
+        return reply(res.data)
+      }).catch((err) => {
+        console.log('BOO! delete!',err)
+        return reply(err)
+      })
 }
 
 function createColleague(request,reply){
-  //TODO: invite colleage using email -> (notify && create account / existing account)
+  //TODO: make this query less fugly
+  var entity_id = request.params.entity_id
+  var email = request.payload.email
+  query =`
+  insert into crm.entity_roles
+    select
+    uuid_in(md5(random()::text || now()::text)::cstring),
+    e.entity_id,
+    'user',
+    r.regime_entity_id,
+    r.company_entity_id,
+    0,
+    CURRENT_TIMESTAMP,
+    '${request.params.entity_id}'
+     from crm.entity_roles r
+     join crm.entity e on (e.entity_nm = '${email}')
+
+     where r.entity_id='${request.params.entity_id}' on conflict (entity_id,regime_entity_id,company_entity_id)
+     DO UPDATE set role='user'
+    `
+
+  console.log(query)
+
+  DB.query(query)
+    .then((res) => {
+      return reply(res.data)
+    }).catch((err) => {
+      return reply(err)
+    })
+
+
+
+
 }
 
 module.exports = {
@@ -961,7 +1058,7 @@ module.exports = {
   getEntityAssociation: getEntityAssociation,
   updateEntityAssociation: updateEntityAssociation,
   deleteEntityAssociation: deleteEntityAssociation,
-  getDocumentHeaders: getDocumentHeaders,
+  getRoleDocuments,
   createDocumentHeader: createDocumentHeader,
   getDocumentHeader: getDocumentHeader,
   updateDocumentHeader: updateDocumentHeader,
@@ -977,7 +1074,7 @@ module.exports = {
   deleteColleague:deleteColleague,
   createColleague:createColleague,
   createNewVerification,
-  updateVerification,
-  checkVerificationCode
+  updateVerification
+  // checkVerificationCode
 
 }
