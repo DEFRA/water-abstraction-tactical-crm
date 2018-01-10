@@ -215,7 +215,7 @@ function _getEntityRoles(entity_identifier) {
 		join crm.entity individual on r.entity_id=individual.entity_id
 		left join crm.entity company on r.company_entity_id=company.entity_id
 		left join crm.entity regime on r.regime_entity_id=regime.entity_id
-where r.entity_id=$1	 or individual.entity_nm=$1	`
+where r.entity_id=$1	 or individual.entity_nm=$1	or r.company_entity_id=$1`
     var queryParams = [entity_identifier]
     console.log(`${query} with ${queryParams}`)
     DB.query(query, queryParams)
