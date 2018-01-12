@@ -7,136 +7,9 @@ const DB = require('./connectors/db')
 const moment = require('moment');
 const {SqlConditionBuilder, SqlSortBuilder} = require('./sql');
 
-
 /**
  * @TODO update multiple entities
  */
-
-
-/**
- * Create new verification record
- * A random verification code string is generated as part of this call and returned
- * in the JSON body along with the verification_id
- * The verification_id can be used in other tables so that when the user enters
- * the code, all documentHeader records related to this verification can be updated
- *
- * @param {Object} request - HAPI HTTP request
- * @param {String} request.payload.entity_id - the GUID of the current individual's entity
- * @param {String} request.payload.company_entity_id - the GUID of the current individual's company
- * @param {String} request.payload.method - the verification method - post|phone
- * @param {Object} reply - the HAPI HTTP reply
- */
-function createNewVerification(request, reply) {
-  const guid = Helpers.createGUID();
-  const verification_code = Helpers.createShortCode();
-
-  Helpers.createHash(verification_code)
-    .then((hashedCode) => {
-      const query = `
-        insert into crm.verification(verification_id, entity_id, company_entity_id, verification_code, date_created, method)
-        values ($1,$2,$3,$4, NOW(), $5)
-      `;
-      const queryParams = [guid, request.payload.entity_id, request.payload.company_entity_id, hashedCode, request.payload.method];
-      return DB.query(query, queryParams);
-    })
-    .then((res) => {
-      return reply({
-        error: res.error,
-        data: {
-          verification_id: guid,
-          verification_code
-        }
-      })
-    });
-}
-
-/**
- * Update a verification record with date_verified timestamp
- * Can only be done once - i.e. date_verified must be null
- * @param {Object} request - HAPI HTTP request
- * @param {String} request.params.verification_id - the GUID of the verification record
- * @param {String} request.payload.date_verified - timestamp for when verification took place
- * @param {Object} reply - the HAPI HTTP reply
- */
-function updateVerification(request, reply) {
-  const query = `UPDATE crm.verification
-    SET date_verified=$1
-    WHERE verification_id=$2`;
-  const queryParams = [moment(request.payload.date_verified).format('YYYY-MM-DD HH:mm:ss'), request.params.verification_id];
-  DB.query(query, queryParams)
-    .then((res) => {
-      console.log(res);
-      return reply(res);
-    });
-}
-
-
-/**
- * @param {String} entityId - the individual entity ID
- * @param {String} companyEntityId - the company entity ID
- * @return {Promise} - resolves with verification record if found and matched
- */
- /*
-async function _checkVerificationCode(entityId, companyEntityId, verificationCode) {
-
-  const query = `SELECT *
-    FROM crm.verification
-    WHERE entity_id=$1
-      AND company_entity_id=$2
-    LIMIT 1`;
-  const queryParams = [entityId, companyEntityId];
-
-  const res = await DB.query(query, queryParams);
-
-  if(res.error) {
-    throw res.error;
-  }
-  // No verification record found
-  if(res.data.length != 1) {
-    throw {name : 'VerificationCodeNotFound'};
-  }
-  //const match = await Helpers.compareHash(verificationCode, res.data[0].verification_code);
-  const match = verificationCode === res.data[0].verification_code;
-
-  return match ? res.data[0] : null;
-}
-*/
-
-/**
- * Checks a verification code
- * @param {Object} request - HAPI HTTP request
- * @param {Object} request.payload
- * @param {String} request.payload.entity_id - the individual's entity_id
- * @param {String} request.payload.company_entity_id - the company entity_id
- * @param {Object} reply - the HAPI HTTP reply
- */
- /*
-function checkVerificationCode(request,reply) {
-
-  const {entity_id, company_entity_id, verification_code} = request.payload;
-
-  _checkVerificationCode(entity_id, company_entity_id, verification_code)
-    .then((data) => {
-      console.log('data', data);
-      if(!data) {
-        throw {name : 'InvalidCodeError'};
-      }
-      return reply({error : null, data});
-    })
-    .catch((error) => {
-      let code = 500;
-      if(error.name === 'VerificationCodeNotFound') {
-        code = 404;
-      }
-      else if(error.name === 'InvalidCodeError') {
-        code = 401;
-      }
-      return reply({error, data : []}).code(code);
-    });
-
-}
-*/
-
 function getAllEntities(request, reply) {
   if (request.query.entity_type) {
     var query = `
@@ -1073,8 +946,8 @@ module.exports = {
   getColleagues: getColleagues,
   deleteColleague:deleteColleague,
   createColleague:createColleague,
-  createNewVerification,
-  updateVerification
+  // createNewVerification,
+  // updateVerification
   // checkVerificationCode
 
 }
