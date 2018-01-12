@@ -113,42 +113,5 @@ module.exports = [
 
   ...VerificationApi.getRoutes(),
 
-  // {  method: 'POST', path: '/crm/' + version + '/verification', handler: CRM.createNewVerification ,config:{
-  //   description:'Create new verification for user/company combination',
-  //   validate: {
-  //     payload : {
-  //       entity_id : Joi.string().required().guid(),
-  //       company_entity_id : Joi.string().required().guid(),
-  //       method : Joi.string().required().regex(/^post|phone$/)
-  //     }
-  //   }}},
-  //   {  method: 'PATCH', path: '/crm/' + version + '/verification/{verification_id}', handler: CRM.updateVerification ,config:{
-  //     description:'Set the date_verified timestamp for the specified verification record',
-  //     validate: {
-  //       params : {
-  //         verification_id : Joi.string().required().guid()
-  //       },
-  //       payload : {
-  //         date_verified : Joi.string().required()
-  //       }
-  //     }}},
-
-
-
-      // {  method: 'POST', path: '/crm/' + version + '/verification/check', handler: CRM.checkVerificationCode ,config:{
-      //   description:'Checks a verification code',
-      //   validate: {
-      //     payload : {
-      //       entity_id : Joi.string().required().guid(),
-      //       company_entity_id : Joi.string().required().guid(),
-      //       verification_code: Joi.string().required()
-      //     }
-      //   }}}
-
-
-
-
-
-
 
 ]
