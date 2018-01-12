@@ -9,50 +9,14 @@ const version = '1.0'
 const CRM = require('../lib/CRM')
 const Joi = require('joi');
 const Helpers = require('../lib/helpers');
+// const Pool
+// const HAPIRestAPI = require('../lib/rest-api');
+const HAPIRestAPI = require('hapi-pg-rest-api');
 
-const HAPIRestAPI = require('../lib/rest-api');
-
-
-const VerificationApi = new HAPIRestAPI({
-  table : 'crm.verification',
-  primaryKey : 'verification_id',
-  endpoint : '/crm/' + version + '/verification',
-  onCreateTimestamp : 'date_created',
-  validation : {
-    verification_id : Joi.string().guid(),
-    entity_id : Joi.string().guid(),
-    company_entity_id : Joi.string().guid(),
-    verification_code : Joi.string(),
-    date_verified : Joi.string(),
-    date_created : Joi.string(),
-    method : Joi.string()
-  },
-  preInsert : (data) => {
-    return Object.assign({
-      verification_code : Helpers.createShortCode()}, data);
-  }
-});
-
-
-const DocumentHeaderApi = new HAPIRestAPI({
-  table : 'crm.document_header',
-  primaryKey : 'document_id',
-  endpoint : '/crm/' + version + '/documentHeader',
-  validation : {
-    document_id : Joi.string().guid(),
-    regime_entity_id : Joi.string().guid(),
-    system_id : Joi.string(),
-    system_internal_id : Joi.string(),
-    system_external_id : Joi.string(),
-    metadata : Joi.string(),
-    company_entity_id : Joi.string().guid(),
-    verified : Joi.number(),
-    verification_id : Joi.string().guid()
-  }
-});
-
-
-
+const {pool} = require('../lib/connectors/db.js');
+const apiConfig = {pool, version};
+const VerificationApi = require('../controllers/verifications.js')(apiConfig);
+const DocumentHeaderApi = require('../controllers/document-headers.js')(apiConfig);
 
 module.exports = [
   { method: 'GET', path: '/status', handler: function(request,reply){return reply('ok').code(200)}, config:{auth: false,description:'Get all entities'}},
@@ -71,8 +35,6 @@ module.exports = [
   {  method: 'GET', path: '/crm/' + version + '/entityAssociation/{entity_association_id}', handler: CRM.getEntityAssociation ,config:{description:'Get specified association'}},
   {  method: 'PUT', path: '/crm/' + version + '/entityAssociation/{entity_association_id}', handler: CRM.updateEntityAssociation ,config:{description:'Update specified association'}},
   {  method: 'DELETE', path: '/crm/' + version + '/entityAssociation/{entity_association_id}', handler: CRM.deleteEntityAssociation ,config:{description:'Delete specified association'}},
-
-
 
   DocumentHeaderApi.getRoutes()[0],
   // {  method: 'GET', path: '/crm/' + version + '/documentHeader', handler: CRM.getDocumentHeaders ,config:{description:'Get all document headers'}},
