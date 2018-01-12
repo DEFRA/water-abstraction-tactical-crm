@@ -8,43 +8,11 @@ const moment = require('moment');
 const {SqlConditionBuilder, SqlSortBuilder} = require('./sql');
 
 /**
- * @TODO update multiple entities
+ * @TODO REST API updates:
+ * - permit repo entity filtering on company/individual was query string
  */
-function getAllEntities(request, reply) {
-  if (request.query.entity_type) {
-    var query = `
-      select * from crm.entity where entity_type='${request.query.entity_type}'
-    `
-  } else {
-    var query = `
-      select * from crm.entity
-    `
-  }
-  DB.query(query)
-    .then((res) => {
-      return reply({
-        error: res.error,
-        data: res.data
-      })
-    })
-}
 
-function createNewEntity(request, reply) {
-  var guid = Helpers.createGUID();
-  var query = `
-    insert into crm.entity(entity_id,entity_nm,entity_type,entity_definition) values ($1,$2,$3,$4)
-  `
-  var queryParams = [guid, request.payload.entity_nm, request.payload.entity_type, request.payload.entity_definition]
-  DB.query(query, queryParams)
-    .then((res) => {
-      return reply({
-        error: res.error,
-        data: {
-          entity_id: guid
-        }
-      })
-    })
-}
+
 
 /**
  * Get entity record from CRM
@@ -151,6 +119,7 @@ function _getRoleDocuments(rolesArray) {
 
 /**
  * Get documents by the supplied search/filter/sort criteria
+ * @todo rewrite with async/await for readability
  * @param {Object} request - the HAPI request instance
  * @param {Object} request.params - the data from the HTTP query string
  * @param {Object} [request.params.entity_id] - entity id for entity
@@ -199,41 +168,9 @@ function getEntity(request, reply) {
   })
 }
 
-function updateEntity(request, reply) {
-  var query = `
-    update crm.entity set
-    entity_nm=$2,
-    entity_type=$3,
-    entity_definition=$4
-  where entity_id=$1
-  `
-  var queryParams = [request.params.entity_id, request.payload.entity_nm, request.payload.entity_type, request.payload.entity_definition]
-  DB.query(query, queryParams)
-    .then((res) => {
-      return reply({
-        error: res.error,
-        data: {}
-      })
-    })
-}
 
-/**
- * Delete an entity with the specified GUID
- * @param {Object} request - the HAPI HTTP request
- * @param {String} request.params.entity_id - the entity GUID
- * @param {Object} reply - HAPI HTTP response
- */
-function deleteEntity(request, reply) {
-  const query = `DELETE FROM crm.entity WHERE entity_id=$1`;
-  const queryParams = [request.params.entity_id];
-  DB.query(query, queryParams)
-    .then((res) => {
-      return reply({
-        error: res.error,
-        data: {}
-      })
-    })
-}
+
+
 
 function getEntityAssociations(request, reply) {
   var query = `
@@ -592,6 +529,9 @@ function updateDocumentHeader(request, reply) {
 
 /**
  * A method to bulk-update a group of document header records for verification steps
+ *
+ * @todo replace with REST API - but will require this to support multi-record patch first
+ *
  * @param {Object} request - the HAPI HTTP request
  * @param {Object} request.payload.query - a query specifying which docs to update
  * @param {Array} [request.payload.query.document_id] - an array of document IDs to update
@@ -767,6 +707,9 @@ function addEntityRole(request, reply) {
 
 }
 
+/**
+ * @todo replace with REST api
+ */
 function deleteEntityRole(request, reply) {
   var entity_role_id = request.params.role_id
   query = `delete from crm.entity_roles where entity_role_id = $1`
@@ -784,6 +727,11 @@ function deleteEntityRole(request, reply) {
 
 }
 
+
+
+/**
+ * @todo replace with REST api
+ */
 function getEntityRoles(request, reply) {
   var entity_id = request.params.entity_id
   query = `select * from crm.entity_roles where entity_id = $1`
@@ -921,11 +869,7 @@ function createColleague(request,reply){
 }
 
 module.exports = {
-  getAllEntities: getAllEntities,
-  createNewEntity: createNewEntity,
-  getEntity: getEntity,
-  updateEntity: updateEntity,
-  deleteEntity: deleteEntity,
+  getEntity,
   getEntityAssociations: getEntityAssociations,
   createEntityAssociation: createEntityAssociation,
   getEntityAssociation: getEntityAssociation,
@@ -945,9 +889,6 @@ module.exports = {
   getEntityRoles: getEntityRoles,
   getColleagues: getColleagues,
   deleteColleague:deleteColleague,
-  createColleague:createColleague,
-  // createNewVerification,
-  // updateVerification
-  // checkVerificationCode
+  createColleague:createColleague
 
 }

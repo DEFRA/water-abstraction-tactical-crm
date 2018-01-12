@@ -15,21 +15,35 @@ const HAPIRestAPI = require('hapi-pg-rest-api');
 
 const {pool} = require('../lib/connectors/db.js');
 const apiConfig = {pool, version};
+const EntityApi = require('../controllers/entities.js')(apiConfig);
 const VerificationApi = require('../controllers/verifications.js')(apiConfig);
 const DocumentHeaderApi = require('../controllers/document-headers.js')(apiConfig);
 
 module.exports = [
   { method: 'GET', path: '/status', handler: function(request,reply){return reply('ok').code(200)}, config:{auth: false,description:'Get all entities'}},
-  { method: 'GET', path: '/crm/' + version + '/entity', handler: CRM.getAllEntities, config:{description:'Get all entities'} },
+
+  // Get all entities
+  EntityApi.getRoutes()[0],
+
+  // Update entity
+  EntityApi.getRoutes()[3],
+
+  // Create new entity
+  EntityApi.getRoutes()[2],
+
+  // Put entity (not implemented)
+  EntityApi.getRoutes()[4],
+
+  // Delete entity
+  EntityApi.getRoutes()[5],
 
 
-  {  method: 'POST', path: '/crm/' + version + '/entity', handler: CRM.createNewEntity , config:{description:'Create new entity'}},
   {  method: 'GET', path: '/crm/' + version + '/entity/{entity_id}', handler: CRM.getEntity ,config:{description:'Get specified entity'}},
+
   {  method: 'GET', path: '/crm/' + version + '/entity/{entity_id}/colleagues', handler: CRM.getColleagues ,config:{description:'Get colleagues of entity'}},
   {  method: 'DELETE', path: '/crm/' + version + '/entity/{entity_id}/colleagues/{role_id}', handler: CRM.deleteColleague ,config:{description:'Remove specified colleague of entity'}},
   {  method: 'POST', path: '/crm/' + version + '/entity/{entity_id}/colleagues', handler: CRM.createColleague ,config:{description:'Create new colleague of entity'}},
-  {  method: 'PUT', path: '/crm/' + version + '/entity/{entity_id}', handler: CRM.updateEntity, config:{description:'Update specified entity'} },
-  {  method: 'DELETE', path: '/crm/' + version + '/entity/{entity_id}', handler: CRM.deleteEntity ,config:{description:'Delete specified'}},
+
   {  method: 'GET', path: '/crm/' + version + '/entityAssociation', handler: CRM.getEntityAssociations ,config:{description:'Get associations for specified entity'}},
   {  method: 'POST', path: '/crm/' + version + '/entityAssociation', handler: CRM.createEntityAssociation ,config:{description:'Add association for specified entity'}},
   {  method: 'GET', path: '/crm/' + version + '/entityAssociation/{entity_association_id}', handler: CRM.getEntityAssociation ,config:{description:'Get specified association'}},
@@ -37,10 +51,8 @@ module.exports = [
   {  method: 'DELETE', path: '/crm/' + version + '/entityAssociation/{entity_association_id}', handler: CRM.deleteEntityAssociation ,config:{description:'Delete specified association'}},
 
   DocumentHeaderApi.getRoutes()[0],
-  // {  method: 'GET', path: '/crm/' + version + '/documentHeader', handler: CRM.getDocumentHeaders ,config:{description:'Get all document headers'}},
 
   {  method: 'POST', path: '/crm/' + version + '/documentHeader', handler: CRM.createDocumentHeader ,config:{description:'Create new document header'}},
-
 
   {  method: 'GET', path: '/crm/' + version + '/documentHeader/{document_id}/entity/{entity_id}/name', handler: CRM.getDocumentNameForUser ,config:{description:'Get custom name for document'}},
   {  method: 'POST', path: '/crm/' + version + '/documentHeader/{document_id}/entity/{entity_id}/name', handler: CRM.setDocumentNameForUser ,config:{description:'Set custom name for document'}},
