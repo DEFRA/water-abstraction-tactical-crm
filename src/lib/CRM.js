@@ -10,8 +10,12 @@ const {SqlConditionBuilder, SqlSortBuilder} = require('./sql');
 /**
  * @TODO REST API updates:
  * - permit repo entity filtering on company/individual was query string
+ * Missing routes in new API
+ * - GET /documentHeader/{system_id}/{system_internal_id}
+ * - PUT /documentHeader/{system_id}/{system_internal_id}
+ * - DELETE /documentHeader/{system_id}/{system_internal_id}
+ * create document_header now missing on conflict update
  */
-
 
 
 /**
@@ -225,6 +229,7 @@ function getEntityAssociation(request, reply) {
     })
 }
 
+/*
 function updateEntityAssociation(request, reply) {
   var query = `
     update crm.entity_association
@@ -258,6 +263,7 @@ function updateEntityAssociation(request, reply) {
 function deleteEntityAssociation(request, reply) {
   return reply({}).code(501)
 }
+*/
 
 
 
@@ -373,156 +379,6 @@ function getRoleDocuments(request, reply) {
     return reply(response)
 
   })
-}
-
-function createDocumentHeader(request, reply) {
-  var guid = Helpers.createGUID();
-  var query = `
-    insert into crm.document_header(
-      document_id,
-      regime_entity_id,
-      system_id,
-      system_internal_id,
-      system_external_id,
-      metadata
-    )
-      values ($1,$2,$3,$4,$5,$6)
-      on conflict (system_id,system_internal_id,regime_entity_id) do update set
-      system_external_id=EXCLUDED.system_external_id,
-      metadata=EXCLUDED.metadata
-
-  `
-  var queryParams = [
-    guid,
-    request.payload.regime_entity_id,
-    request.payload.system_id,
-    request.payload.system_internal_id,
-    request.payload.system_external_id,
-    request.payload.metadata
-  ]
-
-  console.log(query)
-  console.log(queryParams)
-
-  DB.query(query, queryParams)
-    .then((res) => {
-
-
-
-
-          return reply({
-            error: res.error,
-            data: {
-              document_id: guid
-            }
-          })
-
-
-    }).catch((err) => {
-      console.log(err)
-
-    })
-}
-
-function deleteDocumentHeader(request, reply) {
-  console.log('Not implemented');
-  return reply({}).code(501);
-}
-
-function getDocumentHeader(request, reply) {
-  if (request.params.system_id) {
-    var query = `
-      select * from crm.document_header where system_id = $1 and system_internal_id =$2
-    `
-    var queryParams = [request.params.system_id, request.params.system_internal_id]
-  } else {
-    var query = `
-      select * from crm.document_header where document_id = $1
-    `
-    var queryParams = [request.params.document_id]
-  }
-
-
-  DB.query(query, queryParams)
-    .then((res) => {
-      var returnData = res.data;
-      var query = `
-        select crm.document_association.*, crm.entity.entity_nm from crm.document_association
-        join crm.entity on crm.entity.entity_id=crm.document_association.entity_id
-        where document_id = $1
-      `
-      console.log(query)
-      console.log(queryParams)
-      var queryParams = [request.params.document_id]
-
-      DB.query(query, queryParams)
-        .then((res) => {
-
-          //now get access
-          returnData[0].access = res.data
-          console.log(returnData)
-          return reply({
-            error: res.error,
-            data: returnData
-          })
-        })
-    })
-}
-
-function updateDocumentHeader(request, reply) {
-  if (request.params.system_id) {
-    var query = `
-      update crm.document_header
-      set
-        regime_entity_id=$3,
-        company_entity_id=$4,
-        system_id=$5,
-        system_internal_id=$6,
-        system_external_id=$7,
-        metadata=$8
-      where system_id = $1 and system_internal_id =$2
-    `
-    var queryParams = [
-      request.params.system_id,
-      request.params.system_internal_id,
-      request.payload.regime_entity_id,
-      request.payload.company_entity_id,
-      request.payload.system_id,
-      request.payload.system_internal_id,
-      request.payload.system_external_id,
-      request.payload.metadata
-    ]
-  } else {
-    var query = `
-      update crm.document_header
-      set
-        regime_entity_id=$2,
-        company_entity_id=$3,
-        system_id=$4,
-        system_internal_id=$5,
-        system_external_id=$6,
-        metadata=$7
-      where document_id=$1
-    `
-    var queryParams = [
-      request.params.document_id,
-      request.payload.regime_entity_id,
-      request.payload.company_entity_id,
-      request.payload.system_id,
-      request.payload.system_internal_id,
-      request.payload.system_external_id,
-      request.payload.metadata
-    ]
-  }
-
-
-  DB.query(query, queryParams)
-    .then((res) => {
-      return reply({
-        error: res.error,
-        data: {}
-      })
-    })
 }
 
 
@@ -870,17 +726,13 @@ function createColleague(request,reply){
 
 module.exports = {
   getEntity,
-  getEntityAssociations: getEntityAssociations,
-  createEntityAssociation: createEntityAssociation,
-  getEntityAssociation: getEntityAssociation,
-  updateEntityAssociation: updateEntityAssociation,
-  deleteEntityAssociation: deleteEntityAssociation,
+  // getEntityAssociations: getEntityAssociations,
+  // createEntityAssociation: createEntityAssociation,
+  // getEntityAssociation: getEntityAssociation,
+  // updateEntityAssociation: updateEntityAssociation,
+  // deleteEntityAssociation: deleteEntityAssociation,
   getRoleDocuments,
-  createDocumentHeader: createDocumentHeader,
-  getDocumentHeader: getDocumentHeader,
-  updateDocumentHeader: updateDocumentHeader,
   updateDocumentHeaders,
-  deleteDocumentHeader: deleteDocumentHeader,
   setDocumentOwner: setDocumentOwner,
   getDocumentNameForUser: getDocumentNameForUser,
   setDocumentNameForUser: setDocumentNameForUser,
@@ -890,5 +742,4 @@ module.exports = {
   getColleagues: getColleagues,
   deleteColleague:deleteColleague,
   createColleague:createColleague
-
 }
