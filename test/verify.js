@@ -35,14 +35,14 @@ const createDocumentHeader = async(regimeEntityId) => {
     },
     payload: {
       regime_entity_id : regimeEntityId,
-      owner_entity_id : '',
       system_id : 'permit-repo',
-      system_internal_id : 9999999999,
+      system_internal_id : '9999999999',
       system_external_id : 'xx/xx/xx/xxxx',
       metadata : '{"Name":"TEST LICENCE"}'
     }
   }
   const res = await server.inject(request);
+  console.log(res);
   const {error, data} = JSON.parse(res.payload);
   if(error) {
     throw error;
@@ -58,6 +58,7 @@ const createDocumentHeader = async(regimeEntityId) => {
  * @return {Promise} resolves with entity data
  */
 const createEntity = async(entityType) => {
+  console.log(`Creating entity ${entityType}`);
   const request = {
     method: 'POST',
     url: '/crm/1.0/entity',
@@ -130,6 +131,7 @@ lab.experiment('Check verification', () => {
         return createDocumentHeader(regimeEntityId);
       })
       .then((res) => {
+
         documentHeaderId = res.document_id;
         return;
       })
