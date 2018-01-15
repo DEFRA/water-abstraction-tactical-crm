@@ -207,21 +207,15 @@ lab.experiment('Check verification', () => {
 
     const request = {
       method: 'PATCH',
-      url: `/crm/1.0/documentHeaders`,
+      url: `/crm/1.0/documentHeader?filter=` + JSON.stringify({document_id : [documentHeaderId]}),
       headers: {
         Authorization: process.env.JWT_TOKEN
       },
       payload: {
-        query : {
-          document_id : [documentHeaderId]
-        },
-        set : {
-          verification_id : verificationId
-        }
+        verification_id : verificationId
       }
     };
-    //
-    // console.log(JSON.stringify(request.payload, null, 2));
+
 
     const res = await server.inject(request);
     Code.expect(res.statusCode).to.equal(200);
@@ -236,18 +230,13 @@ lab.experiment('Check verification', () => {
 
     const request = {
       method: 'PATCH',
-      url: `/crm/1.0/documentHeaders`,
+      url: `/crm/1.0/documentHeader?filter=` + JSON.stringify({verification_id : verificationId}),
       headers: {
         Authorization: process.env.JWT_TOKEN
       },
       payload: {
-        query : {
-          verification_id : verificationId
-        },
-        set : {
-          verified : 1,
-          company_entity_id : companyEntityId
-        }
+        verified : 1,
+        company_entity_id : companyEntityId
       }
     };
 
