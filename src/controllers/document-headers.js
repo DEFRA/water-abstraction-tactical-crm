@@ -8,6 +8,12 @@ module.exports = (config = {}) => {
     primaryKey : 'document_id',
     endpoint : '/crm/' + version + '/documentHeader',
     connection : pool,
+
+    upsert : {
+      fields : ['system_id', 'system_internal_id', 'regime_entity_id'],
+      set : ['system_external_id', 'metadata']
+    },
+
     validation : {
       document_id : Joi.string().guid(),
       regime_entity_id : Joi.string().guid(),
