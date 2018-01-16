@@ -18,6 +18,7 @@ const apiConfig = {pool, version};
 const EntityApi = require('../controllers/entities.js')(apiConfig);
 const VerificationApi = require('../controllers/verifications.js')(apiConfig);
 const DocumentHeaderApi = require('../controllers/document-headers.js')(apiConfig);
+const EntityRolesApi = require('../controllers/entity-roles.js')(apiConfig);
 
 module.exports = [
   { method: 'GET', path: '/status', handler: function(request,reply){return reply('ok').code(200)}, config:{auth: false,description:'Get all entities'}},
@@ -67,10 +68,13 @@ module.exports = [
   // {  method: 'DELETE', path: '/crm/' + version + '/documentHeader/{system_id}/{system_internal_id}', handler: CRM.deleteDocumentHeader ,config:{description:'Delete specified document header by external system & external system document id'}},
   {  method: 'POST', path: '/crm/' + version + '/documentHeader/filter', handler: CRM.getRoleDocuments ,config:{description:'Search for document headers by posted filter criteria'}},
   {  method: 'PUT', path: '/crm/' + version + '/documentHeader/{document_id}/owner', handler: CRM.setDocumentOwner ,config:{description:'Search for document headers by posted filter criteria'}},
-  {  method: 'POST', path: '/crm/' + version + '/entity/{entity_id}/roles', handler: CRM.addEntityRole ,config:{description:'Add role to specified entity'}},
-  {  method: 'GET', path: '/crm/' + version + '/entity/{entity_id}/roles', handler: CRM.getEntityRoles ,config:{description:'Get roles for specified entity'}},
-  {  method: 'DELETE', path: '/crm/' + version + '/entity/{entity_id}/roles/{role_id}', handler: CRM.deleteEntityRole ,config:{description:'Delete role from specified entity'}},
 
+
+  //
+  // {  method: 'POST', path: '/crm/' + version + '/entity/{entity_id}/roles', handler: CRM.addEntityRole ,config:{description:'Add role to specified entity'}},
+  // {  method: 'GET', path: '/crm/' + version + '/entity/{entity_id}/roles', handler: CRM.getEntityRoles ,config:{description:'Get roles for specified entity'}},
+  // {  method: 'DELETE', path: '/crm/' + version + '/entity/{entity_id}/roles/{role_id}', handler: CRM.deleteEntityRole ,config:{description:'Delete role from specified entity'}},
+  ...EntityRolesApi.getRoutes(),
 
   ...VerificationApi.getRoutes(),
 
