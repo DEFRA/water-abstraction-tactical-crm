@@ -7,171 +7,16 @@ const DB = require('./connectors/db')
 const moment = require('moment');
 const {SqlConditionBuilder, SqlSortBuilder} = require('./sql');
 
-
 /**
- * @TODO update multiple entities
+ * @TODO REST API updates:
+ * - permit repo entity filtering on company/individual was query string
+ * Missing routes in new API
+ * - GET /documentHeader/{system_id}/{system_internal_id}
+ * - PUT /documentHeader/{system_id}/{system_internal_id}
+ * - DELETE /documentHeader/{system_id}/{system_internal_id}
+ * create document_header now missing on conflict update
  */
 
-
-/**
- * Create new verification record
- * A random verification code string is generated as part of this call and returned
- * in the JSON body along with the verification_id
- * The verification_id can be used in other tables so that when the user enters
- * the code, all documentHeader records related to this verification can be updated
- *
- * @param {Object} request - HAPI HTTP request
- * @param {String} request.payload.entity_id - the GUID of the current individual's entity
- * @param {String} request.payload.company_entity_id - the GUID of the current individual's company
- * @param {String} request.payload.method - the verification method - post|phone
- * @param {Object} reply - the HAPI HTTP reply
- */
-function createNewVerification(request, reply) {
-  const guid = Helpers.createGUID();
-  const verification_code = Helpers.createShortCode();
-
-  Helpers.createHash(verification_code)
-    .then((hashedCode) => {
-      const query = `
-        insert into crm.verification(verification_id, entity_id, company_entity_id, verification_code, date_created, method)
-        values ($1,$2,$3,$4, NOW(), $5)
-      `;
-      const queryParams = [guid, request.payload.entity_id, request.payload.company_entity_id, hashedCode, request.payload.method];
-      return DB.query(query, queryParams);
-    })
-    .then((res) => {
-      return reply({
-        error: res.error,
-        data: {
-          verification_id: guid,
-          verification_code
-        }
-      })
-    });
-}
-
-/**
- * Update a verification record with date_verified timestamp
- * Can only be done once - i.e. date_verified must be null
- * @param {Object} request - HAPI HTTP request
- * @param {String} request.params.verification_id - the GUID of the verification record
- * @param {String} request.payload.date_verified - timestamp for when verification took place
- * @param {Object} reply - the HAPI HTTP reply
- */
-function updateVerification(request, reply) {
-  const query = `UPDATE crm.verification
-    SET date_verified=$1
-    WHERE verification_id=$2`;
-  const queryParams = [moment(request.payload.date_verified).format('YYYY-MM-DD HH:mm:ss'), request.params.verification_id];
-  DB.query(query, queryParams)
-    .then((res) => {
-      console.log(res);
-      return reply(res);
-    });
-}
-
-
-/**
- * @param {String} entityId - the individual entity ID
- * @param {String} companyEntityId - the company entity ID
- * @return {Promise} - resolves with verification record if found and matched
- */
- /*
-async function _checkVerificationCode(entityId, companyEntityId, verificationCode) {
-
-  const query = `SELECT *
-    FROM crm.verification
-    WHERE entity_id=$1
-      AND company_entity_id=$2
-    LIMIT 1`;
-  const queryParams = [entityId, companyEntityId];
-
-  const res = await DB.query(query, queryParams);
-
-  if(res.error) {
-    throw res.error;
-  }
-  // No verification record found
-  if(res.data.length != 1) {
-    throw {name : 'VerificationCodeNotFound'};
-  }
-  //const match = await Helpers.compareHash(verificationCode, res.data[0].verification_code);
-  const match = verificationCode === res.data[0].verification_code;
-
-  return match ? res.data[0] : null;
-}
-*/
-
-/**
- * Checks a verification code
- * @param {Object} request - HAPI HTTP request
- * @param {Object} request.payload
- * @param {String} request.payload.entity_id - the individual's entity_id
- * @param {String} request.payload.company_entity_id - the company entity_id
- * @param {Object} reply - the HAPI HTTP reply
- */
- /*
-function checkVerificationCode(request,reply) {
-
-  const {entity_id, company_entity_id, verification_code} = request.payload;
-
-  _checkVerificationCode(entity_id, company_entity_id, verification_code)
-    .then((data) => {
-      console.log('data', data);
-      if(!data) {
-        throw {name : 'InvalidCodeError'};
-      }
-      return reply({error : null, data});
-    })
-    .catch((error) => {
-      let code = 500;
-      if(error.name === 'VerificationCodeNotFound') {
-        code = 404;
-      }
-      else if(error.name === 'InvalidCodeError') {
-        code = 401;
-      }
-      return reply({error, data : []}).code(code);
-    });
-
-}
-*/
-
-function getAllEntities(request, reply) {
-  if (request.query.entity_type) {
-    var query = `
-      select * from crm.entity where entity_type='${request.query.entity_type}'
-    `
-  } else {
-    var query = `
-      select * from crm.entity
-    `
-  }
-  DB.query(query)
-    .then((res) => {
-      return reply({
-        error: res.error,
-        data: res.data
-      })
-    })
-}
-
-function createNewEntity(request, reply) {
-  var guid = Helpers.createGUID();
-  var query = `
-    insert into crm.entity(entity_id,entity_nm,entity_type,entity_definition) values ($1,$2,$3,$4)
-  `
-  var queryParams = [guid, request.payload.entity_nm, request.payload.entity_type, request.payload.entity_definition]
-  DB.query(query, queryParams)
-    .then((res) => {
-      return reply({
-        error: res.error,
-        data: {
-          entity_id: guid
-        }
-      })
-    })
-}
 
 /**
  * Get entity record from CRM
@@ -278,6 +123,7 @@ function _getRoleDocuments(rolesArray) {
 
 /**
  * Get documents by the supplied search/filter/sort criteria
+ * @todo rewrite with async/await for readability
  * @param {Object} request - the HAPI request instance
  * @param {Object} request.params - the data from the HTTP query string
  * @param {Object} [request.params.entity_id] - entity id for entity
@@ -325,134 +171,6 @@ function getEntity(request, reply) {
     })
   })
 }
-
-function updateEntity(request, reply) {
-  var query = `
-    update crm.entity set
-    entity_nm=$2,
-    entity_type=$3,
-    entity_definition=$4
-  where entity_id=$1
-  `
-  var queryParams = [request.params.entity_id, request.payload.entity_nm, request.payload.entity_type, request.payload.entity_definition]
-  DB.query(query, queryParams)
-    .then((res) => {
-      return reply({
-        error: res.error,
-        data: {}
-      })
-    })
-}
-
-/**
- * Delete an entity with the specified GUID
- * @param {Object} request - the HAPI HTTP request
- * @param {String} request.params.entity_id - the entity GUID
- * @param {Object} reply - HAPI HTTP response
- */
-function deleteEntity(request, reply) {
-  const query = `DELETE FROM crm.entity WHERE entity_id=$1`;
-  const queryParams = [request.params.entity_id];
-  DB.query(query, queryParams)
-    .then((res) => {
-      return reply({
-        error: res.error,
-        data: {}
-      })
-    })
-}
-
-function getEntityAssociations(request, reply) {
-  var query = `
-    select * from crm.entity_association
-  `
-  DB.query(query)
-    .then((res) => {
-      return reply({
-        error: res.error,
-        data: res.data
-      })
-    })
-}
-
-function createEntityAssociation(request, reply) {
-  var guid = Helpers.createGUID();
-  var query = `
-    insert into crm.entity_association(entity_association_id,entity_up_type,entity_up_id,entity_down_type,entity_down_id,access_type,inheritable)
-      values ($1,$2,$3,$4,$5,$6,$7)
-  `
-  var queryParams = [
-    guid,
-    request.payload.entity_up_type,
-    request.payload.entity_up_id,
-    request.payload.entity_down_type,
-    request.payload.entity_down_id,
-    request.payload.access_type,
-    request.payload.inheritable
-  ]
-  DB.query(query, queryParams)
-    .then((res) => {
-      return reply({
-        error: res.error,
-        data: {
-          entity_association_id: guid
-        }
-      })
-    })
-}
-
-function getEntityAssociation(request, reply) {
-  var query = `
-    select * from crm.entity_association where entity_association_id = $1
-  `
-  var queryParams = [request.params.entity_association_id]
-  DB.query(query, queryParams)
-    .then((res) => {
-      return reply({
-        error: res.error,
-        data: res.data
-      })
-    })
-}
-
-function updateEntityAssociation(request, reply) {
-  var query = `
-    update crm.entity_association
-    set
-    entity_up_type=$2,
-    entity_up_id=$3,
-    entity_down_type=$4,
-    entity_down_id=$5,
-    access_type=$6,
-    inheritable=$7
-    where entity_association_id=$1
-  `
-  var queryParams = [
-    request.params.entity_association_id,
-    request.payload.entity_up_type,
-    request.payload.entity_up_id,
-    request.payload.entity_down_type,
-    request.payload.entity_down_id,
-    request.payload.access_type,
-    request.payload.inheritable
-  ]
-  DB.query(query, queryParams)
-    .then((res) => {
-      return reply({
-        error: res.error,
-        data: {}
-      })
-    })
-}
-
-function deleteEntityAssociation(request, reply) {
-  return reply({}).code(501)
-}
-
-
-
-
-
 
 
 /**
@@ -565,160 +283,13 @@ function getRoleDocuments(request, reply) {
   })
 }
 
-function createDocumentHeader(request, reply) {
-  var guid = Helpers.createGUID();
-  var query = `
-    insert into crm.document_header(
-      document_id,
-      regime_entity_id,
-      system_id,
-      system_internal_id,
-      system_external_id,
-      metadata
-    )
-      values ($1,$2,$3,$4,$5,$6)
-      on conflict (system_id,system_internal_id,regime_entity_id) do update set
-      system_external_id=EXCLUDED.system_external_id,
-      metadata=EXCLUDED.metadata
-
-  `
-  var queryParams = [
-    guid,
-    request.payload.regime_entity_id,
-    request.payload.system_id,
-    request.payload.system_internal_id,
-    request.payload.system_external_id,
-    request.payload.metadata
-  ]
-
-  console.log(query)
-  console.log(queryParams)
-
-  DB.query(query, queryParams)
-    .then((res) => {
-
-
-
-
-          return reply({
-            error: res.error,
-            data: {
-              document_id: guid
-            }
-          })
-
-
-    }).catch((err) => {
-      console.log(err)
-
-    })
-}
-
-function deleteDocumentHeader(request, reply) {
-  console.log('Not implemented');
-  return reply({}).code(501);
-}
-
-function getDocumentHeader(request, reply) {
-  if (request.params.system_id) {
-    var query = `
-      select * from crm.document_header where system_id = $1 and system_internal_id =$2
-    `
-    var queryParams = [request.params.system_id, request.params.system_internal_id]
-  } else {
-    var query = `
-      select * from crm.document_header where document_id = $1
-    `
-    var queryParams = [request.params.document_id]
-  }
-
-
-  DB.query(query, queryParams)
-    .then((res) => {
-      var returnData = res.data;
-      var query = `
-        select crm.document_association.*, crm.entity.entity_nm from crm.document_association
-        join crm.entity on crm.entity.entity_id=crm.document_association.entity_id
-        where document_id = $1
-      `
-      console.log(query)
-      console.log(queryParams)
-      var queryParams = [request.params.document_id]
-
-      DB.query(query, queryParams)
-        .then((res) => {
-
-          //now get access
-          returnData[0].access = res.data
-          console.log(returnData)
-          return reply({
-            error: res.error,
-            data: returnData
-          })
-        })
-    })
-}
-
-function updateDocumentHeader(request, reply) {
-  if (request.params.system_id) {
-    var query = `
-      update crm.document_header
-      set
-        regime_entity_id=$3,
-        company_entity_id=$4,
-        system_id=$5,
-        system_internal_id=$6,
-        system_external_id=$7,
-        metadata=$8
-      where system_id = $1 and system_internal_id =$2
-    `
-    var queryParams = [
-      request.params.system_id,
-      request.params.system_internal_id,
-      request.payload.regime_entity_id,
-      request.payload.company_entity_id,
-      request.payload.system_id,
-      request.payload.system_internal_id,
-      request.payload.system_external_id,
-      request.payload.metadata
-    ]
-  } else {
-    var query = `
-      update crm.document_header
-      set
-        regime_entity_id=$2,
-        company_entity_id=$3,
-        system_id=$4,
-        system_internal_id=$5,
-        system_external_id=$6,
-        metadata=$7
-      where document_id=$1
-    `
-    var queryParams = [
-      request.params.document_id,
-      request.payload.regime_entity_id,
-      request.payload.company_entity_id,
-      request.payload.system_id,
-      request.payload.system_internal_id,
-      request.payload.system_external_id,
-      request.payload.metadata
-    ]
-  }
-
-
-  DB.query(query, queryParams)
-    .then((res) => {
-      return reply({
-        error: res.error,
-        data: {}
-      })
-    })
-}
-
 
 
 /**
  * A method to bulk-update a group of document header records for verification steps
+ *
+ * @todo replace with REST API - but will require this to support multi-record patch first
+ *
  * @param {Object} request - the HAPI HTTP request
  * @param {Object} request.payload.query - a query specifying which docs to update
  * @param {Array} [request.payload.query.document_id] - an array of document IDs to update
@@ -858,74 +429,6 @@ function setDocumentNameForUser(request, reply) {
 
 }
 
-function addEntityRole(request, reply) {
-  //Add role to entity
-  var entity_role_id = Helpers.createGUID()
-  var entity_id = request.params.entity_id
-  var role = request.payload.role
-  if (request.payload.regime) {
-    var regime_entity_id = request.payload.regime
-  } else {
-    var regime_entity_id = null
-  }
-  if (request.payload.company) {
-    var company_entity_id = request.payload.company
-  } else {
-    var company_entity_id = null
-  }
-  if (request.payload.is_primary) {
-    var is_primary = 1
-  } else {
-    var is_primary = 0
-  }
-  query = `insert into crm.entity_roles (entity_role_id, entity_id,role,regime_entity_id,company_entity_id,is_primary)
-  values($1,$2,$3,$4,$5,$6)`
-
-  queryParams = [
-    entity_role_id, entity_id, role, regime_entity_id, company_entity_id, is_primary
-  ]
-
-  DB.query(query, queryParams)
-    .then((res) => {
-      return reply(res)
-    }).catch((err) => {
-      return reply(err)
-    })
-
-}
-
-function deleteEntityRole(request, reply) {
-  var entity_role_id = request.params.role_id
-  query = `delete from crm.entity_roles where entity_role_id = $1`
-
-  queryParams = [
-    entity_role_id
-  ]
-
-  DB.query(query, queryParams)
-    .then((res) => {
-      return reply(res)
-    }).catch((err) => {
-      return reply(err)
-    })
-
-}
-
-function getEntityRoles(request, reply) {
-  var entity_id = request.params.entity_id
-  query = `select * from crm.entity_roles where entity_id = $1`
-
-  queryParams = [
-    entity_id
-  ]
-
-  DB.query(query, queryParams)
-    .then((res) => {
-      return reply(res)
-    }).catch((err) => {
-      return reply(err)
-    })
-}
 
 function getColleagues(request, reply) {
 
@@ -1048,33 +551,13 @@ function createColleague(request,reply){
 }
 
 module.exports = {
-  getAllEntities: getAllEntities,
-  createNewEntity: createNewEntity,
-  getEntity: getEntity,
-  updateEntity: updateEntity,
-  deleteEntity: deleteEntity,
-  getEntityAssociations: getEntityAssociations,
-  createEntityAssociation: createEntityAssociation,
-  getEntityAssociation: getEntityAssociation,
-  updateEntityAssociation: updateEntityAssociation,
-  deleteEntityAssociation: deleteEntityAssociation,
+  getEntity,
   getRoleDocuments,
-  createDocumentHeader: createDocumentHeader,
-  getDocumentHeader: getDocumentHeader,
-  updateDocumentHeader: updateDocumentHeader,
   updateDocumentHeaders,
-  deleteDocumentHeader: deleteDocumentHeader,
   setDocumentOwner: setDocumentOwner,
   getDocumentNameForUser: getDocumentNameForUser,
   setDocumentNameForUser: setDocumentNameForUser,
-  addEntityRole: addEntityRole,
-  deleteEntityRole: deleteEntityRole,
-  getEntityRoles: getEntityRoles,
   getColleagues: getColleagues,
   deleteColleague:deleteColleague,
-  createColleague:createColleague,
-  createNewVerification,
-  updateVerification
-  // checkVerificationCode
-
+  createColleague:createColleague
 }
