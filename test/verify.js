@@ -35,14 +35,14 @@ const createDocumentHeader = async(regimeEntityId) => {
     },
     payload: {
       regime_entity_id : regimeEntityId,
-      owner_entity_id : '',
       system_id : 'permit-repo',
-      system_internal_id : 9999999999,
+      system_internal_id : '9999999999',
       system_external_id : 'xx/xx/xx/xxxx',
       metadata : '{"Name":"TEST LICENCE"}'
     }
   }
   const res = await server.inject(request);
+  console.log(res);
   const {error, data} = JSON.parse(res.payload);
   if(error) {
     throw error;
@@ -58,6 +58,7 @@ const createDocumentHeader = async(regimeEntityId) => {
  * @return {Promise} resolves with entity data
  */
 const createEntity = async(entityType) => {
+  console.log(`Creating entity ${entityType}`);
   const request = {
     method: 'POST',
     url: '/crm/1.0/entity',
@@ -130,6 +131,7 @@ lab.experiment('Check verification', () => {
         return createDocumentHeader(regimeEntityId);
       })
       .then((res) => {
+
         documentHeaderId = res.document_id;
         return;
       })
@@ -205,21 +207,15 @@ lab.experiment('Check verification', () => {
 
     const request = {
       method: 'PATCH',
-      url: `/crm/1.0/documentHeaders`,
+      url: `/crm/1.0/documentHeader?filter=` + JSON.stringify({document_id : [documentHeaderId]}),
       headers: {
         Authorization: process.env.JWT_TOKEN
       },
       payload: {
-        query : {
-          document_id : [documentHeaderId]
-        },
-        set : {
-          verification_id : verificationId
-        }
+        verification_id : verificationId
       }
     };
-    //
-    // console.log(JSON.stringify(request.payload, null, 2));
+
 
     const res = await server.inject(request);
     Code.expect(res.statusCode).to.equal(200);
@@ -234,18 +230,13 @@ lab.experiment('Check verification', () => {
 
     const request = {
       method: 'PATCH',
-      url: `/crm/1.0/documentHeaders`,
+      url: `/crm/1.0/documentHeader?filter=` + JSON.stringify({verification_id : verificationId}),
       headers: {
         Authorization: process.env.JWT_TOKEN
       },
       payload: {
-        query : {
-          verification_id : verificationId
-        },
-        set : {
-          verified : 1,
-          company_entity_id : companyEntityId
-        }
+        verified : 1,
+        company_entity_id : companyEntityId
       }
     };
 

@@ -13,7 +13,7 @@ var bcrypt = require('bcrypt');
  * @return {String} - the random code
  */
 function createShortCode(length = 5) {
-  const alphabet = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  const alphabet = '23456789abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ';
   let str = '';
   for (let i = 0; i < length; i++) {
     str += alphabet.charAt(Math.floor(Math.random() * alphabet.length));
