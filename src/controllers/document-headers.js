@@ -21,7 +21,7 @@ module.exports = (config = {}) => {
       system_internal_id : Joi.string(),
       system_external_id : Joi.string(),
       metadata : Joi.string(),
-      company_entity_id : Joi.string().guid(),
+      company_entity_id : Joi.string().guid().allow(null),
       verified : Joi.number().allow(null),
       verification_id : Joi.string().guid().allow(null)
     }
