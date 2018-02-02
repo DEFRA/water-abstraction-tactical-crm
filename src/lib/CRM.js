@@ -189,7 +189,7 @@ function getEntity(request, reply) {
  * @param {Number} [request.payload.sort.name] - sort on document name +1 : ascending, -1 : descending
  * @return {Promise} resolves with array of licence data
  */
-function getRoleDocuments(request, reply) {
+async function getRoleDocuments(request, reply) {
 
   var response={
     error: null,
@@ -206,29 +206,36 @@ function getRoleDocuments(request, reply) {
   } else {
   var queryParams = [0]
   }
-  DB.query(query, queryParams)
-    .then((res) => {
-      response.summary=res.data
 
-      const builder = new SqlConditionBuilder();
 
-  let queryParams;
-  let query = `
+  var summaryRes= await DB.query(query, queryParams)
+  response.summary=summaryRes.data
+
+  const builder = new SqlConditionBuilder();
+
+  query = `select * from (
+  select core.*,
+  dh.metadata->>'Name' as document_original_name,
+  dh.metadata->>'AddressLine1' as document_address_line_1,
+  dh.metadata->>'AddressLine2' as document_address_line_2,
+  dh.metadata->>'AddressLine3' as document_address_line_3,
+  dh.metadata->>'AddressLine4' as document_address_line_4,
+  dh.metadata->>'Town' as document_town,
+  dh.metadata->>'County' as document_county,
+  dh.metadata->>'Postcode' as document_postcode,
+  dh.metadata->>'Country' as document_country,
+	hd.value AS document_custom_name
+from (
   SELECT
   	distinct
     document_id,system_internal_id, system_external_id,
-    metadata->>'Name' as document_original_name,
-    metadata->>'AddressLine1' as document_address_line_1,
-    metadata->>'AddressLine2' as document_address_line_2,
-    metadata->>'AddressLine3' as document_address_line_3,
-    metadata->>'AddressLine4' as document_address_line_4,
-    metadata->>'Town' as document_town,
-    metadata->>'County' as document_county,
-    metadata->>'Postcode' as document_postcode,
-    metadata->>'Country' as document_country,
-    document_custom_name,
     company_entity_id,regime_entity_id, system_id
-    from crm.role_document_access where 0=0
+    from crm.role_document_access
+) core
+join crm.document_header dh on dh.document_id= core.document_id
+left join crm.entity_document_metadata hd on (hd.key='name' and hd.document_id = core.document_id)
+) data
+where 0=0
   `
   // var queryParams = []
   if (request.payload && request.payload.filter) {
@@ -251,7 +258,7 @@ function getRoleDocuments(request, reply) {
     // special filters
     if (request.payload.filter.entity_id) {
       queryParams.push(request.payload.filter.entity_id)
-      query += ` and document_id in (select document_id from crm.role_document_access where individual_entity_id=$${queryParams.length}) `;
+      query += ` and data.document_id in (select document_id from crm.role_document_access where individual_entity_id=$${queryParams.length}) `;
     }
 
     if (request.payload.filter.string) {
@@ -268,21 +275,20 @@ function getRoleDocuments(request, reply) {
     }
   }
 
-  query += ' LIMIT 250';
+  query += 'limit 250'
 
   console.log(query, queryParams);
 
-  DB.query(query, queryParams)
-    .then((res) => {
-      response.data=res.data
-      return reply(response)
-    })
-  }).catch((err)=>{
-    console.log(err)
-    response.error=err;
+  try{
+    var res=await DB.query(query, queryParams)
+    response.data=res.data
     return reply(response)
+  }catch(e){
+    console.log(e)
+    return reply(e)
+  }
 
-  })
+
 }
 
 
