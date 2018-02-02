@@ -268,6 +268,8 @@ function getRoleDocuments(request, reply) {
     }
   }
 
+  query += ' LIMIT 250';
+
   console.log(query, queryParams);
 
   DB.query(query, queryParams)
