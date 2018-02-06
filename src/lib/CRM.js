@@ -214,7 +214,7 @@ async function getRoleDocuments(request, reply) {
   const builder = new SqlConditionBuilder();
 
   query = `select * from (
-  select core.*,
+  select core.*,dh.metadata,dh.verified,
   dh.metadata->>'Name' as document_original_name,
   dh.metadata->>'AddressLine1' as document_address_line_1,
   dh.metadata->>'AddressLine2' as document_address_line_2,
