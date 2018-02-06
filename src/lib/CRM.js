@@ -229,7 +229,7 @@ from (
   SELECT
   	distinct
     document_id,system_internal_id, system_external_id,
-    company_entity_id,regime_entity_id, system_id
+    company_entity_id,regime_entity_id, system_id, individual_entity_id, individual_nm
     from crm.role_document_access
 ) core
 join crm.document_header dh on dh.document_id= core.document_id
@@ -258,7 +258,8 @@ where 0=0
     // special filters
     if (request.payload.filter.entity_id) {
       queryParams.push(request.payload.filter.entity_id)
-      query += ` and data.document_id in (select document_id from crm.role_document_access where individual_entity_id=$${queryParams.length}) `;
+//      query += ` and data.document_id in (select document_id from crm.role_document_access where individual_entity_id=$${queryParams.length}) `;
+        query += ` and individual_entity_id=$${queryParams.length}`;
     }
 
     if (request.payload.filter.string) {
