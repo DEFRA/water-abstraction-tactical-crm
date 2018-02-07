@@ -15,6 +15,7 @@
  Date: 01/12/2017 09:15:38
 */
 
+CREATE SCHEMA IF NOT EXISTS 'crm';
 set schema 'crm';
 
 -- ----------------------------
