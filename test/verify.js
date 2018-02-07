@@ -113,47 +113,53 @@ const deleteDocumentHeader = async(documentId) => {
 
 
 
+
+
 lab.experiment('Check verification', () => {
 
-  lab.before((cb) => {
-
-    createEntity('regime')
-      .then((res) => {
-        regimeEntityId = res.entity_id;
-        return createEntity('individual');
-      })
-      .then((res) => {
-        individualEntityId = res.entity_id;
-        return createEntity('company');
-      })
-      .then((res) => {
-        companyEntityId = res.entity_id;
-        return createDocumentHeader(regimeEntityId);
-      })
-      .then((res) => {
-
-        documentHeaderId = res.document_id;
-        return;
-      })
-      .then(() => {
-        cb();
-      });
+  // Create regime
+  lab.before(async() => {
+    const {entity_id} = await createEntity('regime');
+    regimeEntityId = entity_id;
+    return;
   });
 
-  lab.after((cb) => {
+  // Create company
+  lab.before(async() => {
+    const {entity_id} = await createEntity('company');
+    companyEntityId = entity_id;
+    return;
+  });
+
+  // Create individual
+  lab.before(async() => {
+    const {entity_id} = await createEntity('individual');
+    individualEntityId = entity_id;
+    return;
+  });
+
+  // Create doc
+  lab.before(async() => {
+    const {document_id} = await createDocumentHeader(regimeEntityId);
+    documentHeaderId = document_id;
+    return;
+  });
+
+
+  lab.after(async() => {
     // Delete all temporary entities
     const entityIds = [regimeEntityId, individualEntityId, companyEntityId];
-    Promise.all(entityIds, (entityId) => {
+    await Promise.all(entityIds, (entityId) => {
       return deleteEntity(entityId);
-    })
-    .then(() => {
-      return deleteDocumentHeader(documentHeaderId);
-    })
-    .then(() => {
-      cb();
-    })
+    });
+    return;
   });
 
+  lab.after(async() => {
+    // Delete all temporary docs
+    await deleteDocumentHeader(documentHeaderId)
+    return;
+  });
 
 
   // * @param {String} request.payload.entity_id - the GUID of the current individual's entity
