@@ -16,7 +16,8 @@ script:
 env:
   global:
     - DATABASE_URL=postgres://postgres:@localhost:5432/travis_ci_test
-    - JWT_SECRET=averylongjwtsecret
-    - JWT_TOKEN=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6MTIzNCwianRpIjoiYWNmNDAzMTgtZGU2NS00NjM4LThmNGMtOGRjZGJiZDllODJkIiwiaWF0IjoxNTE4MDE4MDg1LCJleHAiOjE1MTgwMjE2ODV9.LtJmUg70x_D_n6tgNYcfYeFS3cjoYRxILLto4KU8WW0
+    - JWT_SECRET=secret
+    - JWT_TOKEN=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTIzNH0.MOREC6-Kszb9bDFw0O1UKywpnkcP-c5cPjASMpjk8Po
     - errbit_key=xyz
     - errbit_server=http://localhost
+    - PORT=8002
