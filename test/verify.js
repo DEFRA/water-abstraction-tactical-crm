@@ -46,6 +46,7 @@ const createDocumentHeader = async(regimeEntityId) => {
   console.log(res);
   const {error, data} = JSON.parse(res.payload);
   if(error) {
+    console.error(error);
     throw error;
   }
   return data;
@@ -75,6 +76,7 @@ const createEntity = async(entityType) => {
   const res = await server.inject(request);
   const {error, data} = JSON.parse(res.payload);
   if(error) {
+    console.error(error);
     throw error;
   }
   return data;
