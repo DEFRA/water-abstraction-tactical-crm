@@ -8,13 +8,14 @@
  * - Update documents with verification ID to verified status
  */
 'use strict'
-
 const Lab = require('lab')
 const lab = exports.lab = Lab.script()
 const moment = require('moment');
 
-const Code = require('code')
-const server = require('../index')
+const Code = require('code');
+const server = require('../index');
+
+console.log(`Node version ${ process.version }`);
 
 let regimeEntityId = null;
 let individualEntityId = null;
