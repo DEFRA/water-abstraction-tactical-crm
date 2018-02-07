@@ -9,11 +9,13 @@
     "test": "lab -t 90 -m 0",
     "test-cov-html": "lab -r html -o coverage.html",
     "docs": "jsdoc -c conf.jsdoc.json && cd ./out && serve -o -p 3012",
-    "migrate": "cd ./migration/ && npm i && node node_modules/db-migrate/bin/db-migrate up --verbose"
+    "migrate": "node node_modules/db-migrate/bin/db-migrate up --verbose"
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "db-migrate": "^0.10.5",
+    "db-migrate-pg": "^0.3.0",
     "del": "^3.0.0",
     "gulp": "^3.9.1",
     "gulp-run-sequence": "^0.3.2",
