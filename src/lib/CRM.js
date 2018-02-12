@@ -187,9 +187,19 @@ function getEntity(request, reply) {
  * @param {Object} [request.payload.sort] - sort criteria
  * @param {Number} [request.payload.sort.document_id] - sort by document_id +1 : ascending, -1 : descending
  * @param {Number} [request.payload.sort.name] - sort on document name +1 : ascending, -1 : descending
+ * @param {Object} [request.payload.pagination] - sets pagination options
+ * @param {Number} [request.payload.pagination.page] - sets current page of results
+ * @param {Number} [request.payload.pagination.perPage] - sets number of results to access per page
  * @return {Promise} resolves with array of licence data
  */
 async function getRoleDocuments(request, reply) {
+
+  const defaultPagination = {
+    page : 1,
+    perPage : 100
+  };
+  const pagination = request.payload.pagination || defaultPagination;
+  const limit = pagination.perPage, offset = (pagination.page - 1) * pagination.perPage;
 
   var response={
     error: null,
@@ -276,13 +286,22 @@ where 0=0
     }
   }
 
-  query += 'limit 250'
+  // Get total row count without pagination
+  var rowCountQuery = query.replace(/^select \*/, `SELECT COUNT(*) AS totalrowcount `).replace(/ORDER BY .*/, '');
 
-  console.log(query, queryParams);
+  query += ` LIMIT ${limit} OFFSET ${offset}`;
 
   try{
-    var res=await DB.query(query, queryParams)
+    var res=await DB.query(query, queryParams);
+    var res2= await DB.query(rowCountQuery, queryParams);
+    const totalRows = parseInt(res2.data[0].totalrowcount, 10);
+
     response.data=res.data
+    response.pagination = {
+      ...pagination,
+      totalRows,
+      pageCount : Math.ceil(totalRows / pagination.perPage)
+    };
     return reply(response)
   }catch(e){
     console.log(e)
