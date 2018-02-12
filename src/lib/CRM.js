@@ -448,8 +448,7 @@ console.log(request.query)
     i.e. users with a different entity id who have role that have the same company
   **/
 
-  query =`
-  select
+  query =` select
   distinct
   grantee_role.entity_role_id,
   grantee_role.entity_id as individual_entity_id,
@@ -461,26 +460,21 @@ console.log(request.query)
   grantee_role.created_by
   from crm.entity_roles grantee_role
   join crm.entity_roles granter_role on (
-
   (
-   granter_role.entity_id=$1 and
-   granter_role.regime_entity_id = grantee_role.regime_entity_id and
-   granter_role.company_entity_id is null
+    grantee_role.created_by = granter_role.entity_id
   )
   or
   (
-   granter_role.entity_id=$1 and
-   granter_role.company_entity_id = grantee_role.company_entity_id
-  )
+  granter_role.company_entity_id = grantee_role.company_entity_id
+  and granter_role.role='primary_user'
   )
   join crm.entity entity on (
    grantee_role.entity_id = entity.entity_id
   )
-
-where
-( granter_role.role='admin' or granter_role.is_primary=1 )
-  and grantee_role.entity_id !=$1
-
+  where
+  grantee_role.entity_id !=$1
+  and
+  granter_role.entity_id = $1
     `
 
   queryParams = [
