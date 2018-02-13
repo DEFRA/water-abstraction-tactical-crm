@@ -193,28 +193,26 @@ function getEntity(request, reply) {
  * @return {Promise} resolves with array of licence data
  */
 async function getRoleDocuments(request, reply) {
-
   const defaultPagination = {
     page : 1,
     perPage : 100
   };
-  const pagination = request.payload.pagination || defaultPagination;
+  const payload = request.payload || {}
+  const pagination = payload.pagination || defaultPagination;
   const limit = pagination.perPage, offset = (pagination.page - 1) * pagination.perPage;
-
+  console.log('here 4')
   var response={
     error: null,
     data: null,
     summary: null,
   }
-
   var query = `
   select count(role),role from crm.role_document_access where individual_entity_id=$1 group by role
   `
-
   if(request.payload && request.payload.filter){
   var queryParams = [request.payload.filter.entity_id]
   } else {
-  var queryParams = [0]
+  var queryParams = []
   }
 
 
@@ -294,6 +292,9 @@ where 0=0
   try{
     var res=await DB.query(query, queryParams);
     var res2= await DB.query(rowCountQuery, queryParams);
+    console.log(rowCountQuery, queryParams)
+    console.log(res)
+    console.log(res2)
     const totalRows = parseInt(res2.data[0].totalrowcount, 10);
 
     response.data=res.data
