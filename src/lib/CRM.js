@@ -187,48 +187,63 @@ function getEntity(request, reply) {
  * @param {Object} [request.payload.sort] - sort criteria
  * @param {Number} [request.payload.sort.document_id] - sort by document_id +1 : ascending, -1 : descending
  * @param {Number} [request.payload.sort.name] - sort on document name +1 : ascending, -1 : descending
+ * @param {Object} [request.payload.pagination] - sets pagination options
+ * @param {Number} [request.payload.pagination.page] - sets current page of results
+ * @param {Number} [request.payload.pagination.perPage] - sets number of results to access per page
  * @return {Promise} resolves with array of licence data
  */
-function getRoleDocuments(request, reply) {
-
+async function getRoleDocuments(request, reply) {
+  const defaultPagination = {
+    page : 1,
+    perPage : 100
+  };
+  const payload = request.payload || {}
+  const pagination = payload.pagination || defaultPagination;
+  const limit = pagination.perPage, offset = (pagination.page - 1) * pagination.perPage;
+  console.log('here 4')
   var response={
     error: null,
     data: null,
     summary: null,
   }
-
   var query = `
   select count(role),role from crm.role_document_access where individual_entity_id=$1 group by role
   `
-
   if(request.payload && request.payload.filter){
   var queryParams = [request.payload.filter.entity_id]
   } else {
-  var queryParams = [0]
+  var queryParams = []
   }
-  DB.query(query, queryParams)
-    .then((res) => {
-      response.summary=res.data
 
-      const builder = new SqlConditionBuilder();
 
-  let queryParams;
-  let query = `
+  var summaryRes= await DB.query(query, queryParams)
+  response.summary=summaryRes.data
+
+  const builder = new SqlConditionBuilder();
+
+  query = `select * from (
+  select core.*,dh.metadata,dh.verified,
+  dh.metadata->>'Name' as document_original_name,
+  dh.metadata->>'AddressLine1' as document_address_line_1,
+  dh.metadata->>'AddressLine2' as document_address_line_2,
+  dh.metadata->>'AddressLine3' as document_address_line_3,
+  dh.metadata->>'AddressLine4' as document_address_line_4,
+  dh.metadata->>'Town' as document_town,
+  dh.metadata->>'County' as document_county,
+  dh.metadata->>'Postcode' as document_postcode,
+  dh.metadata->>'Country' as document_country,
+	hd.value AS document_custom_name
+from (
   SELECT
   	distinct
     document_id,system_internal_id, system_external_id,
-    metadata->>'Name' as document_original_name,
-    metadata->>'AddressLine1' as document_address_line_1,
-    metadata->>'AddressLine2' as document_address_line_2,
-    metadata->>'AddressLine3' as document_address_line_3,
-    metadata->>'AddressLine4' as document_address_line_4,
-    metadata->>'Town' as document_town,
-    metadata->>'County' as document_county,
-    metadata->>'Postcode' as document_postcode,
-    metadata->>'Country' as document_country,
-    document_custom_name,
-    company_entity_id,regime_entity_id, system_id
-    from crm.role_document_access where 0=0
+    company_entity_id,regime_entity_id, system_id, individual_entity_id, individual_nm
+    from crm.role_document_access
+) core
+join crm.document_header dh on dh.document_id= core.document_id
+left join crm.entity_document_metadata hd on (hd.key='name' and hd.document_id = core.document_id)
+) data
+where 0=0
   `
   // var queryParams = []
   if (request.payload && request.payload.filter) {
@@ -251,12 +266,13 @@ function getRoleDocuments(request, reply) {
     // special filters
     if (request.payload.filter.entity_id) {
       queryParams.push(request.payload.filter.entity_id)
-      query += ` and document_id in (select document_id from crm.role_document_access where individual_entity_id=$${queryParams.length}) `;
+//      query += ` and data.document_id in (select document_id from crm.role_document_access where individual_entity_id=$${queryParams.length}) `;
+        query += ` and individual_entity_id=$${queryParams.length}`;
     }
 
     if (request.payload.filter.string) {
       queryParams.push(`%${request.payload.filter.string}%`);
-      query += ` and ( metadata->>'Name' ilike $${queryParams.length} or document_custom_name ilike $${queryParams.length} OR system_external_id ilike $${queryParams.length} )`
+      query += ` and ( document_custom_name ilike $${queryParams.length} OR system_external_id ilike $${queryParams.length} )`
     }
 
 
@@ -268,19 +284,32 @@ function getRoleDocuments(request, reply) {
     }
   }
 
-  console.log(query, queryParams);
+  // Get total row count without pagination
+  var rowCountQuery = query.replace(/^select \*/, `SELECT COUNT(*) AS totalrowcount `).replace(/ORDER BY .*/, '');
 
-  DB.query(query, queryParams)
-    .then((res) => {
-      response.data=res.data
-      return reply(response)
-    })
-  }).catch((err)=>{
-    console.log(err)
-    response.error=err;
+  query += ` LIMIT ${limit} OFFSET ${offset}`;
+
+  try{
+    var res=await DB.query(query, queryParams);
+    var res2= await DB.query(rowCountQuery, queryParams);
+    console.log(rowCountQuery, queryParams)
+    console.log(res)
+    console.log(res2)
+    const totalRows = parseInt(res2.data[0].totalrowcount, 10);
+
+    response.data=res.data
+    response.pagination = {
+      ...pagination,
+      totalRows,
+      pageCount : Math.ceil(totalRows / pagination.perPage)
+    };
     return reply(response)
+  }catch(e){
+    console.log(e)
+    return reply(e)
+  }
 
-  })
+
 }
 
 
@@ -439,8 +468,7 @@ console.log(request.query)
     i.e. users with a different entity id who have role that have the same company
   **/
 
-  query =`
-  select
+  query =`  select
   distinct
   grantee_role.entity_role_id,
   grantee_role.entity_id as individual_entity_id,
@@ -452,15 +480,12 @@ console.log(request.query)
   grantee_role.created_by
   from crm.entity_roles grantee_role
   join crm.entity_roles granter_role on (
-
   (
-   granter_role.entity_id=$1 and
    granter_role.regime_entity_id = grantee_role.regime_entity_id and
    granter_role.company_entity_id is null
   )
   or
   (
-   granter_role.entity_id=$1 and
    granter_role.company_entity_id = grantee_role.company_entity_id
   )
   )
@@ -469,9 +494,11 @@ console.log(request.query)
   )
 
 where
-( granter_role.role='admin' or granter_role.is_primary=1 )
-  and grantee_role.entity_id !=$1
-
+ granter_role.role='primary_user'
+and
+  grantee_role.entity_id !=$1
+  and
+  granter_role.entity_id = $1
     `
 
   queryParams = [
