@@ -152,6 +152,14 @@ function getEntity(request, reply) {
       responseData.entityRoles = []
     }).then(() => {
 
+      var response = {
+        error: null,
+        data: responseData
+      }
+      console.log(response)
+      return reply(response)
+
+/**
       _getRoleDocuments(responseData.entityRoles)
         .then((roleDocuments) => {
           console.log(`get entity roleDocuments for ${request.params.entity_id}`)
@@ -168,6 +176,7 @@ function getEntity(request, reply) {
           console.log(response)
           return reply(response)
         })
+**/
     })
   })
 }
