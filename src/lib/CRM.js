@@ -152,6 +152,8 @@ function getEntity(request, reply) {
       responseData.entityRoles = []
     }).then(() => {
 
+      responseData.roleDocuments = []
+
       var response = {
         error: null,
         data: responseData
@@ -302,8 +304,8 @@ where 0=0
     var res=await DB.query(query, queryParams);
     var res2= await DB.query(rowCountQuery, queryParams);
     console.log(rowCountQuery, queryParams)
-    console.log(res)
-    console.log(res2)
+//    console.log(res)
+//    console.log(res2)
     const totalRows = parseInt(res2.data[0].totalrowcount, 10);
 
     response.data=res.data
