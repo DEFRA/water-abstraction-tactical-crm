@@ -235,6 +235,7 @@ async function getRoleDocuments(request, reply) {
   query = `select * from (
   select core.*,dh.metadata,dh.verified,
   dh.metadata->>'Name' as document_original_name,
+  dh.metadata->>'Expires' as document_expires,
   dh.metadata->>'AddressLine1' as document_address_line_1,
   dh.metadata->>'AddressLine2' as document_address_line_2,
   dh.metadata->>'AddressLine3' as document_address_line_3,
