@@ -6,3 +6,4 @@
 /views/
 .env
 /out/
+lcov.info
