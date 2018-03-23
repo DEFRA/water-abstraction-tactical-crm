@@ -10,11 +10,11 @@ CREATE TABLE crm.verification_documents
     CONSTRAINT document_id FOREIGN KEY (document_id)
         REFERENCES crm.document_header (document_id) MATCH SIMPLE
         ON UPDATE NO ACTION
-        ON DELETE NO ACTION,
+        ON DELETE CASCADE,
     CONSTRAINT verification_id FOREIGN KEY (verification_id)
         REFERENCES crm.verification (verification_id) MATCH SIMPLE
         ON UPDATE NO ACTION
-        ON DELETE NO ACTION,
+        ON DELETE CASCADE,
     PRIMARY KEY(verification_id, document_id)
 );
 

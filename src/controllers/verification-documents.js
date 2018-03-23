@@ -40,7 +40,7 @@ async function getVerificationDocuments(request, reply) {
   const params = [id];
   try {
     const {rows : data} = await pool.query(query, params);
-    return reply({error : null, data}).code(500);
+    return reply({error : null, data}).code(200);
   }
   catch(error) {
     console.log(error);
