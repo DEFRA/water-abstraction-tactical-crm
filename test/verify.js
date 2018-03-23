@@ -43,7 +43,6 @@ const createDocumentHeader = async(regimeEntityId) => {
     }
   }
   const res = await server.inject(request);
-  console.log(res);
   const {error, data} = JSON.parse(res.payload);
   if(error) {
     console.error(error);
@@ -186,11 +185,7 @@ lab.experiment('Check verification', () => {
       }
     }
 
-    console.log('here1');
-
     const res = await server.inject(request);
-    console.log('here2');
-    console.log(res);
     Code.expect(res.statusCode).to.equal(201);
 
 
@@ -209,19 +204,15 @@ lab.experiment('Check verification', () => {
 
   })
 
-  lab.test('The API should update documents with verification_id', async () => {
-
-    // @TODO company ID set at this stage
-    console.log('The API should update documents with verification_id');
-
+  lab.test('The API should save verification documents list', async () => {
     const request = {
-      method: 'PATCH',
-      url: `/crm/1.0/documentHeader?filter=` + JSON.stringify({document_id : [documentHeaderId]}),
+      method: 'POST',
+      url: `/crm/1.0/verification/${ verificationId }/documents`,
       headers: {
         Authorization: process.env.JWT_TOKEN
       },
       payload: {
-        verification_id : verificationId
+        document_id : [documentHeaderId]
       }
     };
 
@@ -231,6 +222,28 @@ lab.experiment('Check verification', () => {
 
     const payload = JSON.parse(res.payload);
     Code.expect(payload.error).to.equal(null);
+    console.log('task 1 stop');
+  })
+
+  lab.test('The API should get verification documents list', async () => {
+
+    const request = {
+      method: 'GET',
+      url: `/crm/1.0/verification/${ verificationId }/documents`,
+      headers: {
+        Authorization: process.env.JWT_TOKEN
+      }
+    };
+
+
+    const res = await server.inject(request);
+    Code.expect(res.statusCode).to.equal(200);
+
+    const payload = JSON.parse(res.payload);
+    Code.expect(payload.error).to.equal(null);
+    Code.expect(payload.data).to.equal([
+        {verification_id : verificationId, document_id : documentHeaderId}
+    ]);
   })
 
   lab.test('The API should update documents to verified by verification_id', async () => {
@@ -272,20 +285,11 @@ lab.experiment('Check verification', () => {
     };
     const res = await server.inject(request);
 
-
-    console.log('statusCode', res.statusCode);
-    console.log('payload', res.payload);
-
     Code.expect(res.statusCode).to.equal(200);
 
     // Check payload
     const payload = JSON.parse(res.payload);
 
-
-
-    // console.log(payload);
-
-    //Code.expect(payload.error).to.equal(null);
   })
 
   lab.test('The API should be able to check a verification code', async () => {
@@ -308,33 +312,7 @@ lab.experiment('Check verification', () => {
     Code.expect(payload.data.verification_code).to.equal(verificationCode);
   })
 
-  /*
-  lab.test('The API should return error for incorrect verification code', async () => {
 
-    console.log('The API should return error for incorrect verification code');
-
-    const request = {
-      method: 'POST',
-      url: `/crm/1.0/verification/check`,
-      headers: {
-        Authorization: process.env.JWT_TOKEN
-      },
-      payload: {
-        entity_id : individualEntityId,
-        company_entity_id : companyEntityId,
-        verification_code : 'WRONG'
-      }
-    };
-
-    const res = await server.inject(request);
-    // Code.expect(res.statusCode).to.equal(200);
-
-    // Check payload
-    const payload = JSON.parse(res.payload);
-    console.log(payload);
-    // Code.expect(payload.error).to.equal(null);
-  })
-  */
 
 
 })
