@@ -20,6 +20,8 @@ const VerificationApi = require('../controllers/verifications.js')(apiConfig);
 const DocumentHeaderApi = require('../controllers/document-headers.js')(apiConfig);
 const DocumentRolesApi = require('../controllers/document-roles.js')(apiConfig);
 const EntityRolesApi = require('../controllers/entity-roles.js')(apiConfig);
+const VerificationDocumentsController = require('../controllers/verification-documents.js')
+
 
 module.exports = [
   { method: 'GET', path: '/status', handler: function(request,reply){return reply('ok').code(200)}, config:{auth: false,description:'Get all entities'}},
@@ -79,6 +81,35 @@ module.exports = [
   ...EntityRolesApi.getRoutes(),
 
   ...VerificationApi.getRoutes(),
+
+  {
+    method : 'POST',
+    path: '/crm/' + version + '/verification/{id}/documents',
+    handler : VerificationDocumentsController.postVerificationDocuments,
+    config : {
+      validate : {
+        params : {
+          id : Joi.string().guid().required()
+        },
+        payload : {
+          document_id : Joi.array().items(Joi.string().guid()).required()
+        }
+      }
+    }
+  },
+
+  {
+    method : 'GET',
+    path: '/crm/' + version + '/verification/{id}/documents',
+    handler : VerificationDocumentsController.getVerificationDocuments,
+    config : {
+      validate : {
+        params : {
+          id : Joi.string().guid().required()
+        }
+      }
+    }
+  }
 
 
 ]
