@@ -208,6 +208,7 @@ async function getRoleDocuments(request, reply) {
     page : 1,
     perPage : 100
   };
+  console.log(request.payload);
   const payload = request.payload || {}
   const pagination = payload.pagination || defaultPagination;
   const limit = pagination.perPage, offset = (pagination.page - 1) * pagination.perPage;
@@ -244,6 +245,7 @@ async function getRoleDocuments(request, reply) {
   dh.metadata->>'County' as document_county,
   dh.metadata->>'Postcode' as document_postcode,
   dh.metadata->>'Country' as document_country,
+  (dh.metadata->>'IsCurrent'::text)::bool as document_is_current,
 	hd.value AS document_custom_name
 from (
   SELECT
@@ -256,6 +258,8 @@ join crm.document_header dh on dh.document_id= core.document_id
 left join crm.entity_document_metadata hd on (hd.key='name' and hd.document_id = core.document_id)
 ) data
 where 0=0
+AND document_is_current!=false
+
   `
   // var queryParams = []
   if (request.payload && request.payload.filter) {
@@ -303,10 +307,15 @@ where 0=0
 
   try{
     var res=await DB.query(query, queryParams);
+
+    if(res.error) {
+      console.log('Error in document header query', query, queryParams, res.error);
+    }
+
     var res2= await DB.query(rowCountQuery, queryParams);
-    console.log(rowCountQuery, queryParams)
-//    console.log(res)
-//    console.log(res2)
+    if(res2.error) {
+      console.log('Error in row count query', rowCountQuery, queryParams, res2.error);
+    }
     const totalRows = parseInt(res2.data[0].totalrowcount, 10);
 
     response.data=res.data

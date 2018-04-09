@@ -12,11 +12,14 @@ async function postVerificationDocuments(request, reply) {
   const { document_id : documentId } = request.payload;
 
   let query = `INSERT INTO crm.verification_documents (verification_id, document_id) VALUES `;
+  const rows = [];
   const params = [id];
   documentId.forEach((docId) => {
     params.push(docId);
-    query += `($1, $${ params.length})`;
+    rows.push(`($1, $${ params.length})`)
   });
+
+  query += rows.join(',');
 
   try {
     const {rows : data} = await pool.query(query, params);
