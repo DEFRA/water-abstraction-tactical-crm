@@ -26,6 +26,7 @@ const DocumentHeaderApi = require('../controllers/document-headers.js')(apiConfi
 const DocumentRolesApi = require('../controllers/document-roles.js')(apiConfig);
 const EntityRolesApi = require('../controllers/entity-roles.js')(apiConfig);
 const RoleEntityApi = require('../controllers/role-entities.js')(apiConfig);
+const RoleEntityView = require('../controllers/role-entities-view.js')(apiConfig);
 const RolesApi = require('../controllers/roles.js')(apiConfig);
 const VerificationDocumentsController = require('../controllers/verification-documents.js')
 
@@ -60,7 +61,8 @@ module.exports = [{
 
   ...RolesApi.getRoutes(),
   ...RoleEntityApi.getRoutes(),
-
+  RoleEntityView.findManyRoute(),
+  RoleEntityView.findOneRoute(),
 
 
   {
