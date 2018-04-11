@@ -163,80 +163,9 @@ function getEntity(request, reply) {
       console.log(response)
       return reply(response)
 
-/**
-      _getRoleDocuments(responseData.entityRoles)
-        .then((roleDocuments) => {
-          console.log(`get entity roleDocuments for ${request.params.entity_id}`)
-          console.log(responseData.roleDocuments)
-          responseData.roleDocuments = roleDocuments
-        }).catch((err) => {
-          console.log(err)
-          responseData.roleDocuments = []
-        }).then(() => {
-          var response = {
-            error: null,
-            data: responseData
-          }
-          console.log(response)
-          return reply(response)
-        })
-**/
     })
   })
 }
-
-
-/**
- * Function to map a data row from the roles table into a mongo-sql
- * style query
- * @param {Object} row - from entity_roles table
- * @return {Object} mongo-sql query for document_header table
- */
-function mapRole (row) {
-  const {regime_entity_id, company_entity_id} = row;
-
-  return company_entity_id
-    ? { company_entity_id }
-    : { regime_entity_id };
-}
-
-
-
-/**
- * Gets a list of roles from the DB for supplied email address
- * @param {String} email
- * @return {Array} entity_role records
- */
-async function getRolesForEmail(email) {
-  const query = `SELECT r.* FROM crm.entity e
-            JOIN crm.entity_roles r ON e.entity_id=r.entity_id
-            WHERE LOWER(e.entity_nm)=LOWER($1) AND e.entity_type='individual' `;
-  const { data, error } = await DB.query(query, [email]);
-  if(error) {
-    throw error;
-  }
-  if(data.length === 0) {
-    throw `Entity ${ email } not found!`;
-  }
-  return data;
-}
-
-/**
- * Get roles for entity ID
- * @params {String} entityId - individual
- * @return {Array} entity_role records
- */
- async function getRolesForIndividual(entityId) {
-   const query = `SELECT * FROM crm.entity_roles WHERE entity_id=$1`;
-   let { data, error } = await DB.query(query, [entityId]);
-   if(error) {
-     throw error;
-   }
-   if(data.length === 0) {
-     throw `Entity ${ entityId } not found!`;
-   }
-   return data;
- }
 
 
 
@@ -383,55 +312,7 @@ function setDocumentOwner(request, reply) {
     })
 }
 
-// function getDocumentNameForUser(request, reply) {
-//   var query = `
-//       select value from crm.entity_document_metadata where document_id=$1 and key='name'
-//     `
-//   var queryParams = [
-//     request.params.document_id
-//   ]
-//   console.log(query)
-//   console.log(queryParams)
-//   DB.query(query, queryParams)
-//     .then((res) => {
-//       return reply({
-//         error: res.error,
-//         data: res.data
-//       })
-//     }).catch((err) => {
-//       return reply(err)
-//     })
-// }
 
-// function setDocumentNameForUser(request, reply) {
-//   //note: uses onconflict for upsert
-//   var query = `
-//       insert into crm.entity_document_metadata (entity_id,document_id,key,value)
-//       values(0,$1,'name',$2)
-//       ON CONFLICT (entity_id,document_id,key) DO UPDATE
-//       SET value = $2;
-//     `
-//
-//   console.log(request.payload.name)
-//   var queryParams = [
-//     request.params.document_id,
-//     request.payload['name']
-//   ]
-//
-//   console.log(query, queryParams)
-//
-//
-//   DB.query(query, queryParams)
-//     .then((res) => {
-//       console.log(res)
-//       getDocumentNameForUser(request, reply)
-//     }).catch((err) => {
-//       console.log(err);
-//       return reply(err)
-//     })
-//
-//
-// }
 
 
 function getColleagues(request, reply) {

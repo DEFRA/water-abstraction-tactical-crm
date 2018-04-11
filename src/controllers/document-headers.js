@@ -1,23 +1,44 @@
 const HAPIRestAPI = require('hapi-pg-rest-api');
 const Joi = require('joi');
 
+/**
+ * Function to map a data row from the roles table into a mongo-sql
+ * style query
+ * @todo may need work if supporting user who can use all regimes
+ * @param {Object} row - from entity_roles table
+ * @return {Object} mongo-sql query for document_header table
+ */
+function mapRole (row) {
+  const {regime_entity_id, company_entity_id} = row;
+
+  return company_entity_id
+    ? { company_entity_id }
+    : { regime_entity_id };
+}
+
+/**
+ * Get search filter from string
+ * @param {String} string
+ * @return {Promise} resolves with mongo-sql
+ */
+const getSearchFilter = (string) => {
+ return [
+     {
+       system_external_id : {
+         $ilike : `%${ string }%`
+       }
+     },
+     {
+       document_name : {
+         $ilike : `%${ string }%`
+       }
+     }
+   ];
+}
+
+
 module.exports = (config = {}) => {
   const {pool, version} = config;
-
-  /**
-   * Function to map a data row from the roles table into a mongo-sql
-   * style query
-   * @todo may need work if supporting user who can use all regimes
-   * @param {Object} row - from entity_roles table
-   * @return {Object} mongo-sql query for document_header table
-   */
-  function mapRole (row) {
-    const {regime_entity_id, company_entity_id} = row;
-
-    return company_entity_id
-      ? { company_entity_id }
-      : { regime_entity_id };
-  }
 
   /**
    * Gets a list of roles from the DB for supplied email address
@@ -49,25 +70,7 @@ module.exports = (config = {}) => {
      return rows;
    }
 
-   /**
-    * Get search filter from string
-    * @param {String} string
-    * @return {Promise} resolves with mongo-sql
-    */
-  const getSearchFilter = (string) => {
-    return [
-        {
-          system_external_id : {
-            $ilike : `%${ string }%`
-          }
-        },
-        {
-          document_name : {
-            $ilike : `%${ string }%`
-          }
-        }
-      ];
-  }
+
 
   /**
    * Get email filter from email string
