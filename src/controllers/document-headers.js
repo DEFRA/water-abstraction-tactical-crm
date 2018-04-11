@@ -7,7 +7,7 @@ module.exports = (config = {}) => {
   /**
    * Function to map a data row from the roles table into a mongo-sql
    * style query
-   * @todo may need work if supporting user who can use all regimes 
+   * @todo may need work if supporting user who can use all regimes
    * @param {Object} row - from entity_roles table
    * @return {Object} mongo-sql query for document_header table
    */
@@ -153,7 +153,8 @@ module.exports = (config = {}) => {
       metadata : Joi.string(),
       company_entity_id : Joi.string().guid().allow(null),
       verified : Joi.number().allow(null),
-      verification_id : Joi.string().guid().allow(null)
+      verification_id : Joi.string().guid().allow(null),
+      document_name : Joi.string()
     }
   });
 }
