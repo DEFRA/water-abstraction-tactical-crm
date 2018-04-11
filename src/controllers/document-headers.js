@@ -107,15 +107,13 @@ async function preQuery (result, hapiRequest) {
  };
 
  // Search by entity ID / entity email address (can be combined)
- if(email || entityId) {
-   filter.$and = [];
- }
-
  if(email) {
+   filter.$and = [];
    filter.$and.push(await getEmailFilter(email));
  }
 
  if(entityId) {
+   filter.$and = filter.$and || [];
    filter.$and.push(await getEntityFilter(entityId));
  }
 
