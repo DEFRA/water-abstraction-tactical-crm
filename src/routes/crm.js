@@ -102,22 +102,22 @@ module.exports = [{
   // DocumentHeaderApi.getRoutes()[0],
   // {  method: 'POST', path: '/crm/' + version + '/documentHeader', handler: CRM.createDocumentHeader ,config:{description:'Create new document header'}},
 
-  {
-    method: 'GET',
-    path: '/crm/' + version + '/documentHeader/{document_id}/entity/{entity_id}/name',
-    handler: CRM.getDocumentNameForUser,
-    config: {
-      description: 'Get custom name for document'
-    }
-  },
-  {
-    method: 'POST',
-    path: '/crm/' + version + '/documentHeader/{document_id}/entity/{entity_id}/name',
-    handler: CRM.setDocumentNameForUser,
-    config: {
-      description: 'Set custom name for document'
-    }
-  },
+  // {
+  //   method: 'GET',
+  //   path: '/crm/' + version + '/documentHeader/{document_id}/entity/{entity_id}/name',
+  //   handler: CRM.getDocumentNameForUser,
+  //   config: {
+  //     description: 'Get custom name for document'
+  //   }
+  // },
+  // {
+  //   method: 'POST',
+  //   path: '/crm/' + version + '/documentHeader/{document_id}/entity/{entity_id}/name',
+  //   handler: CRM.setDocumentNameForUser,
+  //   config: {
+  //     description: 'Set custom name for document'
+  //   }
+  // },
 
 
   // Document header

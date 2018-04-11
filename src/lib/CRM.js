@@ -383,55 +383,55 @@ function setDocumentOwner(request, reply) {
     })
 }
 
-function getDocumentNameForUser(request, reply) {
-  var query = `
-      select value from crm.entity_document_metadata where document_id=$1 and key='name'
-    `
-  var queryParams = [
-    request.params.document_id
-  ]
-  console.log(query)
-  console.log(queryParams)
-  DB.query(query, queryParams)
-    .then((res) => {
-      return reply({
-        error: res.error,
-        data: res.data
-      })
-    }).catch((err) => {
-      return reply(err)
-    })
-}
+// function getDocumentNameForUser(request, reply) {
+//   var query = `
+//       select value from crm.entity_document_metadata where document_id=$1 and key='name'
+//     `
+//   var queryParams = [
+//     request.params.document_id
+//   ]
+//   console.log(query)
+//   console.log(queryParams)
+//   DB.query(query, queryParams)
+//     .then((res) => {
+//       return reply({
+//         error: res.error,
+//         data: res.data
+//       })
+//     }).catch((err) => {
+//       return reply(err)
+//     })
+// }
 
-function setDocumentNameForUser(request, reply) {
-  //note: uses onconflict for upsert
-  var query = `
-      insert into crm.entity_document_metadata (entity_id,document_id,key,value)
-      values(0,$1,'name',$2)
-      ON CONFLICT (entity_id,document_id,key) DO UPDATE
-      SET value = $2;
-    `
-
-  console.log(request.payload.name)
-  var queryParams = [
-    request.params.document_id,
-    request.payload['name']
-  ]
-
-  console.log(query, queryParams)
-
-
-  DB.query(query, queryParams)
-    .then((res) => {
-      console.log(res)
-      getDocumentNameForUser(request, reply)
-    }).catch((err) => {
-      console.log(err);
-      return reply(err)
-    })
-
-
-}
+// function setDocumentNameForUser(request, reply) {
+//   //note: uses onconflict for upsert
+//   var query = `
+//       insert into crm.entity_document_metadata (entity_id,document_id,key,value)
+//       values(0,$1,'name',$2)
+//       ON CONFLICT (entity_id,document_id,key) DO UPDATE
+//       SET value = $2;
+//     `
+//
+//   console.log(request.payload.name)
+//   var queryParams = [
+//     request.params.document_id,
+//     request.payload['name']
+//   ]
+//
+//   console.log(query, queryParams)
+//
+//
+//   DB.query(query, queryParams)
+//     .then((res) => {
+//       console.log(res)
+//       getDocumentNameForUser(request, reply)
+//     }).catch((err) => {
+//       console.log(err);
+//       return reply(err)
+//     })
+//
+//
+// }
 
 
 function getColleagues(request, reply) {
@@ -557,8 +557,8 @@ module.exports = {
   getRoleDocuments,
   updateDocumentHeaders,
   setDocumentOwner: setDocumentOwner,
-  getDocumentNameForUser: getDocumentNameForUser,
-  setDocumentNameForUser: setDocumentNameForUser,
+  // getDocumentNameForUser: getDocumentNameForUser,
+  // setDocumentNameForUser: setDocumentNameForUser,
   getColleagues: getColleagues,
   deleteColleague:deleteColleague,
   createColleague:createColleague
