@@ -261,83 +261,11 @@ async function getRolesForEmail(email) {
  */
 async function getRoleDocuments(request, reply) {
 
-  // Map request to mongo-sql
-  const filter = {'metadata->>IsCurrent' : 'true'};
+  console.log(`Post call to document filter is deprecated, please use the GET call instead`);
 
-  const { payload = {} } = request;
-  const { sort = {}, pagination = { page : 1, perPage : 100 } } = payload;
+  const { filter = {}, sort = {}, pagination = { perPage : 100, page : 1} } = request.payload;
 
-  let query, params = [], roleConditions = [], emailCondition = [], data, error;
-
-  // Map filters
-  if('filter' in payload) {
-
-    try {
-
-      const { entity_id : entityId, email, string, document_id : documentId, system_external_id : licenceNumber, verified } = request.payload.filter;
-
-      if(email || entityId) {
-        filter.$and = [];
-      }
-
-      // Filter by user's email address
-      if(email) {
-        const emailRoles = await getRolesForEmail(email);
-        filter.$and.push({$or : emailRoles.map(mapRole)});
-      }
-
-      // Are we filtering by user's entity ID
-      if(entityId) {
-        const entityRoles = await getRolesForIndividual(entityId);
-        filter.$and.push({$or : entityRoles.map(mapRole)});
-      }
-
-      // Search by licence name/number
-      if(string) {
-        filter.$or = [
-          {
-            system_external_id : {
-              $ilike : `%${ string }%`
-            }
-          },
-          {
-            document_name : {
-              $ilike : `%${ string }%`
-            }
-          }
-        ];
-      }
-
-      // Document ID
-      if(documentId) {
-        filter.document_id = documentId;
-      }
-
-      // Licence number
-      if(licenceNumber) {
-        filter.system_external_id = typeof(licenceNumber) === 'string'
-          ? licenceNumber
-          : { $or : licenceNumber };
-      }
-
-      // Verified
-      if(verified) {
-        filter.verified = verified;
-      }
-
-    }
-    catch(error) {
-      console.error(error);
-      throw Boom.notFound(error);
-    }
-  }
-
-  if(sort && sort.document_expires) {
-    sort["metadata->>Expires"] = sort.document_expires;
-    delete sort.document_expires;
-  }
-
-  // Synthesise a new request
+  // Synthesise GET call
   const newRequest = {
     method : 'get',
     params : {
@@ -347,10 +275,7 @@ async function getRoleDocuments(request, reply) {
       sort : JSON.stringify(sort),
       pagination : JSON.stringify(pagination)
     }
-  }
-
-  console.log('->>>>', JSON.stringify(filter));
-  console.log('->>>>', JSON.stringify(sort));
+  };
 
   try {
     await DocumentsController.find(newRequest, reply, true);
@@ -359,144 +284,6 @@ async function getRoleDocuments(request, reply) {
     console.error(error);
     reply({error}).statusCode(500);
   }
-
-
-  // console.log(JSON.stringify(filter, null, 2));
-  // console.log(roleConditions, params);
-
-  // Are we filtering by user's entity ID
-  // if('filter')
-
-  // Are we filtering by user's email?
-
-
-
-//   const defaultPagination = {
-//     page : 1,
-//     perPage : 100
-//   };
-//   console.log(request.payload);
-//   const payload = request.payload || {}
-//   const pagination = payload.pagination || defaultPagination;
-//   const limit = pagination.perPage, offset = (pagination.page - 1) * pagination.perPage;
-//   console.log('here 4')
-//   var response={
-//     error: null,
-//     data: null,
-//     summary: null,
-//   }
-//   var query = `
-//   select count(role),role from crm.role_document_access where individual_entity_id=$1 group by role
-//   `
-//   if(request.payload && request.payload.filter){
-//   var queryParams = [request.payload.filter.entity_id]
-//   } else {
-//   var queryParams = []
-//   }
-//
-//
-//   var summaryRes= await DB.query(query, queryParams)
-//   response.summary=summaryRes.data
-//
-//   const builder = new SqlConditionBuilder();
-//
-//   query = `select * from (
-//   select core.*,dh.metadata,dh.verified,
-//   dh.metadata->>'Name' as document_original_name,
-//   dh.metadata->>'Expires' as document_expires,
-//   dh.metadata->>'AddressLine1' as document_address_line_1,
-//   dh.metadata->>'AddressLine2' as document_address_line_2,
-//   dh.metadata->>'AddressLine3' as document_address_line_3,
-//   dh.metadata->>'AddressLine4' as document_address_line_4,
-//   dh.metadata->>'Town' as document_town,
-//   dh.metadata->>'County' as document_county,
-//   dh.metadata->>'Postcode' as document_postcode,
-//   dh.metadata->>'Country' as document_country,
-//   (dh.metadata->>'IsCurrent'::text)::bool as document_is_current,
-// 	hd.value AS document_custom_name
-// from (
-//   SELECT
-//   	distinct
-//     document_id,system_internal_id, system_external_id,
-//     company_entity_id,regime_entity_id, system_id, individual_entity_id, individual_nm
-//     from crm.role_document_access
-// ) core
-// join crm.document_header dh on dh.document_id= core.document_id
-// left join crm.entity_document_metadata hd on (hd.key='name' and hd.document_id = core.document_id)
-// ) data
-// where 0=0
-// AND document_is_current!=false
-//
-//   `
-//   // var queryParams = []
-//   if (request.payload && request.payload.filter) {
-//
-//     // email filter
-//     if(request.payload.filter.email) {
-//       builder.andCaseInsensitive('individual_nm', request.payload.filter.email);
-//     }
-//
-//     // standard field filters
-//     ['document_id', 'system_external_id', 'verified', 'verification_id'].forEach((field) => {
-//       if(field in request.payload.filter) {
-//         builder.and(field, request.payload.filter[field]);
-//       }
-//     });
-//
-//     queryParams = builder.getParams();
-//     query += builder.getSql();
-//
-//     // special filters
-//     if (request.payload.filter.entity_id) {
-//       queryParams.push(request.payload.filter.entity_id)
-// //      query += ` and data.document_id in (select document_id from crm.role_document_access where individual_entity_id=$${queryParams.length}) `;
-//         query += ` and individual_entity_id=$${queryParams.length}`;
-//     }
-//
-//     if (request.payload.filter.string) {
-//       queryParams.push(`%${request.payload.filter.string}%`);
-//       query += ` and ( document_custom_name ilike $${queryParams.length} OR system_external_id ilike $${queryParams.length} )`
-//     }
-//
-//
-//     // Sorting
-//     // e.g. {document_id : 1}
-//     if (request.payload.sort && Object.keys(request.payload.sort).length) {
-//         const sort = new SqlSortBuilder();
-//         query += sort.add(request.payload.sort).getSql()
-//     }
-//   }
-//
-//   // Get total row count without pagination
-//   var rowCountQuery = query.replace(/^select \*/, `SELECT COUNT(*) AS totalrowcount `).replace(/ORDER BY .*/, '');
-//
-//   query += ` LIMIT ${limit} OFFSET ${offset}`;
-//
-//   try{
-//     var res=await DB.query(query, queryParams);
-//
-//     if(res.error) {
-//       console.log('Error in document header query', query, queryParams, res.error);
-//     }
-//
-//     var res2= await DB.query(rowCountQuery, queryParams);
-//     if(res2.error) {
-//       console.log('Error in row count query', rowCountQuery, queryParams, res2.error);
-//     }
-//     const totalRows = parseInt(res2.data[0].totalrowcount, 10);
-//
-//     response.data=res.data
-//     response.pagination = {
-//       ...pagination,
-//       totalRows,
-//       pageCount : Math.ceil(totalRows / pagination.perPage)
-//     };
-//     return reply(response)
-//   }catch(e){
-//     console.log(e)
-//     return reply(e)
-//   }
-
 
 }
 
