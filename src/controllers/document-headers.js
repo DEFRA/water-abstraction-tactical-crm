@@ -7,6 +7,7 @@ module.exports = (config = {}) => {
   /**
    * Function to map a data row from the roles table into a mongo-sql
    * style query
+   * @todo may need work if supporting user who can use all regimes 
    * @param {Object} row - from entity_roles table
    * @return {Object} mongo-sql query for document_header table
    */
@@ -31,9 +32,6 @@ module.exports = (config = {}) => {
     if(error) {
       throw error;
     }
-    if(rows.length === 0) {
-      throw `Entity ${ email } not found!`;
-    }
     return rows;
   }
 
@@ -47,9 +45,6 @@ module.exports = (config = {}) => {
      let { rows, error } = await pool.query(query, [entityId]);
      if(error) {
        throw error;
-     }
-     if(rows.length === 0) {
-       throw `Entity ${ entityId } not found!`;
      }
      return rows;
    }
@@ -81,6 +76,9 @@ module.exports = (config = {}) => {
    */
   const getEmailFilter = async (email) => {
     const emailRoles = await getRolesForEmail(email);
+    if(emailRoles.length === 0) {
+      return {$or : {company_entity_id : 'no-entity-found-with-email'}};
+    }
     return { $or : emailRoles.map(mapRole) };
   }
 
@@ -91,6 +89,9 @@ module.exports = (config = {}) => {
    */
   const getEntityFilter = async (entityId) => {
     const entityRoles = await getRolesForIndividual(entityId);
+    if(entityRoles.length === 0) {
+      return {$or : {company_entity_id : 'no-entity-found-with-id'}};
+    }
     return { $or : entityRoles.map(mapRole) };
   }
 
@@ -137,6 +138,8 @@ module.exports = (config = {}) => {
 
       result.filter = filter;
       result.sort = sort;
+
+      console.log(JSON.stringify(result, null, 2));
 
       return result;
     },
