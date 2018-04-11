@@ -37,63 +37,38 @@ const getSearchFilter = (string) => {
    ];
 }
 
+
+
+
 /**
- * Gets a list of roles from the DB for supplied email address
- * @param {String} email
- * @return {Array} entity_role records
+ * Get company_entity_id query fragments for a user either by
+ * individual entity ID or email
+ * @param {String} mode - email|individual
+ * @param {String} value - email address or company entity ID
+ * @return {Promise} resolves with object - mongo-sql query fragment
  */
-async function getRolesForEmail(email) {
-  const query = `SELECT r.* FROM crm.entity e
-            JOIN crm.entity_roles r ON e.entity_id=r.entity_id
-            WHERE LOWER(e.entity_nm)=LOWER($1) AND e.entity_type='individual' `;
-  const { rows, error } = await pool.query(query, [email]);
+async function getEntityFilter(mode, value) {
+  let query;
+  if(mode === 'email') {
+    query = `SELECT r.* FROM crm.entity e
+              JOIN crm.entity_roles r ON e.entity_id=r.entity_id
+              WHERE LOWER(e.entity_nm)=LOWER($1) AND e.entity_type='individual' `;
+  }
+  if(mode === 'individual') {
+    // individual entity ID
+    query = `SELECT * FROM crm.entity_roles WHERE entity_id=$1`;
+  }
+  const { rows, error } = await pool.query(query, [value]);
   if(error) {
     throw error;
   }
-  return rows;
-}
-
-/**
- * Get roles for entity ID
- * @params {String} entityId - individual
- * @return {Array} entity_role records
- */
- async function getRolesForIndividual(entityId) {
-   const query = `SELECT * FROM crm.entity_roles WHERE entity_id=$1`;
-   let { rows, error } = await pool.query(query, [entityId]);
-   if(error) {
-     throw error;
-   }
-   return rows;
- }
-
-
-
-/**
- * Get email filter from email string
- * @param {String} email
- * @return {Promise} resolves with mongo-sql query fragment
- */
-const getEmailFilter = async (email) => {
-  const emailRoles = await getRolesForEmail(email);
-  if(emailRoles.length === 0) {
-    return {$or : {company_entity_id : 'no-entity-found-with-email'}};
+  if(rows.length === 0) {
+    return {$or : {company_entity_id : 'no-company-entity-found'}};
   }
-  return { $or : emailRoles.map(mapRole) };
+  return { $or : rows.map(mapRole) };
 }
 
-/**
- * Get entity filter from individual entity ID GUID
- * @param {String} entityId - GUID
- * @return {Promise} resolves with mongo-sql query fragment
- */
-const getEntityFilter = async (entityId) => {
-  const entityRoles = await getRolesForIndividual(entityId);
-  if(entityRoles.length === 0) {
-    return {$or : {company_entity_id : 'no-entity-found-with-id'}};
-  }
-  return { $or : entityRoles.map(mapRole) };
-}
+
 
 
 async function preQuery (result, hapiRequest) {
@@ -109,12 +84,12 @@ async function preQuery (result, hapiRequest) {
  // Search by entity ID / entity email address (can be combined)
  if(email) {
    filter.$and = [];
-   filter.$and.push(await getEmailFilter(email));
+   filter.$and.push(await getEntityFilter('email', email));
  }
 
  if(entityId) {
    filter.$and = filter.$and || [];
-   filter.$and.push(await getEntityFilter(entityId));
+   filter.$and.push(await getEntityFilter('individual', entityId));
  }
 
  // Rewrite sort
