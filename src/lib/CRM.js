@@ -190,23 +190,26 @@ function getEntity(request, reply) {
  */
 async function getRoleDocuments(request, reply) {
 
-  console.log(`Post call to document filter is deprecated, please use the GET call instead`);
-
-  const { filter = {}, sort = {}, pagination = { perPage : 100, page : 1} } = request.payload;
-
-  // Synthesise GET call
-  const newRequest = {
-    method : 'get',
-    params : {
-    },
-    query : {
-      filter : JSON.stringify(filter),
-      sort : JSON.stringify(sort),
-      pagination : JSON.stringify(pagination)
-    }
-  };
-
   try {
+    console.log(`Post call to document filter is deprecated, please use the GET call instead`);
+
+    const payload = request.payload || {};
+    const { filter = {}, sort = {}, pagination = { perPage : 100, page : 1} } = payload;
+
+    // Synthesise GET call
+    const newRequest = {
+      method : 'get',
+      params : {
+      },
+      query : {
+        filter : JSON.stringify(filter),
+        sort : JSON.stringify(sort),
+        pagination : JSON.stringify(pagination)
+      }
+    };
+
+    console.log(JSON.stringify(newRequest, null, 2));
+
     await DocumentsController.find(newRequest, reply, true);
   }
   catch(error) {
