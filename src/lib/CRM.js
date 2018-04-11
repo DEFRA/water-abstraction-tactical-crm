@@ -262,10 +262,10 @@ async function getRolesForEmail(email) {
 async function getRoleDocuments(request, reply) {
 
   // Map request to mongo-sql
-  const filter = {};
+  const filter = {'metadata->>IsCurrent' : 'true'};
 
   const { payload = {} } = request;
-  const { sort = {}, pagination = {page : 1, perPage : 100} } = payload;
+  const { sort = {}, pagination = { page : 1, perPage : 100 } } = payload;
 
   let query, params = [], roleConditions = [], emailCondition = [], data, error;
 
@@ -332,6 +332,11 @@ async function getRoleDocuments(request, reply) {
     }
   }
 
+  if(sort && sort.document_expires) {
+    sort["metadata->>Expires"] = sort.document_expires;
+    delete sort.document_expires;
+  }
+
   // Synthesise a new request
   const newRequest = {
     method : 'get',
@@ -344,16 +349,16 @@ async function getRoleDocuments(request, reply) {
     }
   }
 
-  // console.log(JSON.stringify(filter));
-  // console.log(JSON.stringify(newRequest, null, 2));
+  console.log('->>>>', JSON.stringify(filter));
+  console.log('->>>>', JSON.stringify(sort));
 
   try {
     await DocumentsController.find(newRequest, reply, true);
   }
   catch(error) {
     console.error(error);
+    reply({error}).statusCode(500);
   }
-
 
 
   // console.log(JSON.stringify(filter, null, 2));
