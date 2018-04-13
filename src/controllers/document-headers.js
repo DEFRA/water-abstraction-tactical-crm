@@ -76,6 +76,9 @@ async function preQuery (result, hapiRequest) {
  const { string, email, entity_id : entityId, ...filter } = result.filter;
  const { document_expires, ...sort } = result.sort;
 
+ // Only display current licences
+ filter["metadata->>IsCurrent"] = { $ne : 'false' };
+
  // Search by string - can be licence number/name
  if(string) {
    filter.$or = getSearchFilter(string);
