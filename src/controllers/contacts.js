@@ -28,19 +28,37 @@ function dedupe(entities) {
  * @return {Object} contact
  */
 function getLicenceHolderContact(row) {
-  const { Salutation, Forename, Name, AddressLine1, AddressLine2 } = row.metadata;
-  const { AddressLine3, AddressLine4, Town, County, Postcode, Country } = row.metadata;
+  const { Salutation, Forename, Name } = row.metadata;
+
+  const person = { salutation: Salutation, forename: Forename, name: Name };
+  const address = getAddress(row);
 
   // Generate fake entity_id
-  const entity_id = sha1(JSON.stringify({ Salutation, Forename, Name, AddressLine1, AddressLine2, AddressLine3, AddressLine4, Town, County, Postcode, Country }));
+  const entity_id = sha1(JSON.stringify({ ...person, ...address }));
 
   return {
     entity_id,
     email: null,
     role: 'licence_holder',
-    salutation: Salutation,
-    forename: Forename,
-    name: Name,
+    ...person,
+    ...address,
+    documents: [{
+      document_id: row.document_id,
+      system_external_id: row.system_external_id,
+      document_name: row.document_name
+    }]
+  };
+}
+
+/**
+ * Get object of address details from data row
+ * @param {Object} row
+ * @return {Object} formatted address
+ */
+function getAddress(row) {
+  const { AddressLine1, AddressLine2 } = row.metadata;
+  const { AddressLine3, AddressLine4, Town, County, Postcode, Country } = row.metadata;
+  return {
     address_1: AddressLine1,
     address_2: AddressLine2,
     address_3: AddressLine3,
@@ -49,11 +67,23 @@ function getLicenceHolderContact(row) {
     county: County,
     postcode: Postcode,
     country: Country,
-    documents: [{
-      document_id: row.document_id,
-      system_external_id: row.system_external_id,
-      document_name: row.document_name
-    }]
+  };
+}
+
+/**
+ * Get object of blank address details
+ * @return {Object} formatted address
+ */
+function getBlankAddress() {
+  return {
+    address_1: null,
+    address_2: null,
+    address_3: null,
+    address_4: null,
+    town: null,
+    county: null,
+    postcode: null,
+    country: null,
   };
 }
 
@@ -64,32 +94,7 @@ function getLicenceHolderContact(row) {
  * @return {Object} contact
  */
 function getEntityContact(row) {
-  const { Salutation, Forename, Name, AddressLine1, AddressLine2 } = row.metadata;
-  const { AddressLine3, AddressLine4, Town, County, Postcode, Country } = row.metadata;
-  let address;
-  if (row.role === 'primary_user') {
-    address = {
-      address_1: AddressLine1,
-      address_2: AddressLine2,
-      address_3: AddressLine3,
-      address_4: AddressLine4,
-      town: Town,
-      county: County,
-      postcode: Postcode,
-      country: Country,
-    };
-  } else {
-    address = {
-      address_1: null,
-      address_2: null,
-      address_3: null,
-      address_4: null,
-      town: null,
-      county: null,
-      postcode: null,
-      country: null,
-    };
-  }
+  const address = row.role === 'primary_user' ? getAddress(row) : getBlankAddress();
 
   return {
     entity_id: row.entity_id,
