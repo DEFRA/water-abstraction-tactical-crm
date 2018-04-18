@@ -29,8 +29,8 @@ const RoleEntityApi = require('../controllers/role-entities.js')(apiConfig);
 const RoleEntityView = require('../controllers/role-entities-view.js')(apiConfig);
 const RolesApi = require('../controllers/roles.js')(apiConfig);
 const VerificationDocumentsController = require('../controllers/verification-documents.js')
+const { getContacts } = require('../controllers/contacts');
 const { getVerificationsByDocumentID } = require('../controllers/verifications-by-document.js');
-
 
 module.exports = [{
     method: 'GET',
@@ -193,8 +193,14 @@ module.exports = [{
   },
   {
     method: 'GET',
+    path: '/crm/' + version + '/contacts',
+    handler: getContacts
+  },
+  {
+    method: 'GET',
     path: '/crm/' + version + '/document_verifications',
     handler: getVerificationsByDocumentID
   }
 
 ]
+
