@@ -11,7 +11,7 @@ const sha1 = require('sha1');
  */
 function dedupe(entities) {
   return entities.reduce((acc, entity) => {
-    const index = findIndex(acc, { entity_id: entity.entity_id });
+    const index = findIndex(acc, { entity_id: entity.entity_id, role: entity.role });
     if (index === -1) {
       acc.push(entity);
     } else {
@@ -30,6 +30,9 @@ function dedupe(entities) {
  */
 function mapRowsToEntities(rows) {
 
+  // Maintain a list of licence holder contacts added to prevent them being added twice
+  const licenceNumbers = [];
+
   return rows.reduce((acc, row) => {
     // Always add licence holder
     const { Salutation, Forename, Name, AddressLine1, AddressLine2 } = row.metadata;
@@ -38,27 +41,31 @@ function mapRowsToEntities(rows) {
     // Generate fake entity_id
     const entity_id = sha1(JSON.stringify({ Salutation, Forename, Name, AddressLine1, AddressLine2, AddressLine3, AddressLine4, Town, County, Postcode, Country }));
 
-    acc.push({
-      entity_id,
-      email: null,
-      role: 'licence_holder',
-      salutation: Salutation,
-      forename: Forename,
-      name: Name,
-      address_1: AddressLine1,
-      address_2: AddressLine2,
-      address_3: AddressLine3,
-      address_4: AddressLine4,
-      town: Town,
-      county: County,
-      postcode: Postcode,
-      country: Country,
-      documents: [{
-        document_id: row.document_id,
-        system_external_id: row.system_external_id,
-        document_name: row.document_name
-      }]
-    });
+    if (!licenceNumbers.includes(row.system_external_id)) {
+      acc.push({
+        entity_id,
+        email: null,
+        role: 'licence_holder',
+        salutation: Salutation,
+        forename: Forename,
+        name: Name,
+        address_1: AddressLine1,
+        address_2: AddressLine2,
+        address_3: AddressLine3,
+        address_4: AddressLine4,
+        town: Town,
+        county: County,
+        postcode: Postcode,
+        country: Country,
+        documents: [{
+          document_id: row.document_id,
+          system_external_id: row.system_external_id,
+          document_name: row.document_name
+        }]
+      });
+      licenceNumbers.push(row.system_external_id);
+    }
+
 
     // Add real entity
     if (row.entity_id) {
@@ -171,6 +178,8 @@ async function getContacts(request, reply) {
     const result = mongoSql.sql(query);
 
     const { rows, error } = await pool.query(result.toString(), result.values);
+
+    console.log(rows);
 
     reply({
       error,
