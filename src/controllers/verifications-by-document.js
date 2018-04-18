@@ -1,0 +1,65 @@
+const { pool } = require('../lib/connectors/db');
+const { uniqBy, findIndex } = require('lodash');
+const mongoSql = require('mongo-sql');
+
+/**
+ * Get verifications by document id
+ * Gets a list of verifications and the documents they apply to
+ */
+async function getVerificationsByDocumentID(request, reply) {
+
+  let params = [];
+
+  try {
+
+    const filter = JSON.parse(request.query.filter || '{}');
+
+    const query = {
+      type: 'select',
+      table: "crm.verification_documents",
+      columns: [
+        'crm.verification_documents.document_id',
+        'crm.verification_documents.verification_id',
+        'crm.verification.verification_id',
+        'crm.verification.entity_id',
+        'crm.verification.verification_code',
+        'crm.verification.method',
+        'crm.entity.entity_nm'
+      ],
+      where: filter,
+      joins: [
+        // Join on the junction table to get all users books ids
+        {
+          type: 'left',
+          target: 'crm.verification',
+          on: {
+            verification_id: '$verification_documents.verification_id$'
+          }
+        },
+        {
+          type: 'left',
+          target: 'crm.entity',
+          on: {
+            entity_id: '$crm.verification.entity_id$'
+          }
+        }
+      ]
+    };
+    const result = mongoSql.sql(query);
+
+    const { rows, error } = await pool.query(result.toString(), result.values);
+
+
+        reply({
+          error,
+          data: dedupe(mapRowsToEntities(rows))
+        });
+      } catch (error) {
+        console.log(error);
+        reply({ error, data: null }).statusCode(500);
+      }
+    }
+
+module.exports = {
+  getVerificationsByDocumentID
+};
