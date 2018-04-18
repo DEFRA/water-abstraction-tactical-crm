@@ -1,26 +1,5 @@
 const { pool } = require('../lib/connectors/db');
-const { uniqBy, findIndex } = require('lodash');
 const mongoSql = require('mongo-sql');
-const sha1 = require('sha1');
-
-
-/**
- * De-duplicate entities, placing all documents with a de-duped entity
- * @param {Array} entities
- * @return {Array} de-duplicated contact list with all documents attached to each contact
- */
-function dedupe(entities) {
-  return entities.reduce((acc, entity) => {
-    const index = findIndex(acc, { entity_id: entity.entity_id, role: entity.role });
-    if (index === -1) {
-      acc.push(entity);
-    } else {
-      acc[index].documents.push(...entity.documents);
-    }
-    return acc;
-  }, []);
-}
-
 
 /**
  * Get licence holder postal address contact from row
@@ -33,20 +12,12 @@ function getLicenceHolderContact(row) {
   const person = { salutation: Salutation, forename: Forename, name: Name };
   const address = getAddress(row);
 
-  // Generate fake entity_id
-  const entity_id = sha1(JSON.stringify({ ...person, ...address }));
-
   return {
-    entity_id,
+    entity_id: null,
     email: null,
     role: 'licence_holder',
     ...person,
-    ...address,
-    documents: [{
-      document_id: row.document_id,
-      system_external_id: row.system_external_id,
-      document_name: row.document_name
-    }]
+    ...address
   };
 }
 
@@ -103,12 +74,7 @@ function getEntityContact(row) {
     salutation: null,
     forename: null,
     name: null,
-    ...address,
-    documents: [{
-      document_id: row.document_id,
-      system_external_id: row.system_external_id,
-      document_name: row.document_name
-    }]
+    ...address
   };
 }
 
@@ -121,26 +87,31 @@ function getEntityContact(row) {
  */
 function mapRowsToEntities(rows) {
 
-  // Maintain a list of licence holder contacts added to prevent them being added twice
-  const licenceNumbers = [];
+  const licences = rows.reduce((acc, row) => {
 
-  return rows.reduce((acc, row) => {
+    const { document_id, system_external_id, document_name, entity_id } = row;
 
-    // Add licence holder postal contact to list
-    if (!licenceNumbers.includes(row.system_external_id)) {
-      acc.push(getLicenceHolderContact(row));
-      licenceNumbers.push(row.system_external_id);
+    // Add licence holder to list
+    if (!Object.keys(acc).includes(system_external_id)) {
+      acc[system_external_id] = {
+        document_id,
+        system_external_id,
+        document_name,
+        contacts: [
+          getLicenceHolderContact(row)
+        ]
+      };
     }
 
     // Add entity email address contact to list
-    if (row.entity_id) {
-      acc.push(getEntityContact(row));
+    if (entity_id) {
+      acc[system_external_id].contacts.push(getEntityContact(row));
     }
     return acc;
 
-  }, []);
+  }, {});
 
-  return data;
+  return Object.values(licences);
 
 }
 
@@ -194,7 +165,7 @@ async function getContacts(request, reply) {
 
     reply({
       error,
-      data: dedupe(mapRowsToEntities(rows))
+      data: mapRowsToEntities(rows)
     });
   } catch (error) {
     console.log(error);
