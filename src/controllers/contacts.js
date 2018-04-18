@@ -147,6 +147,43 @@ function mapRowsToEntities(rows) {
 
 
 /**
+ * Get filter query
+ * @param {Object} filter
+ * @return {Object} Mongo query description
+ */
+function getMongoSqlQuery(filter) {
+  return {
+    type: 'select',
+    table: "crm.document_header",
+    columns: [
+      '*',
+      'crm.entity.entity_id',
+      'crm.entity.entity_nm',
+      'crm.entity_roles.role'
+    ],
+    where: filter,
+    joins: [
+      // Join on the junction table to get all users books ids
+      {
+        type: 'left',
+        target: 'crm.entity_roles',
+        on: {
+          company_entity_id: '$crm.document_header.company_entity_id$',
+          role: {
+            $in: ['primary_user', 'user']
+          }
+        }
+      },
+      {
+        type: 'left',
+        target: 'crm.entity',
+        on: { entity_id: '$crm.entity_roles.entity_id$' }
+      }
+    ]
+  };
+}
+
+/**
  * Get contacts route handler
  * Gets a list of documents
  */
@@ -157,37 +194,7 @@ async function getContacts(request, reply) {
   try {
 
     const filter = JSON.parse(request.query.filter || '{}');
-
-    const query = {
-      type: 'select',
-      table: "crm.document_header",
-      columns: [
-        '*',
-        'crm.entity.entity_id',
-        'crm.entity.entity_nm',
-        'crm.entity_roles.role'
-      ],
-      where: filter,
-      joins: [
-        // Join on the junction table to get all users books ids
-        {
-          type: 'left',
-          target: 'crm.entity_roles',
-          on: {
-            company_entity_id: '$crm.document_header.company_entity_id$',
-            role: {
-              $in: ['primary_user', 'user']
-            }
-          }
-        },
-        {
-          type: 'left',
-          target: 'crm.entity',
-          on: { entity_id: '$crm.entity_roles.entity_id$' }
-        }
-      ]
-    };
-
+    const query = getMongoSqlQuery(filter);
     const result = mongoSql.sql(query);
 
     const { rows, error } = await pool.query(result.toString(), result.values);
