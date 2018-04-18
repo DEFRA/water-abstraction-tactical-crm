@@ -155,16 +155,9 @@ function getMongoSqlQuery(filter) {
   return {
     type: 'select',
     table: "crm.document_header",
-    columns: [
-      '*',
-      'crm.entity.entity_id',
-      'crm.entity.entity_nm',
-      'crm.entity_roles.role'
-    ],
+    columns: ['*', 'crm.entity.entity_id', 'crm.entity.entity_nm', 'crm.entity_roles.role'],
     where: filter,
-    joins: [
-      // Join on the junction table to get all users books ids
-      {
+    joins: [{
         type: 'left',
         target: 'crm.entity_roles',
         on: {
