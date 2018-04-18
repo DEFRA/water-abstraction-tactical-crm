@@ -52,7 +52,7 @@ async function getVerificationsByDocumentID(request, reply) {
 
         reply({
           error,
-          data: dedupe(mapRowsToEntities(rows))
+          data: rows
         });
       } catch (error) {
         console.log(error);
