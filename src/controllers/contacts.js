@@ -23,6 +23,92 @@ function dedupe(entities) {
 
 
 /**
+ * Get licence holder postal address contact from row
+ * @param {Object} row
+ * @return {Object} contact
+ */
+function getLicenceHolderContact(row) {
+  const { Salutation, Forename, Name, AddressLine1, AddressLine2 } = row.metadata;
+  const { AddressLine3, AddressLine4, Town, County, Postcode, Country } = row.metadata;
+
+  // Generate fake entity_id
+  const entity_id = sha1(JSON.stringify({ Salutation, Forename, Name, AddressLine1, AddressLine2, AddressLine3, AddressLine4, Town, County, Postcode, Country }));
+
+  return {
+    entity_id,
+    email: null,
+    role: 'licence_holder',
+    salutation: Salutation,
+    forename: Forename,
+    name: Name,
+    address_1: AddressLine1,
+    address_2: AddressLine2,
+    address_3: AddressLine3,
+    address_4: AddressLine4,
+    town: Town,
+    county: County,
+    postcode: Postcode,
+    country: Country,
+    documents: [{
+      document_id: row.document_id,
+      system_external_id: row.system_external_id,
+      document_name: row.document_name
+    }]
+  };
+}
+
+
+/**
+ * Get entity contact from row
+ * @param {Object} row
+ * @return {Object} contact
+ */
+function getEntityContact(row) {
+  const { Salutation, Forename, Name, AddressLine1, AddressLine2 } = row.metadata;
+  const { AddressLine3, AddressLine4, Town, County, Postcode, Country } = row.metadata;
+  let address;
+  if (row.role === 'primary_user') {
+    address = {
+      address_1: AddressLine1,
+      address_2: AddressLine2,
+      address_3: AddressLine3,
+      address_4: AddressLine4,
+      town: Town,
+      county: County,
+      postcode: Postcode,
+      country: Country,
+    };
+  } else {
+    address = {
+      address_1: null,
+      address_2: null,
+      address_3: null,
+      address_4: null,
+      town: null,
+      county: null,
+      postcode: null,
+      country: null,
+    };
+  }
+
+  return {
+    entity_id: row.entity_id,
+    email: row.entity_nm,
+    role: row.role,
+    salutation: null,
+    forename: null,
+    name: null,
+    ...address,
+    documents: [{
+      document_id: row.document_id,
+      system_external_id: row.system_external_id,
+      document_name: row.document_name
+    }]
+  };
+}
+
+
+/**
  * Maps data returned from a single row of SQL query to approximate
  * response from an entity contacts table which will presumably follow later
  * @param {Object} row
@@ -34,98 +120,20 @@ function mapRowsToEntities(rows) {
   const licenceNumbers = [];
 
   return rows.reduce((acc, row) => {
-    // Always add licence holder
-    const { Salutation, Forename, Name, AddressLine1, AddressLine2 } = row.metadata;
-    const { AddressLine3, AddressLine4, Town, County, Postcode, Country } = row.metadata;
 
-    // Generate fake entity_id
-    const entity_id = sha1(JSON.stringify({ Salutation, Forename, Name, AddressLine1, AddressLine2, AddressLine3, AddressLine4, Town, County, Postcode, Country }));
-
+    // Add licence holder postal contact to list
     if (!licenceNumbers.includes(row.system_external_id)) {
-      acc.push({
-        entity_id,
-        email: null,
-        role: 'licence_holder',
-        salutation: Salutation,
-        forename: Forename,
-        name: Name,
-        address_1: AddressLine1,
-        address_2: AddressLine2,
-        address_3: AddressLine3,
-        address_4: AddressLine4,
-        town: Town,
-        county: County,
-        postcode: Postcode,
-        country: Country,
-        documents: [{
-          document_id: row.document_id,
-          system_external_id: row.system_external_id,
-          document_name: row.document_name
-        }]
-      });
+      acc.push(getLicenceHolderContact(row));
       licenceNumbers.push(row.system_external_id);
     }
 
-
-    // Add real entity
+    // Add entity email address contact to list
     if (row.entity_id) {
-      acc.push({
-        entity_id: row.entity_id,
-        email: row.entity_nm,
-        role: row.role,
-        salutation: null,
-        forename: null,
-        name: null,
-        address_1: null,
-        address_2: null,
-        address_3: null,
-        address_4: null,
-        town: null,
-        county: null,
-        postcode: null,
-        country: null,
-        documents: [{
-          document_id: row.document_id,
-          system_external_id: row.system_external_id,
-          document_name: row.document_name
-        }]
-      });
+      acc.push(getEntityContact(row));
     }
-
     return acc;
 
   }, []);
-
-
-
-  // const data = {
-  //   entity_id: row.entity_id,
-  //   email: row.entity_nm,
-  //   role: row.role || 'licence_holder',
-  //   salutation: Salutation,
-  //   forename: Forename,
-  //   name: Name,
-  //   address_1: AddressLine1,
-  //   address_2: AddressLine2,
-  //   address_3: AddressLine3,
-  //   address_4: AddressLine4,
-  //   town: Town,
-  //   county: County,
-  //   postcode: Postcode,
-  //   country: Country,
-  //   documents: [{
-  //     document_id: row.document_id,
-  //     system_external_id: row.system_external_id,
-  //     document_name: row.document_name
-  //   }]
-  // };
-  //
-  // // Generate a fake entity ID based on unique contact data
-  // if (!data.entity_id) {
-  //   const { documents, entity_id, ...rest } = data;
-  //   data.entity_id = sha1(JSON.stringify({ ...rest }));
-  // }
-
 
   return data;
 
@@ -178,8 +186,6 @@ async function getContacts(request, reply) {
     const result = mongoSql.sql(query);
 
     const { rows, error } = await pool.query(result.toString(), result.values);
-
-    console.log(rows);
 
     reply({
       error,
