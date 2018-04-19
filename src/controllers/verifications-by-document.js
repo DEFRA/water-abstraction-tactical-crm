@@ -24,6 +24,9 @@ async function getVerificationsByDocumentID(request, reply) {
         'crm.verification.entity_id',
         'crm.verification.verification_code',
         'crm.verification.method',
+        'crm.verification.date_created',
+        'crm.verification.date_verified',
+        'crm.verification.company_entity_id',
         'crm.entity.entity_nm'
       ],
       where: filter,
