@@ -32,6 +32,7 @@ const RolesApi = require('../controllers/roles.js')(apiConfig);
 const VerificationDocumentsController = require('../controllers/verification-documents.js')
 const { getContacts } = require('../controllers/contacts');
 const { getVerificationsByDocumentID } = require('../controllers/verifications-by-document.js');
+const KpiApi = require('../controllers/kpi-reports.js')(apiConfig);
 
 module.exports = [{
     method: 'GET',
@@ -164,6 +165,7 @@ module.exports = [{
     method: 'GET',
     path: '/crm/' + version + '/document_verifications',
     handler: getVerificationsByDocumentID
-  }
-
+  },
+  KpiApi.findManyRoute()
 ]
+
