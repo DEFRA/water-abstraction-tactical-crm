@@ -136,7 +136,7 @@ function getMongoSqlQuery(filter) {
         on: {
           company_entity_id: '$crm.document_header.company_entity_id$',
           role: {
-            $in: ['primary_user', 'user']
+            $in: ['primary_user', 'user', 'notifications']
           }
         }
       },
