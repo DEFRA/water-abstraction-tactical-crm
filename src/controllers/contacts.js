@@ -16,6 +16,7 @@ function getLicenceHolderContact(row) {
     entity_id: null,
     email: null,
     role: 'licence_holder',
+    source: 'nald',
     ...person,
     ...address
   };
@@ -71,6 +72,7 @@ function getEntityContact(row) {
     entity_id: row.entity_id,
     email: row.entity_nm,
     role: row.role,
+    source: row.source,
     salutation: null,
     forename: null,
     name: null,
@@ -126,7 +128,7 @@ function getMongoSqlQuery(filter) {
   return {
     type: 'select',
     table: "crm.document_header",
-    columns: ['*', 'crm.entity.entity_id', 'crm.entity.entity_nm', 'crm.entity_roles.role'],
+    columns: ['*', 'crm.entity.entity_id', 'crm.entity.entity_nm', 'crm.entity.source', 'crm.entity_roles.role'],
     where: filter,
     joins: [{
         type: 'left',
@@ -134,7 +136,7 @@ function getMongoSqlQuery(filter) {
         on: {
           company_entity_id: '$crm.document_header.company_entity_id$',
           role: {
-            $in: ['primary_user', 'user']
+            $in: ['primary_user', 'user', 'notifications']
           }
         }
       },
@@ -147,6 +149,35 @@ function getMongoSqlQuery(filter) {
   };
 }
 
+
+/**
+ * Get document contacts linked via document_entity table
+ * @param {Object} mongo-sql query for finding documents
+ * @return {Object} mongo-sql query with joins for doc entities, entities
+ */
+function getDocumentEntitySqlQuery(filter) {
+  return {
+    type: 'select',
+    table: "crm.document_header",
+    columns: ['*', 'crm.entity.entity_id', 'crm.entity.entity_nm', 'crm.entity.source', 'crm.document_entity.role'],
+    where: filter,
+    joins: [{
+        type: 'right',
+        target: 'crm.document_entity',
+        on: {
+          document_id: '$crm.document_header.document_id$'
+        }
+      },
+      {
+        type: 'right',
+        target: 'crm.entity',
+        on: { entity_id: '$crm.document_entity.entity_id$' }
+      }
+    ]
+  };
+}
+
+
 /**
  * Get contacts route handler
  * Gets a list of documents
@@ -158,14 +189,29 @@ async function getContacts(request, reply) {
   try {
 
     const filter = JSON.parse(request.query.filter || '{}');
+
+    // Do initial query to find documents and entities linked via roles
     const query = getMongoSqlQuery(filter);
     const result = mongoSql.sql(query);
-
     const { rows, error } = await pool.query(result.toString(), result.values);
+
+    if (error) {
+      throw error;
+    }
+
+    // Do second query to find additional contacts linked to the documents
+    // this will be the case for imported contacts
+    const query2 = getDocumentEntitySqlQuery(filter);
+    const result2 = mongoSql.sql(query2);
+    const { rows: rows2, error: error2 } = await pool.query(result2.toString(), result2.values);
+    if (error2) {
+      throw error2;
+    }
+    // console.log(rows2);
 
     reply({
       error,
-      data: mapRowsToEntities(rows)
+      data: mapRowsToEntities([...rows, ...rows2])
     });
   } catch (error) {
     console.log(error);

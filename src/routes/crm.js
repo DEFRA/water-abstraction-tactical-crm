@@ -24,6 +24,7 @@ const EntityApi = require('../controllers/entities.js')(apiConfig);
 const VerificationApi = require('../controllers/verifications.js')(apiConfig);
 const DocumentHeaderApi = require('../controllers/document-headers.js')(apiConfig);
 const DocumentRolesApi = require('../controllers/document-roles.js')(apiConfig);
+const DocumentEntitiesApi = require('../controllers/document-entities.js')(apiConfig);
 const EntityRolesApi = require('../controllers/entity-roles.js')(apiConfig);
 const RoleEntityApi = require('../controllers/role-entities.js')(apiConfig);
 const RoleEntityView = require('../controllers/role-entities-view.js')(apiConfig);
@@ -31,6 +32,7 @@ const RolesApi = require('../controllers/roles.js')(apiConfig);
 const VerificationDocumentsController = require('../controllers/verification-documents.js')
 const { getContacts } = require('../controllers/contacts');
 const { getVerificationsByDocumentID } = require('../controllers/verifications-by-document.js');
+const KpiApi = require('../controllers/kpi-reports.js')(apiConfig);
 
 module.exports = [{
     method: 'GET',
@@ -101,42 +103,11 @@ module.exports = [{
     }
   },
 
-  // DocumentHeaderApi.getRoutes()[0],
-  // {  method: 'POST', path: '/crm/' + version + '/documentHeader', handler: CRM.createDocumentHeader ,config:{description:'Create new document header'}},
-
-  // {
-  //   method: 'GET',
-  //   path: '/crm/' + version + '/documentHeader/{document_id}/entity/{entity_id}/name',
-  //   handler: CRM.getDocumentNameForUser,
-  //   config: {
-  //     description: 'Get custom name for document'
-  //   }
-  // },
-  // {
-  //   method: 'POST',
-  //   path: '/crm/' + version + '/documentHeader/{document_id}/entity/{entity_id}/name',
-  //   handler: CRM.setDocumentNameForUser,
-  //   config: {
-  //     description: 'Set custom name for document'
-  //   }
-  // },
-
-
   // Document header
   ...DocumentHeaderApi.getRoutes(),
-
   ...DocumentRolesApi.getRoutes(),
+  ...DocumentEntitiesApi.getRoutes(),
 
-  // {  method: 'GET', path: '/crm/' + version + '/documentHeader/{document_id}', handler: CRM.getDocumentHeader ,config:{description:'Get specified document header by document id'}},
-  // {  method: 'GET', path: '/crm/' + version + '/documentHeader/{system_id}/{system_internal_id}', handler: CRM.getDocumentHeader ,config:{description:'Get specified document header by external system & external system document id'}},
-
-  // Update doc header - PUT
-  // DocumentHeaderApi.getRoutes()[3],
-
-  // {  method: 'PUT', path: '/crm/' + version + '/documentHeader/{document_id}', handler: CRM.updateDocumentHeader ,config:{description:'Update specified document header by document id'}},
-  // {  method: 'PUT', path: '/crm/' + version + '/documentHeader/{system_id}/{system_internal_id}', handler: CRM.updateDocumentHeader, config:{description:'Update specified document header by external system & external system document id'} },
-  // {  method: 'DELETE', path: '/crm/' + version + '/documentHeader/{document_id}', handler: CRM.deleteDocumentHeader ,config:{description:'Delete specified document header by document id'}},
-  // {  method: 'DELETE', path: '/crm/' + version + '/documentHeader/{system_id}/{system_internal_id}', handler: CRM.deleteDocumentHeader ,config:{description:'Delete specified document header by external system & external system document id'}},
   {
     method: 'POST',
     path: '/crm/' + version + '/documentHeader/filter',
@@ -154,13 +125,7 @@ module.exports = [{
     }
   },
 
-
-  //
-  // {  method: 'POST', path: '/crm/' + version + '/entity/{entity_id}/roles', handler: CRM.addEntityRole ,config:{description:'Add role to specified entity'}},
-  // {  method: 'GET', path: '/crm/' + version + '/entity/{entity_id}/roles', handler: CRM.getEntityRoles ,config:{description:'Get roles for specified entity'}},
-  // {  method: 'DELETE', path: '/crm/' + version + '/entity/{entity_id}/roles/{role_id}', handler: CRM.deleteEntityRole ,config:{description:'Delete role from specified entity'}},
   ...EntityRolesApi.getRoutes(),
-
   ...VerificationApi.getRoutes(),
 
   {
@@ -200,7 +165,7 @@ module.exports = [{
     method: 'GET',
     path: '/crm/' + version + '/document_verifications',
     handler: getVerificationsByDocumentID
-  }
-
+  },
+  KpiApi.findManyRoute()
 ]
 
