@@ -80,6 +80,39 @@ function getEntityContact(row) {
   };
 }
 
+/**
+ * Get entity contact from row
+ * @param {Object} row
+ * @return {Object} contact
+ */
+function getCompanyContact(row) {
+  const address = getBlankAddress();
+
+  return {
+    entity_id: row.entity_id,
+    email: null,
+    role: 'company',
+    source: row.source,
+    salutation: null,
+    forename: null,
+    name: row.entity_nm,
+    ...address
+  };
+}
+
+
+/**
+ * Get either individual/company entity
+ * @param {Object} row
+ * @return {Object} contact
+ */
+function getContact(row) {
+  if (row.entity_id === row.company_entity_id) {
+    return getCompanyContact(row);
+  }
+  return getEntityContact(row);
+}
+
 
 /**
  * Maps data returned from a single row of SQL query to approximate
@@ -108,7 +141,7 @@ function mapRowsToEntities(rows) {
 
     // Add entity email address contact to list
     if (entity_id) {
-      acc[system_external_id].contacts.push(getEntityContact(row));
+      acc[system_external_id].contacts.push(getContact(row));
     }
     return acc;
 
@@ -178,6 +211,25 @@ function getDocumentEntitySqlQuery(filter) {
   };
 }
 
+/**
+ * Get company entity linked via document's company_entity_id
+ * @param {Object} mongo-sql query for finding documents
+ * @return {Object} mongo-sql query with joins for doc entities, entities
+ */
+function getCompanySqlQuery(filter) {
+  return {
+    type: 'select',
+    table: "crm.document_header",
+    columns: ['*', 'crm.entity.entity_id', 'crm.entity.entity_nm', 'crm.entity.source'],
+    where: filter,
+    joins: [{
+      type: 'right',
+      target: 'crm.entity',
+      on: { entity_id: '$crm.document_header.company_entity_id$' }
+    }]
+  };
+}
+
 
 /**
  * Get contacts route handler
@@ -208,11 +260,20 @@ async function getContacts(request, reply) {
     if (error2) {
       throw error2;
     }
-    // console.log(rows2);
+
+    // Do query to get company entities
+    const query3 = getCompanySqlQuery(filter);
+    const result3 = mongoSql.sql(query3);
+    const { rows: rows3, error: error3 } = await pool.query(result3.toString(), result3.values);
+    if (error3) {
+      throw error3;
+    }
+
+
 
     reply({
       error,
-      data: mapRowsToEntities([...rows, ...rows2])
+      data: mapRowsToEntities([...rows, ...rows2, ...rows3])
     });
   } catch (error) {
     console.log(error);
