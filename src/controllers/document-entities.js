@@ -22,6 +22,7 @@ module.exports = (config = {}) => {
       document_id: Joi.string().guid(),
       created_at: Joi.string(),
       modified_at: Joi.string()
-    }
+    },
+    showSql: true
   });
 }
