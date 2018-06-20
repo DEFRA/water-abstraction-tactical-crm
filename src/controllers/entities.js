@@ -16,4 +16,4 @@ module.exports = (config = {}) => {
       source: Joi.string()
     }
   });
-}
+};
