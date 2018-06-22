@@ -4,38 +4,19 @@ require('dotenv').config();
 const GoodWinston = require('good-winston');
 const Hapi = require('hapi');
 
+const config = require('./config');
 const logger = require('./src/lib/logger');
 
-logger.init({
-  level: 'info',
-  airbrakeKey: process.env.errbit_key,
-  airbrakeHost: process.env.errbit_server,
-  airbrakeLevel: 'error'
-});
-
 const goodWinstonStream = new GoodWinston({ winston: logger });
-
-const goodOptions = {
-  ops: {
-    interval: 10000
-  },
-  reporters: {
-    winston: [goodWinstonStream]
-  }
-};
+logger.init(config.logger);
 
 const serverPlugins = {
-  yar: require('yar'),
   blipp: require('blipp'),
   hapiAuthJwt2: require('hapi-auth-jwt2'),
   good: require('good')
 };
 
-const serverOptions = {
-  router: { stripTrailingSlash: true },
-  port: process.env.PORT || 8002
-};
-const server = new Hapi.Server(serverOptions);
+const server = new Hapi.Server(config.server);
 
 if (process.env.DATABASE_URL) {
   // get heroku db params from env vars
@@ -49,15 +30,6 @@ if (process.env.DATABASE_URL) {
 
 const cacheKey = process.env.cacheKey || 'super-secret-cookie-encryption-key';
 console.log('Cache key' + cacheKey);
-
-// isSecure = true for live...
-const yarOptions = {
-  storeBlank: false,
-  cookieOptions: {
-    password: 'the-password-must-be-at-least-32-characters-long',
-    isSecure: false
-  }
-};
 
 function validateJWT (decoded, request, h) {
   console.log(`validate JWT at ${request.url.path} with payload:`);
@@ -73,18 +45,18 @@ function validateJWT (decoded, request, h) {
 
 async function init () {
   await server.register({
-    plugin: serverPlugins.yar,
-    options: yarOptions
-  });
-
-  await server.register({
     plugin: serverPlugins.good,
-    options: goodOptions
+    options: {
+      ...config.good,
+      reporters: {
+        winston: [goodWinstonStream]
+      }
+    }
   });
 
   await server.register({
     plugin: serverPlugins.blipp,
-    options: { showAuth: true }
+    options: config.blipp
   });
 
   await server.register({ plugin: serverPlugins.hapiAuthJwt2 });

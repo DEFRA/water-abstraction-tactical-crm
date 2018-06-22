@@ -1,10 +1,7 @@
 const { Pool } = require('pg');
+const config = require('../../../config');
 
-const pool = new Pool({
-  max: 20,
-  idleTimeoutMillis: 30000,
-  connectionTimeoutMillis: 2000
-});
+const pool = new Pool(config.pg);
 
 function promiseQuery (queryString, params) {
   return new Promise((resolve, reject) => {
