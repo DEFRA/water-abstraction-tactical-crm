@@ -5,10 +5,8 @@
 const Helpers = require('./helpers');
 const DB = require('./connectors/db');
 const { pool } = require('./connectors/db');
-const moment = require('moment');
-const {SqlConditionBuilder, SqlSortBuilder} = require('./sql');
-const Boom = require('boom');
-const DocumentsController = require('../controllers/document-headers')({pool, version : '1.0'});
+const { SqlConditionBuilder } = require('./sql');
+const DocumentsController = require('../controllers/document-headers')({pool, version: '1.0'});
 /**
  * @TODO REST API updates:
  * - permit repo entity filtering on company/individual was query string
@@ -19,25 +17,24 @@ const DocumentsController = require('../controllers/document-headers')({pool, ve
  * create document_header now missing on conflict update
  */
 
-
 /**
  * Get entity record from CRM
  * @param {string} entity_identifier - the guid or entity_nm of the entity
  * @return {Promise} resolves with entity data
  */
-function _getEntityRecord(entity_identifier) {
+function _getEntityRecord (entityIdentifier) {
   return new Promise((resolve, reject) => {
-    console.log('_getEntityRecord')
-    var query = `select * from crm.entity where lower(entity_id)=lower($1) or lower(entity_nm)=lower($1)`
-    var queryParams = [entity_identifier]
+    console.log('_getEntityRecord');
+    const query = `select * from crm.entity where lower(entity_id)=lower($1) or lower(entity_nm)=lower($1)`;
+    const queryParams = [entityIdentifier];
     //      console.log(`${query} with ${queryParams}`)
     DB.query(query, queryParams).then((res) => {
-      console.log(res.data[0])
-      resolve(res.data[0])
+      console.log(res.data[0]);
+      resolve(res.data[0]);
     }).catch((err) => {
-      reject(err)
-    })
-  })
+      reject(err);
+    });
+  });
 }
 
 /**
@@ -45,82 +42,35 @@ function _getEntityRecord(entity_identifier) {
  * @param {string} entity_identifier - the guid of the entity
  * @return {Promise} resolves with entity role data
  */
-function _getEntityRoles(entity_identifier) {
+function _getEntityRoles (entityIdentifier) {
   return new Promise((resolve, reject) => {
-    console.log('_getEntityRoles')
+    console.log('_getEntityRoles');
     var query = `select distinct
     r.entity_role_id,
-		r.role,
-		r.entity_id ,
-		r.company_entity_id,
-		r.regime_entity_id,
-		individual.entity_nm as individual_name,
-		company.entity_nm as company_name,
-		regime.entity_nm as regime_name
-		from
-		crm.entity_roles r
-		join crm.entity individual on r.entity_id=individual.entity_id
-		left join crm.entity company on r.company_entity_id=company.entity_id
-		left join crm.entity regime on r.regime_entity_id=regime.entity_id
-where r.entity_id=$1	 or individual.entity_nm=$1	or r.company_entity_id=$1`
-    var queryParams = [entity_identifier]
-    console.log(`${query} with ${queryParams}`)
+    r.role,
+    r.entity_id ,
+    r.company_entity_id,
+    r.regime_entity_id,
+    individual.entity_nm as individual_name,
+    company.entity_nm as company_name,
+    regime.entity_nm as regime_name
+    from
+    crm.entity_roles r
+    join crm.entity individual on r.entity_id=individual.entity_id
+    left join crm.entity company on r.company_entity_id=company.entity_id
+    left join crm.entity regime on r.regime_entity_id=regime.entity_id
+    where r.entity_id=$1 or individual.entity_nm=$1 or r.company_entity_id=$1`;
+    var queryParams = [entityIdentifier];
+    console.log(`${query} with ${queryParams}`);
     DB.query(query, queryParams)
       .then((res) => {
-        console.log(res)
-        resolve(res.data)
+        console.log(res);
+        resolve(res.data);
       }).catch((err) => {
-        console.log(err)
-        reject(err)
-      })
-  })
-}
-
-/**
- * Get entity roles from CRM
- * @param {array} rolesArray - an array of role objects
- * @return {Promise} resolves with document available to role
- */
-function _getRoleDocuments(rolesArray) {
-  return new Promise((resolve, reject) => {
-    console.log('_getRoleDocuments')
-    var documents = [];
-    var query = ''
-    queryParams = [];
-
-    for (role in rolesArray) {
-      if (query && query.length && query.length > 0) {
-        query += ' union all '
-      }
-      var thisRole = rolesArray[role]
-      query += `select '${thisRole.role}' as role, '${thisRole.entity_role_id}' as role_id, h.* from crm.document_header h where 0=0 `
-      if (thisRole.regime_entity_id && thisRole.regime_entity_id.length > 0) {
-        queryParams.push(thisRole.regime_entity_id)
-        query += ' and h.regime_entity_id=$' + queryParams.length
-      }
-      if (thisRole.company_entity_id && thisRole.company_entity_id.length > 0) {
-        queryParams.push(thisRole.company_entity_id)
-        query += ' and h.company_entity_id=$' + queryParams.length
-      }
-
-
-    }
-    console.log(query)
-    console.log(queryParams)
-
-
-    DB.query(query, queryParams)
-      .then((res) => {
-        console.log('got role documents')
-        console.log(res.data)
-        resolve(res.data)
-      }).catch((err) => {
-        console.log('error getting role documents')
-        console.log(err)
-        reject(err)
-      })
-
-  })
+        console.log(err);
+        reject(err);
+      });
+  });
 }
 
 /**
@@ -131,43 +81,36 @@ function _getRoleDocuments(rolesArray) {
  * @param {Object} [request.params.entity_id] - entity id for entity
  * @return {object} Returns object containing entity data
  */
-function getEntity(request, reply) {
-  var responseData = {};
-  var entityId
-  _getEntityRecord(request.params.entity_id).then((entity) => {
-    responseData.entity = entity;
-    var entityId = entity.entity_id
-  }).catch((err) => {
-    console.log(err)
-    responseData.entity = {};
-    var entityId = 0
-  }).then(() => {
-    //get upstream entities deprecated but not yet removed...
-    responseData.entityAssociations = []
-    //get entity roles
-    _getEntityRoles(request.params.entity_id).then((entityRoles) => {
-      console.log(`get entity roles for ${request.params.entity_id}`)
-      console.log(entityRoles)
-      responseData.entityRoles = entityRoles
-    }).catch((err) => {
-      console.log(err)
-      responseData.entityRoles = []
-    }).then(() => {
+function getEntity (request, h) {
+  const responseData = {
+    entity: {},
+    entityRoles: [],
+    entityAssociations: [],
+    roleDocuments: []
+  };
 
-      responseData.roleDocuments = []
+  const entityId = request.params.entity_id;
 
-      var response = {
-        error: null,
-        data: responseData
-      }
-      console.log(response)
-      return reply(response)
+  return _getEntityRecord(entityId)
+    .catch(err => console.log(err))
+    .then(entity => {
+      // get upstream entities deprecated but not yet removed...
+      responseData.entity = entity;
 
+      // get entity roles
+      console.log(`get entity roles for ${entityId}`);
+      return _getEntityRoles(entityId);
     })
-  })
+    .catch(err => console.log(err))
+    .then((entityRoles) => {
+      console.log(entityRoles);
+      responseData.entityRoles = entityRoles;
+    }).then(() => {
+      const response = { error: null, data: responseData };
+      console.log(response);
+      return response;
+    });
 }
-
-
 
 /**
  * Get documents by the supplied search/filter/sort criteria
@@ -188,38 +131,34 @@ function getEntity(request, reply) {
  * @param {Number} [request.payload.pagination.perPage] - sets number of results to access per page
  * @return {Promise} resolves with array of licence data
  */
-async function getRoleDocuments(request, reply) {
-
+async function getRoleDocuments (request, h) {
   try {
     console.log(`Post call to document filter is deprecated, please use the GET call instead`);
 
     const payload = request.payload || {};
-    const { filter = {}, sort = {}, pagination = { perPage : 100, page : 1} } = payload;
+    const { filter = {}, sort = {}, pagination = { perPage: 100, page: 1 } } = payload;
 
     // Synthesise GET call
     const newRequest = {
-      method : 'get',
-      params : {
+      method: 'get',
+      params: {
       },
-      query : {
-        filter : JSON.stringify(filter),
-        sort : JSON.stringify(sort),
-        pagination : JSON.stringify(pagination)
+      query: {
+        filter: JSON.stringify(filter),
+        sort: JSON.stringify(sort),
+        pagination: JSON.stringify(pagination)
       }
     };
 
+    console.log('ERROR filter', filter);
     console.log(JSON.stringify(newRequest, null, 2));
-
-    await DocumentsController.find(newRequest, reply, true);
-  }
-  catch(error) {
+    const response = await DocumentsController.find(newRequest, h, true);
+    return response;
+  } catch (error) {
     console.error(error);
-    reply({error}).statusCode(500);
+    h.response({ error }).code(500);
   }
-
 }
-
-
 
 /**
  * A method to bulk-update a group of document header records for verification steps
@@ -232,102 +171,89 @@ async function getRoleDocuments(request, reply) {
  * @param {String} [request.payload.query.verification_id] - identifies a group of docs to update based on a verification record
  * @param {String} [request.payload.set.verification_id] - sets the verification_id on the queried documents
  * @param {Number} [request.payload.set.verified] - sets whether verified
- * @param {Object} reply - the HAPI HTTP reply
+ * @param {Object} h - the HAPI HTTP response toolkit
  */
- function updateDocumentHeaders(request, reply) {
-   let query = 'UPDATE crm.document_header SET ';
-   const builder = new SqlConditionBuilder();
+function updateDocumentHeaders (request, h) {
+  let query = 'UPDATE crm.document_header SET ';
+  const builder = new SqlConditionBuilder();
 
-   // Update verification ID
-   const set = [];
-   if('verification_id' in request.payload.set) {
-     builder.addParam(request.payload.set.verification_id);
-     set.push(` verification_id= $${ builder.params.length } `);
-   }
-   if('verified' in request.payload.set) {
-     builder.addParam(request.payload.set.verified);
-     set.push(` verified= $${ builder.params.length } `);
-   }
-   if('company_entity_id' in request.payload.set) {
-     builder.addParam(request.payload.set.company_entity_id);
-     set.push(` company_entity_id= $${ builder.params.length } `);
-   }
+  // Update verification ID
+  const set = [];
+  if ('verification_id' in request.payload.set) {
+    builder.addParam(request.payload.set.verification_id);
+    set.push(` verification_id= $${builder.params.length} `);
+  }
+  if ('verified' in request.payload.set) {
+    builder.addParam(request.payload.set.verified);
+    set.push(` verified= $${builder.params.length} `);
+  }
+  if ('company_entity_id' in request.payload.set) {
+    builder.addParam(request.payload.set.company_entity_id);
+    set.push(` company_entity_id= $${builder.params.length} `);
+  }
 
-   // Query on document ID
-   query += set.join(',') + ' WHERE 0=0 ';
+  // Query on document ID
+  query += set.join(',') + ' WHERE 0=0 ';
 
-   if(request.payload.query.document_id) {
-     builder.and('document_id', request.payload.query.document_id);
-   }
-   if(request.payload.query.verification_id) {
-     builder.and('verification_id', request.payload.query.verification_id);
-   }
+  if (request.payload.query.document_id) {
+    builder.and('document_id', request.payload.query.document_id);
+  }
+  if (request.payload.query.verification_id) {
+    builder.and('verification_id', request.payload.query.verification_id);
+  }
 
-   query += builder.getSql();
-   queryParams = builder.getParams();
+  query += builder.getSql();
+  const queryParams = builder.getParams();
+  console.log(query, queryParams);
 
-   console.log(query, queryParams);
+  DB.query(query, queryParams)
+    .then((res) => {
+      return res;
+    })
+    .catch((err) => {
+      return err;
+    });
+}
 
-   DB.query(query, queryParams)
-     .then((res) => {
-       return reply(res);
-     })
-     .catch((err) => {
-       return reply(err)
-     });
-
- }
-
-
-
-
-
-function setDocumentOwner(request, reply) {
-  console.log(request.payload)
+function setDocumentOwner (request, h) {
+  console.log(request.payload);
   var guid = Helpers.createGUID();
   var query = `
     update crm.document_header set company_entity_id=$1 where document_id=$2
-  `
+  `;
   var queryParams = [
-
     request.payload.entity_id,
     request.params.document_id,
     guid
-  ]
-  console.log(query)
-  console.log(queryParams)
+  ];
+  console.log(query);
+  console.log(queryParams);
   DB.query(query, queryParams)
     .then((res) => {
       var query = `
 
         insert into crm.document_association(document_association_id,document_id,entity_id) values ($3,$2,$1)
-      `
+      `;
 
       DB.query(query, queryParams)
         .then((res) => {
-
-          return reply({
+          return {
             error: res.error,
             document_id: request.params.document_id
-          })
-        })
-
-    })
+          };
+        });
+    });
 }
 
-
-
-
-function getColleagues(request, reply) {
-
-console.log(request.query)
-  var entity_id = request.params.entity_id
+function getColleagues (request, h) {
+  console.log(request.query);
+  const entityId = request.params.entity_id;
   /**
   identify user roles who the supplied user can admin
     i.e. users with a different entity id who have role that have the same company
   **/
 
-  query =`  select
+  let query = `  select
   distinct
   grantee_role.entity_role_id,
   grantee_role.entity_id as individual_entity_id,
@@ -358,53 +284,44 @@ and
   grantee_role.entity_id !=$1
   and
   granter_role.entity_id = $1
-    `
+    `;
 
-  queryParams = [
-    entity_id
-  ]
-  if(request.query.direction == 1 ){
-    query+=' order by '+request.query.sort+' asc'
+  const queryParams = [entityId];
+  if (request.query.direction === 1) {
+    query += ' order by ' + request.query.sort + ' asc';
   } else {
-    query+=' order by '+request.query.sort+' desc'
-
+    query += ' order by ' + request.query.sort + ' desc';
   }
-
 
   DB.query(query, queryParams)
     .then((res) => {
-      return reply(res.data)
+      return h.response(res.data);
     }).catch((err) => {
-      return reply(err)
-    })
+      return h.response(err);
+    });
 }
 
-function deleteColleague(request,reply){
-
-    var entity_role_id = request.params.role_id
-    query =`
+function deleteColleague (request, h) {
+  var entityRoleId = request.params.role_id;
+  const query = `
     delete from crm.entity_roles where entity_role_id=$1
-      `
-    queryParams = [
-      entity_role_id
-    ]
+      `;
+  const queryParams = [entityRoleId];
 
-
-    DB.query(query, queryParams)
-      .then((res) => {
-        console.log('woo! delete!')
-        return reply(res.data)
-      }).catch((err) => {
-        console.log('BOO! delete!',err)
-        return reply(err)
-      })
+  DB.query(query, queryParams)
+    .then((res) => {
+      console.log('woo! delete!');
+      return h.response(res.data);
+    }).catch((err) => {
+      console.log('BOO! delete!', err);
+      return h.response(err);
+    });
 }
 
-function createColleague(request,reply){
-  //TODO: make this query less fugly
-  var entity_id = request.params.entity_id
-  var email = request.payload.email
-  query =`
+function createColleague (request, h) {
+  // TODO: make this query less fugly
+  const email = request.payload.email;
+  const query = `
   insert into crm.entity_roles
     select
     uuid_in(md5(random()::text || now()::text)::cstring),
@@ -420,20 +337,16 @@ function createColleague(request,reply){
 
      where r.entity_id='${request.params.entity_id}' on conflict (entity_id,regime_entity_id,company_entity_id)
      DO UPDATE set role='user'
-    `
+    `;
 
-  console.log(query)
+  console.log(query);
 
   DB.query(query)
     .then((res) => {
-      return reply(res.data)
+      return h.response(res.data);
     }).catch((err) => {
-      return reply(err)
-    })
-
-
-
-
+      return h.response(err);
+    });
 }
 
 module.exports = {
@@ -444,6 +357,6 @@ module.exports = {
   // getDocumentNameForUser: getDocumentNameForUser,
   // setDocumentNameForUser: setDocumentNameForUser,
   getColleagues: getColleagues,
-  deleteColleague:deleteColleague,
-  createColleague:createColleague
-}
+  deleteColleague: deleteColleague,
+  createColleague: createColleague
+};

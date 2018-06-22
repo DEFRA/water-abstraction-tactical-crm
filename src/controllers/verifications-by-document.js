@@ -1,22 +1,17 @@
 const { pool } = require('../lib/connectors/db');
-const { uniqBy, findIndex } = require('lodash');
 const mongoSql = require('mongo-sql');
 
 /**
  * Get verifications by document id
  * Gets a list of verifications and the documents they apply to
  */
-async function getVerificationsByDocumentID(request, reply) {
-
-  let params = [];
-
+async function getVerificationsByDocumentID (request, h) {
   try {
-
     const filter = JSON.parse(request.query.filter || '{}');
 
     const query = {
       type: 'select',
-      table: "crm.verification_documents",
+      table: 'crm.verification_documents',
       columns: [
         'crm.verification_documents.document_id',
         'crm.verification_documents.verification_id',
@@ -52,16 +47,12 @@ async function getVerificationsByDocumentID(request, reply) {
 
     const { rows, error } = await pool.query(result.toString(), result.values);
 
-
-        reply({
-          error,
-          data: rows
-        });
-      } catch (error) {
-        console.log(error);
-        reply({ error, data: null }).statusCode(500);
-      }
-    }
+    return { error, data: rows };
+  } catch (error) {
+    console.log(error);
+    h.response({ error, data: null }).statusCode(500);
+  }
+}
 
 module.exports = {
   getVerificationsByDocumentID
