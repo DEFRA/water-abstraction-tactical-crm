@@ -2,7 +2,7 @@
  * Provides HAPI HTTP handlers for working with CRM data
  * @module lib/CRM
  */
-const Helpers = require('./helpers');
+const uuidv4 = require('uuid/v4');
 const DB = require('./connectors/db');
 const { pool } = require('./connectors/db');
 const { SqlConditionBuilder } = require('./sql');
@@ -217,7 +217,7 @@ function updateDocumentHeaders (request, h) {
 
 function setDocumentOwner (request, h) {
   console.log(request.payload);
-  var guid = Helpers.createGUID();
+  var guid = uuidv4();
   var query = `
     update crm.document_header set company_entity_id=$1 where document_id=$2
   `;
@@ -293,10 +293,11 @@ and
     query += ' order by ' + request.query.sort + ' desc';
   }
 
-  DB.query(query, queryParams)
+  return DB.query(query, queryParams)
     .then((res) => {
-      return h.response(res.data);
+      return res.data;
     }).catch((err) => {
+      console.error(err);
       return h.response(err);
     });
 }
@@ -308,7 +309,7 @@ function deleteColleague (request, h) {
       `;
   const queryParams = [entityRoleId];
 
-  DB.query(query, queryParams)
+  return DB.query(query, queryParams)
     .then((res) => {
       console.log('woo! delete!');
       return h.response(res.data);
@@ -341,7 +342,7 @@ function createColleague (request, h) {
 
   console.log(query);
 
-  DB.query(query)
+  return DB.query(query)
     .then((res) => {
       return h.response(res.data);
     }).catch((err) => {
