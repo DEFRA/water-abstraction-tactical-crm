@@ -112,6 +112,41 @@ function getContact (row) {
 }
 
 /**
+ * Gets the contacts from the supplied licence row.
+ * If metadata.contacts is present, then all these are transformed into an array.
+ * If absent, then the licence holder contact in the metadata is used as a fallback
+ * @param {Object} row - CRM docment header  row
+ * @return {Array} - array of licence contacts
+ */
+function getNaldContacts (row) {
+  const { metadata: { contacts } } = row;
+
+  // New field in metadata
+  if (contacts) {
+    return contacts.map(contact => {
+      const { addressLine1, addressLine2, addressLine3, addressLine4, role, initials, type, ...rest } = contact;
+      return {
+        entity_id: null,
+        source: 'nald',
+        email: null,
+        role: role.toLowerCase().replace(' ', '_'),
+        address_1: addressLine1,
+        address_2: addressLine2,
+        address_3: addressLine3,
+        address_4: addressLine4,
+        ...rest
+      };
+    });
+
+    return contacts;
+  }
+  // Existing metadata approach
+  else {
+    return [getLicenceHolderContact(row)];
+  }
+}
+
+/**
  * Maps data returned from a single row of SQL query to approximate
  * response from an entity contacts table which will presumably follow later
  * @param {Object} row
@@ -129,9 +164,7 @@ function mapRowsToEntities (rows) {
         system_internal_id,
         document_name,
         company_entity_id,
-        contacts: [
-          getLicenceHolderContact(row)
-        ]
+        contacts: getNaldContacts(row)
       };
     }
 
