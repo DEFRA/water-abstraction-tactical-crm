@@ -129,7 +129,7 @@ function getNaldContacts (row) {
         entity_id: null,
         source: 'nald',
         email: null,
-        role: role.toLowerCase().replace(' ', '_'),
+        role: role.toLowerCase().replace(/ /g, '_'),
         address_1: addressLine1,
         address_2: addressLine2,
         address_3: addressLine3,
