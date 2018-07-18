@@ -1,6 +1,18 @@
 [![Build Status](https://travis-ci.org/DEFRA/water-abstraction-tactical-crm.svg?branch=master)](https://travis-ci.org/DEFRA/water-abstraction-tactical-crm)
 
+# Introduction
+This component is one of 3 that combine to give you the ability to store a document or details of a permit or pass, to link those documents to users that can view and be able to have different access for internal and external users. With a front end it will enable most processes to capture, share and view details of permits and or licence style information
+
+__Permit Repository:__ https://github.com/DEFRA/water-abstraction-permit-repository
+
+__IDM:__ https://github.com/DEFRA/water-abstraction-tactical-idm
+
+__CRM:__ https://github.com/DEFRA/water-abstraction-tactical-crm
+
+
 # water-abstraction-tactical-crm
+[![Maintainability](https://api.codeclimate.com/v1/badges/eeadf60a5df1e504f286/maintainability)](https://codeclimate.com/github/DEFRA/water-abstraction-tactical-crm/maintainability)
+[![Test Coverage](https://api.codeclimate.com/v1/badges/eeadf60a5df1e504f286/test_coverage)](https://codeclimate.com/github/DEFRA/water-abstraction-tactical-crm/test_coverage)
 
 The tactical CRM is a lightweight CRM solution providing a means of managing:
 
