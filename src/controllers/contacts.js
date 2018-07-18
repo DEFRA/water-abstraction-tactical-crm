@@ -6,7 +6,7 @@ const mongoSql = require('mongo-sql');
  * @param {Object} row
  * @return {Object} contact
  */
-function getLicenceHolderContact(row) {
+function getLicenceHolderContact (row) {
   const { Salutation, Forename, Name } = row.metadata;
 
   const person = { salutation: Salutation, forename: Forename, name: Name };
@@ -27,7 +27,7 @@ function getLicenceHolderContact(row) {
  * @param {Object} row
  * @return {Object} formatted address
  */
-function getAddress(row) {
+function getAddress (row) {
   const { AddressLine1, AddressLine2 } = row.metadata;
   const { AddressLine3, AddressLine4, Town, County, Postcode, Country } = row.metadata;
   return {
@@ -38,7 +38,7 @@ function getAddress(row) {
     town: Town,
     county: County,
     postcode: Postcode,
-    country: Country,
+    country: Country
   };
 }
 
@@ -46,7 +46,7 @@ function getAddress(row) {
  * Get object of blank address details
  * @return {Object} formatted address
  */
-function getBlankAddress() {
+function getBlankAddress () {
   return {
     address_1: null,
     address_2: null,
@@ -55,17 +55,16 @@ function getBlankAddress() {
     town: null,
     county: null,
     postcode: null,
-    country: null,
+    country: null
   };
 }
-
 
 /**
  * Get entity contact from row
  * @param {Object} row
  * @return {Object} contact
  */
-function getEntityContact(row) {
+function getEntityContact (row) {
   const address = row.role === 'primary_user' ? getAddress(row) : getBlankAddress();
 
   return {
@@ -85,7 +84,7 @@ function getEntityContact(row) {
  * @param {Object} row
  * @return {Object} contact
  */
-function getCompanyContact(row) {
+function getCompanyContact (row) {
   const address = getBlankAddress();
 
   return {
@@ -100,19 +99,52 @@ function getCompanyContact(row) {
   };
 }
 
-
 /**
  * Get either individual/company entity
  * @param {Object} row
  * @return {Object} contact
  */
-function getContact(row) {
+function getContact (row) {
   if (row.entity_id === row.company_entity_id) {
     return getCompanyContact(row);
   }
   return getEntityContact(row);
 }
 
+/**
+ * Gets the contacts from the supplied licence row.
+ * If metadata.contacts is present, then all these are transformed into an array.
+ * If absent, then the licence holder contact in the metadata is used as a fallback
+ * @param {Object} row - CRM docment header  row
+ * @return {Array} - array of licence contacts
+ */
+function getNaldContacts (row) {
+  const { metadata: { contacts } } = row;
+
+  // New field in metadata
+  if (contacts) {
+    return contacts.map(contact => {
+      const { addressLine1, addressLine2, addressLine3, addressLine4, role, initials, type, ...rest } = contact;
+      return {
+        entity_id: null,
+        source: 'nald',
+        email: null,
+        role: role.toLowerCase().replace(/ /g, '_'),
+        address_1: addressLine1,
+        address_2: addressLine2,
+        address_3: addressLine3,
+        address_4: addressLine4,
+        ...rest
+      };
+    });
+
+    return contacts;
+  }
+  // Existing metadata approach
+  else {
+    return [getLicenceHolderContact(row)];
+  }
+}
 
 /**
  * Maps data returned from a single row of SQL query to approximate
@@ -120,10 +152,8 @@ function getContact(row) {
  * @param {Object} row
  * @return {Object} row - mapped to new format
  */
-function mapRowsToEntities(rows) {
-
+function mapRowsToEntities (rows) {
   const licences = rows.reduce((acc, row) => {
-
     const { document_id, system_external_id, system_internal_id, document_name, entity_id, company_entity_id } = row;
 
     // Add licence holder to list
@@ -134,9 +164,7 @@ function mapRowsToEntities(rows) {
         system_internal_id,
         document_name,
         company_entity_id,
-        contacts: [
-          getLicenceHolderContact(row)
-        ]
+        contacts: getNaldContacts(row)
       };
     }
 
@@ -145,70 +173,63 @@ function mapRowsToEntities(rows) {
       acc[system_external_id].contacts.push(getContact(row));
     }
     return acc;
-
   }, {});
 
   return Object.values(licences);
-
 }
-
-
 
 /**
  * Get filter query
  * @param {Object} filter
  * @return {Object} Mongo query description
  */
-function getMongoSqlQuery(filter) {
+function getMongoSqlQuery (filter) {
   return {
     type: 'select',
-    table: "crm.document_header",
+    table: 'crm.document_header',
     columns: ['*', 'crm.entity.entity_id', 'crm.entity.entity_nm', 'crm.entity.source', 'crm.entity_roles.role'],
     where: filter,
     joins: [{
-        type: 'left',
-        target: 'crm.entity_roles',
-        on: {
-          company_entity_id: '$crm.document_header.company_entity_id$',
-          role: {
-            $in: ['primary_user', 'user', 'notifications']
-          }
+      type: 'left',
+      target: 'crm.entity_roles',
+      on: {
+        company_entity_id: '$crm.document_header.company_entity_id$',
+        role: {
+          $in: ['primary_user', 'user', 'notifications']
         }
-      },
-      {
-        type: 'left',
-        target: 'crm.entity',
-        on: { entity_id: '$crm.entity_roles.entity_id$' }
       }
-    ]
+    },
+    {
+      type: 'left',
+      target: 'crm.entity',
+      on: { entity_id: '$crm.entity_roles.entity_id$' }
+    }]
   };
 }
-
 
 /**
  * Get document contacts linked via document_entity table
  * @param {Object} mongo-sql query for finding documents
  * @return {Object} mongo-sql query with joins for doc entities, entities
  */
-function getDocumentEntitySqlQuery(filter) {
+function getDocumentEntitySqlQuery (filter) {
   return {
     type: 'select',
-    table: "crm.document_header",
+    table: 'crm.document_header',
     columns: ['*', 'crm.entity.entity_id', 'crm.entity.entity_nm', 'crm.entity.source', 'crm.document_entity.role'],
     where: filter,
     joins: [{
-        type: 'right',
-        target: 'crm.document_entity',
-        on: {
-          document_id: '$crm.document_header.document_id$'
-        }
-      },
-      {
-        type: 'right',
-        target: 'crm.entity',
-        on: { entity_id: '$crm.document_entity.entity_id$' }
+      type: 'right',
+      target: 'crm.document_entity',
+      on: {
+        document_id: '$crm.document_header.document_id$'
       }
-    ]
+    },
+    {
+      type: 'right',
+      target: 'crm.entity',
+      on: { entity_id: '$crm.document_entity.entity_id$' }
+    }]
   };
 }
 
@@ -217,10 +238,10 @@ function getDocumentEntitySqlQuery(filter) {
  * @param {Object} mongo-sql query for finding documents
  * @return {Object} mongo-sql query with joins for doc entities, entities
  */
-function getCompanySqlQuery(filter) {
+function getCompanySqlQuery (filter) {
   return {
     type: 'select',
-    table: "crm.document_header",
+    table: 'crm.document_header',
     columns: ['*', 'crm.entity.entity_id', 'crm.entity.entity_nm', 'crm.entity.source'],
     where: filter,
     joins: [{
@@ -231,17 +252,12 @@ function getCompanySqlQuery(filter) {
   };
 }
 
-
 /**
  * Get contacts route handler
  * Gets a list of documents
  */
-async function getContacts(request, reply) {
-
-  let params = [];
-
+async function getContacts (request, h) {
   try {
-
     const filter = JSON.parse(request.query.filter || '{}');
 
     // Do initial query to find documents and entities linked via roles
@@ -270,18 +286,15 @@ async function getContacts(request, reply) {
       throw error3;
     }
 
-
-
-    reply({
+    return {
       error,
       data: mapRowsToEntities([...rows, ...rows2, ...rows3])
-    });
+    };
   } catch (error) {
     console.log(error);
-    reply({ error, data: null }).statusCode(500);
+    h.response({ error, data: null }).code(500);
   }
 }
-
 
 module.exports = {
   getContacts
