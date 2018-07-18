@@ -1,21 +1,11 @@
 /*
-
 API operations only - NO UI
-
 */
-
-const version = '1.0'
-
-const CRM = require('../lib/CRM')
+const version = '1.0';
+const CRM = require('../lib/CRM');
 const Joi = require('joi');
-const Helpers = require('../lib/helpers');
-// const Pool
-// const HAPIRestAPI = require('../lib/rest-api');
-const HAPIRestAPI = require('hapi-pg-rest-api');
 
-const {
-  pool
-} = require('../lib/connectors/db.js');
+const { pool } = require('../lib/connectors/db.js');
 const apiConfig = {
   pool,
   version
@@ -29,51 +19,46 @@ const EntityRolesApi = require('../controllers/entity-roles.js')(apiConfig);
 const RoleEntityApi = require('../controllers/role-entities.js')(apiConfig);
 const RoleEntityView = require('../controllers/role-entities-view.js')(apiConfig);
 const RolesApi = require('../controllers/roles.js')(apiConfig);
-const VerificationDocumentsController = require('../controllers/verification-documents.js')
+const VerificationDocumentsController = require('../controllers/verification-documents.js');
 const { getContacts } = require('../controllers/contacts');
 const { getVerificationsByDocumentID } = require('../controllers/verifications-by-document.js');
 const KpiApi = require('../controllers/kpi-reports.js')(apiConfig);
 
-module.exports = [{
+module.exports = [
+  {
     method: 'GET',
     path: '/status',
-    handler: function(request, reply) {
-      return reply('ok').code(200)
-    },
-    config: {
+    handler: () => 'ok',
+    options: {
       auth: false,
       description: 'Get all entities'
     }
   },
 
   // Get all entities
-  EntityApi.getRoutes()[0],
+  EntityApi.findManyRoute(),
 
   // Update entity
-  EntityApi.getRoutes()[3],
+  EntityApi.updateOneRoute(),
 
   // Create new entity
-  EntityApi.getRoutes()[2],
+  EntityApi.createRoute(),
 
   // Put entity (not implemented)
-  EntityApi.getRoutes()[4],
+  EntityApi.replaceOneRoute(),
 
   // Delete entity
-  EntityApi.getRoutes()[5],
+  EntityApi.deleteOneRoute(),
 
   ...RolesApi.getRoutes(),
   ...RoleEntityApi.getRoutes(),
   RoleEntityView.findManyRoute(),
   RoleEntityView.findOneRoute(),
-
-
-
-
   {
     method: 'GET',
     path: '/crm/' + version + '/entity/{entity_id}',
     handler: CRM.getEntity,
-    config: {
+    options: {
       description: 'Get specified entity'
     }
   },
@@ -82,7 +67,7 @@ module.exports = [{
     method: 'GET',
     path: '/crm/' + version + '/entity/{entity_id}/colleagues',
     handler: CRM.getColleagues,
-    config: {
+    options: {
       description: 'Get colleagues of entity'
     }
   },
@@ -90,7 +75,7 @@ module.exports = [{
     method: 'DELETE',
     path: '/crm/' + version + '/entity/{entity_id}/colleagues/{role_id}',
     handler: CRM.deleteColleague,
-    config: {
+    options: {
       description: 'Remove specified colleague of entity'
     }
   },
@@ -98,7 +83,7 @@ module.exports = [{
     method: 'POST',
     path: '/crm/' + version + '/entity/{entity_id}/colleagues',
     handler: CRM.createColleague,
-    config: {
+    options: {
       description: 'Create new colleague of entity'
     }
   },
@@ -112,7 +97,7 @@ module.exports = [{
     method: 'POST',
     path: '/crm/' + version + '/documentHeader/filter',
     handler: CRM.getRoleDocuments,
-    config: {
+    options: {
       description: 'Search for document headers by posted filter criteria'
     }
   },
@@ -120,7 +105,7 @@ module.exports = [{
     method: 'PUT',
     path: '/crm/' + version + '/documentHeader/{document_id}/owner',
     handler: CRM.setDocumentOwner,
-    config: {
+    options: {
       description: 'Search for document headers by posted filter criteria'
     }
   },
@@ -132,7 +117,7 @@ module.exports = [{
     method: 'POST',
     path: '/crm/' + version + '/verification/{id}/documents',
     handler: VerificationDocumentsController.postVerificationDocuments,
-    config: {
+    options: {
       validate: {
         params: {
           id: Joi.string().guid().required()
@@ -148,7 +133,7 @@ module.exports = [{
     method: 'GET',
     path: '/crm/' + version + '/verification/{id}/documents',
     handler: VerificationDocumentsController.getVerificationDocuments,
-    config: {
+    options: {
       validate: {
         params: {
           id: Joi.string().guid().required()
@@ -167,5 +152,4 @@ module.exports = [{
     handler: getVerificationsByDocumentID
   },
   KpiApi.findManyRoute()
-]
-
+];
