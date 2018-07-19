@@ -19,8 +19,8 @@ module.exports = (config = {}) => {
       role: Joi.string(),
       regime_entity_id: Joi.string().guid(),
       company_entity_id: Joi.string().guid(),
-      is_primary: Joi.number(),
-      created_by: Joi.string()
+      created_by: Joi.string(),
+      permissions: Joi.object().allow(null)
     }
   });
 };
