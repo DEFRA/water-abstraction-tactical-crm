@@ -1,4 +1,6 @@
 module.exports = {
+  version: '1.0',
+
   logger: {
     level: 'info',
     airbrakeKey: process.env.errbit_key,

@@ -7,7 +7,9 @@
     "test": "./node_modules/lab/bin/lab -t 55 -m 0 --coverage-path ./src/ --ignore r -r lcov -o lcov.info -r console -o stdout",
     "test-cov-html": "lab -r html -o coverage.html",
     "docs": "jsdoc -c conf.jsdoc.json && cd ./out && serve -o -p 3012",
-    "migrate": "node scripts/create-schema && node node_modules/db-migrate/bin/db-migrate up --verbose"
+    "migrate": "node scripts/create-schema && node node_modules/db-migrate/bin/db-migrate up --verbose",
+    "migrate:down": "db-migrate down --verbose",
+    "migrate:create": "db-migrate create --sql-file --"
   },
   "engines": {
     "node": ">=8.0"
