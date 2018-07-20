@@ -354,10 +354,8 @@ module.exports = {
   getEntity,
   getRoleDocuments,
   updateDocumentHeaders,
-  setDocumentOwner: setDocumentOwner,
-  // getDocumentNameForUser: getDocumentNameForUser,
-  // setDocumentNameForUser: setDocumentNameForUser,
-  getColleagues: getColleagues,
-  deleteColleague: deleteColleague,
-  createColleague: createColleague
+  setDocumentOwner,
+  getColleagues,
+  deleteColleague,
+  createColleague
 };
