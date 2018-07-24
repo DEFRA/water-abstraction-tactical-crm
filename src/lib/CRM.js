@@ -216,32 +216,27 @@ function updateDocumentHeaders (request, h) {
 }
 
 function setDocumentOwner (request, h) {
-  console.log(request.payload);
-  var guid = uuidv4();
-  var query = `
-    update crm.document_header set company_entity_id=$1 where document_id=$2
-  `;
-  var queryParams = [
+  const guid = uuidv4();
+  const query = `
+    update crm.document_header
+    set company_entity_id=$1
+    where document_id=$2`;
+
+  const queryParams = [
     request.payload.entity_id,
     request.params.document_id,
     guid
   ];
+
   console.log(query);
   console.log(queryParams);
-  DB.query(query, queryParams)
+
+  return DB.query(query, queryParams)
     .then((res) => {
-      var query = `
-
-        insert into crm.document_association(document_association_id,document_id,entity_id) values ($3,$2,$1)
-      `;
-
-      DB.query(query, queryParams)
-        .then((res) => {
-          return {
-            error: res.error,
-            document_id: request.params.document_id
-          };
-        });
+      return {
+        error: res.error,
+        document_id: request.params.document_id
+      };
     });
 }
 
