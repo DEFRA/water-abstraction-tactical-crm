@@ -4,6 +4,7 @@ const Joi = require('joi');
 module.exports = (config = {}) => {
   const {pool, version} = config;
   return new HAPIRestAPI({
+    name: 'entityRoles',
     table: 'crm.entity_roles',
     primaryKey: 'entity_role_id',
     endpoint: '/crm/' + version + '/entity/{entity_id}/roles',
