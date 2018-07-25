@@ -6,7 +6,6 @@ const uuidv4 = require('uuid/v4');
 const DB = require('./connectors/db');
 const { pool } = require('./connectors/db');
 const { SqlConditionBuilder } = require('./sql');
-const DocumentsController = require('../controllers/document-headers')({pool, version: '1.0'});
 /**
  * @TODO REST API updates:
  * - permit repo entity filtering on company/individual was query string
@@ -131,34 +130,41 @@ function getEntity (request, h) {
  * @param {Number} [request.payload.pagination.perPage] - sets number of results to access per page
  * @return {Promise} resolves with array of licence data
  */
-async function getRoleDocuments (request, h) {
-  try {
-    console.log(`Post call to document filter is deprecated, please use the GET call instead`);
-
-    const payload = request.payload || {};
-    const { filter = {}, sort = {}, pagination = { perPage: 100, page: 1 } } = payload;
-
-    // Synthesise GET call
-    const newRequest = {
-      method: 'get',
-      params: {
-      },
-      query: {
-        filter: JSON.stringify(filter),
-        sort: JSON.stringify(sort),
-        pagination: JSON.stringify(pagination)
-      }
-    };
-
-    console.log('ERROR filter', filter);
-    console.log(JSON.stringify(newRequest, null, 2));
-    const response = await DocumentsController.find(newRequest, h, true);
-    return response;
-  } catch (error) {
-    console.error(error);
-    h.response({ error }).code(500);
-  }
-}
+// async function getRoleDocuments (request, h) {
+//   return h.reply({
+//     error : 'POST call to document filter is deprecated, please use GET call instead'
+//   })
+//
+//   try {
+//     console.log(`Post call to document filter is deprecated, please use the GET call instead`);
+//
+//     const payload = request.payload || {};
+//     const { filter = {}, sort = {}, pagination = { perPage: 100, page: 1 } } = payload;
+//
+//     // Synthesise GET call
+//     const newRequest = {
+//       ...request,
+//       method: 'get',
+//       params: {
+//       },
+//       query: {
+//         filter: JSON.stringify(filter),
+//         sort: JSON.stringify(sort),
+//         pagination: JSON.stringify(pagination)
+//       },
+//
+//     };
+//
+//     console.log('ERROR filter', filter);
+//     // console.log(JSON.stringify(newRequest, null, 2));
+//     console.log(DocumentsController);
+//     const response = await DocumentsController.routes.findManyRoute.handler(newRequest, h, true);
+//     return response;
+//   } catch (error) {
+//     console.error(error);
+//     h.response({ error }).code(500);
+//   }
+// }
 
 /**
  * A method to bulk-update a group of document header records for verification steps
@@ -347,7 +353,7 @@ function createColleague (request, h) {
 
 module.exports = {
   getEntity,
-  getRoleDocuments,
+  // getRoleDocuments,
   updateDocumentHeaders,
   setDocumentOwner,
   getColleagues,

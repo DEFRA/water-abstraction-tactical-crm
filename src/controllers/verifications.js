@@ -5,6 +5,7 @@ const { createShortCode } = require('../lib/helpers.js');
 module.exports = (config = {}) => {
   const {version, pool} = config;
   return new HAPIRestAPI({
+    name: 'verifications',
     table: 'crm.verification',
     primaryKey: 'verification_id',
     endpoint: '/crm/' + version + '/verification',
