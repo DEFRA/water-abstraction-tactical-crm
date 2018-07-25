@@ -68,6 +68,8 @@ async function getEntityFilter (mode, value) {
 }
 
 async function preQuery (result, hapiRequest) {
+  console.log('preQuery!');
+
   const { string, email, entity_id: entityId, ...filter } = result.filter;
   const { document_expires: documentExpires, ...sort } = result.sort;
 
@@ -98,7 +100,9 @@ async function preQuery (result, hapiRequest) {
   result.filter = filter;
   result.sort = sort;
 
-  console.log(JSON.stringify(result, null, 2));
+  console.log(JSON.stringify(result.filter, null, 2));
+
+  // console.log(JSON.stringify(result, null, 2));
 
   return result;
 }
