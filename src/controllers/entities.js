@@ -11,7 +11,7 @@ module.exports = (config = {}) => {
     connection: pool,
     validation: {
       entity_id: Joi.string().guid(),
-      entity_nm: Joi.string(),
+      entity_nm: [Joi.string().trim().email().lowercase(), Joi.string().trim()],
       entity_type: Joi.string(),
       entity_definition: Joi.string(),
       source: Joi.string()
