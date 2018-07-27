@@ -316,31 +316,28 @@ function deleteColleague (request, h) {
 
 function createColleague (request, h) {
   // TODO: make this query less fugly
-  const email = request.payload.email;
   const query = `
-  insert into crm.entity_roles
+    insert into crm.entity_roles
     select
-    uuid_in(md5(random()::text || now()::text)::cstring),
-    e.entity_id,
-    'user',
-    r.regime_entity_id,
-    r.company_entity_id,
-    0,
-    CURRENT_TIMESTAMP,
-    '${request.params.entity_id}'
-     from crm.entity_roles r
-     join crm.entity e on (e.entity_nm = '${email}')
+      uuid_in(md5(random()::text || now()::text)::cstring),
+      e.entity_id,
+      'user',
+      r.regime_entity_id,
+      r.company_entity_id,
+      CURRENT_TIMESTAMP,
+      $1::text
+    from crm.entity_roles r
+      join crm.entity e on (e.entity_nm = $2)
+    where r.entity_id = $1 on conflict (entity_id, regime_entity_id, company_entity_id)
+    DO UPDATE set role='user'`;
 
-     where r.entity_id='${request.params.entity_id}' on conflict (entity_id,regime_entity_id,company_entity_id)
-     DO UPDATE set role='user'
-    `;
+  const params = [request.params.entity_id, request.payload.email];
 
-  console.log(query);
-
-  return DB.query(query)
+  return DB.query(query, params)
     .then((res) => {
       return h.response(res.data);
     }).catch((err) => {
+      console.error(err);
       return h.response(err);
     });
 }
