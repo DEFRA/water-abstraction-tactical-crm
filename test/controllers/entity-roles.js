@@ -22,8 +22,8 @@ const createRequest = (entityId, method = 'GET') => {
 const deleteEntityRoles = async () => {
   const query = `
     delete
-    from crm.entity_roles r
-    where r.permissions->>'unitTest'::text = 'true'`;
+    from crm.entity_roles
+    where role = 'unit_test_user';`;
 
   await DB.query(query);
 };
@@ -36,8 +36,7 @@ lab.experiment('entity-roles controller', () => {
     const request = createRequest(entityId, 'POST');
     request.payload = {
       entity_id: entityId,
-      role: 'primary_user',
-      permissions: { unitTest: true }
+      role: 'unit_test_user'
     };
 
     const res = await server.inject(request);
@@ -47,6 +46,6 @@ lab.experiment('entity-roles controller', () => {
     expect(payload.error).to.equal(null);
     expect(payload.data.entity_role_id).to.be.a.string();
     expect(payload.data.entity_id).to.equal(entityId);
-    expect(payload.data.permissions).to.equal({ unitTest: true });
+    expect(payload.data.role).to.equal('unit_test_user');
   });
 });

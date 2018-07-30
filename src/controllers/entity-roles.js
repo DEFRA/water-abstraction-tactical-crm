@@ -19,8 +19,7 @@ module.exports = (config = {}) => {
       role: Joi.string(),
       regime_entity_id: Joi.string().guid(),
       company_entity_id: Joi.string().guid(),
-      created_by: Joi.string(),
-      permissions: Joi.object().allow(null)
+      created_by: Joi.string()
     }
   });
 };
