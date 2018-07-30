@@ -46,8 +46,9 @@ const getSearchFilter = (string) => {
  * @param {String} value - email address or company entity ID
  * @return {Promise} resolves with object - mongo-sql query fragment
  */
-async function getEntityFilter (mode, value) {
+async function getEntityFilter (mode, value, roles = null) {
   let query;
+  const params = [value];
   if (mode === 'email') {
     query = `SELECT r.* FROM crm.entity e
               JOIN crm.entity_roles r ON e.entity_id=r.entity_id
@@ -55,9 +56,17 @@ async function getEntityFilter (mode, value) {
   }
   if (mode === 'individual') {
     // individual entity ID
-    query = `SELECT * FROM crm.entity_roles WHERE entity_id=$1`;
+    query = `SELECT * FROM crm.entity_roles r WHERE entity_id=$1`;
   }
-  const { rows, error } = await pool.query(query, [value]);
+  if (roles) {
+    const roleStr = roles.map((role, i) => (`$${params.length + i + 1}`)).join(',');
+    query += ` AND r.role IN ( ${roleStr} )`;
+    params.push(...roles);
+  }
+
+  console.log(query, params);
+
+  const { rows, error } = await pool.query(query, params);
   if (error) {
     throw error;
   }
@@ -68,7 +77,7 @@ async function getEntityFilter (mode, value) {
 }
 
 async function preQuery (result, hapiRequest) {
-  const { string, email, entity_id: entityId, ...filter } = result.filter;
+  const { string, email, roles, entity_id: entityId, ...filter } = result.filter;
   const { document_expires: documentExpires, ...sort } = result.sort;
 
   // Only display current licences
@@ -82,12 +91,12 @@ async function preQuery (result, hapiRequest) {
   // Search by entity ID / entity email address (can be combined)
   if (email) {
     filter.$and = [];
-    filter.$and.push(await getEntityFilter('email', email));
+    filter.$and.push(await getEntityFilter('email', email, roles));
   }
 
   if (entityId) {
     filter.$and = filter.$and || [];
-    filter.$and.push(await getEntityFilter('individual', entityId));
+    filter.$and.push(await getEntityFilter('individual', entityId, roles));
   }
 
   // Rewrite sort
