@@ -1,4 +1,4 @@
-const { pool } = require('../lib/connectors/db');
+const { pool, query } = require('../lib/connectors/db');
 const mongoSql = require('mongo-sql');
 
 /**
@@ -137,11 +137,7 @@ function getNaldContacts (row) {
         ...rest
       };
     });
-
-    return contacts;
-  }
-  // Existing metadata approach
-  else {
+  } else {
     return [getLicenceHolderContact(row)];
   }
 }
@@ -296,6 +292,25 @@ async function getContacts (request, h) {
   }
 }
 
+const getDocumentsForContact = async (request, h) => {
+  const { entity_id: entityId } = request.params;
+  const sql = `
+    select dh.system_external_id, dh.metadata, de.role, de.document_id
+    from crm.document_header dh
+    inner join crm.document_entity de
+    on dh.document_id = de.document_id
+    where de.entity_id = $1;`;
+
+  try {
+    const documents = await query(sql, [entityId]);
+    return documents;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+};
+
 module.exports = {
-  getContacts
+  getContacts,
+  getDocumentsForContact
 };
