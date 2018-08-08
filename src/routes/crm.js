@@ -33,7 +33,8 @@ module.exports = [
     }
   },
 
-  // Get all entities
+  // Get entities
+  EntityApi.findOneRoute(),
   EntityApi.findManyRoute(),
 
   // Update entity
@@ -51,15 +52,6 @@ module.exports = [
   ...RolesApi.getRoutes(),
   RoleEntityView.findManyRoute(),
   RoleEntityView.findOneRoute(),
-  {
-    method: 'GET',
-    path: '/crm/' + version + '/entity/{entity_id}',
-    handler: CRM.getEntity,
-    options: {
-      description: 'Get specified entity'
-    }
-  },
-
   {
     method: 'GET',
     path: '/crm/' + version + '/entity/{entity_id}/colleagues',

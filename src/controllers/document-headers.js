@@ -115,8 +115,6 @@ async function preQuery (result, hapiRequest) {
 module.exports = (config = {}) => {
   const {pool, version} = config;
 
-  console.log('in the funciton');
-
   return new HAPIRestAPI({
     table: 'crm.document_header',
     primaryKey: 'document_id',
