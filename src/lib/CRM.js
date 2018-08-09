@@ -7,110 +7,6 @@ const DB = require('./connectors/db');
 const { pool } = require('./connectors/db');
 const { SqlConditionBuilder } = require('./sql');
 const DocumentsController = require('../controllers/document-headers')({pool, version: '1.0'});
-/**
- * @TODO REST API updates:
- * - permit repo entity filtering on company/individual was query string
- * Missing routes in new API
- * - GET /documentHeader/{system_id}/{system_internal_id}
- * - PUT /documentHeader/{system_id}/{system_internal_id}
- * - DELETE /documentHeader/{system_id}/{system_internal_id}
- * create document_header now missing on conflict update
- */
-
-/**
- * Get entity record from CRM
- * @param {string} entity_identifier - the guid or entity_nm of the entity
- * @return {Promise} resolves with entity data
- */
-function _getEntityRecord (entityIdentifier) {
-  return new Promise((resolve, reject) => {
-    console.log('_getEntityRecord');
-    const query = `select * from crm.entity where lower(entity_id)=lower($1) or lower(entity_nm)=lower($1)`;
-    const queryParams = [entityIdentifier];
-    //      console.log(`${query} with ${queryParams}`)
-    DB.query(query, queryParams).then((res) => {
-      console.log(res.data[0]);
-      resolve(res.data[0]);
-    }).catch((err) => {
-      reject(err);
-    });
-  });
-}
-
-/**
- * Get entity roles from CRM
- * @param {string} entity_identifier - the guid of the entity
- * @return {Promise} resolves with entity role data
- */
-function _getEntityRoles (entityIdentifier) {
-  return new Promise((resolve, reject) => {
-    console.log('_getEntityRoles');
-    var query = `select distinct
-    r.entity_role_id,
-    r.role,
-    r.entity_id ,
-    r.company_entity_id,
-    r.regime_entity_id,
-    individual.entity_nm as individual_name,
-    company.entity_nm as company_name,
-    regime.entity_nm as regime_name
-    from
-    crm.entity_roles r
-    join crm.entity individual on r.entity_id=individual.entity_id
-    left join crm.entity company on r.company_entity_id=company.entity_id
-    left join crm.entity regime on r.regime_entity_id=regime.entity_id
-    where r.entity_id=$1 or individual.entity_nm=$1 or r.company_entity_id=$1`;
-    var queryParams = [entityIdentifier];
-    console.log(`${query} with ${queryParams}`);
-    DB.query(query, queryParams)
-      .then((res) => {
-        console.log(res);
-        resolve(res.data);
-      }).catch((err) => {
-        console.log(err);
-        reject(err);
-      });
-  });
-}
-
-/**
- * Get documents by the supplied search/filter/sort criteria
- * @todo rewrite with async/await for readability
- * @param {Object} request - the HAPI request instance
- * @param {Object} request.params - the data from the HTTP query string
- * @param {Object} [request.params.entity_id] - entity id for entity
- * @return {object} Returns object containing entity data
- */
-function getEntity (request, h) {
-  const responseData = {
-    entity: {},
-    entityRoles: [],
-    entityAssociations: [],
-    roleDocuments: []
-  };
-
-  const entityId = request.params.entity_id;
-
-  return _getEntityRecord(entityId)
-    .catch(err => console.log(err))
-    .then(entity => {
-      // get upstream entities deprecated but not yet removed...
-      responseData.entity = entity;
-
-      // get entity roles
-      console.log(`get entity roles for ${entityId}`);
-      return _getEntityRoles(entityId);
-    })
-    .catch(err => console.log(err))
-    .then((entityRoles) => {
-      console.log(entityRoles);
-      responseData.entityRoles = entityRoles;
-    }).then(() => {
-      const response = { error: null, data: responseData };
-      console.log(response);
-      return response;
-    });
-}
 
 /**
  * Get documents by the supplied search/filter/sort criteria
@@ -343,7 +239,6 @@ function createColleague (request, h) {
 }
 
 module.exports = {
-  getEntity,
   getRoleDocuments,
   updateDocumentHeaders,
   setDocumentOwner,
