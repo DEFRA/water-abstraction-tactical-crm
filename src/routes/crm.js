@@ -18,7 +18,7 @@ const EntityRolesApi = require('../controllers/entity-roles.js')(apiConfig);
 const RoleEntityView = require('../controllers/role-entities-view.js')(apiConfig);
 const RolesApi = require('../controllers/roles.js')(apiConfig);
 const VerificationDocumentsController = require('../controllers/verification-documents.js');
-const { getContacts } = require('../controllers/contacts');
+const { getContacts, getDocumentsForContact } = require('../controllers/contacts');
 const { getVerificationsByDocumentID } = require('../controllers/verifications-by-document.js');
 const KpiApi = require('../controllers/kpi-reports.js')(apiConfig);
 
@@ -33,7 +33,8 @@ module.exports = [
     }
   },
 
-  // Get all entities
+  // Get entities
+  EntityApi.findOneRoute(),
   EntityApi.findManyRoute(),
 
   // Update entity
@@ -51,15 +52,6 @@ module.exports = [
   ...RolesApi.getRoutes(),
   RoleEntityView.findManyRoute(),
   RoleEntityView.findOneRoute(),
-  {
-    method: 'GET',
-    path: '/crm/' + version + '/entity/{entity_id}',
-    handler: CRM.getEntity,
-    options: {
-      description: 'Get specified entity'
-    }
-  },
-
   {
     method: 'GET',
     path: '/crm/' + version + '/entity/{entity_id}/colleagues',
@@ -124,7 +116,18 @@ module.exports = [
       }
     }
   },
-
+  {
+    method: 'DELETE',
+    path: '/crm/' + version + '/verification/{id}/documents',
+    handler: VerificationDocumentsController.deleteVerificationDocuments,
+    options: {
+      validate: {
+        params: {
+          id: Joi.string().guid().required()
+        }
+      }
+    }
+  },
   {
     method: 'GET',
     path: '/crm/' + version + '/verification/{id}/documents',
@@ -141,6 +144,11 @@ module.exports = [
     method: 'GET',
     path: '/crm/' + version + '/contacts',
     handler: getContacts
+  },
+  {
+    method: 'GET',
+    path: '/crm/' + version + '/contacts/{entity_id}/documents',
+    handler: getDocumentsForContact
   },
   {
     method: 'GET',
