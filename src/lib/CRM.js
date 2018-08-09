@@ -2,6 +2,7 @@
  * Provides HAPI HTTP handlers for working with CRM data
  * @module lib/CRM
  */
+const { get } = require('lodash');
 const uuidv4 = require('uuid/v4');
 const DB = require('./connectors/db');
 const { pool } = require('./connectors/db');
@@ -227,12 +228,12 @@ function createColleague (request, h) {
     where r.entity_id = $1 on conflict (entity_id, regime_entity_id, company_entity_id)
     DO UPDATE set role='user'`;
 
-  const params = [request.params.entity_id, request.payload.email];
+  const email = get(request, 'payload.email', '').toLowerCase();
+  const params = [request.params.entity_id, email];
 
   return DB.query(query, params)
-    .then((res) => {
-      return h.response(res.data);
-    }).catch((err) => {
+    .then(res => h.response(res.data))
+    .catch((err) => {
       console.error(err);
       return h.response(err);
     });
