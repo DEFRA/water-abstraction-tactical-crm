@@ -2,12 +2,11 @@
  * Provides HAPI HTTP handlers for working with CRM data
  * @module lib/CRM
  */
-const { get } = require('lodash');
 const uuidv4 = require('uuid/v4');
 const DB = require('./connectors/db');
-const { pool } = require('./connectors/db');
 const { SqlConditionBuilder } = require('./sql');
-const DocumentsController = require('../controllers/document-headers')({pool, version: '1.0'});
+const DocumentsController = require('../controllers/document-headers');
+const entityRoleApi = require('../controllers/entity-roles');
 
 /**
  * Get documents by the supplied search/filter/sort criteria
@@ -211,28 +210,40 @@ function deleteColleague (request, h) {
     });
 }
 
-function createColleague (request, h) {
-  // TODO: make this query less fugly
-  const query = `
-    insert into crm.entity_roles
-    select
-      uuid_in(md5(random()::text || now()::text)::cstring),
-      e.entity_id,
-      'user',
-      r.regime_entity_id,
-      r.company_entity_id,
-      CURRENT_TIMESTAMP,
-      $1::text
-    from crm.entity_roles r
-      join crm.entity e on (e.entity_nm = $2)
-    where r.entity_id = $1 on conflict (entity_id, regime_entity_id, company_entity_id)
-    DO UPDATE set role='user'`;
+/**
+ * Creates a new entity role for a colleague.
+ *
+ * This role will give access to the relevant data across the company
+ * or regime that the granting user has.
+ *
+ * The request should contain the granting users entity id in the
+ * URL parameter, and the `colleague_entity_id` and the `role` in
+ * the request payload.
+ *
+ * Expected `role` values are: 'user' | 'user_returns'.
+ * An empty role value will default to 'user'.
+ * */
+async function createColleague (request, h) {
+  const entityID = request.params.entity_id;
+  const { role, colleagueEntityID } = request.payload;
 
-  const email = get(request, 'payload.email', '').toLowerCase();
-  const params = [request.params.entity_id, email];
+  const userEntityRoles = await entityRoleApi.repo.find({ entity_id: entityID, role: 'primary_user' });
+  const { regime_entity_id: userRegimeID, company_entity_id: userCompanyID } = userEntityRoles.rows[0];
+  const entityRoleID = uuidv4();
+
+  const query = `
+    insert into crm.entity_roles(
+      entity_role_id, entity_id, role, regime_entity_id,
+      company_entity_id, created_at, created_by
+    )
+    values ($1, $2, $3, $4, $5, CURRENT_TIMESTAMP, $6)
+    on conflict (entity_id, regime_entity_id, company_entity_id, role)
+    do nothing;`;
+
+  const params = [entityRoleID, colleagueEntityID, role, userRegimeID, userCompanyID, entityID];
 
   return DB.query(query, params)
-    .then(res => h.response(res.data))
+    .then(res => res)
     .catch((err) => {
       console.error(err);
       return h.response(err);
