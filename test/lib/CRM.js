@@ -14,6 +14,8 @@ const lab = exports.lab = Lab.script();
 const Code = require('code');
 const server = require('../../index');
 
+const uuidv4 = require('uuid/v4');
+
 const { createEntity, deleteEntity, createEntityRole, deleteEntityRole } = require('../helpers');
 
 let regimeEntityId = null;
@@ -117,5 +119,18 @@ lab.experiment('Test grant/delete colleague roles', () => {
     const payload = JSON.parse(res.payload);
 
     Code.expect(payload.data.entity_role_id).to.equal(granteeRoleId);
+  });
+
+  lab.test('The API should return 404 for role not found when deleting colleague', async () => {
+    const request = {
+      method: 'DELETE',
+      url: `/crm/1.0/entity/${individualEntityId}/colleagues/${uuidv4()}`,
+      headers: {
+        Authorization: process.env.JWT_TOKEN
+      }
+    };
+
+    const res = await server.inject(request);
+    Code.expect(res.statusCode).to.equal(404);
   });
 });
