@@ -227,17 +227,17 @@ const deleteColleague = async(request, h) => {
 
   // SQL error
   if (error) {
-    return h.reply({
+    return h.response({
       error,
       data: null
-    }).statusCode(500);
+    }).code(500);
   }
   // No role deleted
   if (rowCount !== 1) {
-    return h.reply({
+    return h.response({
       error: 'Role not found',
       data: null
-    }).statusCode(404);
+    }).code(404);
   }
   // OK
   return {
