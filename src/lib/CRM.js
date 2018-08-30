@@ -2,6 +2,7 @@
  * Provides HAPI HTTP handlers for working with CRM data
  * @module lib/CRM
  */
+const Boom = require('boom');
 const uuidv4 = require('uuid/v4');
 const DB = require('./connectors/db');
 const { SqlConditionBuilder } = require('./sql');
@@ -262,8 +263,13 @@ async function createColleague (request, h) {
   const entityID = request.params.entity_id;
   const { role, colleagueEntityID } = request.payload;
 
-  const userEntityRoles = await entityRoleApi.repo.find({ entity_id: entityID, role: 'primary_user' });
-  const { regime_entity_id: userRegimeID, company_entity_id: userCompanyID } = userEntityRoles.rows[0];
+  const { rows: [primaryUserRole] } = await entityRoleApi.repo.find({ entity_id: entityID, role: 'primary_user' });
+
+  if (!primaryUserRole) {
+    throw Boom.unauthorized(`Only a primary user can grant access`, {role, colleagueEntityID});
+  }
+
+  const { regime_entity_id: userRegimeID, company_entity_id: userCompanyID } = primaryUserRole;
   const entityRoleID = uuidv4();
 
   const query = `
