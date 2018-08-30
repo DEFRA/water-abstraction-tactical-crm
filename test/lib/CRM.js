@@ -85,6 +85,23 @@ lab.experiment('Test grant/delete colleague roles', () => {
     granteeRoleId = payload.data.entity_role_id;
   });
 
+  lab.test('A user without primary_user role should not be able to grant access', async() => {
+    const request = {
+      method: 'POST',
+      url: `/crm/1.0/entity/${granteeEntityId}/colleagues`,
+      headers: {
+        Authorization: process.env.JWT_TOKEN
+      },
+      payload: {
+        colleagueEntityID: individualEntityId,
+        role: 'user'
+      }
+    };
+
+    const res = await server.inject(request);
+    Code.expect(res.statusCode).to.equal(401);
+  });
+
   lab.test('The API should remove a colleague role', async () => {
     const request = {
       method: 'DELETE',
