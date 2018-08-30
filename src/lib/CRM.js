@@ -7,6 +7,7 @@ const DB = require('./connectors/db');
 const { SqlConditionBuilder } = require('./sql');
 const DocumentsController = require('../controllers/document-headers');
 const entityRoleApi = require('../controllers/entity-roles');
+const { pool } = require('./connectors/db');
 
 /**
  * Get documents by the supplied search/filter/sort criteria
@@ -193,22 +194,46 @@ and
     });
 }
 
-function deleteColleague (request, h) {
-  var entityRoleId = request.params.role_id;
-  const query = `
-    delete from crm.entity_roles where entity_role_id=$1
-      `;
-  const queryParams = [entityRoleId];
+/**
+ * @param {String} request.params.entity_id the entity ID of the primary user
+ * @param {String} request.params.role_id the role ID to delete
+ */
+const deleteColleague = async(request, h) => {
+  const { entity_id: entityId, role_id: roleId } = request.params;
 
-  return DB.query(query, queryParams)
-    .then((res) => {
-      console.log('woo! delete!');
-      return h.response(res.data);
-    }).catch((err) => {
-      console.log('BOO! delete!', err);
-      return h.response(err);
-    });
-}
+  const query = `DELETE
+FROM crm.entity_roles r
+USING crm.entity_roles r2
+WHERE r.entity_role_id=$1
+AND r.company_entity_id=r2.company_entity_id
+AND (r.regime_entity_id=r2.regime_entity_id OR (r.regime_entity_id IS NULL AND r2.regime_entity_id IS NULL))
+AND r2.entity_id=$2 AND r2.role='primary_user'
+RETURNING r.*`;
+
+  const params = [roleId, entityId];
+
+  const { rows: [data], error, rowCount } = await pool.query(query, params);
+
+  // SQL error
+  if (error) {
+    return h.reply({
+      error,
+      data: null
+    }).statusCode(500);
+  }
+  // No role deleted
+  if (rowCount !== 1) {
+    return h.reply({
+      error: 'Role not found',
+      data: null
+    }).statusCode(404);
+  }
+  // OK
+  return {
+    error: null,
+    data
+  };
+};
 
 /**
  * Creates a new entity role for a colleague.
@@ -238,16 +263,15 @@ async function createColleague (request, h) {
     )
     values ($1, $2, $3, $4, $5, CURRENT_TIMESTAMP, $6)
     on conflict (entity_id, regime_entity_id, company_entity_id, role)
-    do nothing;`;
+    do nothing
+    returning *
+    ;`;
 
   const params = [entityRoleID, colleagueEntityID, role, userRegimeID, userCompanyID, entityID];
 
-  return DB.query(query, params)
-    .then(res => res)
-    .catch((err) => {
-      console.error(err);
-      return h.response(err);
-    });
+  const { rows: [data], error } = await pool.query(query, params);
+
+  return h.response({ data, error }).code(error ? 500 : 201);
 }
 
 module.exports = {
