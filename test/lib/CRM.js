@@ -53,9 +53,8 @@ lab.experiment('Test grant/delete colleague roles', () => {
   lab.after(async() => {
     // Delete all temporary entities
     const entityIds = [regimeEntityId, individualEntityId, companyEntityId, granteeEntityId];
-    await Promise.all(entityIds, (entityId) => {
-      return deleteEntity(entityId);
-    });
+    const tasks = entityIds.map(entityId => deleteEntity(entityId));
+    await Promise.all(tasks);
     await deleteEntityRole(individualEntityId, roleId);
     await deleteEntityRole(granteeEntityId, granteeRoleId);
   });
