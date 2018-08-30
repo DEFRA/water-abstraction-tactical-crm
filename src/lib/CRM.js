@@ -278,7 +278,7 @@ async function createColleague (request, h) {
       company_entity_id, created_at, created_by
     )
     values ($1, $2, $3, $4, $5, CURRENT_TIMESTAMP, $6)
-    on conflict (entity_id, regime_entity_id, company_entity_id, role)
+    on conflict (entity_id, coalesce(regime_entity_id, '00000000-0000-0000-0000-000000000000'), company_entity_id, role)
     do nothing
     returning *
     ;`;
