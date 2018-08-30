@@ -60,7 +60,13 @@ module.exports = [
     path: '/crm/' + version + '/entity/{entity_id}/colleagues/{role_id}',
     handler: CRM.deleteColleague,
     options: {
-      description: 'Remove specified colleague of entity'
+      description: 'Remove specified colleague of entity',
+      validate: {
+        params: {
+          entity_id: Joi.string().guid().required(),
+          role_id: Joi.string().guid().required()
+        }
+      }
     }
   },
   {
