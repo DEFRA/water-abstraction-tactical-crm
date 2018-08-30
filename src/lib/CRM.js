@@ -195,12 +195,12 @@ and
 }
 
 /**
- * @param {String} request.params.entity_id the entity ID of the primary user
- * @param {String} request.params.role_id the role ID to delete
+ * DB query to delete colleague role
+ * @param {String} roleId - GUID
+ * @param {String} entityid - GUID
+ * @return {Promise}
  */
-const deleteColleague = async(request, h) => {
-  const { entity_id: entityId, role_id: roleId } = request.params;
-
+const deleteColleagueQuery = (roleId, entityId) => {
   const query = `DELETE
 FROM crm.entity_roles r
 USING crm.entity_roles r2
@@ -212,7 +212,17 @@ RETURNING r.*`;
 
   const params = [roleId, entityId];
 
-  const { rows: [data], error, rowCount } = await pool.query(query, params);
+  return pool.query(query, params);
+};
+
+/**
+ * @param {String} request.params.entity_id the entity ID of the primary user
+ * @param {String} request.params.role_id the role ID to delete
+ */
+const deleteColleague = async(request, h) => {
+  const { entity_id: entityId, role_id: roleId } = request.params;
+
+  const { rows: [data], error, rowCount } = await deleteColleagueQuery(roleId, entityId);
 
   // SQL error
   if (error) {
