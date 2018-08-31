@@ -54,9 +54,8 @@ lab.experiment('Check verification', () => {
   lab.after(async() => {
     // Delete all temporary entities
     const entityIds = [regimeEntityId, individualEntityId, companyEntityId];
-    await Promise.all(entityIds, (entityId) => {
-      return deleteEntity(entityId);
-    });
+    const tasks = entityIds.map(entityId => deleteEntity(entityId));
+    await Promise.all(tasks);
   });
 
   lab.after(async() => {
