@@ -5,24 +5,17 @@ const version = '1.0';
 const CRM = require('../lib/CRM');
 const Joi = require('joi');
 
-const { pool } = require('../lib/connectors/db.js');
-const apiConfig = {
-  pool,
-  version
-};
-const EntityApi = require('../controllers/entities.js')(apiConfig);
-const VerificationApi = require('../controllers/verifications.js')(apiConfig);
-const DocumentHeaderApi = require('../controllers/document-headers.js')(apiConfig);
-const DocumentRolesApi = require('../controllers/document-roles.js')(apiConfig);
-const DocumentEntitiesApi = require('../controllers/document-entities.js')(apiConfig);
-const EntityRolesApi = require('../controllers/entity-roles.js')(apiConfig);
-const RoleEntityApi = require('../controllers/role-entities.js')(apiConfig);
-const RoleEntityView = require('../controllers/role-entities-view.js')(apiConfig);
-const RolesApi = require('../controllers/roles.js')(apiConfig);
+const EntityApi = require('../controllers/entities.js');
+const VerificationApi = require('../controllers/verifications.js');
+const DocumentHeaderApi = require('../controllers/document-headers.js');
+const DocumentEntitiesApi = require('../controllers/document-entities.js');
+const EntityRolesApi = require('../controllers/entity-roles.js');
+const RoleEntityView = require('../controllers/role-entities-view.js');
+const RolesApi = require('../controllers/roles.js');
 const VerificationDocumentsController = require('../controllers/verification-documents.js');
-const { getContacts } = require('../controllers/contacts');
+const { getContacts, getDocumentsForContact } = require('../controllers/contacts');
 const { getVerificationsByDocumentID } = require('../controllers/verifications-by-document.js');
-const KpiApi = require('../controllers/kpi-reports.js')(apiConfig);
+const KpiApi = require('../controllers/kpi-reports.js');
 
 module.exports = [
   {
@@ -35,7 +28,8 @@ module.exports = [
     }
   },
 
-  // Get all entities
+  // Get entities
+  EntityApi.findOneRoute(),
   EntityApi.findManyRoute(),
 
   // Update entity
@@ -51,18 +45,8 @@ module.exports = [
   EntityApi.deleteOneRoute(),
 
   ...RolesApi.getRoutes(),
-  ...RoleEntityApi.getRoutes(),
   RoleEntityView.findManyRoute(),
   RoleEntityView.findOneRoute(),
-  {
-    method: 'GET',
-    path: '/crm/' + version + '/entity/{entity_id}',
-    handler: CRM.getEntity,
-    options: {
-      description: 'Get specified entity'
-    }
-  },
-
   {
     method: 'GET',
     path: '/crm/' + version + '/entity/{entity_id}/colleagues',
@@ -76,7 +60,13 @@ module.exports = [
     path: '/crm/' + version + '/entity/{entity_id}/colleagues/{role_id}',
     handler: CRM.deleteColleague,
     options: {
-      description: 'Remove specified colleague of entity'
+      description: 'Remove specified colleague of entity',
+      validate: {
+        params: {
+          entity_id: Joi.string().guid().required(),
+          role_id: Joi.string().guid().required()
+        }
+      }
     }
   },
   {
@@ -84,13 +74,18 @@ module.exports = [
     path: '/crm/' + version + '/entity/{entity_id}/colleagues',
     handler: CRM.createColleague,
     options: {
-      description: 'Create new colleague of entity'
+      description: 'Create new colleague of entity',
+      validate: {
+        payload: {
+          colleagueEntityID: Joi.string().uuid().required(),
+          role: Joi.string().required().valid('user', 'user_returns').default('user')
+        }
+      }
     }
   },
 
   // Document header
   ...DocumentHeaderApi.getRoutes(),
-  ...DocumentRolesApi.getRoutes(),
   ...DocumentEntitiesApi.getRoutes(),
 
   {
@@ -128,7 +123,18 @@ module.exports = [
       }
     }
   },
-
+  {
+    method: 'DELETE',
+    path: '/crm/' + version + '/verification/{id}/documents',
+    handler: VerificationDocumentsController.deleteVerificationDocuments,
+    options: {
+      validate: {
+        params: {
+          id: Joi.string().guid().required()
+        }
+      }
+    }
+  },
   {
     method: 'GET',
     path: '/crm/' + version + '/verification/{id}/documents',
@@ -145,6 +151,11 @@ module.exports = [
     method: 'GET',
     path: '/crm/' + version + '/contacts',
     handler: getContacts
+  },
+  {
+    method: 'GET',
+    path: '/crm/' + version + '/contacts/{entity_id}/documents',
+    handler: getDocumentsForContact
   },
   {
     method: 'GET',

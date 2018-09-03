@@ -1,11 +1,12 @@
 const HAPIRestAPI = require('hapi-pg-rest-api');
+const { version } = require('../../config');
+const { pool } = require('../lib/connectors/db');
 
-module.exports = (config = {}) => {
-  const {pool, version} = config;
-  return new HAPIRestAPI({
-    table: 'crm.kpi_view',
-    endpoint: '/crm/' + version + '/kpi',
-    connection: pool,
-    validation: {}
-  });
-};
+const kpiReportsApi = new HAPIRestAPI({
+  table: 'crm.kpi_view',
+  endpoint: '/crm/' + version + '/kpi',
+  connection: pool,
+  validation: {}
+});
+
+module.exports = kpiReportsApi;

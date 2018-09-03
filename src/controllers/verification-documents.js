@@ -49,7 +49,21 @@ async function getVerificationDocuments (request, h) {
   }
 }
 
+const deleteVerificationDocuments = async (request, h) => {
+  const params = [request.params.id];
+  const query = 'delete from crm.verification_documents where verification_id = $1';
+
+  try {
+    await pool.query(query, params);
+    return h.response().code(204);
+  } catch (error) {
+    console.error(error);
+    h.response({ error, data: null }).code(500);
+  }
+};
+
 module.exports = {
   postVerificationDocuments,
-  getVerificationDocuments
+  getVerificationDocuments,
+  deleteVerificationDocuments
 };
