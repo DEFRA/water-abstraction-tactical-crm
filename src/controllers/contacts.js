@@ -150,7 +150,9 @@ function getNaldContacts (row) {
  */
 function mapRowsToEntities (rows) {
   const licences = rows.reduce((acc, row) => {
-    const { document_id, system_external_id, system_internal_id, document_name, entity_id, company_entity_id } = row;
+    const {
+      document_id, system_external_id, system_internal_id,
+      document_name, entity_id: entityId, company_entity_id } = row;
 
     // Add licence holder to list
     if (!Object.keys(acc).includes(system_external_id)) {
@@ -165,7 +167,7 @@ function mapRowsToEntities (rows) {
     }
 
     // Add entity email address contact to list
-    if (entity_id) {
+    if (entityId) {
       acc[system_external_id].contacts.push(getContact(row));
     }
     return acc;
