@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "lab",
-    "test:travis": "lab -t 55 -m 0 --coverage-path ./src/ --ignore r -r lcov -o lcov.info -r console -o stdout",
+    "test:travis": "lab -t 55 -m 0 --coverage-path ./src/ -r lcov -o lcov.info -r console -o stdout",
     "test-cov-html": "lab -r html -o coverage.html",
     "codecov": "codecov",
     "docs": "jsdoc -c conf.jsdoc.json && cd ./out && serve -o -p 3012",
@@ -32,7 +32,7 @@
     "standard": "^10.0.2"
   },
   "dependencies": {
-    "airbrake-js": "^1.1.2",
+    "airbrake-js": "^1.5.0",
     "async-waterfall": "^0.1.5",
     "blipp": "3.0.0",
     "boom": "7.2.0",
