@@ -31,7 +31,7 @@ const { pool } = require('./connectors/db');
  */
 async function getRoleDocuments (request, h) {
   try {
-    console.log(`Post call to document filter is deprecated, please use the GET call instead`);
+    request.log('info', `Post call to document filter is deprecated, please use the GET call instead`);
 
     const payload = request.payload || {};
     const { filter = {}, sort = {}, pagination = { perPage: 100, page: 1 } } = payload;
@@ -48,12 +48,12 @@ async function getRoleDocuments (request, h) {
       }
     };
 
-    console.log('ERROR filter', filter);
-    console.log(JSON.stringify(newRequest, null, 2));
+    request.log('info', filter);
+    request.log('info', JSON.stringify(newRequest, null, 2));
     const response = await DocumentsController.find(newRequest, h, true);
     return response;
   } catch (error) {
-    console.error(error);
+    request.log('error', error);
     h.response({ error }).code(500);
   }
 }
@@ -102,7 +102,8 @@ function updateDocumentHeaders (request, h) {
 
   query += builder.getSql();
   const queryParams = builder.getParams();
-  console.log(query, queryParams);
+  request.log('info', query);
+  request.log('info', queryParams);
 
   DB.query(query, queryParams)
     .then((res) => {
@@ -126,8 +127,8 @@ function setDocumentOwner (request, h) {
     guid
   ];
 
-  console.log(query);
-  console.log(queryParams);
+  request.log('info', query);
+  request.log('info', queryParams);
 
   return DB.query(query, queryParams)
     .then((res) => {
@@ -139,7 +140,7 @@ function setDocumentOwner (request, h) {
 }
 
 function getColleagues (request, h) {
-  console.log(request.query);
+  request.log('info', request.query);
   const entityId = request.params.entity_id;
   /**
   identify user roles who the supplied user can admin
@@ -190,7 +191,7 @@ and
     .then((res) => {
       return res.data;
     }).catch((err) => {
-      console.error(err);
+      request.log('error', err);
       return h.response(err);
     });
 }
