@@ -1,12 +1,13 @@
 const { Pool } = require('pg');
 const config = require('../../../config');
+const logger = require('../logger');
 
 const pool = new Pool(config.pg);
 
 pool.on('acquire', () => {
   const { totalCount, idleCount, waitingCount } = pool;
   if (totalCount === config.pg.max && idleCount === 0 && waitingCount > 0) {
-    console.log(`Pool low on connections::Total:${totalCount},Idle:${idleCount},Waiting:${waitingCount}`);
+    logger.info(`Pool low on connections::Total:${totalCount},Idle:${idleCount},Waiting:${waitingCount}`);
   }
 });
 

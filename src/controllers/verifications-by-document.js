@@ -49,7 +49,7 @@ async function getVerificationsByDocumentID (request, h) {
 
     return { error, data: rows };
   } catch (error) {
-    console.log(error);
+    request.log('error', error);
     h.response({ error, data: null }).statusCode(500);
   }
 }
