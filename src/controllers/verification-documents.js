@@ -25,7 +25,7 @@ async function postVerificationDocuments (request, h) {
     const { rows: data } = await pool.query(query, params);
     return { error: null, data };
   } catch (error) {
-    console.log(error);
+    request.log('error', error);
     h.response({ error, data: null }).code(500);
   }
 }
@@ -44,7 +44,7 @@ async function getVerificationDocuments (request, h) {
     const { rows: data } = await pool.query(query, params);
     return { error: null, data };
   } catch (error) {
-    console.log(error);
+    request.log('error', error);
     h.response({ error, data: null }).code(500);
   }
 }
@@ -57,7 +57,7 @@ const deleteVerificationDocuments = async (request, h) => {
     await pool.query(query, params);
     return h.response().code(204);
   } catch (error) {
-    console.error(error);
+    request.log('error', error);
     h.response({ error, data: null }).code(500);
   }
 };
