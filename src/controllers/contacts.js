@@ -289,7 +289,7 @@ async function getContacts (request, h) {
       data: mapRowsToEntities([...rows, ...rows2, ...rows3])
     };
   } catch (error) {
-    console.log(error);
+    request.log('error', error);
     h.response({ error, data: null }).code(500);
   }
 }
@@ -307,7 +307,7 @@ const getDocumentsForContact = async (request, h) => {
     const documents = await query(sql, [entityId]);
     return documents;
   } catch (error) {
-    console.error(error);
+    request.log('error', error);
     throw error;
   }
 };
