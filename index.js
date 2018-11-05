@@ -19,17 +19,16 @@ const serverPlugins = {
 const server = new Hapi.Server(config.server);
 
 const cacheKey = process.env.cacheKey || 'super-secret-cookie-encryption-key';
-console.log('Cache key' + cacheKey);
 
 function validateJWT (decoded, request, h) {
-  console.log(`validate JWT at ${request.url.path} with payload:`);
-  console.log(request.payload);
-  console.log(`decodes as: `);
-  console.log(decoded);
+  request.log('debug', `validate JWT at ${request.url.path} with payload:`);
+  request.log('debug', request.payload);
+  request.log('debug', `decodes as: `);
+  request.log('debug', decoded);
 
   const isValid = !!decoded.id;
   const message = isValid ? 'huzah... JWT OK' : 'boo... JWT failed';
-  console.log(message);
+  request.log('debug', message);
   return { isValid };
 }
 
@@ -78,12 +77,12 @@ async function init () {
     await server.start();
     const name = process.env.servicename;
     const uri = server.info.uri;
-    console.log(`Service ${name} running at: ${uri}`);
+    server.log('info', `Service ${name} running at: ${uri}`);
   }
 }
 
 process.on('unhandledRejection', err => {
-  console.error(err);
+  logger.error(err);
   process.exit(1);
 });
 
