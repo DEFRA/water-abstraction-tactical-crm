@@ -45,7 +45,7 @@
     "hapi-pg-rest-api": "git+https://github.com/DEFRA/hapi-pg-rest-api.git#v3.2",
     "hoek": "4.2.1",
     "joi": "13.4.0",
-    "jsonwebtoken": "^8.0.0",
+    "jsonwebtoken": "^8.3.0",
     "lodash": "^4.17.5",
     "moment": "^2.20.1",
     "path": "^0.12.7",
