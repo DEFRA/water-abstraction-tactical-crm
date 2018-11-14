@@ -65,8 +65,6 @@ async function getEntityFilter (mode, value, roles = null) {
     params.push(...roles);
   }
 
-  console.log(query, params);
-
   const { rows, error } = await pool.query(query, params);
   if (error) {
     throw error;
@@ -107,8 +105,6 @@ async function preQuery (result, hapiRequest) {
 
   result.filter = filter;
   result.sort = sort;
-
-  console.log(JSON.stringify(result, null, 2));
 
   return result;
 }
