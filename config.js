@@ -3,8 +3,8 @@ module.exports = {
 
   logger: {
     level: 'info',
-    airbrakeKey: process.env.errbit_key,
-    airbrakeHost: process.env.errbit_server,
+    airbrakeKey: process.env.ERRBIT_KEY,
+    airbrakeHost: process.env.ERRBIT_SERVER,
     airbrakeLevel: 'error'
   },
 
