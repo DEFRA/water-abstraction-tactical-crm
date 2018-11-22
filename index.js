@@ -18,8 +18,6 @@ const serverPlugins = {
 
 const server = new Hapi.Server(config.server);
 
-const cacheKey = process.env.cacheKey || 'super-secret-cookie-encryption-key';
-
 function validateJWT (decoded, request, h) {
   request.log('debug', `validate JWT at ${request.url.path} with payload:`);
   request.log('debug', request.payload);
@@ -75,7 +73,7 @@ async function init () {
 
   if (!module.parent) {
     await server.start();
-    const name = process.env.servicename;
+    const name = process.env.SERVICE_NAME;
     const uri = server.info.uri;
     server.log('info', `Service ${name} running at: ${uri}`);
   }
