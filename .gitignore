@@ -6,5 +6,6 @@
 /views/
 .env
 /out/
+/coverage
 lcov.info
 *.swp
