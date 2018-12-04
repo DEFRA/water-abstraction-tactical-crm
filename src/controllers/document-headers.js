@@ -75,19 +75,25 @@ async function getEntityFilter (mode, value, roles = null) {
   return { $or: rows.map(mapRole) };
 }
 
-async function preQuery (result, hapiRequest) {
+/**
+ * Given the supplied 'result' from hapi-pg-rest-api hook, gets the filter to use
+ * This is for backwards-compatibility with the original POST API, and allows
+ * documents to be filtered by the user's roles
+ * @type {Object} hapi-pg-rest-api result
+ * @return {Promise} resolves with filter for query on document headers table
+ */
+const getPreQueryFilter = async(result) => {
   const { string, email, roles, entity_id: entityId, ...filter } = result.filter;
-  const { document_expires: documentExpires, ...sort } = result.sort || {};
 
-  // Only display current licences
+    // Only display current licences
   filter['metadata->>IsCurrent'] = { $ne: 'false' };
 
-  // Search by string - can be licence number/name
+    // Search by string - can be licence number/name
   if (string) {
     filter.$or = getSearchFilter(string);
   };
 
-  // Search by entity ID / entity email address (can be combined)
+    // Search by entity ID / entity email address (can be combined)
   if (email) {
     filter.$and = [];
     filter.$and.push(await getEntityFilter('email', email, roles));
@@ -98,15 +104,37 @@ async function preQuery (result, hapiRequest) {
     filter.$and.push(await getEntityFilter('individual', entityId, roles));
   }
 
-  // Rewrite sort
+  return filter;
+};
+
+/**
+ * Given the supplied 'result' from hapi-pg-rest-api hook, gets the sort object to use
+ * This is for backwards-compatibility with the original POST API
+ * @type {Object} hapi-pg-rest-api result
+ * @return {Object} sort object for query on document headers table
+ */
+const getPreQuerySort = (result) => {
+  const { document_expires: documentExpires, ...sort } = result.sort || {};
   if (documentExpires) {
     sort['metadata->>Expires'] = documentExpires;
   }
+  return sort;
+};
 
-  result.filter = filter;
-  result.sort = sort;
-
-  return result;
+/**
+ * Pre-query hook for document headers
+ * @param  {Object} result      hapi-pg-rest-api pre-query result object
+ * @param  {Object} hapiRequest the current HAPI request instance
+ * @return {Promise}            resolves with modified hapi-pg-rest-api pre-query result
+ */
+async function preQuery (result, hapiRequest) {
+  const filter = await getPreQueryFilter(result);
+  const sort = await getPreQuerySort(result);
+  return {
+    ...result,
+    filter,
+    sort
+  };
 }
 
 const documentHeadersApi = new HAPIRestAPI({
