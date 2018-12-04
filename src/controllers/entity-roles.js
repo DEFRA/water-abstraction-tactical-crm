@@ -1,10 +1,11 @@
-const HAPIRestAPI = require('hapi-pg-rest-api');
+const HAPIRestAPI = require('@envage/hapi-pg-rest-api');
 const Joi = require('joi');
 const { version } = require('../../config');
 const { pool } = require('../lib/connectors/db');
 
 const entityRolesApi = new HAPIRestAPI({
   table: 'crm.entity_roles',
+  name: 'entityRoles',
   primaryKey: 'entity_role_id',
   endpoint: '/crm/' + version + '/entity/{entity_id}/roles',
   connection: pool,
