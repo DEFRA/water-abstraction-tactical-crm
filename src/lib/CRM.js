@@ -11,54 +11,6 @@ const entityRoleApi = require('../controllers/entity-roles');
 const { pool } = require('./connectors/db');
 
 /**
- * Get documents by the supplied search/filter/sort criteria
- * @param {Object} request - the HAPI request instance
- * @param {Object} request.payload - the data from the HTTP post body
- * @param {Object} [request.payload.filter] - licence filter criteria
- * @param {String} [request.payload.filter.email] - filter licences by owner email address
- * @param {String} [request.payload.filter.entity_id] - filter licence by user entity ID
- * @param {String} [request.payload.filter.string] - search string, searches licences on name/licence number fields
- * @param {String} [request.payload.filter.document_id] - filters on a particular licence document_id
- * @param {String|Array} [request.payload.filter.system_external_id] - filters on 1 or more licence numbers
- * @param {Number} [request.payload.filter.verified] - filters on whether verified 0|1
- * @param {Object} [request.payload.sort] - sort criteria
- * @param {Number} [request.payload.sort.document_id] - sort by document_id +1 : ascending, -1 : descending
- * @param {Number} [request.payload.sort.name] - sort on document name +1 : ascending, -1 : descending
- * @param {Object} [request.payload.pagination] - sets pagination options
- * @param {Number} [request.payload.pagination.page] - sets current page of results
- * @param {Number} [request.payload.pagination.perPage] - sets number of results to access per page
- * @return {Promise} resolves with array of licence data
- */
-async function getRoleDocuments (request, h) {
-  try {
-    request.log('info', `Post call to document filter is deprecated, please use the GET call instead`);
-
-    const payload = request.payload || {};
-    const { filter = {}, sort = {}, pagination = { perPage: 100, page: 1 } } = payload;
-
-    // Synthesise GET call
-    const newRequest = {
-      method: 'get',
-      params: {
-      },
-      query: {
-        filter: JSON.stringify(filter),
-        sort: JSON.stringify(sort),
-        pagination: JSON.stringify(pagination)
-      }
-    };
-
-    request.log('info', filter);
-    request.log('info', JSON.stringify(newRequest, null, 2));
-    const response = await DocumentsController.find(newRequest, h, true);
-    return response;
-  } catch (error) {
-    request.log('error', error);
-    h.response({ error }).code(500);
-  }
-}
-
-/**
  * A method to bulk-update a group of document header records for verification steps
  *
  * @todo replace with REST API - but will require this to support multi-record patch first
@@ -292,7 +244,7 @@ async function createColleague (request, h) {
 }
 
 module.exports = {
-  getRoleDocuments,
+  // getRoleDocuments,
   updateDocumentHeaders,
   setDocumentOwner,
   getColleagues,

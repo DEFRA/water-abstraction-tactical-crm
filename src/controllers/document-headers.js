@@ -1,4 +1,4 @@
-const HAPIRestAPI = require('hapi-pg-rest-api');
+const HAPIRestAPI = require('@envage/hapi-pg-rest-api');
 const Joi = require('joi');
 const { pool } = require('../lib/connectors/db');
 const { version } = require('../../config');
@@ -77,7 +77,7 @@ async function getEntityFilter (mode, value, roles = null) {
 
 async function preQuery (result, hapiRequest) {
   const { string, email, roles, entity_id: entityId, ...filter } = result.filter;
-  const { document_expires: documentExpires, ...sort } = result.sort;
+  const { document_expires: documentExpires, ...sort } = result.sort || {};
 
   // Only display current licences
   filter['metadata->>IsCurrent'] = { $ne: 'false' };
