@@ -89,14 +89,6 @@ module.exports = [
   ...DocumentEntitiesApi.getRoutes(),
 
   {
-    method: 'POST',
-    path: '/crm/' + version + '/documentHeader/filter',
-    handler: CRM.getRoleDocuments,
-    options: {
-      description: 'Search for document headers by posted filter criteria'
-    }
-  },
-  {
     method: 'PUT',
     path: '/crm/' + version + '/documentHeader/{document_id}/owner',
     handler: CRM.setDocumentOwner,

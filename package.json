@@ -33,6 +33,7 @@
     "standard": "^10.0.2"
   },
   "dependencies": {
+    "@envage/hapi-pg-rest-api": "^4.1.0",
     "airbrake-js": "^1.5.0",
     "async-waterfall": "^0.1.5",
     "blipp": "3.0.0",
@@ -43,7 +44,6 @@
     "hapi": "17.5.1",
     "hapi-auth-cookie": "9.0.0",
     "hapi-auth-jwt2": "8.1.0",
-    "hapi-pg-rest-api": "git+https://github.com/DEFRA/hapi-pg-rest-api.git#v3.2",
     "hoek": "4.2.1",
     "joi": "13.4.0",
     "jsonwebtoken": "^8.4.0",
