@@ -6,7 +6,6 @@ const Boom = require('boom');
 const uuidv4 = require('uuid/v4');
 const DB = require('./connectors/db');
 const { SqlConditionBuilder } = require('./sql');
-const DocumentsController = require('../controllers/document-headers');
 const entityRoleApi = require('../controllers/entity-roles');
 const { pool } = require('./connectors/db');
 
