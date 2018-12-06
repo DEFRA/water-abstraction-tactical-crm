@@ -1,4 +1,5 @@
 const { pool } = require('../lib/connectors/db');
+const logger = require('../lib/logger');
 
 /**
  * Post a list of document IDs that apply to a verification
@@ -25,7 +26,7 @@ async function postVerificationDocuments (request, h) {
     const { rows: data } = await pool.query(query, params);
     return { error: null, data };
   } catch (error) {
-    request.log('error', error);
+    logger.error('postVerificationDocuments error', error);
     h.response({ error, data: null }).code(500);
   }
 }
@@ -44,7 +45,7 @@ async function getVerificationDocuments (request, h) {
     const { rows: data } = await pool.query(query, params);
     return { error: null, data };
   } catch (error) {
-    request.log('error', error);
+    logger.error('getVerificationDocuments error', error);
     h.response({ error, data: null }).code(500);
   }
 }
@@ -57,7 +58,7 @@ const deleteVerificationDocuments = async (request, h) => {
     await pool.query(query, params);
     return h.response().code(204);
   } catch (error) {
-    request.log('error', error);
+    logger.error('getVerificationDocuments error', error);
     h.response({ error, data: null }).code(500);
   }
 };

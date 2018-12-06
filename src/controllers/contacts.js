@@ -1,5 +1,6 @@
 const { pool, query } = require('../lib/connectors/db');
 const mongoSql = require('mongo-sql');
+const logger = require('../lib/logger');
 
 /**
  * Get licence holder postal address contact from row
@@ -289,7 +290,7 @@ async function getContacts (request, h) {
       data: mapRowsToEntities([...rows, ...rows2, ...rows3])
     };
   } catch (error) {
-    request.log('error', error);
+    logger.error('getContacts error', error);
     h.response({ error, data: null }).code(500);
   }
 }
@@ -307,7 +308,7 @@ const getDocumentsForContact = async (request, h) => {
     const documents = await query(sql, [entityId]);
     return documents;
   } catch (error) {
-    request.log('error', error);
+    logger.error('getDocumentsForContact error', error);
     throw error;
   }
 };
