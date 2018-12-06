@@ -1,5 +1,6 @@
 const { pool } = require('../lib/connectors/db');
 const mongoSql = require('mongo-sql');
+const logger = require('../lib/logger');
 
 /**
  * Get verifications by document id
@@ -49,7 +50,7 @@ async function getVerificationsByDocumentID (request, h) {
 
     return { error, data: rows };
   } catch (error) {
-    request.log('error', error);
+    logger.error('getVerificationsByDocumentID error', error);
     h.response({ error, data: null }).statusCode(500);
   }
 }
