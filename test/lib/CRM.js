@@ -5,7 +5,6 @@
  * - Create unverified document headers linked to entity/company
  * - Create verification code - update documents with ID
  * - Verify with auth code
- * - Update documents with verification ID to verified status
  */
 'use strict';
 const Lab = require('lab');
