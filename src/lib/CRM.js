@@ -8,6 +8,7 @@ const DB = require('./connectors/db');
 const { SqlConditionBuilder } = require('./sql');
 const entityRoleApi = require('../controllers/entity-roles');
 const { pool } = require('./connectors/db');
+const logger = require('./logger');
 
 /**
  * A method to bulk-update a group of document header records for verification steps
@@ -142,7 +143,7 @@ and
     .then((res) => {
       return res.data;
     }).catch((err) => {
-      request.log('error', err);
+      logger.error('getColleagues error', err);
       return h.response(err);
     });
 }
