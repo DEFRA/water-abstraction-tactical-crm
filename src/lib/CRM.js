@@ -20,7 +20,6 @@ const logger = require('./logger');
  * @param {Array} [request.payload.query.document_id] - an array of document IDs to update
  * @param {String} [request.payload.query.verification_id] - identifies a group of docs to update based on a verification record
  * @param {String} [request.payload.set.verification_id] - sets the verification_id on the queried documents
- * @param {Number} [request.payload.set.verified] - sets whether verified
  * @param {Object} h - the HAPI HTTP response toolkit
  */
 function updateDocumentHeaders (request, h) {
@@ -32,10 +31,6 @@ function updateDocumentHeaders (request, h) {
   if ('verification_id' in request.payload.set) {
     builder.addParam(request.payload.set.verification_id);
     set.push(` verification_id= $${builder.params.length} `);
-  }
-  if ('verified' in request.payload.set) {
-    builder.addParam(request.payload.set.verified);
-    set.push(` verified= $${builder.params.length} `);
   }
   if ('company_entity_id' in request.payload.set) {
     builder.addParam(request.payload.set.company_entity_id);
