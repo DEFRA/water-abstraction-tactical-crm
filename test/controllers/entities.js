@@ -20,9 +20,15 @@ experiment('create', () => {
     expect(created.entity_nm).to.equal('COMPANY@example.com');
   });
 
-  test('an individual entity\' name is lower cased', async () => {
+  test('an individual entity name is lower cased', async () => {
     const created = await createEntity('INDIVIDUAL');
     createdEntities.push(created);
     expect(created.entity_nm).to.equal('individual@example.com');
+  });
+
+  test('created_at timestamp is added', async () => {
+    const created = await createEntity('created test');
+    createdEntities.push(created);
+    expect(created.created_at).to.exist();
   });
 });
