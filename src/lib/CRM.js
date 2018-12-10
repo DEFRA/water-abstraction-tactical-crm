@@ -5,66 +5,9 @@
 const Boom = require('boom');
 const uuidv4 = require('uuid/v4');
 const DB = require('./connectors/db');
-const { SqlConditionBuilder } = require('./sql');
 const entityRoleApi = require('../controllers/entity-roles');
 const { pool } = require('./connectors/db');
 const logger = require('./logger');
-
-/**
- * A method to bulk-update a group of document header records for verification steps
- *
- * @todo replace with REST API - but will require this to support multi-record patch first
- *
- * @param {Object} request - the HAPI HTTP request
- * @param {Object} request.payload.query - a query specifying which docs to update
- * @param {Array} [request.payload.query.document_id] - an array of document IDs to update
- * @param {String} [request.payload.query.verification_id] - identifies a group of docs to update based on a verification record
- * @param {String} [request.payload.set.verification_id] - sets the verification_id on the queried documents
- * @param {Number} [request.payload.set.verified] - sets whether verified
- * @param {Object} h - the HAPI HTTP response toolkit
- */
-function updateDocumentHeaders (request, h) {
-  let query = 'UPDATE crm.document_header SET ';
-  const builder = new SqlConditionBuilder();
-
-  // Update verification ID
-  const set = [];
-  if ('verification_id' in request.payload.set) {
-    builder.addParam(request.payload.set.verification_id);
-    set.push(` verification_id= $${builder.params.length} `);
-  }
-  if ('verified' in request.payload.set) {
-    builder.addParam(request.payload.set.verified);
-    set.push(` verified= $${builder.params.length} `);
-  }
-  if ('company_entity_id' in request.payload.set) {
-    builder.addParam(request.payload.set.company_entity_id);
-    set.push(` company_entity_id= $${builder.params.length} `);
-  }
-
-  // Query on document ID
-  query += set.join(',') + ' WHERE 0=0 ';
-
-  if (request.payload.query.document_id) {
-    builder.and('document_id', request.payload.query.document_id);
-  }
-  if (request.payload.query.verification_id) {
-    builder.and('verification_id', request.payload.query.verification_id);
-  }
-
-  query += builder.getSql();
-  const queryParams = builder.getParams();
-  request.log('info', query);
-  request.log('info', queryParams);
-
-  DB.query(query, queryParams)
-    .then((res) => {
-      return res;
-    })
-    .catch((err) => {
-      return err;
-    });
-}
 
 function setDocumentOwner (request, h) {
   const guid = uuidv4();
@@ -244,8 +187,6 @@ async function createColleague (request, h) {
 }
 
 module.exports = {
-  // getRoleDocuments,
-  updateDocumentHeaders,
   setDocumentOwner,
   getColleagues,
   deleteColleague,
