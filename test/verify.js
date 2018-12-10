@@ -5,7 +5,6 @@
  * - Create unverified document headers linked to entity/company
  * - Create verification code - update documents with ID
  * - Verify with auth code
- * - Update documents with verification ID to verified status
  */
 'use strict';
 const Lab = require('lab');
@@ -138,9 +137,7 @@ lab.experiment('Check verification', () => {
     ]);
   });
 
-  lab.test('The API should update documents to verified by verification_id', async () => {
-    console.log('The API should update documents to verified by verification_id');
-
+  lab.test('The API should update documents to verified by assigning the company id', async () => {
     const request = {
       method: 'PATCH',
       url: `/crm/1.0/documentHeader?filter=` + JSON.stringify({verification_id: verificationId}),
@@ -148,7 +145,6 @@ lab.experiment('Check verification', () => {
         Authorization: process.env.JWT_TOKEN
       },
       payload: {
-        verified: 1,
         company_entity_id: companyEntityId
       }
     };
