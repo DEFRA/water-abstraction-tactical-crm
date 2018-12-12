@@ -20,7 +20,6 @@ const createDocumentHeader = async (regimeEntityId, companyEntityId = null) => {
       metadata: '{"Name":"TEST LICENCE", "IsCurrent" : true}'
     }
   };
-  console.log('payload >>>', request.payload);
   const res = await server.inject(request);
   const {error, data} = JSON.parse(res.payload);
 

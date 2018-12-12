@@ -1,4 +1,4 @@
-const HAPIRestAPI = require('hapi-pg-rest-api');
+const HAPIRestAPI = require('@envage/hapi-pg-rest-api');
 const Joi = require('joi');
 const { version } = require('../../config');
 const { pool } = require('../lib/connectors/db');
@@ -22,8 +22,7 @@ const documentEntitiesApi = new HAPIRestAPI({
     document_id: Joi.string().guid(),
     created_at: Joi.string(),
     modified_at: Joi.string()
-  },
-  showSql: true
+  }
 });
 
 module.exports = documentEntitiesApi;

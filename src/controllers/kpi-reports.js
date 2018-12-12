@@ -1,4 +1,4 @@
-const HAPIRestAPI = require('hapi-pg-rest-api');
+const HAPIRestAPI = require('@envage/hapi-pg-rest-api');
 const { version } = require('../../config');
 const { pool } = require('../lib/connectors/db');
 
