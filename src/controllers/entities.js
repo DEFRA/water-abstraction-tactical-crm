@@ -1,4 +1,4 @@
-const HAPIRestAPI = require('hapi-pg-rest-api');
+const HAPIRestAPI = require('@envage/hapi-pg-rest-api');
 const Joi = require('joi');
 const { get } = require('lodash');
 const { version } = require('../../config');
@@ -22,6 +22,8 @@ const entitiesApi = new HAPIRestAPI({
   primaryKey: 'entity_id',
   endpoint: '/crm/' + version + '/entity',
   preInsert: lowerCaseEntityName,
+  onCreateTimestamp: 'created_at',
+  onUpdateTimestamp: 'updated_at',
   connection: pool,
   validation: {
     entity_id: Joi.string().guid(),

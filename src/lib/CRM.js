@@ -5,114 +5,9 @@
 const Boom = require('boom');
 const uuidv4 = require('uuid/v4');
 const DB = require('./connectors/db');
-const { SqlConditionBuilder } = require('./sql');
-const DocumentsController = require('../controllers/document-headers');
 const entityRoleApi = require('../controllers/entity-roles');
 const { pool } = require('./connectors/db');
-
-/**
- * Get documents by the supplied search/filter/sort criteria
- * @param {Object} request - the HAPI request instance
- * @param {Object} request.payload - the data from the HTTP post body
- * @param {Object} [request.payload.filter] - licence filter criteria
- * @param {String} [request.payload.filter.email] - filter licences by owner email address
- * @param {String} [request.payload.filter.entity_id] - filter licence by user entity ID
- * @param {String} [request.payload.filter.string] - search string, searches licences on name/licence number fields
- * @param {String} [request.payload.filter.document_id] - filters on a particular licence document_id
- * @param {String|Array} [request.payload.filter.system_external_id] - filters on 1 or more licence numbers
- * @param {Number} [request.payload.filter.verified] - filters on whether verified 0|1
- * @param {Object} [request.payload.sort] - sort criteria
- * @param {Number} [request.payload.sort.document_id] - sort by document_id +1 : ascending, -1 : descending
- * @param {Number} [request.payload.sort.name] - sort on document name +1 : ascending, -1 : descending
- * @param {Object} [request.payload.pagination] - sets pagination options
- * @param {Number} [request.payload.pagination.page] - sets current page of results
- * @param {Number} [request.payload.pagination.perPage] - sets number of results to access per page
- * @return {Promise} resolves with array of licence data
- */
-async function getRoleDocuments (request, h) {
-  try {
-    request.log('info', `Post call to document filter is deprecated, please use the GET call instead`);
-
-    const payload = request.payload || {};
-    const { filter = {}, sort = {}, pagination = { perPage: 100, page: 1 } } = payload;
-
-    // Synthesise GET call
-    const newRequest = {
-      method: 'get',
-      params: {
-      },
-      query: {
-        filter: JSON.stringify(filter),
-        sort: JSON.stringify(sort),
-        pagination: JSON.stringify(pagination)
-      }
-    };
-
-    request.log('info', filter);
-    request.log('info', JSON.stringify(newRequest, null, 2));
-    const response = await DocumentsController.find(newRequest, h, true);
-    return response;
-  } catch (error) {
-    request.log('error', error);
-    h.response({ error }).code(500);
-  }
-}
-
-/**
- * A method to bulk-update a group of document header records for verification steps
- *
- * @todo replace with REST API - but will require this to support multi-record patch first
- *
- * @param {Object} request - the HAPI HTTP request
- * @param {Object} request.payload.query - a query specifying which docs to update
- * @param {Array} [request.payload.query.document_id] - an array of document IDs to update
- * @param {String} [request.payload.query.verification_id] - identifies a group of docs to update based on a verification record
- * @param {String} [request.payload.set.verification_id] - sets the verification_id on the queried documents
- * @param {Number} [request.payload.set.verified] - sets whether verified
- * @param {Object} h - the HAPI HTTP response toolkit
- */
-function updateDocumentHeaders (request, h) {
-  let query = 'UPDATE crm.document_header SET ';
-  const builder = new SqlConditionBuilder();
-
-  // Update verification ID
-  const set = [];
-  if ('verification_id' in request.payload.set) {
-    builder.addParam(request.payload.set.verification_id);
-    set.push(` verification_id= $${builder.params.length} `);
-  }
-  if ('verified' in request.payload.set) {
-    builder.addParam(request.payload.set.verified);
-    set.push(` verified= $${builder.params.length} `);
-  }
-  if ('company_entity_id' in request.payload.set) {
-    builder.addParam(request.payload.set.company_entity_id);
-    set.push(` company_entity_id= $${builder.params.length} `);
-  }
-
-  // Query on document ID
-  query += set.join(',') + ' WHERE 0=0 ';
-
-  if (request.payload.query.document_id) {
-    builder.and('document_id', request.payload.query.document_id);
-  }
-  if (request.payload.query.verification_id) {
-    builder.and('verification_id', request.payload.query.verification_id);
-  }
-
-  query += builder.getSql();
-  const queryParams = builder.getParams();
-  request.log('info', query);
-  request.log('info', queryParams);
-
-  DB.query(query, queryParams)
-    .then((res) => {
-      return res;
-    })
-    .catch((err) => {
-      return err;
-    });
-}
+const logger = require('./logger');
 
 function setDocumentOwner (request, h) {
   const guid = uuidv4();
@@ -191,7 +86,7 @@ and
     .then((res) => {
       return res.data;
     }).catch((err) => {
-      request.log('error', err);
+      logger.error('getColleagues error', err);
       return h.response(err);
     });
 }
@@ -292,8 +187,6 @@ async function createColleague (request, h) {
 }
 
 module.exports = {
-  getRoleDocuments,
-  updateDocumentHeaders,
   setDocumentOwner,
   getColleagues,
   deleteColleague,

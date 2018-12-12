@@ -1,6 +1,6 @@
 {
   "name": "water-abstraction",
-  "version": "1.13.0",
+  "version": "1.15.0",
   "description": "Web app for Water Abstraction Permit service",
   "main": "index.js",
   "scripts": {
@@ -29,10 +29,11 @@
     "del": "^3.0.0",
     "istanbul": "^0.4.5",
     "lab": "15.5.0",
-    "snyk": "^1.83.0",
+    "snyk": "^1.116.2",
     "standard": "^10.0.2"
   },
   "dependencies": {
+    "@envage/hapi-pg-rest-api": "^4.1.1",
     "airbrake-js": "^1.5.0",
     "async-waterfall": "^0.1.5",
     "blipp": "3.0.0",
@@ -43,14 +44,13 @@
     "hapi": "17.5.1",
     "hapi-auth-cookie": "9.0.0",
     "hapi-auth-jwt2": "8.1.0",
-    "hapi-pg-rest-api": "git+https://github.com/DEFRA/hapi-pg-rest-api.git#v3.2",
     "hoek": "4.2.1",
     "joi": "13.4.0",
     "jsonwebtoken": "^8.4.0",
     "lodash": "^4.17.5",
     "moment": "^2.20.1",
     "path": "^0.12.7",
-    "pg": "^7.4.1",
+    "pg": "^7.7.1",
     "request": "^2.88.0",
     "request-promise-native": "^1.0.5",
     "uuid": "^3.3.2"
