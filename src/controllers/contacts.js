@@ -135,6 +135,7 @@ function getNaldContacts (row) {
         address_2: addressLine2,
         address_3: addressLine3,
         address_4: addressLine4,
+        initials,
         ...rest
       };
     });
