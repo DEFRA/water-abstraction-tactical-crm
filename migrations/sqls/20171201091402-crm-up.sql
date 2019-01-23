@@ -62,9 +62,9 @@ CREATE TABLE "entity" (
 -- Records of entity
 -- ----------------------------
 BEGIN;
-INSERT INTO "entity" VALUES ('ff05340a-9fe4-2f22-12b0-c946a686a3d4', '***REMOVED***', 'individual', '{}');
+INSERT INTO "entity" VALUES ('ff05340a-9fe4-2f22-12b0-c946a686a3d4', 'test1@example.com', 'individual', '{}');
 INSERT INTO "entity" VALUES ('0434dc31-a34e-7158-5775-4694af7a60cf', 'water-abstraction', 'regime', '{}');
-INSERT INTO "entity" VALUES ('cf1ee2c5-427c-1b0f-5016-52f12b6ece91', '***REMOVED***', 'individual', '{}');
+INSERT INTO "entity" VALUES ('cf1ee2c5-427c-1b0f-5016-52f12b6ece91', 'test2@example.com', 'individual', '{}');
 COMMIT;
 
 -- ----------------------------
