@@ -49,6 +49,32 @@ module.exports = [
   RoleEntityView.findOneRoute(),
   {
     method: 'GET',
+    path: '/crm/' + version + '/entity/{entity_id}/verifications',
+    handler: VerificationDocumentsController.getUserVerifications,
+    options: {
+      description: 'Get the companies that a user entity is associated with',
+      validate: {
+        params: {
+          entity_id: Joi.string().guid().required()
+        }
+      }
+    }
+  },
+  {
+    method: 'GET',
+    path: '/crm/' + version + '/entity/{entity_id}/companies',
+    handler: EntityApi.getEntityCompanies,
+    options: {
+      description: 'Get the companies that a user entity is associated with',
+      validate: {
+        params: {
+          entity_id: Joi.string().guid().required()
+        }
+      }
+    }
+  },
+  {
+    method: 'GET',
     path: '/crm/' + version + '/entity/{entity_id}/colleagues',
     handler: CRM.getColleagues,
     options: {

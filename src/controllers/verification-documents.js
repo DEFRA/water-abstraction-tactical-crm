@@ -63,8 +63,63 @@ const deleteVerificationDocuments = async (request, h) => {
   }
 };
 
+const getUserVerificationsQuery = `
+  select
+      v.verification_id,
+      v.company_entity_id,
+      v.verification_code,
+      v.date_created,
+      vd.document_id,
+      dh.system_external_id as licence_ref
+  from crm.verification v
+      inner join crm.verification_documents vd
+          on vd.verification_id = v.verification_id
+      inner join crm.document_header dh
+          on vd.document_id = dh.document_id
+  where v.entity_id = $1
+  and v.date_verified is null
+  order by v.date_created;`;
+
+const getDocumentDetailsForUserVerification = resultRow => ({
+  licenceRef: resultRow.licence_ref,
+  documentId: resultRow.document_id
+});
+
+const getUserVerifications = async (request, h) => {
+  const params = [request.params.entity_id];
+
+  try {
+    const result = await pool.query(getUserVerificationsQuery, params);
+    const data = result.rows.reduce((acc, row) => {
+      const existing = acc.find(v => v.id === row.verification_id);
+      const verificationDocumentDetails = getDocumentDetailsForUserVerification(row);
+
+      if (existing) {
+        existing.documents.push(verificationDocumentDetails);
+        return acc;
+      }
+
+      const verification = {
+        id: row.verification_id,
+        companyEntityId: row.company_entity_id,
+        code: row.verification_code,
+        dateCreated: row.date_created,
+        documents: [verificationDocumentDetails]
+      };
+
+      return [...acc, verification];
+    }, []);
+
+    return { data, error: null };
+  } catch (error) {
+    logger.error('getVerificationDocuments error', error);
+    h.response({ error, data: null }).code(500);
+  }
+};
+
 module.exports = {
   postVerificationDocuments,
   getVerificationDocuments,
-  deleteVerificationDocuments
+  deleteVerificationDocuments,
+  getUserVerifications
 };
