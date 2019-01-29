@@ -5,6 +5,8 @@ const version = '1.0';
 const CRM = require('../lib/CRM');
 const Joi = require('joi');
 
+const documentsRoutes = Object.values(require('./documents'));
+
 const EntityApi = require('../controllers/entities.js');
 const VerificationApi = require('../controllers/verifications.js');
 const DocumentHeaderApi = require('../controllers/document-headers.js');
@@ -180,5 +182,7 @@ module.exports = [
     path: '/crm/' + version + '/document_verifications',
     handler: getVerificationsByDocumentID
   },
-  KpiApi.findManyRoute()
+  KpiApi.findManyRoute(),
+
+  ...Object.values(documentsRoutes)
 ];
