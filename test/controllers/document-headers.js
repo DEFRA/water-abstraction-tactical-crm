@@ -8,6 +8,7 @@ const Code = require('code');
 const server = require('../../index');
 
 const { createDocumentHeader, createEntity, deleteEntity, deleteDocumentHeader, createEntityRole, deleteEntityRole } = require('../helpers');
+const { getSearchFilter } = require('../../src/controllers/document-headers');
 
 let unclaimedDocumentId;
 let claimedDocumentId;
@@ -140,5 +141,28 @@ lab.experiment('Test document filter', () => {
     });
 
     await deleteEntityRole(individualEntityId, entityRoleId);
+  });
+});
+
+lab.experiment('getSearchFilter', () => {
+  lab.test('It should format a filter object to search by licence number, document name, or licence holder', async() => {
+    const result = getSearchFilter('Test');
+    Code.expect(result).to.equal([
+      {
+        system_external_id: {
+          $ilike: `%Test%`
+        }
+      },
+      {
+        document_name: {
+          $ilike: `%Test%`
+        }
+      },
+      {
+        'metadata->>Name': {
+          $ilike: `%Test%`
+        }
+      }
+    ]);
   });
 });

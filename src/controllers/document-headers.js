@@ -36,6 +36,11 @@ const getSearchFilter = (string) => {
       document_name: {
         $ilike: `%${string}%`
       }
+    },
+    {
+      'metadata->>Name': {
+        $ilike: `%${string}%`
+      }
     }
   ];
 };
@@ -164,3 +169,5 @@ const documentHeadersApi = new HAPIRestAPI({
 });
 
 module.exports = documentHeadersApi;
+
+module.exports.getSearchFilter = getSearchFilter;
