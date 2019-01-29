@@ -37,7 +37,6 @@ const createDocumentHeader = async (regimeEntityId, companyEntityId = null) => {
  * @return {Promise} resolves with entity data
  */
 const createEntity = async (entityType, overrides) => {
-  console.log(`Creating entity ${entityType}`);
   const request = {
     method: 'POST',
     url: '/crm/1.0/entity',
@@ -91,10 +90,6 @@ const deleteDocumentHeader = async(documentId) => {
   return res;
 };
 
-/**
- * Delete document
- * @param {String} documentId - the document to delete
- */
 const createEntityRole = async(regimeId, companyEntityId, entityId, role = 'test_role') => {
   const payload = {
     regime_entity_id: regimeId,
