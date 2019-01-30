@@ -12,7 +12,8 @@ experiment('getDocumentUsers', () => {
   let regimeEntity;
   let companyEntity;
   let userEntity;
-  let userRoleEntity;
+  let userRoleEntity1;
+  let userRoleEntity2;
   let documentHeader;
   let response;
 
@@ -20,11 +21,17 @@ experiment('getDocumentUsers', () => {
     regimeEntity = await helpers.createEntity('regime');
     companyEntity = await helpers.createEntity('company');
     userEntity = await helpers.createEntity('user', { entity_type: 'individual' });
-    userRoleEntity = await helpers.createEntityRole(
+    userRoleEntity1 = await helpers.createEntityRole(
       regimeEntity.entity_id,
       companyEntity.entity_id,
       userEntity.entity_id,
       'primary_user'
+    );
+    userRoleEntity2 = await helpers.createEntityRole(
+      regimeEntity.entity_id,
+      companyEntity.entity_id,
+      userEntity.entity_id,
+      'user_returns'
     );
 
     sandbox.stub(logger, 'error');
@@ -35,12 +42,13 @@ experiment('getDocumentUsers', () => {
   });
 
   afterEach(async () => {
+    sandbox.restore();
     await helpers.deleteDocumentHeader(documentHeader.document_id);
-    await helpers.deleteEntityRole(userEntity.entity_id, userRoleEntity.entity_role_id);
+    await helpers.deleteEntityRole(userEntity.entity_id, userRoleEntity2.entity_role_id);
+    await helpers.deleteEntityRole(userEntity.entity_id, userRoleEntity1.entity_role_id);
     await helpers.deleteEntity(userEntity.entity_id);
     await helpers.deleteEntity(companyEntity.entity_id);
     await helpers.deleteEntity(regimeEntity.entity_id);
-    sandbox.restore();
   });
 
   test('returns a 404 for an incorrect document id', async () => {
@@ -57,7 +65,8 @@ experiment('getDocumentUsers', () => {
 
     expect(user.entityId).to.equal(userEntity.entity_id);
     expect(user.entityName).to.equal(userEntity.entity_nm);
-    expect(user.role).to.equal('primary_user');
+    expect(user.roles).to.have.length(2);
+    expect(user.roles).to.only.include(['user_returns', 'primary_user']);
   });
 
   test('logs any unexpected error', async () => {
