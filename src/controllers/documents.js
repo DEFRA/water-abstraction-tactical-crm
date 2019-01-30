@@ -12,22 +12,23 @@ const getDocumentUsersQuery = `
 `;
 
 const getDocumentUsers = async (request, h) => {
-  const { documentId } = request.params;
-  const params = [documentId];
-
   try {
-    const result = await pool.query(getDocumentUsersQuery, params);
+    const result = await pool.query(getDocumentUsersQuery, [request.params.documentId]);
 
     if (result.rows.length) {
-      const data = result.rows.map(entity => ({
-        entityId: entity.entity_id,
-        role: entity.role,
-        entityName: entity.entity_nm
-      }));
+      const data = result.rows.reduce((acc, entity) => {
+        const { entity_id: entityId, role, entity_nm: entityName } = entity;
+        const existing = acc.find(e => e.entityId === entityId);
+
+        if (existing) {
+          existing.roles.push(role);
+          return acc;
+        }
+        return [...acc, { entityId, roles: [role], entityName }];
+      }, []);
 
       return { data, error: null };
     }
-
     return Boom.notFound();
   } catch (error) {
     const msg = 'Error getting document users';
