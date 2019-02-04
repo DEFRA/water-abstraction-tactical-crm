@@ -4,7 +4,6 @@ const Lab = require('lab');
 const { experiment, beforeEach, afterEach, test } = exports.lab = Lab.script();
 const { expect } = require('code');
 const helpers = require('../helpers');
-const sinon = require('sinon');
 
 const controller = require('../../src/controllers/entities');
 
@@ -42,8 +41,6 @@ experiment('getEntityCompanies', () => {
   let companyTwo;
   let userEntity;
   let roles = [];
-  let h;
-  let responseCodeSpy;
   let request;
 
   beforeEach(async () => {
@@ -75,14 +72,6 @@ experiment('getEntityCompanies', () => {
     request = {
       params: {
         entity_id: userEntity.entity_id
-      }
-    };
-
-    h = {
-      response () {
-        return {
-          code: (responseCodeSpy = sinon.spy())
-        };
       }
     };
   });
@@ -139,7 +128,8 @@ experiment('getEntityCompanies', () => {
 
   test('returns a 404 if there are no results', async () => {
     request = { params: { entity_id: '00000000-0000-0000-0000-000000000000' } };
-    await controller.getEntityCompanies(request, h);
-    expect(responseCodeSpy.calledWith(404)).to.be.true();
+    const response = await controller.getEntityCompanies(request);
+    expect(response.output.statusCode).to.equal(404);
+    expect(response.isBoom).to.be.true();
   });
 });
