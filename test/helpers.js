@@ -36,19 +36,18 @@ const createDocumentHeader = async (regimeEntityId, companyEntityId = null) => {
  * @param {String} entityType - individual|company|regime
  * @return {Promise} resolves with entity data
  */
-const createEntity = async (entityType) => {
-  console.log(`Creating entity ${entityType}`);
+const createEntity = async (entityType, overrides) => {
   const request = {
     method: 'POST',
     url: '/crm/1.0/entity',
     headers: {
       Authorization: process.env.JWT_TOKEN
     },
-    payload: {
+    payload: Object.assign({
       entity_nm: `${entityType}@example.com`,
       entity_type: entityType,
       entity_definition: '{}'
-    }
+    }, overrides)
   };
   const res = await server.inject(request);
   const {error, data} = JSON.parse(res.payload);
@@ -91,10 +90,6 @@ const deleteDocumentHeader = async(documentId) => {
   return res;
 };
 
-/**
- * Delete document
- * @param {String} documentId - the document to delete
- */
 const createEntityRole = async(regimeId, companyEntityId, entityId, role = 'test_role') => {
   const payload = {
     regime_entity_id: regimeId,
@@ -134,7 +129,89 @@ const deleteEntityRole = async(entityId, entityRoleId) => {
   return res;
 };
 
+const createVerification = async (entityId, companyEntityId, verificationCode = 'aBcD1') => {
+  const request = {
+    method: 'POST',
+    url: '/crm/1.0/verification',
+    headers: {
+      Authorization: process.env.JWT_TOKEN
+    },
+    payload: {
+      entity_id: entityId,
+      company_entity_id: companyEntityId,
+      verification_code: verificationCode,
+      date_verified: null,
+      method: 'post'
+    }
+  };
+
+  const res = await server.inject(request);
+  const {error, data} = JSON.parse(res.payload);
+
+  if (error) {
+    console.error(error);
+    throw error;
+  }
+  return data;
+};
+
+const deleteVerification = async (verificationId) => {
+  const request = {
+    method: 'DELETE',
+    url: `/crm/1.0/verification/${verificationId}`,
+    headers: {
+      Authorization: process.env.JWT_TOKEN
+    }
+  };
+
+  const res = await server.inject(request);
+  return res;
+};
+
+const createVerificationDocument = async (verificationId, documentId) => {
+  const request = {
+    method: 'POST',
+    url: `/crm/1.0/verification/${verificationId}/documents`,
+    headers: {
+      Authorization: process.env.JWT_TOKEN
+    },
+    payload: {
+      document_id: [documentId]
+    }
+  };
+
+  const res = await server.inject(request);
+  const { error, data } = JSON.parse(res.payload);
+
+  if (error) {
+    console.error(error);
+    throw error;
+  }
+  return data;
+};
+
+const deleteVerificationDocument = async verificationId => {
+  const request = {
+    method: 'DELETE',
+    url: `/crm/1.0/verification/${verificationId}/documents`,
+    headers: {
+      Authorization: process.env.JWT_TOKEN
+    }
+  };
+
+  const { error } = await server.inject(request);
+
+  if (error) {
+    console.error(error);
+    throw error;
+  }
+};
+
 module.exports = {
+  createVerificationDocument,
+  deleteVerificationDocument,
+  createVerification,
+  deleteVerification,
   createDocumentHeader,
   createEntity,
   deleteEntity,
