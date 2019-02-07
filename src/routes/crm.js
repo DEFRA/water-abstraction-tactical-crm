@@ -5,6 +5,8 @@ const version = '1.0';
 const CRM = require('../lib/CRM');
 const Joi = require('joi');
 
+const documentsRoutes = Object.values(require('./documents'));
+
 const EntityApi = require('../controllers/entities.js');
 const VerificationApi = require('../controllers/verifications.js');
 const DocumentHeaderApi = require('../controllers/document-headers.js');
@@ -47,6 +49,32 @@ module.exports = [
   ...RolesApi.getRoutes(),
   RoleEntityView.findManyRoute(),
   RoleEntityView.findOneRoute(),
+  {
+    method: 'GET',
+    path: '/crm/' + version + '/entity/{entity_id}/verifications',
+    handler: VerificationDocumentsController.getUserVerifications,
+    options: {
+      description: 'Get the companies that a user entity is associated with',
+      validate: {
+        params: {
+          entity_id: Joi.string().guid().required()
+        }
+      }
+    }
+  },
+  {
+    method: 'GET',
+    path: '/crm/' + version + '/entity/{entity_id}/companies',
+    handler: EntityApi.getEntityCompanies,
+    options: {
+      description: 'Get the companies that a user entity is associated with',
+      validate: {
+        params: {
+          entity_id: Joi.string().guid().required()
+        }
+      }
+    }
+  },
   {
     method: 'GET',
     path: '/crm/' + version + '/entity/{entity_id}/colleagues',
@@ -154,5 +182,7 @@ module.exports = [
     path: '/crm/' + version + '/document_verifications',
     handler: getVerificationsByDocumentID
   },
-  KpiApi.findManyRoute()
+  KpiApi.findManyRoute(),
+
+  ...Object.values(documentsRoutes)
 ];
