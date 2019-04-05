@@ -4,7 +4,7 @@ const uuidv4 = require('uuid/v4');
 /**
  * Create a document header for testing purposes
  */
-const createDocumentHeader = async (regimeEntityId, companyEntityId = null) => {
+const createDocumentHeader = async (regimeEntityId, companyEntityId = null, isCurrent = true) => {
   const request = {
     method: 'POST',
     url: '/crm/1.0/documentHeader',
@@ -17,7 +17,7 @@ const createDocumentHeader = async (regimeEntityId, companyEntityId = null) => {
       system_id: 'permit-repo',
       system_internal_id: uuidv4(),
       system_external_id: uuidv4(),
-      metadata: '{"Name":"TEST LICENCE", "IsCurrent" : true}'
+      metadata: `{"Name":"TEST LICENCE", "IsCurrent" : ${isCurrent}}`
     }
   };
   const res = await server.inject(request);
