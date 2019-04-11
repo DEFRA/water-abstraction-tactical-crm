@@ -88,10 +88,12 @@ async function getEntityFilter (mode, value, roles = null) {
  * @return {Promise} resolves with filter for query on document headers table
  */
 const getPreQueryFilter = async(result) => {
-  const { string, email, roles, entity_id: entityId, ...filter } = result.filter;
+  const { string, email, roles, entity_id: entityId, includeExpired = false, ...filter } = result.filter;
 
     // Only display current licences
-  filter['metadata->>IsCurrent'] = { $ne: 'false' };
+  if (!includeExpired) {
+    filter['metadata->>IsCurrent'] = { $ne: 'false' };
+  }
 
     // Search by string - can be licence number/name
   if (string) {
