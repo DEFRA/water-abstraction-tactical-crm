@@ -27,37 +27,37 @@ let verificationCode = null;
 
 lab.experiment('Check verification', () => {
   // Create regime
-  lab.before(async() => {
+  lab.before(async () => {
     const { entity_id: entityId } = await createEntity('regime');
     regimeEntityId = entityId;
   });
 
   // Create company
-  lab.before(async() => {
+  lab.before(async () => {
     const { entity_id: entityId } = await createEntity('company');
     companyEntityId = entityId;
   });
 
   // Create individual
-  lab.before(async() => {
+  lab.before(async () => {
     const { entity_id: entityId } = await createEntity('individual');
     individualEntityId = entityId;
   });
 
   // Create doc
-  lab.before(async() => {
+  lab.before(async () => {
     const { document_id: documentId } = await createDocumentHeader(regimeEntityId);
     documentHeaderId = documentId;
   });
 
-  lab.after(async() => {
+  lab.after(async () => {
     // Delete all temporary entities
     const entityIds = [regimeEntityId, individualEntityId, companyEntityId];
     const tasks = entityIds.map(entityId => deleteEntity(entityId));
     await Promise.all(tasks);
   });
 
-  lab.after(async() => {
+  lab.after(async () => {
     // Delete all temporary docs
     await deleteDocumentHeader(documentHeaderId);
   });
@@ -133,14 +133,14 @@ lab.experiment('Check verification', () => {
     const payload = JSON.parse(res.payload);
     Code.expect(payload.error).to.equal(null);
     Code.expect(payload.data).to.equal([
-      {verification_id: verificationId, document_id: documentHeaderId}
+      { verification_id: verificationId, document_id: documentHeaderId }
     ]);
   });
 
   lab.test('The API should update documents to verified by assigning the company id', async () => {
     const request = {
       method: 'PATCH',
-      url: `/crm/1.0/documentHeader?filter=` + JSON.stringify({verification_id: verificationId}),
+      url: `/crm/1.0/documentHeader?filter=` + JSON.stringify({ verification_id: verificationId }),
       headers: {
         Authorization: process.env.JWT_TOKEN
       },
@@ -169,9 +169,6 @@ lab.experiment('Check verification', () => {
     const res = await server.inject(request);
 
     Code.expect(res.statusCode).to.equal(200);
-
-    // Check payload
-    const payload = JSON.parse(res.payload);
   });
 
   lab.test('The API should be able to check a verification code', async () => {

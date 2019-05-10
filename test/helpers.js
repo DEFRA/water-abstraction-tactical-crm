@@ -21,7 +21,7 @@ const createDocumentHeader = async (regimeEntityId, companyEntityId = null, isCu
     }
   };
   const res = await server.inject(request);
-  const {error, data} = JSON.parse(res.payload);
+  const { error, data } = JSON.parse(res.payload);
 
   if (error) {
     console.error(error);
@@ -50,7 +50,7 @@ const createEntity = async (entityType, overrides) => {
     }, overrides)
   };
   const res = await server.inject(request);
-  const {error, data} = JSON.parse(res.payload);
+  const { error, data } = JSON.parse(res.payload);
   if (error) {
     console.error(error);
     throw error;
@@ -62,7 +62,7 @@ const createEntity = async (entityType, overrides) => {
  * Delete entity
  * @param {String} entityGuid - the entity to delete
  */
-const deleteEntity = async(entityGuid) => {
+const deleteEntity = async (entityGuid) => {
   const request = {
     method: 'DELETE',
     url: `/crm/1.0/entity/${entityGuid}`,
@@ -78,7 +78,7 @@ const deleteEntity = async(entityGuid) => {
  * Delete document
  * @param {String} documentId - the document to delete
  */
-const deleteDocumentHeader = async(documentId) => {
+const deleteDocumentHeader = async (documentId) => {
   const request = {
     method: 'DELETE',
     url: `/crm/1.0/documentHeader/${documentId}`,
@@ -90,7 +90,7 @@ const deleteDocumentHeader = async(documentId) => {
   return res;
 };
 
-const createEntityRole = async(regimeId, companyEntityId, entityId, role = 'test_role') => {
+const createEntityRole = async (regimeId, companyEntityId, entityId, role = 'test_role') => {
   const payload = {
     regime_entity_id: regimeId,
     company_entity_id: companyEntityId,
@@ -105,7 +105,7 @@ const createEntityRole = async(regimeId, companyEntityId, entityId, role = 'test
     payload
   };
   const res = await server.inject(request);
-  const {error, data} = JSON.parse(res.payload);
+  const { error, data } = JSON.parse(res.payload);
   if (error) {
     console.error(error);
     throw error;
@@ -117,7 +117,7 @@ const createEntityRole = async(regimeId, companyEntityId, entityId, role = 'test
  * Delete entity role
  * @param {String} documentId - the document to delete
  */
-const deleteEntityRole = async(entityId, entityRoleId) => {
+const deleteEntityRole = async (entityId, entityRoleId) => {
   const request = {
     method: 'DELETE',
     url: `/crm/1.0/entity/${entityId}/roles/${entityRoleId}`,
@@ -146,7 +146,7 @@ const createVerification = async (entityId, companyEntityId, verificationCode = 
   };
 
   const res = await server.inject(request);
-  const {error, data} = JSON.parse(res.payload);
+  const { error, data } = JSON.parse(res.payload);
 
   if (error) {
     console.error(error);
