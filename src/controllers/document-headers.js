@@ -12,7 +12,7 @@ const { version } = require('../../config');
  */
 /* eslint-disable camelcase */
 function mapRole (row) {
-  const {regime_entity_id, company_entity_id} = row;
+  const { regime_entity_id, company_entity_id } = row;
 
   return company_entity_id
     ? { company_entity_id }
@@ -87,20 +87,20 @@ async function getEntityFilter (mode, value, roles = null) {
  * @type {Object} hapi-pg-rest-api result
  * @return {Promise} resolves with filter for query on document headers table
  */
-const getPreQueryFilter = async(result) => {
+const getPreQueryFilter = async (result) => {
   const { string, email, roles, entity_id: entityId, includeExpired = false, ...filter } = result.filter;
 
-    // Only display current licences
+  // Only display current licences
   if (!includeExpired) {
     filter['metadata->>IsCurrent'] = { $ne: 'false' };
   }
 
-    // Search by string - can be licence number/name
+  // Search by string - can be licence number/name
   if (string) {
     filter.$or = getSearchFilter(string);
   };
 
-    // Search by entity ID / entity email address (can be combined)
+  // Search by entity ID / entity email address (can be combined)
   if (email) {
     filter.$and = [];
     filter.$and.push(await getEntityFilter('email', email, roles));

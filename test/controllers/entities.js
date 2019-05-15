@@ -10,7 +10,7 @@ const controller = require('../../src/controllers/entities');
 experiment('create', () => {
   const createdEntities = [];
 
-  afterEach(async() => {
+  afterEach(async () => {
     for (const entity of createdEntities) {
       await helpers.deleteEntity(entity.entity_id);
     }

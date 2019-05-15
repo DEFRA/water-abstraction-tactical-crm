@@ -1,6 +1,6 @@
 const { pool } = require('../lib/connectors/db');
 const mongoSql = require('mongo-sql');
-const logger = require('../lib/logger');
+const { logger } = require('@envage/water-abstraction-helpers');
 
 /**
  * Get verifications by document id
