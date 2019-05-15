@@ -26,7 +26,7 @@ let granteeRoleId = null;
 
 lab.experiment('Test grant/delete colleague roles', () => {
   // Create regime
-  lab.before(async() => {
+  lab.before(async () => {
     {
       const { entity_id: entityId } = await createEntity('regime');
       regimeEntityId = entityId;
@@ -49,7 +49,7 @@ lab.experiment('Test grant/delete colleague roles', () => {
     roleId = entityRoleId;
   });
 
-  lab.after(async() => {
+  lab.after(async () => {
     // Delete all temporary entities
     const entityIds = [regimeEntityId, individualEntityId, companyEntityId, granteeEntityId];
     const tasks = entityIds.map(entityId => deleteEntity(entityId));
@@ -85,7 +85,7 @@ lab.experiment('Test grant/delete colleague roles', () => {
     granteeRoleId = payload.data.entity_role_id;
   });
 
-  lab.test('A user without primary_user role should not be able to grant access', async() => {
+  lab.test('A user without primary_user role should not be able to grant access', async () => {
     const request = {
       method: 'POST',
       url: `/crm/1.0/entity/${granteeEntityId}/colleagues`,

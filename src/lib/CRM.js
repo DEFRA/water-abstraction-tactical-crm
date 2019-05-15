@@ -7,7 +7,7 @@ const uuidv4 = require('uuid/v4');
 const DB = require('./connectors/db');
 const entityRoleApi = require('../controllers/entity-roles');
 const { pool } = require('./connectors/db');
-const logger = require('./logger');
+const { logger } = require('@envage/water-abstraction-helpers');
 
 function setDocumentOwner (request, h) {
   const guid = uuidv4();
@@ -116,7 +116,7 @@ RETURNING r.*`;
  * @param {String} request.params.entity_id the entity ID of the primary user
  * @param {String} request.params.role_id the role ID to delete
  */
-const deleteColleague = async(request, h) => {
+const deleteColleague = async (request, h) => {
   const { entity_id: entityId, role_id: roleId } = request.params;
 
   const { rows: [data], error, rowCount } = await deleteColleagueQuery(roleId, entityId);
@@ -162,7 +162,7 @@ async function createColleague (request, h) {
   const { rows: [primaryUserRole] } = await entityRoleApi.repo.find({ entity_id: entityID, role: 'primary_user' });
 
   if (!primaryUserRole) {
-    throw Boom.unauthorized(`Only a primary user can grant access`, {role, colleagueEntityID});
+    throw Boom.unauthorized(`Only a primary user can grant access`, { role, colleagueEntityID });
   }
 
   const { regime_entity_id: userRegimeID, company_entity_id: userCompanyID } = primaryUserRole;

@@ -1,6 +1,6 @@
 const { pool, query } = require('../lib/connectors/db');
 const mongoSql = require('mongo-sql');
-const logger = require('../lib/logger');
+const { logger } = require('@envage/water-abstraction-helpers');
 
 /**
  * Get licence holder postal address contact from row
@@ -153,24 +153,23 @@ function getNaldContacts (row) {
 function mapRowsToEntities (rows) {
   const licences = rows.reduce((acc, row) => {
     const {
-      document_id, system_external_id, system_internal_id,
-      document_name, entity_id: entityId, company_entity_id } = row;
+      system_external_id: systemExternalId, entity_id: entityId } = row;
 
     // Add licence holder to list
-    if (!Object.keys(acc).includes(system_external_id)) {
-      acc[system_external_id] = {
-        document_id,
-        system_external_id,
-        system_internal_id,
-        document_name,
-        company_entity_id,
+    if (!Object.keys(acc).includes(systemExternalId)) {
+      acc[systemExternalId] = {
+        document_id: row.document_id,
+        system_external_id: systemExternalId,
+        system_internal_id: row.system_internal_id,
+        document_name: row.document_name,
+        company_entity_id: row.company_entity_id,
         contacts: getNaldContacts(row)
       };
     }
 
     // Add entity email address contact to list
     if (entityId) {
-      acc[system_external_id].contacts.push(getContact(row));
+      acc[systemExternalId].contacts.push(getContact(row));
     }
     return acc;
   }, {});

@@ -45,8 +45,8 @@ const createDocumentRequest = (filter = {}) => {
 };
 
 experiment('Test document filter', () => {
-  before(async() => {
-      // Create entities
+  before(async () => {
+    // Create entities
     {
       const { entity_id: entityId } = await createEntity('regime');
       regimeEntityId = entityId;
@@ -154,7 +154,7 @@ experiment('Test document filter', () => {
     expect(payload.data[0].document_id).to.equal(expiredDocument.document_id);
   });
 
-  after(async() => {
+  after(async () => {
     // Delete all temporary entities
     const entityIds = [regimeEntityId, individualEntityId, companyEntityId];
     await Promise.all(entityIds, (entityId) => {
@@ -171,7 +171,7 @@ experiment('Test document filter', () => {
 });
 
 experiment('getSearchFilter', () => {
-  test('It should format a filter object to search by licence number, document name, or licence holder', async() => {
+  test('It should format a filter object to search by licence number, document name, or licence holder', async () => {
     const result = getSearchFilter('Test');
     expect(result).to.equal([
       {
