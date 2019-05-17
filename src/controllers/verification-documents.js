@@ -1,5 +1,5 @@
 const { pool } = require('../lib/connectors/db');
-const { logger } = require('@envage/water-abstraction-helpers');
+const { logger } = require('../logger');
 
 /**
  * Post a list of document IDs that apply to a verification

@@ -2,7 +2,7 @@ const { expect } = require('code');
 const { beforeEach, afterEach, experiment, test } = exports.lab = require('lab').script();
 const helpers = require('../helpers');
 const { pool } = require('../../src/lib/connectors/db');
-const { logger } = require('@envage/water-abstraction-helpers');
+const { logger } = require('../../src/logger');
 const sinon = require('sinon');
 const sandbox = sinon.createSandbox();
 
