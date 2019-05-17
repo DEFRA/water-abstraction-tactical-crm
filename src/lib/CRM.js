@@ -7,7 +7,7 @@ const uuidv4 = require('uuid/v4');
 const DB = require('./connectors/db');
 const entityRoleApi = require('../controllers/entity-roles');
 const { pool } = require('./connectors/db');
-const { logger } = require('@envage/water-abstraction-helpers');
+const { logger } = require('../logger');
 
 function setDocumentOwner (request, h) {
   const guid = uuidv4();
