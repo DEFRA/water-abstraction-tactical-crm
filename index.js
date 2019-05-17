@@ -5,10 +5,8 @@ const GoodWinston = require('good-winston');
 const Hapi = require('hapi');
 
 const config = require('./config');
-const { logger } = require('@envage/water-abstraction-helpers');
-
+const { logger } = require('./src/logger');
 const goodWinstonStream = new GoodWinston({ winston: logger });
-logger.init(config.logger);
 
 const serverPlugins = {
   blipp: require('blipp'),

@@ -1,6 +1,6 @@
 const { pool, query } = require('../lib/connectors/db');
 const mongoSql = require('mongo-sql');
-const { logger } = require('@envage/water-abstraction-helpers');
+const { logger } = require('../logger');
 
 /**
  * Get licence holder postal address contact from row
