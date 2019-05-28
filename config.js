@@ -20,7 +20,7 @@ module.exports = {
     router: {
       stripTrailingSlash: true
     },
-    port: process.env.PORT || 8002
+    port: 8002
   },
 
   blipp: {
