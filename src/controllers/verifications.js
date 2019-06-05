@@ -21,7 +21,7 @@ const verificationsApi = new HAPIRestAPI({
   },
   preInsert: (data) => {
     return Object.assign({
-      verification_code: createShortCode()}, data);
+      verification_code: createShortCode() }, data);
   }
 });
 

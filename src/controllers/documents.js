@@ -1,6 +1,6 @@
 const Boom = require('boom');
 const { pool } = require('../lib/connectors/db');
-const logger = require('../lib/logger');
+const { logger } = require('../logger');
 
 const getDocumentUsersQuery = `
   select e.entity_id, er.role, e.entity_nm
