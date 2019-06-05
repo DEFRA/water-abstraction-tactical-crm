@@ -1,6 +1,6 @@
 {
   "name": "water-abstraction-tactical-crm",
-  "version": "1.22.0",
+  "version": "1.23.0",
   "description": "Tactical CRM implementation for water abstraction service",
   "main": "index.js",
   "repository": {
@@ -16,7 +16,7 @@
     "migrate": "node scripts/create-schema && db-migrate up --verbose",
     "migrate:down": "db-migrate down --verbose",
     "migrate:create": "db-migrate create --sql-file --",
-    "lint": "eslint ./src/**/*.js",
+    "lint": "eslint .",
     "version": "auto-changelog -p --commit-limit false && git add CHANGELOG.md"
   },
   "engines": {
@@ -26,22 +26,25 @@
   "license": "ISC",
   "devDependencies": {
     "auto-changelog": "^1.12.0",
+    "blipp": "3.0.0",
     "code": "^5.2.4",
-    "codecov": "^3.3.0",
+    "codecov": "^3.5.0",
     "db-migrate": "^0.11.1",
     "db-migrate-pg": "^0.3.0",
-    "del": "^3.0.0",
-    "istanbul": "^0.4.5",
+    "eslint": "^5.16.0",
+    "eslint-config-standard": "^12.0.0",
+    "eslint-plugin-import": "^2.17.2",
+    "eslint-plugin-node": "^9.0.1",
+    "eslint-plugin-promise": "^4.1.1",
+    "eslint-plugin-standard": "^4.0.0",
     "lab": "15.5.0",
-    "sinon": "^7.3.1",
-    "snyk": "^1.147.3",
-    "standard": "^10.0.2"
+    "sinon": "^7.3.2",
+    "snyk": "^1.165.0"
   },
   "dependencies": {
     "@envage/hapi-pg-rest-api": "^4.1.2",
-    "airbrake-js": "^1.5.0",
+    "@envage/water-abstraction-helpers": "^3.0.0",
     "async-waterfall": "^0.1.5",
-    "blipp": "3.0.0",
     "boom": "7.2.0",
     "dotenv": "^4.0.0",
     "good": "^8.1.1",
@@ -51,19 +54,13 @@
     "hapi-auth-jwt2": "8.1.0",
     "hoek": "4.2.1",
     "joi": "13.4.0",
-    "jsonwebtoken": "^8.4.0",
+    "jsonwebtoken": "^8.5.1",
     "lodash": "^4.17.11",
     "moment": "^2.20.1",
     "path": "^0.12.7",
-    "pg": "^7.9.0",
+    "pg": "^7.11.0",
     "request": "^2.88.0",
-    "request-promise-native": "^1.0.5",
+    "request-promise-native": "^1.0.7",
     "uuid": "^3.3.2"
-  },
-  "standard": {
-    "ignore": [
-      "node_modules/",
-      "public/"
-    ]
   }
 }
