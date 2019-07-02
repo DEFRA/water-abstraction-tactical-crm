@@ -27,7 +27,7 @@ module.exports = [
     handler: statusController.getStatus,
     options: {
       auth: false,
-      description: 'Get all entities'
+      description: 'Healthcheck endpoint for the load balancer to inspect'
     }
   },
 
