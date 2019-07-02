@@ -18,15 +18,16 @@ const VerificationDocumentsController = require('../controllers/verification-doc
 const { getContacts, getDocumentsForContact } = require('../controllers/contacts');
 const { getVerificationsByDocumentID } = require('../controllers/verifications-by-document.js');
 const KpiApi = require('../controllers/kpi-reports.js');
+const statusController = require('../controllers/status');
 
 module.exports = [
   {
     method: 'GET',
     path: '/status',
-    handler: () => 'ok',
+    handler: statusController.getStatus,
     options: {
       auth: false,
-      description: 'Get all entities'
+      description: 'Healthcheck endpoint for the load balancer to inspect'
     }
   },
 
