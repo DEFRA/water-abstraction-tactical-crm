@@ -17,7 +17,9 @@
     "migrate:down": "db-migrate down --verbose",
     "migrate:create": "db-migrate create --sql-file --",
     "lint": "eslint .",
-    "version": "auto-changelog -p --commit-limit false && git add CHANGELOG.md"
+    "version": "auto-changelog -p --commit-limit false && git add CHANGELOG.md",
+    "snyk-protect": "snyk protect",
+    "prepare": "npm run snyk-protect"
   },
   "engines": {
     "node": ">=8.0"
@@ -38,8 +40,7 @@
     "eslint-plugin-promise": "^4.1.1",
     "eslint-plugin-standard": "^4.0.0",
     "lab": "15.5.0",
-    "sinon": "^7.3.2",
-    "snyk": "^1.165.0"
+    "sinon": "^7.3.2"
   },
   "dependencies": {
     "@envage/hapi-pg-rest-api": "^4.1.2",
@@ -61,6 +62,8 @@
     "pg": "^7.11.0",
     "request": "^2.88.0",
     "request-promise-native": "^1.0.7",
-    "uuid": "^3.3.2"
-  }
+    "uuid": "^3.3.2",
+    "snyk": "^1.189.0"
+  },
+  "snyk": true
 }
