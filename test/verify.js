@@ -7,11 +7,11 @@
  * - Verify with auth code
  */
 'use strict';
-const Lab = require('lab');
+const Lab = require('@hapi/lab');
 const lab = exports.lab = Lab.script();
 const moment = require('moment');
 
-const Code = require('code');
+const Code = require('@hapi/code');
 const server = require('../index');
 
 const { createDocumentHeader, createEntity, deleteEntity, deleteDocumentHeader } = require('./helpers');
