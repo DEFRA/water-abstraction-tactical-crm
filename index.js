@@ -2,7 +2,7 @@
 require('dotenv').config();
 
 const GoodWinston = require('good-winston');
-const Hapi = require('hapi');
+const Hapi = require('@hapi/hapi');
 
 const config = require('./config');
 const { logger } = require('./src/logger');
@@ -17,7 +17,7 @@ const serverPlugins = {
 const server = new Hapi.Server(config.server);
 
 function validateJWT (decoded, request, h) {
-  request.log('debug', `validate JWT at ${request.url.path} with payload:`);
+  request.log('debug', `validate JWT at ${request.path} with payload:`);
   request.log('debug', request.payload);
   request.log('debug', `decodes as: `);
   request.log('debug', decoded);

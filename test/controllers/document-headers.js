@@ -7,8 +7,8 @@ const {
   after,
   experiment,
   test
-} = exports.lab = require('lab').script();
-const { expect } = require('code');
+} = exports.lab = require('@hapi/lab').script();
+const { expect } = require('@hapi/code');
 const server = require('../../index');
 
 const {

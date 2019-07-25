@@ -1,5 +1,5 @@
 const { version } = require('../../config');
-const Joi = require('joi');
+const Joi = require('@hapi/joi');
 
 const documentsController = require('../controllers/documents');
 

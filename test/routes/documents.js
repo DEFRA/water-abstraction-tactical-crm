@@ -1,11 +1,11 @@
-const Hapi = require('hapi');
-const { expect } = require('code');
+const Hapi = require('@hapi/hapi');
+const { expect } = require('@hapi/code');
 const { cloneDeep } = require('lodash');
 
 const {
   beforeEach,
   experiment,
-  test } = exports.lab = require('lab').script();
+  test } = exports.lab = require('@hapi/lab').script();
 
 const routes = require('../../src/routes/documents');
 

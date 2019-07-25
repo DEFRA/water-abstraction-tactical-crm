@@ -2,7 +2,7 @@
  * Provides HAPI HTTP handlers for working with CRM data
  * @module lib/CRM
  */
-const Boom = require('boom');
+const Boom = require('@hapi/boom');
 const uuidv4 = require('uuid/v4');
 const DB = require('./connectors/db');
 const entityRoleApi = require('../controllers/entity-roles');
