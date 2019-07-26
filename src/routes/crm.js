@@ -3,7 +3,7 @@ API operations only - NO UI
 */
 const version = '1.0';
 const CRM = require('../lib/CRM');
-const Joi = require('joi');
+const Joi = require('@hapi/joi');
 
 const documentsRoutes = Object.values(require('./documents'));
 
