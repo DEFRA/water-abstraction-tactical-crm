@@ -7,10 +7,10 @@
  * - Verify with auth code
  */
 'use strict';
-const Lab = require('lab');
+const Lab = require('@hapi/lab');
 const lab = exports.lab = Lab.script();
 
-const Code = require('code');
+const Code = require('@hapi/code');
 const server = require('../../index');
 
 const uuidv4 = require('uuid/v4');

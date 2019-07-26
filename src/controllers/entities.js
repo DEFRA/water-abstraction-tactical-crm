@@ -1,10 +1,10 @@
 const HAPIRestAPI = require('@envage/hapi-pg-rest-api');
-const Joi = require('joi');
+const Joi = require('@hapi/joi');
 const { get } = require('lodash');
 const { version } = require('../../config');
 const { pool } = require('../lib/connectors/db');
 const { groupBy, reduce } = require('lodash');
-const Boom = require('boom');
+const Boom = require('@hapi/boom');
 
 const isIndividual = entity => {
   return get(entity, 'entity_type', '').toLowerCase() === 'individual';

@@ -1,5 +1,5 @@
-const { expect } = require('code');
-const { beforeEach, afterEach, experiment, test } = exports.lab = require('lab').script();
+const { expect } = require('@hapi/code');
+const { beforeEach, afterEach, experiment, test } = exports.lab = require('@hapi/lab').script();
 const helpers = require('../helpers');
 const { pool } = require('../../src/lib/connectors/db');
 const { logger } = require('../../src/logger');
