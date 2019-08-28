@@ -3,11 +3,11 @@
 const server = require('../../index');
 const { version } = require('../../config');
 const uuid = require('uuid/v4');
-const Lab = require('lab');
+const Lab = require('@hapi/lab');
 const lab = exports.lab = Lab.script();
 const DB = require('../../src/lib/connectors/db');
 
-const { expect } = require('code');
+const { expect } = require('@hapi/code');
 
 const createRequest = (entityId, method = 'GET') => {
   const url = `/crm/${version}/entity/${entityId}/roles`;

@@ -1,4 +1,4 @@
-const Boom = require('boom');
+const Boom = require('@hapi/boom');
 const { pool } = require('../lib/connectors/db');
 const { logger } = require('../logger');
 const { repo: documentsRepository } = require('./document-headers');
