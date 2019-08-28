@@ -1,5 +1,5 @@
-const { test, experiment } = exports.lab = require('lab').script();
-const { expect } = require('code');
+const { test, experiment } = exports.lab = require('@hapi/lab').script();
+const { expect } = require('@hapi/code');
 const controller = require('../../src/controllers/status');
 
 experiment('controllers/status', () => {
