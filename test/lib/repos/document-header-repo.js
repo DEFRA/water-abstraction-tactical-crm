@@ -18,13 +18,13 @@ experiment('lib/repos/document-header-repo', async () => {
     sandbox.stub(Repository.prototype, 'update').resolves(response);
   });
 
-  afterEach(async () => { await sandbox.restore(); });
+  afterEach(async () => { sandbox.restore(); });
 
   experiment('.unlinkLicence', async () => {
     test('.update is called with the correct parameters', async () => {
       await docHeadersRepo.unlinkLicence(documentId);
       const filter = { document_id: documentId };
-      const data = { company_entity_id: null, verification_id: null };
+      const data = { company_entity_id: null, verification_id: null, document_name: null };
       expect(
         Repository.prototype.update.calledWith(filter, data)
       ).to.be.true();

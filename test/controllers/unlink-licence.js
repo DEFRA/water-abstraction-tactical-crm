@@ -14,7 +14,7 @@ const request = {
 const h = {};
 
 experiment('controllers/unlink-licence', async () => {
-  afterEach(async () => { await sandbox.restore(); });
+  afterEach(async () => { sandbox.restore(); });
 
   experiment('.patchUnlinkLicence', async () => {
     const documentData = {

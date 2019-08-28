@@ -14,7 +14,7 @@ class DocumentHeadersRepository extends Repository {
    */
   async unlinkLicence (documentId) {
     const filter = { document_id: documentId };
-    const data = { company_entity_id: null, verification_id: null };
+    const data = { company_entity_id: null, verification_id: null, document_name: null };
     const { rows: [document] } = await this.update(filter, data);
 
     if (!document) {
