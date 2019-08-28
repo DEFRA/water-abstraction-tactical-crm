@@ -15,6 +15,7 @@ const EntityRolesApi = require('../controllers/entity-roles.js');
 const RoleEntityView = require('../controllers/role-entities-view.js');
 const RolesApi = require('../controllers/roles.js');
 const VerificationDocumentsController = require('../controllers/verification-documents.js');
+const UnlinkLicenceController = require('../controllers/unlink-licence.js');
 const { getContacts, getDocumentsForContact } = require('../controllers/contacts');
 const { getVerificationsByDocumentID } = require('../controllers/verifications-by-document.js');
 const KpiApi = require('../controllers/kpi-reports.js');
@@ -185,5 +186,19 @@ module.exports = [
   },
   KpiApi.findManyRoute(),
 
-  ...Object.values(documentsRoutes)
+  ...Object.values(documentsRoutes),
+
+  {
+    method: 'PATCH',
+    path: `/crm/${version}/documentHeader/{documentId}/unlink-licence`,
+    handler: UnlinkLicenceController.patchUnlinkLicence,
+    options: {
+      description: 'Unlink a licence from a user',
+      validate: {
+        params: {
+          documentId: Joi.string().guid()
+        }
+      }
+    }
+  }
 ];
