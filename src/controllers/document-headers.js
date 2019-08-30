@@ -166,7 +166,7 @@ const documentHeadersApi = new HAPIRestAPI({
     metadata: Joi.string(),
     company_entity_id: Joi.string().guid().allow(null),
     verification_id: Joi.string().guid().allow(null),
-    document_name: Joi.string()
+    document_name: Joi.string().allow(null)
   }
 });
 
