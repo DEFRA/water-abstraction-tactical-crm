@@ -1,4 +1,5 @@
 CREATE SCHEMA IF NOT EXISTS crm_v2;
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
 
 CREATE TABLE IF NOT EXISTS "crm_v2"."roles" (
   "role_id" varchar NOT NULL DEFAULT gen_random_uuid(),
