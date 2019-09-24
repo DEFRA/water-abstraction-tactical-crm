@@ -35,3 +35,9 @@ CREATE TABLE IF NOT EXISTS "crm_v2"."invoice_account_addresses" (
   FOREIGN KEY (invoice_account_id) REFERENCES crm_v2.invoice_accounts (invoice_account_id),
   FOREIGN KEY (address_id) REFERENCES crm_v2.addresses (address_id)
 );
+
+ALTER TABLE "crm_v2"."document_roles"
+  ADD COLUMN "invoice_account_id" varchar;
+
+ALTER TABLE "crm_v2"."document_roles"
+  ADD FOREIGN KEY (invoice_account_id) REFERENCES crm_v2.invoice_accounts (invoice_account_id);
