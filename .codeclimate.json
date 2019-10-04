@@ -4,6 +4,7 @@
     "migrations",
     "node_modules",
     "test",
-    "src/lib/logger/vendor/"
+    "src/lib/logger/vendor/",
+    "src/routes"
   ]
 }
