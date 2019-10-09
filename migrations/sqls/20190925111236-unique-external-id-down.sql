@@ -42,3 +42,9 @@ ALTER TABLE "crm_v2"."addresses"
 
 ALTER TABLE "crm_v2"."addresses"
   ALTER COLUMN town SET NOT NULL;
+
+ALTER TABLE "crm_v2"."document_roles"
+  DROP CONSTRAINT document_billing_role;
+
+ALTER TABLE "crm_v2"."document_roles"
+  ADD CONSTRAINT document_billing_role UNIQUE(document_id, company_id, contact_id, address_id, role_id);
