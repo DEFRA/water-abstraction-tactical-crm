@@ -19,7 +19,7 @@ const getDocument = async (request, h) => {
   ]);
 
   if (!doc) {
-    return Boom.notFound(`Document ${documentId} not found`);
+    throw Boom.notFound(`Document ${documentId} not found`);
   }
 
   // Map data
