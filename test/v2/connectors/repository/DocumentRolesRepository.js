@@ -1,7 +1,7 @@
 const { experiment, test, beforeEach, afterEach } = exports.lab = require('@hapi/lab').script();
 const { expect } = require('@hapi/code');
 const sandbox = require('sinon').createSandbox();
-const { pool } = require('../../../../src/lib/connectors/db');
+const { pool } = require('../../../../src/v2/connectors/db');
 
 const queries = require('../../../../src/v2/connectors/repository/queries/document-roles');
 const DocumentRolesRepository = require('../../../../src/v2/connectors/repository/DocumentRolesRepository');
