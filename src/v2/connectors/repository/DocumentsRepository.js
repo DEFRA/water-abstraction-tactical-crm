@@ -1,4 +1,5 @@
-const { pool } = require('../../../lib/connectors/db');
+const { pool } = require('../db');
+
 const queries = require('./queries/documents');
 
 class DocumentsRepository {
