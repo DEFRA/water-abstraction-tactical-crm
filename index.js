@@ -68,6 +68,7 @@ async function init () {
 
   // load routes
   server.route(require('./src/routes/crm'));
+  server.route(require('./src/v2/routes'));
 
   if (!module.parent) {
     await server.start();

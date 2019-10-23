@@ -1,4 +1,5 @@
 const testMode = parseInt(process.env.TEST_MODE) === 1;
+const isAcceptanceTestTarget = ['local', 'dev', 'development', 'test', 'preprod'].includes(process.env.NODE_ENV);
 
 module.exports = {
   version: '1.0',
@@ -32,5 +33,7 @@ module.exports = {
     max: 6,
     idleTimeoutMillis: 30000,
     connectionTimeoutMillis: 2000
-  }
+  },
+
+  isAcceptanceTestTarget
 };
