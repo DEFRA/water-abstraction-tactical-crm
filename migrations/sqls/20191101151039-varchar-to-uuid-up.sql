@@ -1,34 +1,34 @@
 -----------------------------------
 -- remove the foreign keys to start
 -----------------------------------
-alter table if exists crm_v2.company_addresses
-  drop constraint company_addresses_company_id_fkey,
-  drop constraint company_addresses_address_id_fkey,
-  drop constraint company_addresses_role_id_fkey;
+do
+$$
+declare r record;
+begin
+  for r in
 
-alter table if exists crm_v2.company_contacts
-  drop constraint company_contacts_company_id_fkey,
-  drop constraint company_contacts_contact_id_fkey,
-  drop constraint company_contacts_role_id_fkey;
+  select n.nspname as schema_name,
+    t.relname as table_name,
+    c.conname as constraint_name
+  from pg_constraint c
+    join pg_class t on c.conrelid = t.oid
+    join pg_namespace n on t.relnamespace = n.oid
+  where t.relname in (
+      'company_addresses',
+      'company_contacts',
+      'document_roles',
+      'invoice_account_addresses',
+      'invoice_accounts',
+      'phone_numbers'
+    )
+    and n.nspname = 'crm_v2'
+    and c.contype = 'f'
 
-alter table if exists crm_v2.document_roles
-  drop constraint document_roles_document_id_fkey,
-  drop constraint document_roles_company_id_fkey,
-  drop constraint document_roles_contact_id_fkey,
-  drop constraint document_roles_address_id_fkey,
-  drop constraint document_roles_role_id_fkey,
-  drop constraint document_roles_invoice_account_id_fkey;
-
-alter table if exists crm_v2.invoice_account_addresses
-  drop constraint invoice_account_addresses_invoice_account_id_fkey,
-  drop constraint invoice_account_addresses_address_id_fkey;
-
-alter table if exists crm_v2.invoice_accounts
-  drop constraint invoice_accounts_company_id_fkey;
-
-alter table if exists crm_v2.phone_numbers
-  drop constraint phone_numbers_contact_id_fkey;
-
+  loop
+    execute 'alter table crm_v2.' || quote_ident(r.table_name)|| ' drop constraint '|| quote_ident(r.constraint_name) || ';';
+  end loop;
+end
+$$;
 
 ---------------------------
 -- update the types to uuid
