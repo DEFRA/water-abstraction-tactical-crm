@@ -65,7 +65,7 @@ experiment('v2/modules/documents/lib/mappers', () => {
       postcode: 'AB1 2CD',
       country: 'UK',
       invoice_account_id: 'invoice_account_1',
-      ias_account_number: 'A12345'
+      invoice_account_number: 'A12345'
     };
 
     let result;
@@ -131,7 +131,7 @@ experiment('v2/modules/documents/lib/mappers', () => {
     test('invoice account is mapped correctly', async () => {
       expect(result.invoiceAccount).to.equal({
         invoiceAccountId: 'invoice_account_1',
-        iasAccountNumber: 'A12345'
+        invoiceAccountNumber: 'A12345'
       });
     });
   });
