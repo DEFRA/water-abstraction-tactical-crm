@@ -62,7 +62,7 @@ async function getEntityFilter (mode, value, roles = null) {
   }
   if (mode === 'individual') {
     // individual entity ID
-    query = `SELECT * FROM crm.entity_roles r WHERE entity_id=$1`;
+    query = 'SELECT * FROM crm.entity_roles r WHERE entity_id=$1';
   }
   if (roles) {
     const roleStr = roles.map((role, i) => (`$${params.length + i + 1}`)).join(',');

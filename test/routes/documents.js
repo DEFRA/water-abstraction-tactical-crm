@@ -5,7 +5,8 @@ const { cloneDeep } = require('lodash');
 const {
   beforeEach,
   experiment,
-  test } = exports.lab = require('@hapi/lab').script();
+  test
+} = exports.lab = require('@hapi/lab').script();
 
 const routes = require('../../src/routes/documents');
 

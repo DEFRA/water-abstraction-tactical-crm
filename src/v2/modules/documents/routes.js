@@ -3,7 +3,7 @@ const controller = require('./controller');
 
 exports.getDocument = {
   method: 'GET',
-  path: `/crm/2.0/documents/{documentId}`,
+  path: '/crm/2.0/documents/{documentId}',
   handler: controller.getDocument,
   options: {
     description: 'Get document with roles',
@@ -17,7 +17,7 @@ exports.getDocument = {
 
 exports.getDocuments = {
   method: 'GET',
-  path: `/crm/2.0/documents`,
+  path: '/crm/2.0/documents',
   handler: controller.getDocuments,
   options: {
     description: 'Get all documents for a licence number',

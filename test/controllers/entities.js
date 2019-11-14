@@ -40,8 +40,8 @@ experiment('getEntityCompanies', () => {
   let companyOne;
   let companyTwo;
   let userEntity;
-  let roles = [];
   let request;
+  const roles = [];
 
   beforeEach(async () => {
     regime = await helpers.createEntity('regime');
