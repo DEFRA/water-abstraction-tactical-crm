@@ -19,7 +19,7 @@ const server = new Hapi.Server(config.server);
 function validateJWT (decoded, request, h) {
   request.log('debug', `validate JWT at ${request.path} with payload:`);
   request.log('debug', request.payload);
-  request.log('debug', `decodes as: `);
+  request.log('debug', 'decodes as: ');
   request.log('debug', decoded);
 
   const isValid = !!decoded.id;

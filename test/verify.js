@@ -71,7 +71,7 @@ lab.experiment('Check verification', () => {
 
     const request = {
       method: 'POST',
-      url: `/crm/1.0/verification`,
+      url: '/crm/1.0/verification',
       headers: {
         Authorization: process.env.JWT_TOKEN
       },
@@ -140,7 +140,7 @@ lab.experiment('Check verification', () => {
   lab.test('The API should update documents to verified by assigning the company id', async () => {
     const request = {
       method: 'PATCH',
-      url: `/crm/1.0/documentHeader?filter=` + JSON.stringify({ verification_id: verificationId }),
+      url: '/crm/1.0/documentHeader?filter=' + JSON.stringify({ verification_id: verificationId }),
       headers: {
         Authorization: process.env.JWT_TOKEN
       },
