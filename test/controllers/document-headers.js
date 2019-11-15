@@ -176,17 +176,17 @@ experiment('getSearchFilter', () => {
     expect(result).to.equal([
       {
         system_external_id: {
-          $ilike: `%Test%`
+          $ilike: '%Test%'
         }
       },
       {
         document_name: {
-          $ilike: `%Test%`
+          $ilike: '%Test%'
         }
       },
       {
         'metadata->>Name': {
-          $ilike: `%Test%`
+          $ilike: '%Test%'
         }
       }
     ]);
