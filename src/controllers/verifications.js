@@ -20,8 +20,7 @@ const verificationsApi = new HAPIRestAPI({
     method: Joi.string()
   },
   preInsert: (data) => {
-    return Object.assign({
-      verification_code: createShortCode() }, data);
+    return Object.assign({ verification_code: createShortCode() }, data);
   }
 });
 
