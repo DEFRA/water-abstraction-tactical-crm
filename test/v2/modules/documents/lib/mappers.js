@@ -2,10 +2,10 @@ const { experiment, test, beforeEach } = exports.lab = require('@hapi/lab').scri
 const { expect } = require('@hapi/code');
 const mappers = require('../../../../../src/v2/modules/documents/lib/mappers');
 
-const createRow = roleName => ({
+const createRow = (options = {}) => Object.assign({}, {
   document_role_id: 'role_1',
   role_id: 'role_id_1',
-  role_name: roleName || 'role_name',
+  role_name: 'role_name',
   start_date: '2019-01-01',
   end_date: '2019-12-31',
   company_id: 'company_1',
@@ -25,11 +25,34 @@ const createRow = roleName => ({
   county: 'Testingshire',
   postcode: 'AB1 2CD',
   country: 'UK',
-  invoice_account_id: 'invoice_account_1',
-  invoice_account_number: 'A12345',
-  invoice_company_id: 'invoice_company_1',
-  invoice_company_name: 'Big Co 2',
-  invoice_company_number: '33434343'
+  invoice_account_id: null,
+  invoice_account_number: null,
+  invoice_company_id: null,
+  invoice_company_name: null,
+  invoice_company_number: null
+}, options);
+
+const createBillingRow = (options = {}) => Object.assign({},
+  createRow({
+    role_name: 'billing',
+    invoice_account_id: 'invoice_account_1',
+    invoice_account_number: 'A12345',
+    invoice_company_id: 'invoice_company_1',
+    invoice_company_name: 'Big Co 2',
+    invoice_company_number: '33434343',
+    invoice_account_address_id: null
+  }), options);
+
+const createBillingRowWithInvoiceAddress = () => createBillingRow({
+  invoice_account_address_id: 'address_2',
+  invoice_account_address_1: 'Bluebell cottage',
+  invoice_account_address_2: 'Babbling brook',
+  invoice_account_address_3: 'Oak lane',
+  invoice_account_address_4: null,
+  invoice_account_town: 'Little testington',
+  invoice_account_county: 'Testingshire',
+  invoice_account_postcode: 'EF1 GH1',
+  invoice_account_country: 'England'
 });
 
 experiment('v2/modules/documents/lib/mappers', () => {
@@ -134,16 +157,13 @@ experiment('v2/modules/documents/lib/mappers', () => {
       });
 
       test('invoice account is mapped correctly', async () => {
-        expect(result.invoiceAccount).to.equal({
-          invoiceAccountId: 'invoice_account_1',
-          invoiceAccountNumber: 'A12345'
-        });
+        expect(result.invoiceAccount).to.equal(null);
       });
     });
 
-    experiment('for a billing role', () => {
+    experiment('for a billing role without an invoice account address', () => {
       beforeEach(async () => {
-        row = createRow('billing');
+        row = createBillingRow();
         result = mappers.mapDocumentRole(row);
       });
 
@@ -151,6 +171,37 @@ experiment('v2/modules/documents/lib/mappers', () => {
         expect(result.company.companyId).to.equal(row.invoice_company_id);
         expect(result.company.name).to.equal(row.invoice_company_name);
         expect(result.company.companyNumber).to.equal(row.invoice_company_number);
+      });
+
+      test('the address is null', async () => {
+        expect(result.address).to.equal(null);
+      });
+    });
+
+    experiment('for a billing role with an invoice account address', () => {
+      beforeEach(async () => {
+        row = createBillingRowWithInvoiceAddress();
+        result = mappers.mapDocumentRole(row);
+      });
+
+      test('the company is the invoice account company', async () => {
+        expect(result.company.companyId).to.equal(row.invoice_company_id);
+        expect(result.company.name).to.equal(row.invoice_company_name);
+        expect(result.company.companyNumber).to.equal(row.invoice_company_number);
+      });
+
+      test('the address is the invoice account address', async () => {
+        expect(result.address).to.equal({
+          addressId: 'address_2',
+          address1: 'Bluebell cottage',
+          address2: 'Babbling brook',
+          address3: 'Oak lane',
+          address4: null,
+          town: 'Little testington',
+          county: 'Testingshire',
+          postcode: 'EF1 GH1',
+          country: 'England'
+        });
       });
     });
   });
