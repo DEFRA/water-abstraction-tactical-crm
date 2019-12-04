@@ -6,7 +6,7 @@ ALTER TABLE crm_v2.companies DROP COLUMN ias_account_number;
  * Customers get 1 invoice per invoice account
  */
 CREATE TABLE IF NOT EXISTS "crm_v2"."invoice_accounts" (
-  "invoice_account_id" varchar NOT NULL DEFAULT gen_random_uuid(),
+  "invoice_account_id" varchar NOT NULL DEFAULT public.gen_random_uuid(),
   "company_id" varchar NOT NULL,
   "ias_account_number" varchar NOT NULL,
   "start_date" date NOT NULL,
@@ -23,7 +23,7 @@ CREATE TABLE IF NOT EXISTS "crm_v2"."invoice_accounts" (
  * time range
  */
 CREATE TABLE IF NOT EXISTS "crm_v2"."invoice_account_addresses" (
-  "invoice_account_address_id" varchar NOT NULL DEFAULT gen_random_uuid(),
+  "invoice_account_address_id" varchar NOT NULL DEFAULT public.gen_random_uuid(),
   "invoice_account_id" varchar NOT NULL,
   "address_id" varchar NOT NULL,
   "start_date" date NOT NULL,

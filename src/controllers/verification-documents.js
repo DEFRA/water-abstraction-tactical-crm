@@ -12,7 +12,7 @@ async function postVerificationDocuments (request, h) {
   const { id } = request.params;
   const { document_id: documentId } = request.payload;
 
-  let query = `INSERT INTO crm.verification_documents (verification_id, document_id) VALUES `;
+  let query = 'INSERT INTO crm.verification_documents (verification_id, document_id) VALUES ';
   const rows = [];
   const params = [id];
   documentId.forEach((docId) => {
@@ -39,7 +39,7 @@ async function postVerificationDocuments (request, h) {
  */
 async function getVerificationDocuments (request, h) {
   const { id } = request.params;
-  const query = `SELECT * FROM crm.verification_documents WHERE verification_id=$1`;
+  const query = 'SELECT * FROM crm.verification_documents WHERE verification_id=$1';
   const params = [id];
   try {
     const { rows: data } = await pool.query(query, params);
