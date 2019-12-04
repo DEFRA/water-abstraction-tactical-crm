@@ -30,7 +30,7 @@ class SqlConditionBuilder {
     } else if (isArray(value)) {
       // For empty array
       if (value.length === 0) {
-        this.sqlFragments.push(` AND 0=1 `);
+        this.sqlFragments.push(' AND 0=1 ');
         return this;
       }
       const bind = Array.from(Array(value.length), (e, i) => '$' + (1 + i + this.params.length));
