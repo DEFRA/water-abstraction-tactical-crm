@@ -16,6 +16,7 @@ const createRow = (options = {}) => Object.assign({}, {
   first_name: 'John',
   middle_names: 'A',
   last_name: 'Doe',
+  initials: 'J K',
   address_id: 'address_1',
   address_1: 'Daisy cottage',
   address_2: 'Buttercup lane',
@@ -137,6 +138,7 @@ experiment('v2/modules/documents/lib/mappers', () => {
           contactId: 'contact_1',
           salutation: 'Dr',
           firstName: 'John',
+          initials: 'J K',
           lastName: 'Doe',
           middleNames: 'A'
         });
