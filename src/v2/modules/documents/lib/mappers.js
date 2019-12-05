@@ -53,7 +53,7 @@ const mapAddress = row => {
 const mapDocumentRole = row => ({
   ...mapEntity(row, ['document_role_id', 'role_id', 'role_name', 'start_date', 'end_date']),
   company: mapCompany(row),
-  contact: mapEntity(row, ['contact_id', 'salutation', 'first_name', 'last_name', 'middle_names']),
+  contact: mapEntity(row, ['contact_id', 'salutation', 'first_name', 'last_name', 'middle_names', 'initials']),
   address: mapAddress(row),
   invoiceAccount: mapEntity(row, ['invoice_account_id', 'invoice_account_number'])
 });
