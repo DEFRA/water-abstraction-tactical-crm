@@ -152,8 +152,7 @@ function getNaldContacts (row) {
  */
 function mapRowsToEntities (rows) {
   const licences = rows.reduce((acc, row) => {
-    const {
-      system_external_id: systemExternalId, entity_id: entityId } = row;
+    const { system_external_id: systemExternalId, entity_id: entityId } = row;
 
     // Add licence holder to list
     if (!Object.keys(acc).includes(systemExternalId)) {
