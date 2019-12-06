@@ -5,7 +5,7 @@ const { logger } = require('../../logger');
 
 // Output date fields in format YYYY-MM-DD
 const DATE_FORMAT = 'YYYY-MM-DD';
-pg.types.setTypeParser(1082, str => moment(str).format(DATE_FORMAT));
+pg.types.setTypeParser(pg.types.builtins.DATE, str => moment(str).format(DATE_FORMAT));
 
 const pool = new pg.Pool(config.pg);
 
