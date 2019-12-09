@@ -57,20 +57,6 @@ const createBillingRowWithInvoiceAddress = () => createBillingRow({
 });
 
 experiment('v2/modules/documents/lib/mappers', () => {
-  experiment('camelCaseKeys', () => {
-    test('converts object keys to camel case', async () => {
-      const obj = {
-        snake_case: 'foo',
-        camelCase: 'bar'
-      };
-      const result = mappers.camelCaseKeys(obj);
-      expect(result).to.equal({
-        snakeCase: 'foo',
-        camelCase: 'bar'
-      });
-    });
-  });
-
   experiment('mapEntity', () => {
     const obj = {
       id: 1,
