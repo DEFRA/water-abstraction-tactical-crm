@@ -1,15 +1,13 @@
-const { pool } = require('../../../lib/connectors/db');
 const queries = require('./queries/documents');
+const Repository = require('./Repository');
 
-class DocumentsRepository {
+class DocumentsRepository extends Repository {
   /**
    * Find a single document record by its GUID
    * @param {String} documentId - GUID
    */
   async findOneById (documentId) {
-    const params = [documentId];
-    const { rows: [row] } = await pool.query(queries.findOneById, params);
-    return row;
+    return this.findOne(queries.findOneById, [documentId]);
   }
 
   /**
@@ -20,8 +18,7 @@ class DocumentsRepository {
    */
   async findByDocumentRef (regime, documentType, documentRef) {
     const params = [regime, documentType, documentRef];
-    const { rows } = await pool.query(queries.findByDocumentRef, params);
-    return rows;
+    return this.findMany(queries.findByDocumentRef, params);
   }
 }
 

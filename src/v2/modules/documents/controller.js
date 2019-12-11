@@ -1,12 +1,12 @@
 const Boom = require('@hapi/boom');
-
+const camelCaseKeys = require('../../../lib/camel-case-keys');
 const repositories = require('../../connectors/repository');
 const mappers = require('./lib/mappers');
 
 const getDocuments = async (request) => {
   const { regime, documentType, documentRef } = request.query;
   const data = await repositories.documents.findByDocumentRef(regime, documentType, documentRef);
-  return data.map(mappers.camelCaseKeys);
+  return data.map(camelCaseKeys);
 };
 
 const getDocument = async (request, h) => {
@@ -24,7 +24,7 @@ const getDocument = async (request, h) => {
 
   // Map data
   return {
-    ...mappers.camelCaseKeys(doc),
+    ...camelCaseKeys(doc),
     documentRoles: roles.map(mappers.mapDocumentRole)
   };
 };
