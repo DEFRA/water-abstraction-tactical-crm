@@ -5,6 +5,7 @@
     "node_modules",
     "test",
     "src/lib/logger/vendor/",
-    "src/routes"
+    "src/routes",
+    "src/v2/modules/*/routes.js"
   ]
 }
