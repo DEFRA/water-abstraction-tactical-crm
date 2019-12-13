@@ -1,8 +1,13 @@
-const { Pool } = require('pg');
+const pg = require('pg');
+const moment = require('moment');
 const config = require('../../../config');
 const { logger } = require('../../logger');
 
-const pool = new Pool(config.pg);
+// Output date fields in format YYYY-MM-DD
+const DATE_FORMAT = 'YYYY-MM-DD';
+pg.types.setTypeParser(pg.types.builtins.DATE, str => moment(str).format(DATE_FORMAT));
+
+const pool = new pg.Pool(config.pg);
 
 pool.on('acquire', () => {
   const { totalCount, idleCount, waitingCount } = pool;

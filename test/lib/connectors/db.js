@@ -27,4 +27,10 @@ experiment('result object', () => {
     expect(res.data).to.be.null();
     expect(res.error).not.to.be.null();
   });
+
+  test('returns dates in format YYYY-MM-DD', async () => {
+    const query = "select date '2001-10-01'";
+    const { rows } = await db.pool.query(query);
+    expect(rows[0].date).to.equal('2001-10-01');
+  });
 });
