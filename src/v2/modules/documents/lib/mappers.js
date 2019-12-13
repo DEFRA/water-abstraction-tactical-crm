@@ -1,7 +1,5 @@
-const { mapKeys, pick } = require('lodash');
-const camelCase = require('camelcase');
-
-const camelCaseKeys = obj => mapKeys(obj, (value, key) => camelCase(key));
+const { mapKeys, pick, camelCase } = require('lodash');
+const camelCaseKeys = require('../../../../lib/camel-case-keys');
 
 const stripPrefix = (str, prefix) => camelCase(str.replace(prefix, ''));
 const stripKeyPrefix = (obj, prefix) =>
@@ -58,6 +56,5 @@ const mapDocumentRole = row => ({
   invoiceAccount: mapEntity(row, ['invoice_account_id', 'invoice_account_number'])
 });
 
-exports.camelCaseKeys = camelCaseKeys;
 exports.mapEntity = mapEntity;
 exports.mapDocumentRole = mapDocumentRole;
