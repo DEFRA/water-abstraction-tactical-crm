@@ -13,7 +13,7 @@ const repositories = require('../../../../src/v2/connectors/repository');
 
 experiment('v2/modules/companies/controller', () => {
   beforeEach(async () => {
-    sandbox.stub(repositories.companies, 'findByInvoiceAccountIds').resolves([]);
+    sandbox.stub(repositories.companies, 'findByInvoiceAccountNumbers').resolves([]);
   });
 
   afterEach(async () => {
@@ -24,25 +24,31 @@ experiment('v2/modules/companies/controller', () => {
     test('passes the query ids to the repository as an array', async () => {
       const request = {
         query: {
-          invoiceAccountIds: '00000000-0000-0000-0000-000000000000,11111111-0000-0000-0000-000000000000'
+          invoiceAccountNumber: [
+            'A00000000A',
+            'A11111111A'
+          ]
         }
       };
 
       await controller.getCompanies(request);
-      const [invoiceAccountIds] = repositories.companies.findByInvoiceAccountIds.lastCall.args;
-      expect(invoiceAccountIds).to.equal([
-        '00000000-0000-0000-0000-000000000000',
-        '11111111-0000-0000-0000-000000000000'
+      const [invoiceAccountNumbers] = repositories.companies.findByInvoiceAccountNumbers.lastCall.args;
+      expect(invoiceAccountNumbers).to.equal([
+        'A00000000A',
+        'A11111111A'
       ]);
     });
 
     experiment('when no companies are found', () => {
       test('an empty array is returned', async () => {
-        repositories.companies.findByInvoiceAccountIds.resolves([]);
+        repositories.companies.findByInvoiceAccountNumbers.resolves([]);
 
         const request = {
           query: {
-            invoiceAccountIds: '00000000-0000-0000-0000-000000000000,11111111-0000-0000-0000-000000000000'
+            invoiceAccountNumber: [
+              'A00000000A',
+              'A11111111A'
+            ]
           }
         };
 
@@ -54,14 +60,17 @@ experiment('v2/modules/companies/controller', () => {
 
     experiment('when companies are found', () => {
       test('the objects have their keys camel cased', async () => {
-        repositories.companies.findByInvoiceAccountIds.resolves([
+        repositories.companies.findByInvoiceAccountNumbers.resolves([
           { company_id: '00000000-0000-0000-0000-000000000000' },
           { company_id: '00000000-0000-0000-0000-000000000001' }
         ]);
 
         const request = {
           query: {
-            invoiceAccountIds: '00000000-0000-0000-0000-000000000000,11111111-0000-0000-0000-000000000000'
+            invoiceAccountNumber: [
+              'A00000000A',
+              'A11111111A'
+            ]
           }
         };
 

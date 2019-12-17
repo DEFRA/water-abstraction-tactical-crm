@@ -9,8 +9,8 @@ const getContact = async request => {
 };
 
 const getContacts = async request => {
-  const { ids } = request.query;
-  const rows = await repositories.contacts.findManyById(ids.split(','));
+  const { id: ids } = request.query;
+  const rows = await repositories.contacts.findManyById(ids);
   return rows.map(camelCaseKeys);
 };
 

@@ -8,7 +8,7 @@ exports.getCompanies = {
   options: {
     validate: {
       query: {
-        invoiceAccountIds: Joi.string()
+        invoiceAccountNumber: Joi.array().single().items(Joi.string())
       }
     }
   }

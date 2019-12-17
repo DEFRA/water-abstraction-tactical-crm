@@ -21,7 +21,7 @@ experiment('v2/connectors/repository/CompaniesRepository', () => {
     sandbox.restore();
   });
 
-  experiment('.findByInvoiceAccountIds', () => {
+  experiment('.findByInvoiceAccountNumbers', () => {
     let result;
 
     beforeEach(async () => {
@@ -33,23 +33,23 @@ experiment('v2/connectors/repository/CompaniesRepository', () => {
       });
 
       const repo = new CompaniesRepository();
-      result = await repo.findByInvoiceAccountIds([
-        'test-invoice-account-id-1',
-        'test-invoice-account-id-2'
+      result = await repo.findByInvoiceAccountNumbers([
+        '1TESTTEST1',
+        '2TESTTEST2'
       ]);
     });
 
     test('uses the expected query', async () => {
       const [query] = db.pool.query.lastCall.args;
-      expect(query).to.equal(queries.findByInvoiceAccountIds);
+      expect(query).to.equal(queries.findByInvoiceAccountNumbers);
     });
 
-    test('passes the invoice account ids as the query params', async () => {
+    test('passes the invoice account numbers as the query params', async () => {
       const [, params] = db.pool.query.lastCall.args;
       expect(params).to.equal([
         [
-          'test-invoice-account-id-1',
-          'test-invoice-account-id-2'
+          '1TESTTEST1',
+          '2TESTTEST2'
         ]
       ]);
     });

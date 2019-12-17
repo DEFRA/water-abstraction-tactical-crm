@@ -3,11 +3,11 @@ const Repository = require('./Repository');
 
 class CompaniesRepository extends Repository {
   /**
-   * Find all companies for the given invoice account ids
-   * @param {Array<String>} invoiceAccountId - Array of ids to search for
+   * Find all companies for the given invoice account numbers
+   * @param {Array<String>} invoiceAccountNumber - Array of account number strings to search for
    */
-  findByInvoiceAccountIds (invoiceAccountIds) {
-    return this.findMany(queries.findByInvoiceAccountIds, [invoiceAccountIds]);
+  findByInvoiceAccountNumbers (invoiceAccountNumbers) {
+    return this.findMany(queries.findByInvoiceAccountNumbers, [invoiceAccountNumbers]);
   }
 }
 

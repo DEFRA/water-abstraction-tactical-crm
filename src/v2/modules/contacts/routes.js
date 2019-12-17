@@ -23,7 +23,7 @@ exports.getDocuments = {
     description: 'Get a list of contacts by id',
     validate: {
       query: {
-        ids: Joi.string().required()
+        id: Joi.array().single().items(Joi.string().guid())
       }
     }
   }

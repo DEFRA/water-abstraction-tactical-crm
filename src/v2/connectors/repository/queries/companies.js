@@ -1,4 +1,4 @@
-exports.findByInvoiceAccountIds = `
+exports.findByInvoiceAccountNumbers = `
   select
     c.company_id,
     c.name,
@@ -10,5 +10,5 @@ exports.findByInvoiceAccountIds = `
   from crm_v2.companies c
     inner join crm_v2.invoice_accounts ia
       on c.company_id = ia.company_id
-  where ia.invoice_account_id = any ($1);
+  where ia.invoice_account_number = any ($1);
 `;
