@@ -1,4 +1,4 @@
-const { pool, query } = require('../lib/connectors/db');
+const { pool } = require('../lib/connectors/db');
 const mongoSql = require('mongo-sql');
 const { logger } = require('../logger');
 
@@ -304,7 +304,7 @@ const getDocumentsForContact = async (request, h) => {
     where de.entity_id = $1;`;
 
   try {
-    const documents = await query(sql, [entityId]);
+    const { rows: documents } = await pool.query(sql, [entityId]);
     return documents;
   } catch (error) {
     logger.error('getDocumentsForContact error', error);

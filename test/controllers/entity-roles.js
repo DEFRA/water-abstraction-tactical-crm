@@ -5,7 +5,7 @@ const { version } = require('../../config');
 const uuid = require('uuid/v4');
 const Lab = require('@hapi/lab');
 const lab = exports.lab = Lab.script();
-const DB = require('../../src/lib/connectors/db');
+const { pool } = require('../../src/lib/connectors/db');
 
 const { expect } = require('@hapi/code');
 
@@ -25,7 +25,7 @@ const deleteEntityRoles = async () => {
     from crm.entity_roles
     where role = 'unit_test_user';`;
 
-  await DB.query(query);
+  await pool.query(query);
 };
 
 lab.experiment('entity-roles controller', () => {

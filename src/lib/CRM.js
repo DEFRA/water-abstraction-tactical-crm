@@ -4,9 +4,8 @@
  */
 const Boom = require('@hapi/boom');
 const uuidv4 = require('uuid/v4');
-const DB = require('./connectors/db');
-const entityRoleApi = require('../controllers/entity-roles');
 const { pool } = require('./connectors/db');
+const entityRoleApi = require('../controllers/entity-roles');
 const { logger } = require('../logger');
 
 function setDocumentOwner (request, h) {
@@ -25,7 +24,7 @@ function setDocumentOwner (request, h) {
   request.log('info', query);
   request.log('info', queryParams);
 
-  return DB.query(query, queryParams)
+  return pool.query(query, queryParams)
     .then((res) => {
       return {
         error: res.error,
@@ -82,7 +81,7 @@ and
     query += ' order by ' + request.query.sort + ' desc';
   }
 
-  return DB.query(query, queryParams)
+  return pool.query(query, queryParams)
     .then((res) => {
       return res.data;
     }).catch((err) => {
