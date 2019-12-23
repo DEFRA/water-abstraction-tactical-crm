@@ -78,10 +78,19 @@ async function init () {
   }
 }
 
-process.on('unhandledRejection', err => {
-  logger.error(err);
+const processError = message => err => {
+  logger.error(message, err);
   process.exit(1);
-});
+};
+
+process
+  .on('unhandledRejection', processError('unhandledRejection'))
+  .on('uncaughtException', processError('uncaughtException'))
+  .on('SIGINT', async () => {
+    server.log('info', 'stopping crm service');
+    await server.stop();
+    return process.exit(0);
+  });
 
 init();
 
