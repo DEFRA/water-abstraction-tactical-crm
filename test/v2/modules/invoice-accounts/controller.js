@@ -43,6 +43,7 @@ experiment('v2/modules/invoice-accounts/controller', () => {
     ];
 
     sandbox.stub(repos.invoiceAccounts, 'findManyByIds').resolves(repositoryResponse);
+    sandbox.stub(repos.invoiceAccounts, 'findOneById').resolves(repositoryResponse[0]);
   });
 
   afterEach(async () => {
@@ -84,6 +85,46 @@ experiment('v2/modules/invoice-accounts/controller', () => {
 
     test('incluces the company as a nested object', async () => {
       const company = response[0].company;
+
+      expect(company.companyId).to.equal(repositoryResponse[0]['company.company_id']);
+      expect(company.name).to.equal(repositoryResponse[0]['company.name']);
+      expect(company.type).to.equal(repositoryResponse[0]['company.type']);
+      expect(company.companyNumber).to.equal(repositoryResponse[0]['company.company_number']);
+      expect(company.externalId).to.equal(repositoryResponse[0]['company.external_id']);
+      expect(company.dateCreated).to.equal(repositoryResponse[0]['company.date_created']);
+      expect(company.dateUpdated).to.equal(repositoryResponse[0]['company.date_updated']);
+    });
+  });
+
+  experiment('.getInvoiceAccount', () => {
+    let request;
+    let response;
+
+    beforeEach(async () => {
+      request = {
+        params: {
+          invoiceAccountId: 'ia-1'
+        }
+      };
+      response = await controller.getInvoiceAccount(request);
+    });
+
+    test('calls repository method with correct arguments', async () => {
+      expect(repos.invoiceAccounts.findOneById.calledWith('ia-1')).to.be.true();
+    });
+
+    test('has the expected invoice account data', async () => {
+      const invoiceAccount = response;
+      expect(invoiceAccount.invoiceAccountId).to.equal(repositoryResponse[0]['invoice_account.invoice_account_id']);
+      expect(invoiceAccount.invoiceAccountNumber).to.equal(repositoryResponse[0]['invoice_account.invoice_account_number']);
+      expect(invoiceAccount.startDate).to.equal(repositoryResponse[0]['invoice_account.start_date']);
+      expect(invoiceAccount.endDate).to.equal(repositoryResponse[0]['invoice_account.end_date']);
+      expect(invoiceAccount.dateCreated).to.equal(repositoryResponse[0]['invoice_account.date_created']);
+      expect(invoiceAccount.dateUpdated).to.equal(repositoryResponse[0]['invoice_account.date_updated']);
+    });
+
+    test('incluces the company as a nested object', async () => {
+      const company = response.company;
 
       expect(company.companyId).to.equal(repositoryResponse[0]['company.company_id']);
       expect(company.name).to.equal(repositoryResponse[0]['company.name']);
