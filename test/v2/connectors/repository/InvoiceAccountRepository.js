@@ -51,4 +51,35 @@ experiment('v2/connectors/repository/InvoiceAccountsRepository', () => {
       ]);
     });
   });
+
+  experiment('.findOneById', () => {
+    let result;
+
+    beforeEach(async () => {
+      db.pool.query.resolves({
+        rows: [
+          { invoice_account_id: 'test-id' }
+        ]
+      });
+
+      const repo = new InvoiceAccountsRepository();
+      result = await repo.findOneById('test-id');
+    });
+
+    test('uses the expected query', async () => {
+      const [query] = db.pool.query.lastCall.args;
+      expect(query).to.equal(queries.findOneById);
+    });
+
+    test('passes the invoice account id as the query params', async () => {
+      const [, params] = db.pool.query.lastCall.args;
+      expect(params).to.equal(['test-id']);
+    });
+
+    test('returns the row returned from the database', async () => {
+      expect(result).to.equal(
+        { invoice_account_id: 'test-id' }
+      );
+    });
+  });
 });

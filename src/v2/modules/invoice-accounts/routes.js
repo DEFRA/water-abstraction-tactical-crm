@@ -1,6 +1,20 @@
 const Joi = require('@hapi/joi');
 const controller = require('./controller');
 
+exports.getInvoiceAccount = {
+  method: 'GET',
+  path: '/crm/2.0/invoice-accounts/{invoiceAccountId}',
+  handler: controller.getInvoiceAccount,
+  options: {
+    description: 'Get an invoice account by id',
+    validate: {
+      params: {
+        invoiceAccountId: Joi.string().guid().required()
+      }
+    }
+  }
+};
+
 exports.getInvoiceAccounts = {
   method: 'GET',
   path: '/crm/2.0/invoice-accounts',
