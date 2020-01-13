@@ -1,4 +1,4 @@
-exports.findManyByIds = `
+const findWithoutWhereClause = `
   select
     ia.invoice_account_id as "invoice_account.invoice_account_id",
     ia.invoice_account_number as "invoice_account.invoice_account_number",
@@ -16,5 +16,14 @@ exports.findManyByIds = `
   from crm_v2.invoice_accounts ia
     join crm_v2.companies c
       on ia.company_id = c.company_id
+`;
+
+exports.findManyByIds = `
+  ${findWithoutWhereClause}
   where ia.invoice_account_id = any($1);
+`;
+
+exports.findOneById = `
+  ${findWithoutWhereClause}
+  where ia.invoice_account_id = $1;
 `;
