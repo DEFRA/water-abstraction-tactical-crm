@@ -83,7 +83,7 @@ and
 
   return pool.query(query, queryParams)
     .then((res) => {
-      return res.data;
+      return res.rows;
     }).catch((err) => {
       logger.error('getColleagues error', err);
       return h.response(err);
