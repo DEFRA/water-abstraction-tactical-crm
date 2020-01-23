@@ -11,7 +11,7 @@ const goodWinstonStream = new GoodWinston({ winston: logger });
 const serverPlugins = {
   blipp: require('blipp'),
   hapiAuthJwt2: require('hapi-auth-jwt2'),
-  good: require('good')
+  good: require('@hapi/good')
 };
 
 const server = new Hapi.Server(config.server);
