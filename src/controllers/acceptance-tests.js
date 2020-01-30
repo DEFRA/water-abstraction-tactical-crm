@@ -1,21 +1,21 @@
-const db = require('../lib/connectors/db');
+const { pool } = require('../lib/connectors/db');
 const ACCEPTANCE_TEST_SOURCE = 'acceptance-test-setup';
 const config = require('../../config');
 
 const deleteDocuments = () => {
-  return db.query(`
+  return pool.query(`
     delete from
     crm.document_header
     where metadata->>'dataType' = '${ACCEPTANCE_TEST_SOURCE}';`);
 };
 
-const deleteEntityRoles = () => db.query(`
+const deleteEntityRoles = () => pool.query(`
   delete from
   crm.entity_roles
   where created_by = '${ACCEPTANCE_TEST_SOURCE}';`
 );
 
-const deleteEntities = () => db.query(`
+const deleteEntities = () => pool.query(`
   delete from
   crm.entity
   where source = '${ACCEPTANCE_TEST_SOURCE}';`
