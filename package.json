@@ -57,6 +57,7 @@
     "hapi-auth-cookie": "9.0.0",
     "hapi-auth-jwt2": "8.6.1",
     "jsonwebtoken": "^8.5.1",
+    "kind-of": "^6.0.3",
     "knex": "^0.20.8",
     "lodash": "^4.17.15",
     "moment": "^2.24.0",
