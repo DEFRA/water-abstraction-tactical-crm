@@ -106,22 +106,41 @@ experiment('v2/modules/invoice-accounts/controller', () => {
     let request;
     let response;
 
-    beforeEach(async () => {
-      request = {
-        params: {
-          invoiceAccountId: 'ia-1'
-        }
-      };
-      response = await controller.getInvoiceAccount(request);
+    experiment('when an invoice account is found', () => {
+      beforeEach(async () => {
+        request = {
+          params: {
+            invoiceAccountId: 'ia-1'
+          }
+        };
+        response = await controller.getInvoiceAccount(request);
+      });
+
+      test('calls repository method with correct arguments', async () => {
+        expect(repos.invoiceAccounts.findOne.calledWith('ia-1')).to.be.true();
+      });
+
+      test('has the expected invoice account data', async () => {
+        expect(response).to.be.an.object();
+        expect(response).to.equal(repositoryResponse[0]);
+      });
     });
 
-    test('calls repository method with correct arguments', async () => {
-      expect(repos.invoiceAccounts.findOne.calledWith('ia-1')).to.be.true();
-    });
+    experiment('when an invoice account is not found', () => {
+      beforeEach(async () => {
+        request = {
+          params: {
+            invoiceAccountId: 'ia-1'
+          }
+        };
+        repos.invoiceAccounts.findOne.resolves(null);
+        response = await controller.getInvoiceAccount(request);
+      });
 
-    test('has the expected invoice account data', async () => {
-      expect(response).to.be.an.object();
-      expect(response).to.equal(repositoryResponse[0]);
+      test('returns a Boom 404 error', async () => {
+        expect(response.isBoom).to.be.true();
+        expect(response.output.statusCode).to.equal(404);
+      });
     });
   });
 });
