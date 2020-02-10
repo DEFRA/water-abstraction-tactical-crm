@@ -4,6 +4,7 @@ const {
   beforeEach
 } = exports.lab = require('@hapi/lab').script();
 const { expect } = require('@hapi/code');
+const sandbox = require('sinon').createSandbox();
 
 const InvoiceAccountAddress = require('../../../../src/v2/connectors/bookshelf/InvoiceAccountAddress');
 
@@ -12,6 +13,8 @@ experiment('v2/connectors/bookshelf/InvoiceAccountAddress', () => {
 
   beforeEach(async () => {
     instance = InvoiceAccountAddress.forge();
+    sandbox.stub(instance, 'hasOne');
+    sandbox.stub(instance, 'belongsTo');
   });
 
   test('uses the address table', async () => {
@@ -26,11 +29,37 @@ experiment('v2/connectors/bookshelf/InvoiceAccountAddress', () => {
     expect(instance.hasTimestamps).to.equal(['date_created', 'date_updated']);
   });
 
-  test('defines an address relation', async () => {
-    expect(instance.address).to.be.a.function();
+  experiment('the .address() relation', () => {
+    beforeEach(async () => {
+      instance.address();
+    });
+
+    test('is a function', async () => {
+      expect(instance.address).to.be.a.function();
+    });
+
+    test('calls .hasOne with correct params', async () => {
+      const [model, foreignKey, foreignKeyTarget] = instance.hasOne.lastCall.args;
+      expect(model).to.equal('Address');
+      expect(foreignKey).to.equal('address_id');
+      expect(foreignKeyTarget).to.equal('address_id');
+    });
   });
 
-  test('defines an invoiceAccount relation', async () => {
-    expect(instance.invoiceAccount).to.be.a.function();
+  experiment('the .invoiceAccount() relation', () => {
+    beforeEach(async () => {
+      instance.invoiceAccount();
+    });
+
+    test('is a function', async () => {
+      expect(instance.invoiceAccount).to.be.a.function();
+    });
+
+    test('calls .belongsTo with correct params', async () => {
+      const [model, foreignKey, foreignKeyTarget] = instance.belongsTo.lastCall.args;
+      expect(model).to.equal('InvoiceAccount');
+      expect(foreignKey).to.equal('invoice_account_id');
+      expect(foreignKeyTarget).to.equal('invoice_account_id');
+    });
   });
 });
