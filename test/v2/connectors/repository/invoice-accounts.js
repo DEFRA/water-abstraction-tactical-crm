@@ -108,6 +108,17 @@ experiment('v2/connectors/repository/invoice-account', () => {
         expect(withRelated).to.include('invoiceAccountAddresses.address');
       });
 
+      test('.invoiceAccountAddresses selected are current - when end date is null', async () => {
+        const qbStub = {
+          where: sandbox.stub()
+        };
+        const { invoiceAccountAddresses } = stub.fetch.lastCall.args[0].withRelated[1];
+        invoiceAccountAddresses(qbStub);
+        expect(qbStub.where.calledWith(
+          'end_date', null
+        )).to.be.true();
+      });
+
       test('.toJSON() is called on the collection', async () => {
         expect(model.toJSON.called).to.be.true();
       });
