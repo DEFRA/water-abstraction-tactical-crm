@@ -7,7 +7,7 @@ const { InvoiceAccount } = require('../bookshelf');
  */
 const findOne = async id => {
   const result = await InvoiceAccount
-    .forge({ invoice_account_id: id })
+    .forge({ invoiceAccountId: id })
     .fetch({
       withRelated: [
         'company',
