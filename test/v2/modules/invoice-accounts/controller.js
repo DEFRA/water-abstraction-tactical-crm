@@ -7,43 +7,56 @@ const sandbox = require('sinon').createSandbox();
 const controller = require('../../../../src/v2/modules/invoice-accounts/controller');
 const repos = require('../../../../src/v2/connectors/repository');
 
+const createCompany = () => ({
+  companyId: 'comp-id-1',
+  name: 'comp-1',
+  type: 'organisation',
+  companyNumber: '1111',
+  externalId: '1111',
+  dateCreated: '2019-01-01',
+  dateUpdated: '2019-01-01'
+});
+
+const createAddress = firstLine => ({
+  addressId: 'add-id-1',
+  address1: firstLine,
+  address2: 'Buttercup meadows',
+  address3: null,
+  address4: null,
+  town: 'Testington',
+  county: 'Testingshire',
+  country: 'UK'
+});
+
+const createInvoiceAccount = id => ({
+  invoiceAccountId: id,
+  invoiceAccountNumber: 'ia-acc-no-1',
+  startDate: '2019-01-01',
+  endDate: '2020-01-01',
+  dateCreated: '2019-01-01',
+  company: createCompany(),
+  invoiceAccountAddresses: [{
+    startDate: '2019-01-01',
+    endDate: '2019-06-01',
+    address: createAddress('Buttercup Farm')
+  }, {
+    startDate: '2019-06-02',
+    endDate: null,
+    address: createAddress('Daisy Farm')
+  }]
+});
+
 experiment('v2/modules/invoice-accounts/controller', () => {
   let repositoryResponse;
 
   beforeEach(async () => {
     repositoryResponse = [
-      {
-        'invoice_account.invoice_account_id': 'ia-1',
-        'invoice_account.invoice_account_number': 'ia-acc-no-1',
-        'invoice_account.start_date': '2019-01-01',
-        'invoice_account.end_date': '2020-01-01',
-        'invoice_account.date_created': '2019-01-01',
-        'company.company_id': 'comp-id-1',
-        'company.name': 'comp-1',
-        'company.type': 'organisation',
-        'company.company_number': '1111',
-        'company.external_id': '1111',
-        'company.date_created': '2019-01-01',
-        'company.date_updated': '2019-01-01'
-      },
-      {
-        'invoice_account.invoice_account_id': 'ia-2',
-        'invoice_account.invoice_account_number': 'ia-acc-no-2',
-        'invoice_account.start_date': '2019-02-02',
-        'invoice_account.end_date': '2020-02-02',
-        'invoice_account.date_created': '2019-02-02',
-        'company.company_id': 'comp-id-2',
-        'company.name': 'comp-2',
-        'company.type': 'organisation',
-        'company.company_number': '2222',
-        'company.external_id': '2222',
-        'company.date_created': '2019-02-02',
-        'company.date_updated': '2019-02-02'
-      }
+      createInvoiceAccount('ia-1'),
+      createInvoiceAccount('ia-2')
     ];
 
-    sandbox.stub(repos.invoiceAccounts, 'findManyByIds').resolves(repositoryResponse);
-    sandbox.stub(repos.invoiceAccounts, 'findOneById').resolves(repositoryResponse[0]);
+    sandbox.stub(repos.invoiceAccounts, 'findOne').resolves(repositoryResponse[0]);
+    sandbox.stub(repos.invoiceAccounts, 'findWithCurrentAddress').resolves(repositoryResponse);
   });
 
   afterEach(async () => {
@@ -64,7 +77,7 @@ experiment('v2/modules/invoice-accounts/controller', () => {
     });
 
     test('calls repository method with correct arguments', async () => {
-      expect(repos.invoiceAccounts.findManyByIds.calledWith(
+      expect(repos.invoiceAccounts.findWithCurrentAddress.calledWith(
         ['ia-1', 'ia-2']
       )).to.be.true();
     });
@@ -74,25 +87,18 @@ experiment('v2/modules/invoice-accounts/controller', () => {
     });
 
     test('has the expected invoice account data', async () => {
-      const invoiceAccount = response[0];
-      expect(invoiceAccount.invoiceAccountId).to.equal(repositoryResponse[0]['invoice_account.invoice_account_id']);
-      expect(invoiceAccount.invoiceAccountNumber).to.equal(repositoryResponse[0]['invoice_account.invoice_account_number']);
-      expect(invoiceAccount.startDate).to.equal(repositoryResponse[0]['invoice_account.start_date']);
-      expect(invoiceAccount.endDate).to.equal(repositoryResponse[0]['invoice_account.end_date']);
-      expect(invoiceAccount.dateCreated).to.equal(repositoryResponse[0]['invoice_account.date_created']);
-      expect(invoiceAccount.dateUpdated).to.equal(repositoryResponse[0]['invoice_account.date_updated']);
+      expect(response[0].invoiceAccountId).to.equal(repositoryResponse[0].invoiceAccountId);
+      expect(response[1].invoiceAccountId).to.equal(repositoryResponse[1].invoiceAccountId);
     });
 
-    test('incluces the company as a nested object', async () => {
-      const company = response[0].company;
+    test('includes company data', async () => {
+      expect(response[0].company).to.equal(repositoryResponse[0].company);
+      expect(response[1].company).to.equal(repositoryResponse[1].company);
+    });
 
-      expect(company.companyId).to.equal(repositoryResponse[0]['company.company_id']);
-      expect(company.name).to.equal(repositoryResponse[0]['company.name']);
-      expect(company.type).to.equal(repositoryResponse[0]['company.type']);
-      expect(company.companyNumber).to.equal(repositoryResponse[0]['company.company_number']);
-      expect(company.externalId).to.equal(repositoryResponse[0]['company.external_id']);
-      expect(company.dateCreated).to.equal(repositoryResponse[0]['company.date_created']);
-      expect(company.dateUpdated).to.equal(repositoryResponse[0]['company.date_updated']);
+    test('includes the current address only', async () => {
+      expect(response[0].address).to.equal(repositoryResponse[0].invoiceAccountAddresses[1].address);
+      expect(response[1].address).to.equal(repositoryResponse[1].invoiceAccountAddresses[1].address);
     });
   });
 
@@ -100,39 +106,41 @@ experiment('v2/modules/invoice-accounts/controller', () => {
     let request;
     let response;
 
-    beforeEach(async () => {
-      request = {
-        params: {
-          invoiceAccountId: 'ia-1'
-        }
-      };
-      response = await controller.getInvoiceAccount(request);
+    experiment('when an invoice account is found', () => {
+      beforeEach(async () => {
+        request = {
+          params: {
+            invoiceAccountId: 'ia-1'
+          }
+        };
+        response = await controller.getInvoiceAccount(request);
+      });
+
+      test('calls repository method with correct arguments', async () => {
+        expect(repos.invoiceAccounts.findOne.calledWith('ia-1')).to.be.true();
+      });
+
+      test('has the expected invoice account data', async () => {
+        expect(response).to.be.an.object();
+        expect(response).to.equal(repositoryResponse[0]);
+      });
     });
 
-    test('calls repository method with correct arguments', async () => {
-      expect(repos.invoiceAccounts.findOneById.calledWith('ia-1')).to.be.true();
-    });
+    experiment('when an invoice account is not found', () => {
+      beforeEach(async () => {
+        request = {
+          params: {
+            invoiceAccountId: 'ia-1'
+          }
+        };
+        repos.invoiceAccounts.findOne.resolves(null);
+        response = await controller.getInvoiceAccount(request);
+      });
 
-    test('has the expected invoice account data', async () => {
-      const invoiceAccount = response;
-      expect(invoiceAccount.invoiceAccountId).to.equal(repositoryResponse[0]['invoice_account.invoice_account_id']);
-      expect(invoiceAccount.invoiceAccountNumber).to.equal(repositoryResponse[0]['invoice_account.invoice_account_number']);
-      expect(invoiceAccount.startDate).to.equal(repositoryResponse[0]['invoice_account.start_date']);
-      expect(invoiceAccount.endDate).to.equal(repositoryResponse[0]['invoice_account.end_date']);
-      expect(invoiceAccount.dateCreated).to.equal(repositoryResponse[0]['invoice_account.date_created']);
-      expect(invoiceAccount.dateUpdated).to.equal(repositoryResponse[0]['invoice_account.date_updated']);
-    });
-
-    test('incluces the company as a nested object', async () => {
-      const company = response.company;
-
-      expect(company.companyId).to.equal(repositoryResponse[0]['company.company_id']);
-      expect(company.name).to.equal(repositoryResponse[0]['company.name']);
-      expect(company.type).to.equal(repositoryResponse[0]['company.type']);
-      expect(company.companyNumber).to.equal(repositoryResponse[0]['company.company_number']);
-      expect(company.externalId).to.equal(repositoryResponse[0]['company.external_id']);
-      expect(company.dateCreated).to.equal(repositoryResponse[0]['company.date_created']);
-      expect(company.dateUpdated).to.equal(repositoryResponse[0]['company.date_updated']);
+      test('returns a Boom 404 error', async () => {
+        expect(response.isBoom).to.be.true();
+        expect(response.output.statusCode).to.equal(404);
+      });
     });
   });
 });
