@@ -6,6 +6,7 @@
     "test",
     "src/lib/logger/vendor/",
     "src/routes",
-    "src/v2/modules/*/routes.js"
+    "src/v2/modules/*/routes.js",
+    "src/v2/connectors/bookshelf"
   ]
 }
