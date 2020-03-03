@@ -161,7 +161,7 @@ async function createColleague (request, h) {
   const { rows: [primaryUserRole] } = await entityRoleApi.repo.find({ entity_id: entityID, role: 'primary_user' });
 
   if (!primaryUserRole) {
-    throw Boom.unauthorized('Only a primary user can grant access', { role, colleagueEntityID });
+    throw Boom.unauthorized('Only a primary user can grant access', '', { role, colleagueEntityID });
   }
 
   const { regime_entity_id: userRegimeID, company_entity_id: userCompanyID } = primaryUserRole;
