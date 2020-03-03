@@ -1,10 +1,12 @@
-// Provides tactical CRM API
+'use strict';
+
 require('dotenv').config();
 
 const GoodWinston = require('good-winston');
 const Hapi = require('@hapi/hapi');
 
 const config = require('./config');
+const db = require('./src/lib/connectors/db');
 const { logger } = require('./src/logger');
 const goodWinstonStream = new GoodWinston({ winston: logger });
 
@@ -87,8 +89,14 @@ process
   .on('unhandledRejection', processError('unhandledRejection'))
   .on('uncaughtException', processError('uncaughtException'))
   .on('SIGINT', async () => {
-    server.log('info', 'stopping crm service');
+    logger.info('Stopping CRM service');
+
     await server.stop();
+    logger.info('1/2: Hapi server stopped');
+
+    await db.pool.end();
+    logger.info('2/2: Connection pool closed');
+
     return process.exit(0);
   });
 
