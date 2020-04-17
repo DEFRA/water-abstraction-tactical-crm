@@ -4,6 +4,7 @@ const Joi = require('@hapi/joi');
 
 const companyTypes = require('../../lib/company-types');
 const controller = require('./controller');
+const validators = require('../../lib/validators');
 
 exports.createCompany = {
   method: 'POST',
@@ -19,7 +20,7 @@ exports.createCompany = {
           is: companyTypes.ORGANISATION,
           then: Joi.string().allow('').optional()
         }),
-        isTest: Joi.boolean().optional().default(false)
+        isTest: validators.TEST_FLAG
       }
     }
   }
@@ -33,7 +34,29 @@ exports.getCompany = {
     description: 'Get a company entity',
     validate: {
       params: {
-        companyId: Joi.string().uuid().required()
+        companyId: validators.GUID
+      }
+    }
+  }
+};
+
+exports.postCompanyAddress = {
+  method: 'POST',
+  path: '/crm/2.0/companies/{companyId}/addresses',
+  handler: controller.postCompanyAddress,
+  options: {
+    description: 'Adds an address to a company entity',
+    validate: {
+      params: {
+        companyId: validators.GUID
+      },
+      payload: {
+        addressId: validators.GUID,
+        roleId: validators.GUID,
+        isDefault: validators.DEFAULT_FLAG,
+        startDate: validators.START_DATE,
+        endDate: validators.END_DATE,
+        isTest: validators.TEST_FLAG
       }
     }
   }
