@@ -12,6 +12,7 @@ const sandbox = require('sinon').createSandbox();
 
 const companiesService = require('../../../src/v2/services/companies');
 const repos = require('../../../src/v2/connectors/repository');
+const errors = require('../../../src/v2/lib/errors');
 
 experiment('services/companies', () => {
   beforeEach(async () => {
@@ -21,6 +22,10 @@ experiment('services/companies', () => {
 
     sandbox.stub(repos.companies, 'findOne').resolves({
       companyId: 'test-company-id'
+    });
+
+    sandbox.stub(repos.companyAddresses, 'create').resolves({
+      companyAddressId: 'test-company-address-id'
     });
   });
 
@@ -104,6 +109,67 @@ experiment('services/companies', () => {
         type: 'person',
         name: 'test-name',
         companyId: 'test-id'
+      });
+    });
+  });
+
+  experiment('.addAddress', async () => {
+    test('can create a test record', async () => {
+      await companiesService.addAddress('test-company-id', 'test-address-id', {
+        roleId: 'test-role-id',
+        startDate: '2020-01-01'
+      }, true);
+
+      const [companyAddress] = repos.companyAddresses.create.lastCall.args;
+      expect(companyAddress.companyId).to.equal('test-company-id');
+      expect(companyAddress.addressId).to.equal('test-address-id');
+      expect(companyAddress.roleId).to.equal('test-role-id');
+      expect(companyAddress.isTest).to.equal(true);
+    });
+
+    test('creates a non-test record by default', async () => {
+      await companiesService.addAddress('test-company-id', 'test-address-id', {
+        roleId: 'test-role-id',
+        startDate: '2020-01-01'
+      });
+
+      const [companyAddress] = repos.companyAddresses.create.lastCall.args;
+      expect(companyAddress.companyId).to.equal('test-company-id');
+      expect(companyAddress.addressId).to.equal('test-address-id');
+      expect(companyAddress.roleId).to.equal('test-role-id');
+      expect(companyAddress.isTest).to.equal(false);
+    });
+
+    experiment('when there is a unique constraint violation error', async () => {
+      beforeEach(async () => {
+        const err = new Error();
+        err.code = '23505';
+        repos.companyAddresses.create.rejects(err);
+      });
+
+      test('a UniqueConstraintViolation error is thrown', async () => {
+        const func = () => companiesService.addAddress('test-company-id', 'test-address-id', {
+          roleId: 'test-role-id',
+          startDate: '2020-01-01'
+        });
+        const err = await expect(func()).to.reject();
+        expect(err instanceof errors.UniqueConstraintViolation);
+      });
+    });
+
+    experiment('when there is an unknown error', async () => {
+      beforeEach(async () => {
+        const err = new Error('oops');
+        repos.companyAddresses.create.rejects(err);
+      });
+
+      test('the error is rethrown', async () => {
+        const func = () => companiesService.addAddress('test-company-id', 'test-address-id', {
+          roleId: 'test-role-id',
+          startDate: '2020-01-01'
+        });
+        const err = await expect(func()).to.reject();
+        expect(err.message).to.equal('oops');
       });
     });
   });
