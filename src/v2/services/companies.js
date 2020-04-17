@@ -20,6 +20,11 @@ const getCompany = async companyId => {
   return result;
 };
 
+const createCompanyContact = async companyContact => {
+  const result = await repos.companyContact.create(companyContact);
+  return result;
+};
 exports.createPerson = createPerson;
 exports.createOrganisation = createOrganisation;
 exports.getCompany = getCompany;
+exports.createCompanyContact = createCompanyContact;
