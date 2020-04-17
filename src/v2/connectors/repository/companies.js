@@ -1,17 +1,14 @@
 'use strict';
 
 const { Company } = require('../bookshelf');
-
+const helpers = require('./helpers');
 /**
  * Create a new person or company and saves in crm_v2.companies
  *
  * @param {Object} personOrCompany An object to persist to crm_v2.companies
  * @returns {Object} The created company from the database
  */
-const create = async personOrCompany => {
-  const model = await Company.forge(personOrCompany).save();
-  return model.toJSON();
-};
+const create = async personOrCompany => helpers.create(Company, personOrCompany);
 
 /**
  * Find single Company by ID
@@ -19,10 +16,7 @@ const create = async personOrCompany => {
  * @param {String} id
  * @return {Promise<Object>}
  */
-const findOne = async id => {
-  const result = await Company.forge({ companyId: id }).fetch();
-  return result ? result.toJSON() : null;
-};
+const findOne = async id => helpers.findOne(Company, 'companyId', id);
 
 exports.create = create;
 exports.findOne = findOne;
