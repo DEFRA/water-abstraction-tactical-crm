@@ -13,6 +13,7 @@ const uuid = require('uuid/v4');
 
 const controller = require('../../../../src/v2/modules/companies/controller');
 const companiesService = require('../../../../src/v2/services/companies');
+const errors = require('../../../../src/v2/lib/errors');
 
 experiment('modules/companies/controller', () => {
   let h;
@@ -27,6 +28,7 @@ experiment('modules/companies/controller', () => {
     sandbox.stub(companiesService, 'getCompany');
     sandbox.stub(companiesService, 'createPerson');
     sandbox.stub(companiesService, 'createOrganisation');
+    sandbox.stub(companiesService, 'addAddress');
   });
 
   afterEach(async () => {
@@ -141,6 +143,82 @@ experiment('modules/companies/controller', () => {
       test('returns a 201 response code', async () => {
         const [url] = created.lastCall.args;
         expect(url).to.equal('/crm/2.0/companies/test-company-id');
+      });
+    });
+  });
+
+  experiment('.postCompanyAddress', () => {
+    const request = {
+      params: {
+        companyId: 'test-company-id'
+      },
+      payload: {
+        addressId: 'test-address-id',
+        roleId: 'test-role-id',
+        startDate: '2020-01-01',
+        isTest: true
+      }
+    };
+
+    beforeEach(async () => {
+      companiesService.addAddress.resolves({
+        companyAddressId: 'test-company-address-id'
+      });
+    });
+
+    experiment('when there are no errors', () => {
+      beforeEach(async () => {
+        await controller.postCompanyAddress(request, h);
+      });
+
+      test('the service is called with the right params', async () => {
+        expect(companiesService.addAddress.calledWith(
+          'test-company-id',
+          'test-address-id',
+          {
+            roleId: 'test-role-id',
+            startDate: '2020-01-01'
+          },
+          true
+        )).to.be.true();
+      });
+
+      test('returns the created company address in the response', async () => {
+        const [result] = h.response.lastCall.args;
+
+        expect(result).to.equal({
+          companyAddressId: 'test-company-address-id'
+        });
+      });
+
+      test('returns a 201 response code', async () => {
+        const [url] = created.lastCall.args;
+        expect(url).to.equal('/crm/2.0/companies/test-company-id/addresses/test-company-address-id');
+      });
+    });
+
+    experiment('when there is a unique constraint violation', () => {
+      let response;
+
+      beforeEach(async () => {
+        companiesService.addAddress.rejects(new errors.UniqueConstraintViolation());
+        response = await controller.postCompanyAddress(request, h);
+      });
+
+      test('a Boom conflict error is returned', async () => {
+        expect(response.isBoom).to.be.true();
+        expect(response.output.statusCode).to.equal(409);
+      });
+    });
+
+    experiment('when there is an unknown error', () => {
+      beforeEach(async () => {
+        companiesService.addAddress.rejects(new Error('oops'));
+      });
+
+      test('an error is thrown', async () => {
+        const func = () => controller.postCompanyAddress(request, h);
+        expect(func()).to.reject();
       });
     });
   });
