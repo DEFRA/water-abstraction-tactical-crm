@@ -2,6 +2,7 @@
 
 const companiesService = require('../../services/companies');
 const companyTypes = require('../../lib/company-types');
+const mapErrorResponse = require('../../lib/map-error-response');
 
 const postCompany = async (request, h) => {
   const { type, name, companyNumber = null, isTest = false } = request.payload;
@@ -20,5 +21,18 @@ const getCompany = async request => {
   return company;
 };
 
+const postCompanyAddress = async (request, h) => {
+  const { companyId } = request.params;
+  const { addressId, isTest, ...data } = request.payload;
+  try {
+    const createdEntity = await companiesService.addAddress(companyId, addressId, data, isTest);
+    return h.response(createdEntity)
+      .created(`/crm/2.0/companies/${companyId}/addresses/${createdEntity.companyAddressId}`);
+  } catch (err) {
+    return mapErrorResponse(err);
+  }
+};
+
 exports.getCompany = getCompany;
 exports.postCompany = postCompany;
+exports.postCompanyAddress = postCompanyAddress;
