@@ -7,20 +7,9 @@ const {
 } = exports.lab = require('@hapi/lab').script();
 
 const { expect } = require('@hapi/code');
-const { cloneDeep } = require('lodash');
-const Hapi = require('@hapi/hapi');
 
 const routes = require('../../../../src/v2/modules/addresses/routes');
-
-const createServer = route => {
-  const server = Hapi.server();
-  const testRoute = cloneDeep(route);
-  testRoute.handler = async () => 'ok';
-
-  server.route(testRoute);
-
-  return server;
-};
+const { createServerForRoute } = require('../../../helpers');
 
 experiment('modules/addresses/routes', () => {
   experiment('createAddress', () => {
@@ -46,7 +35,7 @@ experiment('modules/addresses/routes', () => {
         isTest: true
       };
 
-      server = createServer(routes.createAddress);
+      server = createServerForRoute(routes.createAddress);
     });
 
     test('requires address1', async () => {

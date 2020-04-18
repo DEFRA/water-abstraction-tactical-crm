@@ -3,9 +3,9 @@
 exports.findOne = async (bookshelfModel, idKey, id) => {
   const result = await bookshelfModel
     .forge({ [idKey]: id })
-    .fetch();
+    .fetch({ require: false });
 
-  return result ? result.toJSON() : null;
+  return result && result.toJSON();
 };
 
 exports.create = async (bookShelfModel, data) => {

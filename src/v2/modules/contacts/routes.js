@@ -1,3 +1,5 @@
+'use strict';
+
 const Joi = require('@hapi/joi');
 const controller = require('./controller');
 
@@ -15,7 +17,7 @@ exports.getContact = {
   }
 };
 
-exports.getDocuments = {
+exports.getContacts = {
   method: 'GET',
   path: '/crm/2.0/contacts',
   handler: controller.getContacts,
@@ -24,6 +26,25 @@ exports.getDocuments = {
     validate: {
       query: {
         ids: Joi.string().required()
+      }
+    }
+  }
+};
+
+exports.postContact = {
+  method: 'POST',
+  path: '/crm/2.0/contacts',
+  handler: controller.postContact,
+  options: {
+    description: 'Creates a new contact',
+    validate: {
+      payload: {
+        salutation: Joi.string().optional(),
+        firstName: Joi.string().optional(),
+        initials: Joi.string().optional(),
+        lastName: Joi.string().required(),
+        middleName: Joi.string().optional(),
+        isTest: Joi.boolean().optional().default(false)
       }
     }
   }
