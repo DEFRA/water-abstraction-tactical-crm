@@ -24,19 +24,23 @@ experiment('v2/services/address', () => {
 
   experiment('.createAddress', () => {
     experiment('for an invalid address', () => {
-      let result;
+      let err;
 
       beforeEach(async () => {
-        result = await addressService.createAddress({});
+        try {
+          await addressService.createAddress({});
+        } catch (error) {
+          err = error;
+        }
       });
 
       test('does not create the address at the database', async () => {
         expect(addressRepo.create.called).to.equal(false);
       });
 
-      test('returns an error containing the validation messages', async () => {
-        expect(result.error.message).to.equal('Address not valid');
-        expect(result.error.details).to.include('"address1" is required');
+      test('throws an error containing the validation messages', async () => {
+        expect(err.message).to.equal('Address not valid');
+        expect(err.validationDetails).to.include('"address1" is required');
       });
     });
 
@@ -57,11 +61,7 @@ experiment('v2/services/address', () => {
       });
 
       test('includes the saved address in the response', async () => {
-        expect(result.address.addressId).to.equal('test-address-id');
-      });
-
-      test('the result does not have an error', async () => {
-        expect(result.error).to.equal(null);
+        expect(result.addressId).to.equal('test-address-id');
       });
     });
   });

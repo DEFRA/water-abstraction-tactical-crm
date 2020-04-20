@@ -34,6 +34,8 @@ experiment('modules/adresses/controller', () => {
 
   experiment('.postAddress', () => {
     experiment('for an invalid address', () => {
+      let response;
+
       beforeEach(async () => {
         const request = {
           payload: {
@@ -45,19 +47,17 @@ experiment('modules/adresses/controller', () => {
           }
         };
 
-        await controller.postAddress(request, h);
+        response = await controller.postAddress(request, h);
       });
 
       test('a 422 response is sent because the data is invalid', async () => {
-        const [code] = hapiResponse.code.lastCall.args;
-        expect(code).to.equal(422);
+        expect(response.output.payload.statusCode).to.equal(422);
       });
 
       test('the response contains the validation error details', async () => {
-        const [body] = h.response.lastCall.args;
-        expect(body.message).to.equal('Address not valid');
-        expect(body.details).to.be.an.array();
-        expect(body.details[0]).to.be.a.string();
+        expect(response.output.payload.message).to.equal('Address not valid');
+        expect(response.output.payload.validationDetails).to.be.an.array();
+        expect(response.output.payload.validationDetails[0]).to.be.a.string();
       });
     });
 
@@ -74,10 +74,7 @@ experiment('modules/adresses/controller', () => {
         };
 
         addressService.createAddress.resolves({
-          address: {
-            addressId: 'test-address-id'
-          },
-          error: null
+          addressId: 'test-address-id'
         });
 
         await controller.postAddress(request, h);

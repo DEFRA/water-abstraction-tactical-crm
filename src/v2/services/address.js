@@ -2,25 +2,17 @@
 
 const addressValidator = require('../modules/addresses/validator');
 const addressRepo = require('../connectors/repository/addresses');
+const { EntityValidationError } = require('../lib/errors');
 
 const createAddress = async address => {
   const { error, value: validatedAddress } = addressValidator.validate(address);
 
   if (error) {
-    return {
-      error: {
-        message: 'Address not valid',
-        details: error.details.map(detail => detail.message)
-      }
-    };
+    const details = error.details.map(detail => detail.message);
+    throw new EntityValidationError('Address not valid', details);
   }
 
-  try {
-    const savedAddress = await addressRepo.create(validatedAddress);
-    return { error: null, address: savedAddress };
-  } catch (error) {
-    return { error };
-  }
+  return addressRepo.create(validatedAddress);
 };
 
 const getAddress = async addressId => {
