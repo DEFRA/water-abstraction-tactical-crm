@@ -12,4 +12,12 @@ class UniqueConstraintViolation extends DBError {
   }
 }
 
+class UniqueForeignKeyConstraintViolation extends DBError {
+  constructor (message) {
+    super(message);
+    this.name = 'UniqueForeignKeyConstraintViolation';
+  }
+}
+
 exports.UniqueConstraintViolation = UniqueConstraintViolation;
+exports.UniqueForeignKeyConstraintViolation = UniqueForeignKeyConstraintViolation;

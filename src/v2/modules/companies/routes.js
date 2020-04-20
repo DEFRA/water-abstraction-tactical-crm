@@ -61,3 +61,26 @@ exports.postCompanyAddress = {
     }
   }
 };
+
+exports.postCompanyContact = {
+  method: 'POST',
+  path: '/crm/2.0/companies/{companyId}/contacts',
+  handler: controller.postCompanyContact,
+  options: {
+    description: 'Add a contact to a company entity',
+    validate: {
+      params: {
+        companyId: validators.GUID
+      },
+      payload: {
+        contactId: validators.GUID,
+        roleId: validators.GUID,
+        isDefault: validators.DEFAULT_FLAG,
+        emailAddress: validators.EMAIL,
+        startDate: validators.START_DATE,
+        endDate: validators.END_DATE,
+        isTest: validators.TEST_FLAG
+      }
+    }
+  }
+};

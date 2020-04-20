@@ -33,6 +33,19 @@ const postCompanyAddress = async (request, h) => {
   }
 };
 
+const postCompanyContact = async (request, h) => {
+  const { contactId, isTest, ...data } = request.payload;
+  const { companyId } = request.params;
+  try {
+    const createdEntity = await companiesService.addCompanyContact(companyId, contactId, data, isTest);
+    return h.response(createdEntity)
+      .created(`/crm/2.0/companies/${createdEntity.companyId}`);
+  } catch (err) {
+    return mapErrorResponse(err);
+  };
+};
+
 exports.getCompany = getCompany;
 exports.postCompany = postCompany;
 exports.postCompanyAddress = postCompanyAddress;
+exports.postCompanyContact = postCompanyContact;

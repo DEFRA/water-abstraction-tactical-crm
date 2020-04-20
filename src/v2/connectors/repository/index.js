@@ -10,3 +10,4 @@ exports.documentRoles = new DocumentRolesRepository();
 exports.invoiceAccounts = require('./invoice-accounts');
 exports.companies = require('./companies');
 exports.companyAddresses = require('./company-addresses');
+exports.companyContact = require('./company-contacts');
