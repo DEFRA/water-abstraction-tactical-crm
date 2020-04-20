@@ -11,7 +11,7 @@ const errors = require('./errors');
 const mapErrorResponse = error => {
   if (error instanceof errors.UniqueConstraintViolation) {
     return Boom.conflict(error.message);
-  } else if (error instanceof errors.UniqueForeignKeyConstraintViolation) {
+  } else if (error instanceof errors.ForeignKeyConstraintViolation) {
     return Boom.conflict(error.message);
   }
   throw error;

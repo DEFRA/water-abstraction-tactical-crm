@@ -29,6 +29,7 @@ experiment('modules/companies/controller', () => {
     sandbox.stub(companiesService, 'createPerson');
     sandbox.stub(companiesService, 'createOrganisation');
     sandbox.stub(companiesService, 'addAddress');
+    sandbox.stub(companiesService, 'addContact');
   });
 
   afterEach(async () => {
@@ -218,6 +219,97 @@ experiment('modules/companies/controller', () => {
 
       test('an error is thrown', async () => {
         const func = () => controller.postCompanyAddress(request, h);
+        expect(func()).to.reject();
+      });
+    });
+  });
+
+  // ###################################
+  experiment('.postCompanyContact', () => {
+    const request = {
+      params: {
+        companyId: 'test-company-id'
+      },
+      payload: {
+        contactId: 'test-contact-id',
+        roleId: 'test-role-id',
+        startDate: '2020-01-01',
+        isTest: true
+      }
+    };
+
+    beforeEach(async () => {
+      companiesService.addContact.resolves({
+        companyContactId: 'test-company-contact-id'
+      });
+    });
+
+    experiment('when there are no errors', () => {
+      beforeEach(async () => {
+        await controller.postCompanyContact(request, h);
+      });
+
+      test('the service is called with the right params', async () => {
+        expect(companiesService.addContact.calledWith(
+          'test-company-id',
+          'test-contact-id',
+          {
+            roleId: 'test-role-id',
+            startDate: '2020-01-01'
+          },
+          true
+        )).to.be.true();
+      });
+
+      test('returns the created company contact in the response', async () => {
+        const [result] = h.response.lastCall.args;
+
+        expect(result).to.equal({
+          companyContactId: 'test-company-contact-id'
+        });
+      });
+
+      test('returns a 201 response code', async () => {
+        const [url] = created.lastCall.args;
+        expect(url).to.equal('/crm/2.0/companies/test-company-id/contacts/test-company-contact-id');
+      });
+    });
+
+    experiment('when there is a unique constraint violation', () => {
+      let response;
+
+      beforeEach(async () => {
+        companiesService.addContact.rejects(new errors.UniqueConstraintViolation());
+        response = await controller.postCompanyContact(request, h);
+      });
+
+      test('a Boom conflict error is returned', async () => {
+        expect(response.isBoom).to.be.true();
+        expect(response.output.statusCode).to.equal(409);
+      });
+    });
+
+    experiment('when there is a foreign key constraint violation', () => {
+      let response;
+
+      beforeEach(async () => {
+        companiesService.addContact.rejects(new errors.ForeignKeyConstraintViolation());
+        response = await controller.postCompanyContact(request, h);
+      });
+
+      test('a Boom conflict error is returned', async () => {
+        expect(response.isBoom).to.be.true();
+        expect(response.output.statusCode).to.equal(409);
+      });
+    });
+
+    experiment('when there is an unknown error', () => {
+      beforeEach(async () => {
+        companiesService.addContact.rejects(new Error('oops'));
+      });
+
+      test('an error is thrown', async () => {
+        const func = () => controller.postCompanyContact(request, h);
         expect(func()).to.reject();
       });
     });

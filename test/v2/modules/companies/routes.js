@@ -386,4 +386,214 @@ experiment('modules/companies/routes', () => {
       expect(response.statusCode).to.equal(400);
     });
   });
+
+  experiment('postCompanyContact', async () => {
+    let server;
+
+    const getRequest = (companyId, payload = {}) => ({
+      method: 'POST',
+      url: `/crm/2.0/companies/${companyId}/contacts`,
+      payload
+    });
+
+    beforeEach(async () => {
+      server = createServer(routes.postCompanyContact);
+    });
+
+    test('returns a 400 if the company id is not a uuid', async () => {
+      const request = getRequest(123, {
+        contactId: uuid(),
+        roleId: uuid(),
+        startDate: '2020-01-01'
+      });
+      const response = await server.inject(request);
+      expect(response.statusCode).to.equal(400);
+    });
+
+    test('returns a 400 if the contact id is not a uuid', async () => {
+      const request = getRequest(uuid(), {
+        contactId: 123,
+        roleId: uuid(),
+        startDate: '2020-01-01'
+      });
+      const response = await server.inject(request);
+      expect(response.statusCode).to.equal(400);
+    });
+
+    test('returns a 400 if the contactId id is omitted', async () => {
+      const request = getRequest(uuid(), {
+        roleId: uuid(),
+        startDate: '2020-01-01'
+      });
+      const response = await server.inject(request);
+      expect(response.statusCode).to.equal(400);
+    });
+
+    test('returns a 400 if the role id is not a uuid', async () => {
+      const request = getRequest(uuid(), {
+        contactId: uuid(),
+        roleId: 123,
+        startDate: '2020-01-01'
+      });
+      const response = await server.inject(request);
+      expect(response.statusCode).to.equal(400);
+    });
+
+    test('returns a 400 if the role id is omitted', async () => {
+      const request = getRequest(uuid(), {
+        contactId: uuid(),
+        startDate: '2020-01-01'
+      });
+      const response = await server.inject(request);
+      expect(response.statusCode).to.equal(400);
+    });
+
+    test('returns a 400 if the start date is not valid', async () => {
+      const request = getRequest(uuid(), {
+        contactId: 123,
+        roleId: uuid(),
+        startDate: '2020-01-45'
+      });
+      const response = await server.inject(request);
+      expect(response.statusCode).to.equal(400);
+    });
+
+    test('returns a 400 if the start date is omitted', async () => {
+      const request = getRequest(uuid(), {
+        contactId: uuid(),
+        roleId: uuid()
+      });
+      const response = await server.inject(request);
+      expect(response.statusCode).to.equal(400);
+    });
+
+    test('end date defaults to null if not provided', async () => {
+      const request = getRequest(uuid(), {
+        contactId: uuid(),
+        roleId: uuid(),
+        startDate: '2020-01-01'
+      });
+      const response = await server.inject(request);
+      expect(response.request.payload.endDate).to.equal(null);
+    });
+
+    test('end date can be set to null', async () => {
+      const request = getRequest(uuid(), {
+        contactId: uuid(),
+        roleId: uuid(),
+        startDate: '2020-01-01',
+        endDate: null
+      });
+      const response = await server.inject(request);
+      expect(response.statusCode).to.equal(200);
+    });
+
+    test('end date can be set to a valid date', async () => {
+      const request = getRequest(uuid(), {
+        contactId: uuid(),
+        roleId: uuid(),
+        startDate: '2020-01-01',
+        endDate: '2020-03-01'
+      });
+      const response = await server.inject(request);
+      expect(response.statusCode).to.equal(200);
+    });
+
+    test('returns a 400 if end date is before start date', async () => {
+      const request = getRequest(uuid(), {
+        contactId: uuid(),
+        roleId: uuid(),
+        startDate: '2020-01-01',
+        endDate: '2019-12-31'
+      });
+      const response = await server.inject(request);
+      expect(response.statusCode).to.equal(400);
+    });
+
+    test('returns a 400 if end date is invalid date', async () => {
+      const request = getRequest(uuid(), {
+        contactId: uuid(),
+        roleId: uuid(),
+        startDate: '2020-01-01',
+        endDate: '2020-02-30'
+      });
+      const response = await server.inject(request);
+      expect(response.statusCode).to.equal(400);
+    });
+
+    test('isDefault defaults to false', async () => {
+      const request = getRequest(uuid(), {
+        contactId: uuid(),
+        roleId: uuid(),
+        startDate: '2020-01-01'
+      });
+      const response = await server.inject(request);
+      expect(response.request.payload.isDefault).to.equal(false);
+    });
+
+    test('isDefault can be set to a boolean', async () => {
+      const request = getRequest(uuid(), {
+        contactId: uuid(),
+        roleId: uuid(),
+        startDate: '2020-01-01',
+        isDefault: true
+      });
+      const response = await server.inject(request);
+      expect(response.statusCode).to.equal(200);
+    });
+
+    test('returns a 400 if isDefault is not a boolean', async () => {
+      const request = getRequest(uuid(), {
+        contactId: uuid(),
+        roleId: uuid(),
+        startDate: '2020-01-01',
+        isDefault: 'oops'
+      });
+      const response = await server.inject(request);
+      expect(response.statusCode).to.equal(400);
+    });
+
+    test('isTest defaults to false', async () => {
+      const request = getRequest(uuid(), {
+        contactId: uuid(),
+        roleId: uuid(),
+        startDate: '2020-01-01'
+      });
+      const response = await server.inject(request);
+      expect(response.request.payload.isTest).to.equal(false);
+    });
+
+    test('isTest can be set to a boolean', async () => {
+      const request = getRequest(uuid(), {
+        contactId: uuid(),
+        roleId: uuid(),
+        startDate: '2020-01-01',
+        isTest: true
+      });
+      const response = await server.inject(request);
+      expect(response.statusCode).to.equal(200);
+    });
+
+    test('returns a 400 if isTest is not a boolean', async () => {
+      const request = getRequest(uuid(), {
+        contactId: uuid(),
+        roleId: uuid(),
+        startDate: '2020-01-01',
+        isTest: 'oops'
+      });
+      const response = await server.inject(request);
+      expect(response.statusCode).to.equal(400);
+    });
+
+    test('returns a 400 if email is not a valid email address', async () => {
+      const request = getRequest(uuid(), {
+        contactId: uuid(),
+        roleId: uuid(),
+        startDate: '2020-01-01',
+        emailAddress: 'invalidEmail'
+      });
+      const response = await server.inject(request);
+      expect(response.statusCode).to.equal(400);
+    });
+  });
 });

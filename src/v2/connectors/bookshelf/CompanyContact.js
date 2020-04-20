@@ -5,7 +5,7 @@ module.exports = bookshelf.model('CompanyContact', {
   idAttribute: 'company_contact_id',
   hasTimestamps: ['date_created', 'date_updated'],
   company () {
-    return this.hasOne('Company', 'company_id', 'company_id');
+    return this.belongsTo('Company', 'company_id', 'company_id');
   },
   contact () {
     return this.hasOne('Contact', 'contact_id', 'contact_id');
