@@ -37,9 +37,9 @@ const postCompanyContact = async (request, h) => {
   const { contactId, isTest, ...data } = request.payload;
   const { companyId } = request.params;
   try {
-    const createdEntity = await companiesService.addCompanyContact(companyId, contactId, data, isTest);
+    const createdEntity = await companiesService.addContact(companyId, contactId, data, isTest);
     return h.response(createdEntity)
-      .created(`/crm/2.0/companies/${createdEntity.companyId}`);
+      .created(`/crm/2.0/companies/${companyId}/contacts/${createdEntity.companyContactId}`);
   } catch (err) {
     return mapErrorResponse(err);
   };

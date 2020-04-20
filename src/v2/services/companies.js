@@ -8,7 +8,7 @@ const handleRepoError = (err) => {
   if (parseInt(err.code) === 23505) {
     throw new errors.UniqueConstraintViolation(err.detail);
   } else if (parseInt(err.code) === 23503) {
-    throw new errors.UniqueForeignKeyConstraintViolation(err.detail);
+    throw new errors.ForeignKeyConstraintViolation(err.detail);
   }
   throw err;
 };
@@ -58,7 +58,7 @@ const addAddress = async (companyId, addressId, data = {}, isTest = false) => {
 };
 
 /**
- * Adds an address to a company
+ * Adds a contact to a company
  * @param {String} companyId
  * @param {String} contactId
  * @param {Object} data
@@ -67,9 +67,9 @@ const addAddress = async (companyId, addressId, data = {}, isTest = false) => {
  * @param {String} data.startDate
  * @param {String|Null} data.endDate
  * @param {Boolean} isTest
- * @return {Promise<Object>} new record in company_addresses
+ * @return {Promise<Object>} new record in company_contacts
 */
-const addCompanyContact = async (companyId, contactId, data = {}, isTest) => {
+const addContact = async (companyId, contactId, data = {}, isTest = false) => {
   const companyContact = {
     companyId,
     contactId,
@@ -77,7 +77,7 @@ const addCompanyContact = async (companyId, contactId, data = {}, isTest) => {
     isTest
   };
   try {
-    const result = await repos.companyContact.create(companyContact);
+    const result = await repos.companyContacts.create(companyContact);
     return result;
   } catch (err) {
     handleRepoError(err);
@@ -88,4 +88,4 @@ exports.createPerson = createPerson;
 exports.createOrganisation = createOrganisation;
 exports.getCompany = getCompany;
 exports.addAddress = addAddress;
-exports.addCompanyContact = addCompanyContact;
+exports.addContact = addContact;

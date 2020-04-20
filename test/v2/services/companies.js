@@ -27,6 +27,10 @@ experiment('services/companies', () => {
     sandbox.stub(repos.companyAddresses, 'create').resolves({
       companyAddressId: 'test-company-address-id'
     });
+
+    sandbox.stub(repos.companyContacts, 'create').resolves({
+      companyContactId: 'test-company-contact-id'
+    });
   });
 
   afterEach(async () => {
@@ -165,6 +169,84 @@ experiment('services/companies', () => {
 
       test('the error is rethrown', async () => {
         const func = () => companiesService.addAddress('test-company-id', 'test-address-id', {
+          roleId: 'test-role-id',
+          startDate: '2020-01-01'
+        });
+        const err = await expect(func()).to.reject();
+        expect(err.message).to.equal('oops');
+      });
+    });
+  });
+
+  experiment('.addContact', async () => {
+    test('can create a test record', async () => {
+      await companiesService.addContact('test-company-id', 'test-contact-id', {
+        roleId: 'test-role-id',
+        startDate: '2020-01-01'
+      }, true);
+
+      const [companyContact] = repos.companyContacts.create.lastCall.args;
+      expect(companyContact.companyId).to.equal('test-company-id');
+      expect(companyContact.contactId).to.equal('test-contact-id');
+      expect(companyContact.roleId).to.equal('test-role-id');
+      expect(companyContact.isTest).to.equal(true);
+    });
+
+    test('creates a non-test record by default', async () => {
+      await companiesService.addContact('test-company-id', 'test-contact-id', {
+        roleId: 'test-role-id',
+        startDate: '2020-01-01'
+      });
+
+      const [companyContact] = repos.companyContacts.create.lastCall.args;
+      expect(companyContact.companyId).to.equal('test-company-id');
+      expect(companyContact.contactId).to.equal('test-contact-id');
+      expect(companyContact.roleId).to.equal('test-role-id');
+      expect(companyContact.isTest).to.equal(false);
+    });
+
+    experiment('when there is a unique constraint violation error', async () => {
+      beforeEach(async () => {
+        const err = new Error();
+        err.code = '23505';
+        repos.companyContacts.create.rejects(err);
+      });
+
+      test('a UniqueConstraintViolation error is thrown', async () => {
+        const func = () => companiesService.addContact('test-company-id', 'test-contact-id', {
+          roleId: 'test-role-id',
+          startDate: '2020-01-01'
+        });
+        const err = await expect(func()).to.reject();
+        expect(err instanceof errors.UniqueConstraintViolation);
+      });
+    });
+
+    experiment('when there is a unique constraint violation error', async () => {
+      beforeEach(async () => {
+        const err = new Error();
+        err.code = '23503';
+        repos.companyContacts.create.rejects(err);
+      });
+
+      test('a ForeignKeyConstraintViolation error is thrown', async () => {
+        const func = () => companiesService.addContact('test-company-id', 'test-contact-id', {
+          roleId: 'test-role-id',
+          startDate: '2020-01-01'
+        });
+        const err = await expect(func()).to.reject();
+        expect(err instanceof errors.ForeignKeyConstraintViolation);
+      });
+    });
+
+    experiment('when there is an unknown error', async () => {
+      beforeEach(async () => {
+        const err = new Error('oops');
+        repos.companyContacts.create.rejects(err);
+      });
+
+      test('the error is rethrown', async () => {
+        const func = () => companiesService.addContact('test-company-id', 'test-contact-id', {
           roleId: 'test-role-id',
           startDate: '2020-01-01'
         });
