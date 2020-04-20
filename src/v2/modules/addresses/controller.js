@@ -1,14 +1,17 @@
 'use strict';
 
 const addressService = require('../../services/address');
+const mapErrorResponse = require('../../lib/map-error-response');
 
 exports.postAddress = async (request, h) => {
   const addressData = request.payload;
-  const { error, address } = await addressService.createAddress(addressData);
 
-  return error
-    ? h.response(error).code(422)
-    : h.response(address).created(`/crm/2.0/addresses/${address.addressId}`);
+  try {
+    const address = await addressService.createAddress(addressData);
+    return h.response(address).created(`/crm/2.0/addresses/${address.addressId}`);
+  } catch (error) {
+    return mapErrorResponse(error);
+  }
 };
 
 exports.getAddress = async request => {
