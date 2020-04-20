@@ -83,3 +83,25 @@ exports.getCompany = {
     }
   }
 };
+
+exports.getCompany = {
+  method: 'POST',
+  path: '/crm/v2/companies/{companyId}/contacts',
+  handler: controller.postCompanyContact,
+  options: {
+    description: 'Add a contact to a company entity',
+    validate: {
+      // payload: {
+      //   contactId: Joi.string().uuid().required(),
+      //   roleId: Joi.string().uuid().required(),
+      //   isDefault: Joi.boolean().optional().default(false),
+      //   startDate: Joi.date().required(),
+      //   endDate: Joi.date().optional().default(null),
+      //   isTest: Joi.boolean().optional().default(false)
+      // },
+      params: {
+        companyId: Joi.string().uuid().required()
+      }
+    }
+  }
+};
