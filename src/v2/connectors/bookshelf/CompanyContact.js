@@ -11,6 +11,6 @@ module.exports = bookshelf.model('CompanyContact', {
     return this.hasOne('Contact', 'contact_id', 'contact_id');
   },
   roles () {
-    return this.hasOne('Roles', 'role_id', 'role_id');
+    return this.hasOne('Role', 'role_id', 'role_id');
   }
 });
