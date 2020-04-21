@@ -218,7 +218,7 @@ experiment('services/companies', () => {
           startDate: '2020-01-01'
         });
         const err = await expect(func()).to.reject();
-        expect(err instanceof errors.UniqueConstraintViolation);
+        expect(err instanceof errors.UniqueConstraintViolation).to.be.true();
       });
     });
 
@@ -235,7 +235,7 @@ experiment('services/companies', () => {
           startDate: '2020-01-01'
         });
         const err = await expect(func()).to.reject();
-        expect(err instanceof errors.ForeignKeyConstraintViolation);
+        expect(err instanceof errors.ForeignKeyConstraintViolation).to.be.true();
       });
     });
 

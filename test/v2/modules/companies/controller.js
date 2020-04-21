@@ -224,7 +224,6 @@ experiment('modules/companies/controller', () => {
     });
   });
 
-  // ###################################
   experiment('.postCompanyContact', () => {
     const request = {
       params: {
@@ -284,8 +283,11 @@ experiment('modules/companies/controller', () => {
       });
 
       test('a Boom conflict error is returned', async () => {
+        expect(response.name).to.equal('Error');
         expect(response.isBoom).to.be.true();
         expect(response.output.statusCode).to.equal(409);
+        expect(response.message).to.equal('Conflict');
+        expect(response.output.payload.error).to.equal('Conflict');
       });
     });
 
@@ -298,8 +300,11 @@ experiment('modules/companies/controller', () => {
       });
 
       test('a Boom conflict error is returned', async () => {
+        expect(response.name).to.equal('Error');
         expect(response.isBoom).to.be.true();
         expect(response.output.statusCode).to.equal(409);
+        expect(response.message).to.equal('Conflict');
+        expect(response.output.payload.error).to.equal('Conflict');
       });
     });
 
