@@ -1,6 +1,20 @@
+'use strict';
 
 const Boom = require('@hapi/boom');
-const errors = require('./errors');
+
+const transformEntityValidationError = error => {
+  const boomError = Boom.badData(error.message);
+  boomError.output.payload.validationDetails = error.validationDetails;
+  return boomError;
+};
+
+const transformUniqueConstraintViolation = error => Boom.conflict(error.message);
+const transformForeignKeyConstraintViolation = error => Boom.conflict(error.message);
+
+const commandMap = new Map();
+commandMap.set('UniqueConstraintViolation', transformUniqueConstraintViolation);
+commandMap.set('EntityValidationError', transformEntityValidationError);
+commandMap.set('FeoreignKeyConstraintViolation', transformForeignKeyConstraintViolation);
 
 /**
  * Maps a service error to a Boom error for providing an HTTP response
@@ -9,10 +23,10 @@ const errors = require('./errors');
  * @return {Error} Boom error
  */
 const mapErrorResponse = error => {
-  if (error instanceof errors.UniqueConstraintViolation) {
-    return Boom.conflict(error.message);
-  } else if (error instanceof errors.ForeignKeyConstraintViolation) {
-    return Boom.conflict(error.message);
+  const func = commandMap.get(error.name);
+
+  if (func) {
+    return func(error);
   }
   throw error;
 };

@@ -27,19 +27,19 @@
   "devDependencies": {
     "@hapi/code": "^5.2.4",
     "@hapi/lab": "^19.1.0",
-    "auto-changelog": "^1.16.2",
+    "auto-changelog": "^1.16.4",
     "blipp": "^4.0.0",
     "codecov": "^3.6.1",
     "db-migrate": "^0.11.6",
     "db-migrate-pg": "^1.0.0",
     "eslint": "^6.8.0",
-    "eslint-config-standard": "^14.1.0",
-    "eslint-plugin-import": "^2.20.0",
+    "eslint-config-standard": "^14.1.1",
+    "eslint-plugin-import": "^2.20.2",
     "eslint-plugin-node": "^10.0.0",
     "eslint-plugin-promise": "^4.2.1",
     "eslint-plugin-standard": "^4.0.1",
     "sinon": "^7.5.0",
-    "snyk": "^1.279.0"
+    "snyk": "^1.305.1"
   },
   "dependencies": {
     "@envage/hapi-pg-rest-api": "^4.1.2",
@@ -59,7 +59,7 @@
     "hapi-auth-jwt2": "^8.6.1",
     "jsonwebtoken": "^8.5.1",
     "kind-of": "^6.0.3",
-    "knex": "^0.20.8",
+    "knex": "^0.20.15",
     "lodash": "^4.17.15",
     "moment": "^2.24.0",
     "path": "^0.12.7",
