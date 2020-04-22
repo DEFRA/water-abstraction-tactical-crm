@@ -3,17 +3,24 @@
 const {
   experiment,
   test,
-  beforeEach
+  beforeEach,
+  afterEach
 } = exports.lab = require('@hapi/lab').script();
+const sandbox = require('sinon').createSandbox();
 
 const { expect } = require('@hapi/code');
 const uuid = require('uuid/v4');
 const querystring = require('querystring');
 
 const routes = require('../../../../src/v2/modules/contacts/routes');
+const entityHandler = require('../../../../src/v2/lib/entity-handlers');
 const { createServerForRoute } = require('../../../helpers');
 
-experiment('modules/addresses/routes', () => {
+experiment('modules/contacts/routes', () => {
+  afterEach(async () => {
+    sandbox.restore();
+  });
+
   experiment('getContact', () => {
     let server;
 
@@ -23,7 +30,18 @@ experiment('modules/addresses/routes', () => {
     });
 
     beforeEach(async () => {
+      sandbox.stub(entityHandler, 'getEntity');
       server = createServerForRoute(routes.getContact);
+    });
+
+    test('the handler is delegated to the entity handler', async () => {
+      const request = Symbol('request');
+
+      await routes.getContact.handler(request);
+
+      const createArgs = entityHandler.getEntity.lastCall.args;
+      expect(createArgs[0]).to.equal(request);
+      expect(createArgs[1]).to.equal('contact');
     });
 
     test('returns a 400 if contactId is not a uuid', async () => {
@@ -87,6 +105,19 @@ experiment('modules/addresses/routes', () => {
       };
 
       server = createServerForRoute(routes.postContact);
+      sandbox.stub(entityHandler, 'createEntity');
+    });
+
+    test('the handler is delegated to the entity handler', async () => {
+      const request = Symbol('request');
+      const toolkit = Symbol('h');
+
+      await routes.postContact.handler(request, toolkit);
+
+      const createArgs = entityHandler.createEntity.lastCall.args;
+      expect(createArgs[0]).to.equal(request);
+      expect(createArgs[1]).to.equal(toolkit);
+      expect(createArgs[2]).to.equal('contact');
     });
 
     experiment('when a contact is being created', () => {

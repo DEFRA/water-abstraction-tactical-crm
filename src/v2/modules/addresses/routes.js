@@ -1,12 +1,12 @@
 'use strict';
 
 const Joi = require('@hapi/joi');
-const controller = require('./controller');
+const entityHandlers = require('../../lib/entity-handlers');
 
-exports.createAddress = {
+exports.postAddress = {
   method: 'POST',
   path: '/crm/2.0/addresses',
-  handler: controller.postAddress,
+  handler: (request, h) => entityHandlers.createEntity(request, h, 'address'),
   options: {
     description: 'Creates a new address',
     validate: {
@@ -28,7 +28,7 @@ exports.createAddress = {
 exports.getAddress = {
   method: 'GET',
   path: '/crm/2.0/addresses/{addressId}',
-  handler: controller.getAddress,
+  handler: request => entityHandlers.getEntity(request, 'address'),
   options: {
     description: 'Get an address entity',
     validate: {

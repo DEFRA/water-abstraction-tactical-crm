@@ -212,7 +212,7 @@ const deleteVerificationDocument = async verificationId => {
 };
 
 /**
- * Creates a HAPI server to allow a signle route to be
+ * Creates a HAPI server to allow a single route to be
  * tested. The route handler is replaced with
  * a simple ok 200 response to allow the route definition to
  * be tested.
