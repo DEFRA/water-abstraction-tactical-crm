@@ -9,10 +9,12 @@ const transformEntityValidationError = error => {
 };
 
 const transformUniqueConstraintViolation = error => Boom.conflict(error.message);
+const transformForeignKeyConstraintViolation = error => Boom.conflict(error.message);
 
 const commandMap = new Map();
 commandMap.set('UniqueConstraintViolation', transformUniqueConstraintViolation);
 commandMap.set('EntityValidationError', transformEntityValidationError);
+commandMap.set('ForeignKeyConstraintViolation', transformForeignKeyConstraintViolation);
 
 /**
  * Maps a service error to a Boom error for providing an HTTP response
