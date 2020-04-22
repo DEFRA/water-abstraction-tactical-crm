@@ -14,6 +14,13 @@ class UniqueConstraintViolation extends DBError {
   }
 }
 
+class ForeignKeyConstraintViolation extends DBError {
+  constructor (message) {
+    super(message);
+    this.name = 'ForeignKeyConstraintViolation';
+  }
+}
+
 class EntityValidationError extends Error {
   /**
    * Creates a new EntityValidationError representing the failed validation
@@ -31,4 +38,5 @@ class EntityValidationError extends Error {
 }
 
 exports.UniqueConstraintViolation = UniqueConstraintViolation;
+exports.ForeignKeyConstraintViolation = ForeignKeyConstraintViolation;
 exports.EntityValidationError = EntityValidationError;
