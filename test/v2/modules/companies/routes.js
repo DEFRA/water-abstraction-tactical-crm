@@ -1,7 +1,5 @@
 'use strict';
 
-const Hapi = require('@hapi/hapi');
-const { cloneDeep } = require('lodash');
 const uuid = require('uuid/v4');
 
 const {
@@ -12,16 +10,7 @@ const {
 
 const { expect } = require('@hapi/code');
 const routes = require('../../../../src/v2/modules/companies/routes');
-
-const createServer = route => {
-  const server = Hapi.server();
-  const testRoute = cloneDeep(route);
-  testRoute.handler = async () => 'ok';
-
-  server.route(testRoute);
-
-  return server;
-};
+const { createServerForRoute } = require('../../../helpers');
 
 experiment('modules/companies/routes', () => {
   experiment('getCompany', () => {
@@ -33,7 +22,7 @@ experiment('modules/companies/routes', () => {
     });
 
     beforeEach(async () => {
-      server = createServer(routes.getCompany);
+      server = createServerForRoute(routes.getCompany);
     });
 
     test('returns a 400 if the company id is not a uuid', async () => {
@@ -53,7 +42,7 @@ experiment('modules/companies/routes', () => {
     });
 
     beforeEach(async () => {
-      server = createServer(routes.createCompany);
+      server = createServerForRoute(routes.createCompany);
     });
 
     experiment('when a person is being created', () => {
@@ -198,7 +187,7 @@ experiment('modules/companies/routes', () => {
     });
 
     beforeEach(async () => {
-      server = createServer(routes.postCompanyAddress);
+      server = createServerForRoute(routes.postCompanyAddress);
     });
 
     test('returns a 400 if the company id is not a uuid', async () => {
@@ -397,7 +386,7 @@ experiment('modules/companies/routes', () => {
     });
 
     beforeEach(async () => {
-      server = createServer(routes.postCompanyContact);
+      server = createServerForRoute(routes.postCompanyContact);
     });
 
     test('returns a 400 if the company id is not a uuid', async () => {
