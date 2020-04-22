@@ -24,7 +24,10 @@ experiment('v2/modules/contacts/controller', () => {
     test('passes the query ids to the repository as an array', async () => {
       const request = {
         query: {
-          ids: '00000000-0000-0000-0000-000000000000,11111111-0000-0000-0000-000000000000'
+          ids: [
+            '00000000-0000-0000-0000-000000000000',
+            '11111111-0000-0000-0000-000000000000'
+          ]
         }
       };
 

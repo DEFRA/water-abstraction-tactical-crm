@@ -63,7 +63,7 @@ experiment('modules/contacts/routes', () => {
     const createGetContactsRequest = contactIds => ({
       method: 'GET',
       url: `/crm/2.0/contacts?${querystring.stringify({
-        ids: contactIds.join(',')
+        ids: contactIds
       })}`
     });
 
@@ -81,6 +81,12 @@ experiment('modules/contacts/routes', () => {
       const request = createGetContactsRequest([uuid(), uuid()]);
       const response = await server.inject(request);
       expect(response.statusCode).to.equal(200);
+    });
+
+    test('returns a 400 for if the id is not a uuid', async () => {
+      const request = createGetContactsRequest([1234, uuid()]);
+      const response = await server.inject(request);
+      expect(response.statusCode).to.equal(400);
     });
   });
 

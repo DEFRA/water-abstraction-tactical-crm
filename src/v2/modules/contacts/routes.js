@@ -3,6 +3,7 @@
 const Joi = require('@hapi/joi');
 const controller = require('./controller');
 const entityHandlers = require('../../lib/entity-handlers');
+const validators = require('../../lib/validators');
 
 exports.getContact = {
   method: 'GET',
@@ -26,7 +27,7 @@ exports.getContacts = {
     description: 'Get a list of contacts by id',
     validate: {
       query: {
-        ids: Joi.string().required()
+        ids: Joi.array().items(Joi.string().uuid()).required().single()
       }
     }
   }
@@ -45,7 +46,7 @@ exports.postContact = {
         initials: Joi.string().optional(),
         lastName: Joi.string().required(),
         middleName: Joi.string().optional(),
-        isTest: Joi.boolean().optional().default(false)
+        isTest: validators.TEST_FLAG
       }
     }
   }
