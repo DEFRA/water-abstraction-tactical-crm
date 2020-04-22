@@ -386,7 +386,7 @@ experiment('modules/companies/routes', () => {
     });
 
     beforeEach(async () => {
-      server = createServer(routes.postCompanyContact);
+      server = createServerForRoute(routes.postCompanyContact);
     });
 
     test('returns a 400 if the company id is not a uuid', async () => {

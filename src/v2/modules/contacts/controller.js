@@ -7,7 +7,7 @@ const contactService = require('../../services/contacts');
 
 const getContacts = async request => {
   try {
-    return contactService.getContactsByIds(request.query.ids.split(','));
+    return contactService.getContactsByIds(request.query.ids);
   } catch (err) {
     logger.error('Could not get contacts', err);
     return Boom.boomify(err);

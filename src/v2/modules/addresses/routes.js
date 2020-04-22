@@ -2,6 +2,7 @@
 
 const Joi = require('@hapi/joi');
 const entityHandlers = require('../../lib/entity-handlers');
+const validators = require('../../lib/validators');
 
 exports.postAddress = {
   method: 'POST',
@@ -19,7 +20,7 @@ exports.postAddress = {
         county: Joi.string().required(),
         country: Joi.string().required(),
         postcode: Joi.string().optional(),
-        isTest: Joi.boolean().optional().default(false)
+        isTest: validators.TEST_FLAG
       }
     }
   }
