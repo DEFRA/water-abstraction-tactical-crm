@@ -2,11 +2,12 @@
 
 const Joi = require('@hapi/joi');
 const controller = require('./controller');
+const entityHandlers = require('../../lib/entity-handlers');
 
 exports.getContact = {
   method: 'GET',
   path: '/crm/2.0/contacts/{contactId}',
-  handler: controller.getContact,
+  handler: request => entityHandlers.getEntity(request, 'contact'),
   options: {
     description: 'Get a contact by id',
     validate: {
@@ -34,7 +35,7 @@ exports.getContacts = {
 exports.postContact = {
   method: 'POST',
   path: '/crm/2.0/contacts',
-  handler: controller.postContact,
+  handler: (request, h) => entityHandlers.createEntity(request, h, 'contact'),
   options: {
     description: 'Creates a new contact',
     validate: {
