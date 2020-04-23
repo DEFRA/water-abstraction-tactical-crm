@@ -6,7 +6,7 @@ const mappers = require('./lib/mappers');
 const getDocuments = async (request) => {
   const { regime, documentType, documentRef } = request.query;
   const data = await repositories.documents.findByDocumentRef(regime, documentType, documentRef);
-  return data.map(camelCaseKeys);
+  return data;
 };
 
 const getDocument = async (request, h) => {
@@ -14,7 +14,7 @@ const getDocument = async (request, h) => {
 
   // Load document and roles from DB
   const [doc, roles] = await Promise.all([
-    repositories.documents.findOneById(documentId),
+    repositories.documents.findOne(documentId),
     repositories.documentRoles.findByDocumentId(documentId)
   ]);
 
@@ -29,5 +29,11 @@ const getDocument = async (request, h) => {
   };
 };
 
+const postDocuments = async (request) => {
+  // check before creation that the date range does not overlap an existing document
+  // with the same regime, documentType and documentRef.  If it does, we should respond with a 409
+};
+
+exports.postDocuments = postDocuments;
 exports.getDocuments = getDocuments;
 exports.getDocument = getDocument;

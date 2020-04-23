@@ -6,3 +6,4 @@ exports.CompanyAddress = require('./CompanyAddress');
 exports.InvoiceAccount = require('./InvoiceAccount');
 exports.InvoiceAccountAddress = require('./InvoiceAccountAddress');
 exports.CompanyContact = require('./CompanyContact');
+exports.Document = require('./Document');
