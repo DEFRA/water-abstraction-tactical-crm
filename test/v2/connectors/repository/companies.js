@@ -82,7 +82,7 @@ experiment('v2/connectors/repository/companies', () => {
 
     experiment('when the id does not find a company', () => {
       beforeEach(async () => {
-        stub.fetch.resolves();
+        stub.fetch.resolves(null);
         result = await companiesRepo.findOne('test-id');
       });
 

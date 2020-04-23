@@ -1,9 +1,8 @@
 'use strict';
 
 const DocumentRolesRepository = require('./DocumentRolesRepository');
-const ContactsRepository = require('./ContactsRepository');
 
-exports.contacts = new ContactsRepository();
+exports.contacts = require('./contacts');
 exports.documents = require('./documents');
 exports.documentRoles = new DocumentRolesRepository();
 exports.invoiceAccounts = require('./invoice-accounts');
