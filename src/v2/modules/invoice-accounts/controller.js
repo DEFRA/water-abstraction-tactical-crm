@@ -16,5 +16,13 @@ const getInvoiceAccounts = async request => {
   return results.map(mappers.invoiceAccount.currentAddressOnly);
 };
 
+const postInvoiceAccount = async (request, h) => {
+  const invoiceAccountData = request.payload;
+  const invoiceAccount = await repositories.invoiceAccounts.create(invoiceAccountData);
+  return h.response(invoiceAccount)
+    .created(`/crm/2.0/invoice-accounts/${invoiceAccount.invoiceAccountId}`);
+};
+
 exports.getInvoiceAccounts = getInvoiceAccounts;
 exports.getInvoiceAccount = getInvoiceAccount;
+exports.postInvoiceAccount = postInvoiceAccount;

@@ -57,6 +57,7 @@ experiment('v2/modules/invoice-accounts/controller', () => {
 
     sandbox.stub(repos.invoiceAccounts, 'findOne').resolves(repositoryResponse[0]);
     sandbox.stub(repos.invoiceAccounts, 'findWithCurrentAddress').resolves(repositoryResponse);
+    sandbox.stub(repos.invoiceAccounts, 'create').resolves(repositoryResponse[0]);
   });
 
   afterEach(async () => {
@@ -140,6 +141,41 @@ experiment('v2/modules/invoice-accounts/controller', () => {
       test('returns a Boom 404 error', async () => {
         expect(response.isBoom).to.be.true();
         expect(response.output.statusCode).to.equal(404);
+      });
+    });
+  });
+
+  experiment('.postInvoiceAccount', () => {
+    let request, h, created;
+
+    experiment('when an invoice account is found', () => {
+      beforeEach(async () => {
+        request = {
+          payload: {
+            companyId: 'test-company-id',
+            invoiceAccountNumber: 'A12345678A',
+            startDate: '2020-04-01'
+          }
+        };
+        created = sandbox.stub();
+        h = { response: sandbox.stub().returns({ created }) };
+
+        await controller.postInvoiceAccount(request, h);
+      });
+
+      test('calls repository method with correct arguments', async () => {
+        expect(repos.invoiceAccounts.create.calledWith(request.payload)).to.be.true();
+      });
+
+      test('returns the created entity in the response', async () => {
+        const [result] = h.response.lastCall.args;
+
+        expect(result).to.equal(repositoryResponse[0]);
+      });
+
+      test('returns a 201 response code', async () => {
+        const [url] = created.lastCall.args;
+        expect(url).to.equal('/crm/2.0/invoice-accounts/ia-1');
       });
     });
   });
