@@ -3,27 +3,25 @@
 const {
   experiment,
   test,
-  beforeEach
+  beforeEach,
+  afterEach
 } = exports.lab = require('@hapi/lab').script();
+const sandbox = require('sinon').createSandbox();
+const uuid = require('uuid/v4');
+
+const entityHandler = require('../../../../src/v2/lib/entity-handlers');
 
 const { expect } = require('@hapi/code');
-const { cloneDeep } = require('lodash');
-const Hapi = require('@hapi/hapi');
 
 const routes = require('../../../../src/v2/modules/addresses/routes');
-
-const createServer = route => {
-  const server = Hapi.server();
-  const testRoute = cloneDeep(route);
-  testRoute.handler = async () => 'ok';
-
-  server.route(testRoute);
-
-  return server;
-};
+const { createServerForRoute } = require('../../../helpers');
 
 experiment('modules/addresses/routes', () => {
-  experiment('createAddress', () => {
+  afterEach(async () => {
+    sandbox.restore();
+  });
+
+  experiment('postAddress', () => {
     let fullPayload;
     let server;
 
@@ -46,7 +44,20 @@ experiment('modules/addresses/routes', () => {
         isTest: true
       };
 
-      server = createServer(routes.createAddress);
+      sandbox.stub(entityHandler, 'createEntity');
+      server = createServerForRoute(routes.postAddress);
+    });
+
+    test('the handler is delegated to the entity handler', async () => {
+      const request = Symbol('request');
+      const toolkit = Symbol('h');
+
+      await routes.postAddress.handler(request, toolkit);
+
+      const createArgs = entityHandler.createEntity.lastCall.args;
+      expect(createArgs[0]).to.equal(request);
+      expect(createArgs[1]).to.equal(toolkit);
+      expect(createArgs[2]).to.equal('address');
     });
 
     test('requires address1', async () => {
@@ -103,6 +114,42 @@ experiment('modules/addresses/routes', () => {
 
       expect(response.statusCode).to.equal(200);
       expect(response.request.payload.isTest).to.equal(false);
+    });
+  });
+
+  experiment('getAddress', () => {
+    let server;
+
+    const createGetAddressRequest = addressId => ({
+      method: 'GET',
+      url: `/crm/2.0/addresses/${addressId}`
+    });
+
+    beforeEach(async () => {
+      sandbox.stub(entityHandler, 'getEntity');
+      server = createServerForRoute(routes.getAddress);
+    });
+
+    test('the handler is delegated to the entity handler', async () => {
+      const request = Symbol('request');
+
+      await routes.getAddress.handler(request);
+
+      const createArgs = entityHandler.getEntity.lastCall.args;
+      expect(createArgs[0]).to.equal(request);
+      expect(createArgs[1]).to.equal('address');
+    });
+
+    test('returns a 400 if addressId is not a uuid', async () => {
+      const request = createGetAddressRequest(123);
+      const response = await server.inject(request);
+      expect(response.statusCode).to.equal(400);
+    });
+
+    test('returns a 200 if addressId is a uuid', async () => {
+      const request = createGetAddressRequest(uuid());
+      const response = await server.inject(request);
+      expect(response.statusCode).to.equal(200);
     });
   });
 });
