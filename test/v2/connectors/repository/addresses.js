@@ -82,7 +82,7 @@ experiment('v2/connectors/repository/addresses', () => {
 
     experiment('when the id does not find an address', () => {
       beforeEach(async () => {
-        stub.fetch.resolves();
+        stub.fetch.resolves(null);
         result = await addressesRepo.findOne('test-id');
       });
 
