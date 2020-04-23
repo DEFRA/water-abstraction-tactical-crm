@@ -24,10 +24,10 @@ const findByDocumentRef = (regime, documentType, documentRef) =>
 /**
  * Create a new Document in crm_v2.documents
  *
- * @param {Object} address An object to persist to crm_v2.addresses
- * @returns {Object} The created address from the database
+ * @param {Object} document An object to persist to crm_v2.documents
+ * @returns {Object} The created document from the database
  */
-const create = async address => helpers.create(Document, document);
+const create = async document => helpers.create(Document, document);
 
 exports.findByDocumentRef = findByDocumentRef;
 exports.findOne = findOne;
