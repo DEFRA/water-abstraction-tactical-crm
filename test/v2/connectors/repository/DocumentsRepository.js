@@ -4,7 +4,7 @@ const sandbox = require('sinon').createSandbox();
 const { pool } = require('../../../../src/lib/connectors/db');
 
 const queries = require('../../../../src/v2/connectors/repository/queries/documents');
-const DocumentsRepository = require('../../../../src/v2/connectors/repository/DocumentsRepository');
+const DocumentsRepository = require('../../../../src/v2/connectors/repository/documents');
 
 experiment('DocumentsRepository', () => {
   let repo;
@@ -23,14 +23,14 @@ experiment('DocumentsRepository', () => {
 
   experiment('findOneById', async () => {
     test('calls pool.query with correct query and params', async () => {
-      await repo.findOneById('document_1');
+      await repo.findOne('document_1');
       const [query, params] = pool.query.lastCall.args;
       expect(query).to.equal(queries.findOneById);
       expect(params).to.equal(['document_1']);
     });
 
     test('resolves with single row data', async () => {
-      const result = await repo.findOneById('document_1');
+      const result = await repo.findOne('document_1');
       expect(result).to.equal(response.rows[0]);
     });
   });
