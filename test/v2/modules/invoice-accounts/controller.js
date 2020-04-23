@@ -5,58 +5,17 @@ const { expect } = require('@hapi/code');
 const sandbox = require('sinon').createSandbox();
 
 const controller = require('../../../../src/v2/modules/invoice-accounts/controller');
-const repos = require('../../../../src/v2/connectors/repository');
+const invoiceAccountsService = require('../../../../src/v2/services/invoice-accounts');
 
-const createCompany = () => ({
-  companyId: 'comp-id-1',
-  name: 'comp-1',
-  type: 'organisation',
-  companyNumber: '1111',
-  externalId: '1111',
-  dateCreated: '2019-01-01',
-  dateUpdated: '2019-01-01'
-});
-
-const createAddress = firstLine => ({
-  addressId: 'add-id-1',
-  address1: firstLine,
-  address2: 'Buttercup meadows',
-  address3: null,
-  address4: null,
-  town: 'Testington',
-  county: 'Testingshire',
-  country: 'UK'
-});
-
-const createInvoiceAccount = id => ({
-  invoiceAccountId: id,
-  invoiceAccountNumber: 'ia-acc-no-1',
-  startDate: '2019-01-01',
-  endDate: '2020-01-01',
-  dateCreated: '2019-01-01',
-  company: createCompany(),
-  invoiceAccountAddresses: [{
-    startDate: '2019-01-01',
-    endDate: '2019-06-01',
-    address: createAddress('Buttercup Farm')
-  }, {
-    startDate: '2019-06-02',
-    endDate: null,
-    address: createAddress('Daisy Farm')
-  }]
-});
+const request = {
+  query: {
+    ids: '00000000-0000-0000-0000-000000000000,11111111-0000-0000-0000-000000000000'
+  }
+};
 
 experiment('v2/modules/invoice-accounts/controller', () => {
-  let repositoryResponse;
-
   beforeEach(async () => {
-    repositoryResponse = [
-      createInvoiceAccount('ia-1'),
-      createInvoiceAccount('ia-2')
-    ];
-
-    sandbox.stub(repos.invoiceAccounts, 'findOne').resolves(repositoryResponse[0]);
-    sandbox.stub(repos.invoiceAccounts, 'findWithCurrentAddress').resolves(repositoryResponse);
+    sandbox.stub(invoiceAccountsService, 'getInvoiceAccountsByIds').resolves([]);
   });
 
   afterEach(async () => {
@@ -64,82 +23,46 @@ experiment('v2/modules/invoice-accounts/controller', () => {
   });
 
   experiment('.getInvoiceAccounts', () => {
-    let request;
-    let response;
-
-    beforeEach(async () => {
-      request = {
+    test('passes the query ids to the repository as an array', async () => {
+      const request = {
         query: {
-          id: ['ia-1', 'ia-2']
+          ids: [
+            '00000000-0000-0000-0000-000000000000',
+            '11111111-0000-0000-0000-000000000000'
+          ]
         }
       };
-      response = await controller.getInvoiceAccounts(request);
+
+      await controller.getInvoiceAccounts(request);
+      const [ids] = invoiceAccountsService.getInvoiceAccountsByIds.lastCall.args;
+      expect(ids).to.equal([
+        '00000000-0000-0000-0000-000000000000',
+        '11111111-0000-0000-0000-000000000000'
+      ]);
     });
 
-    test('calls repository method with correct arguments', async () => {
-      expect(repos.invoiceAccounts.findWithCurrentAddress.calledWith(
-        ['ia-1', 'ia-2']
-      )).to.be.true();
-    });
+    experiment('when no invoice accounts are found', () => {
+      test('an empty array is returned', async () => {
+        invoiceAccountsService.getInvoiceAccountsByIds.resolves([]);
 
-    test('resolves with a response that is camel cased', async () => {
-      expect(response[0].invoiceAccountId).to.equal('ia-1');
-    });
+        const response = await controller.getInvoiceAccounts(request);
 
-    test('has the expected invoice account data', async () => {
-      expect(response[0].invoiceAccountId).to.equal(repositoryResponse[0].invoiceAccountId);
-      expect(response[1].invoiceAccountId).to.equal(repositoryResponse[1].invoiceAccountId);
-    });
-
-    test('includes company data', async () => {
-      expect(response[0].company).to.equal(repositoryResponse[0].company);
-      expect(response[1].company).to.equal(repositoryResponse[1].company);
-    });
-
-    test('includes the current address only', async () => {
-      expect(response[0].address).to.equal(repositoryResponse[0].invoiceAccountAddresses[1].address);
-      expect(response[1].address).to.equal(repositoryResponse[1].invoiceAccountAddresses[1].address);
-    });
-  });
-
-  experiment('.getInvoiceAccount', () => {
-    let request;
-    let response;
-
-    experiment('when an invoice account is found', () => {
-      beforeEach(async () => {
-        request = {
-          params: {
-            invoiceAccountId: 'ia-1'
-          }
-        };
-        response = await controller.getInvoiceAccount(request);
-      });
-
-      test('calls repository method with correct arguments', async () => {
-        expect(repos.invoiceAccounts.findOne.calledWith('ia-1')).to.be.true();
-      });
-
-      test('has the expected invoice account data', async () => {
-        expect(response).to.be.an.object();
-        expect(response).to.equal(repositoryResponse[0]);
+        expect(response).to.equal([]);
       });
     });
 
-    experiment('when an invoice account is not found', () => {
-      beforeEach(async () => {
-        request = {
-          params: {
-            invoiceAccountId: 'ia-1'
-          }
-        };
-        repos.invoiceAccounts.findOne.resolves(null);
-        response = await controller.getInvoiceAccount(request);
-      });
+    experiment('when invoice accounts are found', () => {
+      test('the data is returned', async () => {
+        const invoiceAccounts = [
+          { invoiceAccountId: '00000000-0000-0000-0000-000000000000' },
+          { invoiceAccountId: '00000000-0000-0000-0000-000000000001' }
+        ];
 
-      test('returns a Boom 404 error', async () => {
-        expect(response.isBoom).to.be.true();
-        expect(response.output.statusCode).to.equal(404);
+        invoiceAccountsService.getInvoiceAccountsByIds.resolves(invoiceAccounts);
+
+        const response = await controller.getInvoiceAccounts(request);
+
+        expect(response).to.equal(invoiceAccounts);
       });
     });
   });
