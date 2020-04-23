@@ -1,12 +1,13 @@
 const Joi = require('@hapi/joi');
 const controller = require('./controller');
 
+const entityHandlers = require('../../lib/entity-handlers');
 const validators = require('../../lib/validators');
 
 exports.getInvoiceAccount = {
   method: 'GET',
   path: '/crm/2.0/invoice-accounts/{invoiceAccountId}',
-  handler: controller.getInvoiceAccount,
+  handler: request => entityHandlers.getEntity(request, 'invoiceAccount'),
   options: {
     description: 'Get an invoice account by id',
     validate: {
@@ -22,10 +23,10 @@ exports.getInvoiceAccounts = {
   path: '/crm/2.0/invoice-accounts',
   handler: controller.getInvoiceAccounts,
   options: {
-    description: 'Get a list of invoice accounts that have the specified id values',
+    description: 'Get a list of invoice accounts by id',
     validate: {
       query: {
-        id: Joi.array().single().items(validators.GUID).required()
+        ids: Joi.array().single().items(validators.GUID).required()
       }
     }
   }
@@ -34,7 +35,7 @@ exports.getInvoiceAccounts = {
 exports.createInvoiceAccount = {
   method: 'POST',
   path: '/crm/2.0/invoice-accounts',
-  handler: controller.postInvoiceAccount,
+  handler: (request, h) => entityHandlers.createEntity(request, h, 'invoiceAccount'),
   options: {
     description: 'Creates an invoice account',
     validate: {
