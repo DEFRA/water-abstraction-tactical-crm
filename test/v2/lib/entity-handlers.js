@@ -9,11 +9,13 @@ const {
 
 const { expect } = require('@hapi/code');
 const sandbox = require('sinon').createSandbox();
+const uuid = require('uuid/v4');
 
 const errors = require('../../../src/v2/lib/errors');
 const entityHandlers = require('../../../src/v2/lib/entity-handlers');
 const addressService = require('../../../src/v2/services/address');
 const contactsService = require('../../../src/v2/services/contacts');
+const invoiceAccountsService = require('../../../src/v2/services/invoice-accounts');
 
 experiment('v2/lib/entity-handlers', () => {
   let result;
@@ -33,6 +35,8 @@ experiment('v2/lib/entity-handlers', () => {
     sandbox.stub(addressService, 'getAddress');
     sandbox.stub(contactsService, 'createContact');
     sandbox.stub(contactsService, 'getContact');
+    sandbox.stub(invoiceAccountsService, 'getInvoiceAccount');
+    sandbox.stub(invoiceAccountsService, 'createInvoiceAccount');
   });
 
   afterEach(async () => {
@@ -161,6 +165,74 @@ experiment('v2/lib/entity-handlers', () => {
         test('an Boom error is returned', async () => {
           expect(result.output.payload.statusCode).to.equal(422);
           expect(result.output.payload.message).to.equal('Contact not valid');
+          expect(result.output.payload.validationDetails).to.equal(['fail-1', 'fail-2']);
+        });
+      });
+    });
+
+    experiment('when creating an invoice account', () => {
+      experiment('if the invoice account is valid', () => {
+        let companyId;
+
+        beforeEach(async () => {
+          companyId = uuid();
+          request = {
+            path: '/crm/2.0/invoice-accounts',
+            payload: {
+              companyId,
+              invoiceAccountNumber: 'A12345678A',
+              startDate: '2020-04-01'
+            }
+          };
+
+          invoiceAccountsService.createInvoiceAccount.resolves({
+            invoiceAccountId: 'test-invoice-account-id'
+          });
+
+          await entityHandlers.createEntity(request, h, 'invoiceAccount');
+        });
+
+        test('the payload is passed to the service', async () => {
+          const [entity] = invoiceAccountsService.createInvoiceAccount.lastCall.args;
+          expect(entity.companyId).to.equal(companyId);
+          expect(entity.invoiceAccountNumber).to.equal('A12345678A');
+          expect(entity.startDate).to.equal('2020-04-01');
+        });
+
+        test('the saved entity is returned in the response body', async () => {
+          const [entity] = h.response.lastCall.args;
+          expect(entity.invoiceAccountId).to.equal('test-invoice-account-id');
+        });
+
+        test('the location header points to the saved entity', async () => {
+          const [location] = responseStub.created.lastCall.args;
+          expect(location).to.equal('/crm/2.0/invoice-accounts/test-invoice-account-id');
+        });
+      });
+
+      experiment('if the invoice account is not valid', () => {
+        beforeEach(async () => {
+          request = {
+            path: '/crm/2.0/invoice-accounts',
+            payload: {
+              invoiceAccountNumber: 'A12345678A',
+              startDate: '2020-04-01'
+            }
+          };
+
+          const validationError = new errors.EntityValidationError(
+            'Invoice account not valid',
+            ['fail-1', 'fail-2']
+          );
+
+          invoiceAccountsService.createInvoiceAccount.rejects(validationError);
+
+          result = await entityHandlers.createEntity(request, h, 'invoiceAccount');
+        });
+
+        test('an Boom error is returned', async () => {
+          expect(result.output.payload.statusCode).to.equal(422);
+          expect(result.output.payload.message).to.equal('Invoice account not valid');
           expect(result.output.payload.validationDetails).to.equal(['fail-1', 'fail-2']);
         });
       });

@@ -1,10 +1,7 @@
 const { experiment, test, beforeEach, afterEach } = exports.lab = require('@hapi/lab').script();
 const { expect } = require('@hapi/code');
 const sandbox = require('sinon').createSandbox();
-// const { pool } = require('../../../../src/lib/connectors/db');
 
-// const queries = require('../../../../src/v2/connectors/repository/queries/documents');
-// const DocumentsRepository = require('../../../../src/v2/connectors/repository/DocumentsRepository');
 const { invoiceAccounts } = require('../../../../src/v2/connectors/repository');
 const { InvoiceAccount } = require('../../../../src/v2/connectors/bookshelf');
 
@@ -17,7 +14,8 @@ experiment('v2/connectors/repository/invoice-account', () => {
     };
     stub = {
       fetch: sandbox.stub(),
-      where: sandbox.stub().returnsThis()
+      where: sandbox.stub().returnsThis(),
+      save: sandbox.stub().resolves(model)
     };
     sandbox.stub(InvoiceAccount, 'forge').returns(stub);
     sandbox.stub(InvoiceAccount, 'collection').returns(stub);
@@ -125,6 +123,30 @@ experiment('v2/connectors/repository/invoice-account', () => {
       test('resolves with an array of data', async () => {
         expect(result).to.be.an.array();
       });
+    });
+  });
+
+  experiment('.create', () => {
+    let result;
+    let invoiceAccount;
+
+    beforeEach(async () => {
+      invoiceAccount = { companyId: 'test-company-id', invoiceAccountNumber: 'A12345678A', startDate: '2020-04-01' };
+      result = await invoiceAccounts.create(invoiceAccount);
+    });
+
+    test('.forge() is called on the model with the data', async () => {
+      const [data] = InvoiceAccount.forge.lastCall.args;
+      expect(data).to.equal(invoiceAccount);
+    });
+
+    test('.save() is called after the forge', async () => {
+      expect(stub.save.called).to.equal(true);
+    });
+
+    test('the JSON representation is returned', async () => {
+      expect(model.toJSON.called).to.be.true();
+      expect(result.invoiceAccountId).to.equal('test-id');
     });
   });
 });
