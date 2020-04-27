@@ -1,4 +1,5 @@
 const { InvoiceAccount } = require('../bookshelf');
+const helpers = require('./helpers');
 
 /**
  * Find single InvoiceAccount with relations by ID
@@ -41,5 +42,14 @@ const findWithCurrentAddress = async ids => {
   return result.toJSON();
 };
 
+/**
+ * Create a new invoice account in crm_v2.invoice_accounts
+ *
+ * @param {Object} invoiceAccount An object to persist to crm_v2.invoice_accounts
+ * @returns {Object} The created invoice account from the database
+ */
+const create = async invoiceAccount => helpers.create(InvoiceAccount, invoiceAccount);
+
 exports.findOne = findOne;
 exports.findWithCurrentAddress = findWithCurrentAddress;
+exports.create = create;

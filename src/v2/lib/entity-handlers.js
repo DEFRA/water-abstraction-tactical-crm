@@ -8,11 +8,13 @@ const mapErrorResponse = require('./map-error-response');
 const contactsService = require('../services/contacts');
 const addressService = require('../services/address');
 const documentService = require('../services/documents');
+const invoiceAccountsService = require('../services/invoice-accounts');
 
 const services = {
   contact: contactsService,
   address: addressService,
-  document: documentService
+  document: documentService,
+  invoiceAccount: invoiceAccountsService
 };
 
 const validateKey = key => {
@@ -33,7 +35,7 @@ const createEntity = async (request, h, key) => {
   validateKey(key);
 
   try {
-    const createFn = `create${startCase(key)}`;
+    const createFn = `create${startCase(key).replace(/\s/g, '')}`;
     const entity = await services[key][createFn](request.payload);
     const location = urlJoin(request.path, entity[`${key}Id`]);
     return h.response(entity).created(location);
