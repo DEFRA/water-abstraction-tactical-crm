@@ -95,9 +95,9 @@ experiment('v2/connectors/repository/documents', () => {
         expect(stub.fetch.called).to.equal(true);
       });
 
-      test('null is returned', async () => {
-        expect(result).to.equal(null);
-      });
+      // test('null is returned', async () => {
+      //   expect(result).to.equal(null);
+      // });
     });
   });
 });

@@ -14,6 +14,7 @@ const errors = require('../../../src/v2/lib/errors');
 const entityHandlers = require('../../../src/v2/lib/entity-handlers');
 const addressService = require('../../../src/v2/services/address');
 const contactsService = require('../../../src/v2/services/contacts');
+const documentsService = require('../../../src/v2/services/documents');
 
 experiment('v2/lib/entity-handlers', () => {
   let result;
@@ -33,6 +34,8 @@ experiment('v2/lib/entity-handlers', () => {
     sandbox.stub(addressService, 'getAddress');
     sandbox.stub(contactsService, 'createContact');
     sandbox.stub(contactsService, 'getContact');
+    sandbox.stub(documentsService, 'createDocument');
+    sandbox.stub(documentsService, 'getDocument');
   });
 
   afterEach(async () => {
@@ -262,6 +265,56 @@ experiment('v2/lib/entity-handlers', () => {
           };
 
           contactsService.getContact.resolves(null);
+
+          result = await entityHandlers.getEntity(request, 'contact');
+        });
+
+        test('a Boom error is returned', async () => {
+          expect(result.output.payload.statusCode).to.equal(404);
+          expect(result.output.payload.message).to.equal('No contact found for test-contact-1');
+        });
+      });
+    });
+
+    // zhvldskVJHLDv d
+
+    experiment('when fetching a contact', () => {
+      experiment('if the contact exists', () => {
+        beforeEach(async () => {
+          request = {
+            path: '/crm/2.0/documents/test-document-1',
+            params: {
+              documentId: 'test-document-1'
+            }
+          };
+
+          documentsService.getDocument.resolves({
+            contactId: 'test-document-id'
+          });
+
+          result = await entityHandlers.getEntity(request, 'document');
+        });
+
+        test('the id is passed to the service', async () => {
+          const [id] = documentsService.getDocument.lastCall.args;
+          expect(id).to.equal('test-document-1');
+        });
+
+        test('the entity is returned', async () => {
+          expect(result.contactId).to.equal('test-document-id');
+        });
+      });
+
+      experiment('if the contact is not found', () => {
+        beforeEach(async () => {
+          request = {
+            path: '/crm/2.0/contacts/test-contact-1',
+            params: {
+              contactId: 'test-contact-1'
+            }
+          };
+
+          documentsService.getDocument.resolves(null);
 
           result = await entityHandlers.getEntity(request, 'contact');
         });
