@@ -7,10 +7,12 @@ const { startCase } = require('lodash');
 const mapErrorResponse = require('./map-error-response');
 const contactsService = require('../services/contacts');
 const addressService = require('../services/address');
+const documentService = require('../services/documents');
 
 const services = {
   contact: contactsService,
-  address: addressService
+  address: addressService,
+  document: documentService
 };
 
 const validateKey = key => {
