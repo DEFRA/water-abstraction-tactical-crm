@@ -56,7 +56,7 @@ experiment('services/contacts', () => {
     });
   });
 
-  experiment('.create', () => {
+  experiment('.createContact', () => {
     experiment('when the contact data is invalid', () => {
       let contact;
 
