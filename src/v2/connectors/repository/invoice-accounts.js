@@ -1,4 +1,5 @@
 const { InvoiceAccount } = require('../bookshelf');
+const invoiceAccountAddresses = require('./invoice-account-addresses');
 const helpers = require('./helpers');
 
 /**
@@ -50,6 +51,15 @@ const findWithCurrentAddress = async ids => {
  */
 const create = async invoiceAccount => helpers.create(InvoiceAccount, invoiceAccount);
 
+/**
+ * Create a new invoice account address in crm_v2.invoice_account_addresses
+ *
+ * @param {Object} invoiceAccountAddress An object to persist to crm_v2.invoice_account_addresses
+ * @returns {Object} The created invoice account address from the database
+ */
+const addAddress = async invoiceAccountAddress => invoiceAccountAddresses.create(invoiceAccountAddress);
+
 exports.findOne = findOne;
 exports.findWithCurrentAddress = findWithCurrentAddress;
 exports.create = create;
+exports.addAddress = addAddress;

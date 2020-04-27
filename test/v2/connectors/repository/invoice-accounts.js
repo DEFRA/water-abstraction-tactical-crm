@@ -2,7 +2,7 @@ const { experiment, test, beforeEach, afterEach } = exports.lab = require('@hapi
 const { expect } = require('@hapi/code');
 const sandbox = require('sinon').createSandbox();
 
-const { invoiceAccounts } = require('../../../../src/v2/connectors/repository');
+const { invoiceAccounts, invoiceAccountAddresses } = require('../../../../src/v2/connectors/repository');
 const { InvoiceAccount } = require('../../../../src/v2/connectors/bookshelf');
 
 experiment('v2/connectors/repository/invoice-account', () => {
@@ -19,6 +19,7 @@ experiment('v2/connectors/repository/invoice-account', () => {
     };
     sandbox.stub(InvoiceAccount, 'forge').returns(stub);
     sandbox.stub(InvoiceAccount, 'collection').returns(stub);
+    sandbox.stub(invoiceAccountAddresses, 'create').resolves({ invoiceAccountAddressId: 'test-id' });
   });
 
   afterEach(async () => {
@@ -147,6 +148,25 @@ experiment('v2/connectors/repository/invoice-account', () => {
     test('the JSON representation is returned', async () => {
       expect(model.toJSON.called).to.be.true();
       expect(result.invoiceAccountId).to.equal('test-id');
+    });
+  });
+
+  experiment('.addAddress', () => {
+    let result;
+    let invoiceAccountAddress;
+
+    beforeEach(async () => {
+      invoiceAccountAddress = { invoiceAccountId: 'test-invoice-account-id', addressId: 'test-address-id', startDate: '2020-04-01' };
+      result = await invoiceAccounts.addAddress(invoiceAccountAddress);
+    });
+
+    test('invoiceAccountAddresses .create is called with the data', async () => {
+      const [data] = invoiceAccountAddresses.create.lastCall.args;
+      expect(data).to.equal(invoiceAccountAddress);
+    });
+
+    test('returns the response from the invoiceAccountAddresses repo', async () => {
+      expect(result).to.equal({ invoiceAccountAddressId: 'test-id' });
     });
   });
 });

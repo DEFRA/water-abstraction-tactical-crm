@@ -254,4 +254,161 @@ experiment('v2/modules/invoice-account/routes', () => {
       });
     });
   });
+
+  experiment('postInvoiceAccountAddress', () => {
+    let server;
+
+    const getRequest = (invoiceAccountId, payload) => ({
+      method: 'POST',
+      url: `/crm/2.0/invoice-accounts/${invoiceAccountId}/addresses`,
+      payload
+    });
+
+    beforeEach(() => {
+      server = createServer(routes.postInvoiceAccountAddress);
+    });
+
+    experiment('returns a 400', () => {
+      test('if the invoice account id is not a guid', async () => {
+        const request = getRequest(123);
+        const response = await server.inject(request);
+        expect(response.statusCode).to.equal(400);
+      });
+
+      experiment('if the addressId', async () => {
+        test('is omitted', async () => {
+          const request = getRequest(uuid(), {
+            startDate: '2020-04-01'
+          });
+
+          const response = await server.inject(request);
+          expect(response.statusCode).to.equal(400);
+        });
+
+        test('is not a guid', async () => {
+          const request = getRequest(uuid(), {
+            addressId: '123abc',
+            startDate: '2020-04-01'
+          });
+
+          const response = await server.inject(request);
+          expect(response.statusCode).to.equal(400);
+        });
+      });
+
+      experiment('if the startDate', () => {
+        test('is omitted', async () => {
+          const request = getRequest(uuid(), {
+            addressId: '123abc'
+          });
+
+          const response = await server.inject(request);
+          expect(response.statusCode).to.equal(400);
+        });
+
+        test('is not valid', async () => {
+          const request = getRequest(uuid(), {
+            addressId: '123abc',
+            startDate: '2020-04-31'
+          });
+
+          const response = await server.inject(request);
+          expect(response.statusCode).to.equal(400);
+        });
+      });
+
+      experiment('if the endDate', () => {
+        test('is not valid', async () => {
+          const request = getRequest(uuid(), {
+            addressId: uuid(),
+            startDate: '2020-04-01',
+            endDate: '2020-12-35'
+          });
+
+          const response = await server.inject(request);
+          expect(response.statusCode).to.equal(400);
+        });
+
+        test('is before the startDate', async () => {
+          const request = getRequest(uuid(), {
+            addressId: uuid(),
+            startDate: '2020-04-01',
+            endDate: '2020-01-01'
+          });
+
+          const response = await server.inject(request);
+          expect(response.statusCode).to.equal(400);
+        });
+      });
+
+      experiment('if isTest', () => {
+        test('is not valid', async () => {
+          const request = getRequest(uuid(), {
+            addressId: uuid(),
+            startDate: '2020-04-01',
+            isTest: 'yes'
+          });
+
+          const response = await server.inject(request);
+          expect(response.statusCode).to.equal(400);
+        });
+      });
+    });
+    experiment('the endDate', () => {
+      test('can be set to null', async () => {
+        const request = getRequest(uuid(), {
+          addressId: uuid(),
+          startDate: '2020-04-01',
+          endDate: null
+        });
+
+        const response = await server.inject(request);
+        expect(response.statusCode).to.equal(200);
+      });
+
+      test('defaults to null if not provided', async () => {
+        const request = getRequest(uuid(), {
+          addressId: uuid(),
+          startDate: '2020-04-01'
+        });
+
+        const response = await server.inject(request);
+        expect(response.request.payload.endDate).to.be.null();
+      });
+
+      test('can be set to a valid date', async () => {
+        const request = getRequest(uuid(), {
+          addressId: uuid(),
+          startDate: '2020-04-01',
+          endDate: '2020-12-31'
+        });
+
+        const response = await server.inject(request);
+        expect(response.statusCode).to.equal(200);
+      });
+    });
+
+    experiment('isTest', () => {
+      test('defaults to false if not provided', async () => {
+        const request = getRequest(uuid(), {
+          addressId: uuid(),
+          startDate: '2020-04-01'
+        });
+
+        const response = await server.inject(request);
+        expect(response.request.payload.isTest).to.be.false();
+      });
+
+      test('can be set to a boolean', async () => {
+        const request = getRequest(uuid(), {
+          addressId: uuid(),
+          startDate: '2020-04-01',
+          isTest: true
+        });
+
+        const response = await server.inject(request);
+        expect(response.statusCode).to.equal(200);
+      });
+    });
+  });
 });

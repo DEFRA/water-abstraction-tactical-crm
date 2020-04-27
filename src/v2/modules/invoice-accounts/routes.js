@@ -49,3 +49,23 @@ exports.createInvoiceAccount = {
     }
   }
 };
+
+exports.postInvoiceAccountAddress = {
+  method: 'POST',
+  path: '/crm/2.0/invoice-accounts/{invoiceAccountId}/addresses',
+  handler: (request, h) => entityHandlers.addEntity(request, h, 'invoiceAccount', 'address'),
+  options: {
+    description: 'Adds an address to an invoice account entity',
+    validate: {
+      params: {
+        invoiceAccountId: validators.GUID
+      },
+      payload: {
+        addressId: validators.GUID,
+        startDate: validators.START_DATE,
+        endDate: validators.END_DATE,
+        isTest: validators.TEST_FLAG
+      }
+    }
+  }
+};
