@@ -9,7 +9,7 @@ const {
 const { expect } = require('@hapi/code');
 
 const errors = require('../../../src/v2/lib/errors');
-const mapErrorResponse = require('../../../src/v2/lib/map-error-response');
+const { mapErrorResponse } = require('../../../src/v2/lib/map-error-response');
 
 experiment('v2/lib/map-error-response', () => {
   experiment('.mapErrorResponse', () => {

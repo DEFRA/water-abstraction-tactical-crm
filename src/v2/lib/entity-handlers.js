@@ -4,7 +4,7 @@ const urlJoin = require('url-join');
 const Boom = require('@hapi/boom');
 
 const { camelCase } = require('lodash');
-const mapErrorResponse = require('./map-error-response');
+const { mapErrorResponse } = require('./map-error-response');
 const contactsService = require('../services/contacts');
 const addressService = require('../services/address');
 const invoiceAccountsService = require('../services/invoice-accounts');

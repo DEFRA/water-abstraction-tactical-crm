@@ -5,14 +5,14 @@ const invoiceAccountsRepo = require('../connectors/repository/invoice-accounts')
 const invoiceAccountAddressesRepo = require('../connectors/repository/invoice-account-addresses');
 const mappers = require('../mappers');
 const errors = require('../lib/errors');
+const { mapValidationErrorDetails } = require('../lib/map-error-response');
 const dateHelpers = require('../lib/date-helpers');
 
 const createInvoiceAccount = async invoiceAccount => {
   const { error, value: validatedInvoiceAccount } = invoiceAccountValidator.validate(invoiceAccount, 'invoiceAccount');
 
   if (error) {
-    const details = error.details.map(detail => detail.message);
-    throw new errors.EntityValidationError('Invoice account not valid', details);
+    throw new errors.EntityValidationError('Invoice account not valid', mapValidationErrorDetails(error));
   }
 
   return invoiceAccountsRepo.create(validatedInvoiceAccount);
@@ -29,8 +29,7 @@ const addInvoiceAccountAddress = async invoiceAccountAddress => {
   const { error, value: validatedInvoiceAccountAddress } = invoiceAccountValidator.validate(invoiceAccountAddress, 'invoiceAccountAddress');
 
   if (error) {
-    const details = error.details.map(detail => detail.message);
-    throw new errors.EntityValidationError('Invoice account address not valid', details);
+    throw new errors.EntityValidationError('Invoice account address not valid', mapValidationErrorDetails(error));
   }
 
   const { invoiceAccountId } = invoiceAccountAddress;
