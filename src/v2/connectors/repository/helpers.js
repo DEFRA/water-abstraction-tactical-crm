@@ -1,9 +1,12 @@
 'use strict';
 
-exports.findOne = async (bookshelfModel, idKey, id) => {
+exports.findOne = async (bookshelfModel, idKey, id, withRelated = []) => {
   const result = await bookshelfModel
     .forge({ [idKey]: id })
-    .fetch({ require: false });
+    .fetch({
+      withRelated,
+      require: false
+    });
 
   return result && result.toJSON();
 };
