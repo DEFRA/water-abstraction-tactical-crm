@@ -9,7 +9,7 @@ const invoiceAccountsService = require('../../../../src/v2/services/invoice-acco
 
 const request = {
   query: {
-    ids: '00000000-0000-0000-0000-000000000000,11111111-0000-0000-0000-000000000000'
+    id: '00000000-0000-0000-0000-000000000000,11111111-0000-0000-0000-000000000000'
   }
 };
 
@@ -26,7 +26,7 @@ experiment('v2/modules/invoice-accounts/controller', () => {
     test('passes the query ids to the repository as an array', async () => {
       const request = {
         query: {
-          ids: [
+          id: [
             '00000000-0000-0000-0000-000000000000',
             '11111111-0000-0000-0000-000000000000'
           ]
