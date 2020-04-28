@@ -3,10 +3,10 @@
 const Joi = require('@hapi/joi');
 const validators = require('../../lib/validators');
 
-const optionalUuidUnlessRoleIs = role => {
-  return Joi.string().uuid().allow(null).when('role', {
+const requiredUuidUnlessRoleIs = role => {
+  return Joi.string().uuid().required().when('role', {
     is: role,
-    then: Joi.required().empty(null)
+    then: Joi.any().optional().valid(null)
   });
 };
 
@@ -16,10 +16,10 @@ const schema = Joi.object({
   isDefault: Joi.boolean().optional().default(false),
   startDate: validators.START_DATE,
   endDate: validators.END_DATE,
-  invoiceAccountId: optionalUuidUnlessRoleIs('billing'),
-  companyId: optionalUuidUnlessRoleIs('licenceHolder'),
-  contactId: optionalUuidUnlessRoleIs('licenceHolder'),
-  addressId: optionalUuidUnlessRoleIs('licenceHolder'),
+  invoiceAccountId: requiredUuidUnlessRoleIs('licenceHolder'),
+  companyId: requiredUuidUnlessRoleIs('billing'),
+  contactId: requiredUuidUnlessRoleIs('billing'),
+  addressId: requiredUuidUnlessRoleIs('billing'),
   isTest: validators.TEST_FLAG
 });
 

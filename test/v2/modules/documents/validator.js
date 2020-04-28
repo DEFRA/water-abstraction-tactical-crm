@@ -163,11 +163,10 @@ experiment('modules/documents/validator', () => {
             expect(value.companyId).to.equal(null);
           });
 
-          test('can be set to a uuid', async () => {
+          test('cannot be set to a uuid', async () => {
             fullBillingDocumentRole.companyId = uuid();
-            const { error, value } = documentValidator.validateDocumentRole(fullBillingDocumentRole);
-            expect(error).to.equal(null);
-            expect(value.companyId).to.equal(fullBillingDocumentRole.companyId);
+            const { error } = documentValidator.validateDocumentRole(fullBillingDocumentRole);
+            expect(error).to.not.equal(null);
           });
 
           test('is not valid for a number', async () => {
@@ -196,11 +195,10 @@ experiment('modules/documents/validator', () => {
             expect(value.contactId).to.equal(null);
           });
 
-          test('can be set to a uuid', async () => {
-            fullBillingDocumentRole.contactId = uuid();
-            const { error, value } = documentValidator.validateDocumentRole(fullBillingDocumentRole);
-            expect(error).to.equal(null);
-            expect(value.contactId).to.equal(fullBillingDocumentRole.contactId);
+          test('cannot be set to a uuid', async () => {
+            fullBillingDocumentRole.companyId = uuid();
+            const { error } = documentValidator.validateDocumentRole(fullBillingDocumentRole);
+            expect(error).to.not.equal(null);
           });
 
           test('is not valid for a number', async () => {
@@ -229,11 +227,10 @@ experiment('modules/documents/validator', () => {
             expect(value.addressId).to.equal(null);
           });
 
-          test('can be set to a uuid', async () => {
-            fullBillingDocumentRole.addressId = uuid();
-            const { error, value } = documentValidator.validateDocumentRole(fullBillingDocumentRole);
-            expect(error).to.equal(null);
-            expect(value.addressId).to.equal(fullBillingDocumentRole.addressId);
+          test('cannot be set to a uuid', async () => {
+            fullBillingDocumentRole.companyId = uuid();
+            const { error } = documentValidator.validateDocumentRole(fullBillingDocumentRole);
+            expect(error).to.not.equal(null);
           });
 
           test('is not valid for a number', async () => {
@@ -513,10 +510,10 @@ experiment('modules/documents/validator', () => {
         });
 
         experiment('invoiceAccountId', () => {
-          test('is valid when a uuid', async () => {
-            const { error, value } = documentValidator.validateDocumentRole(fullLicenceHolderDocumentRole);
-            expect(error).to.equal(null);
-            expect(value.invoiceAccountId).to.equal(fullLicenceHolderDocumentRole.invoiceAccountId);
+          test('cannot be set to a uuid', async () => {
+            fullLicenceHolderDocumentRole.invoiceAccountId = uuid();
+            const { error } = documentValidator.validateDocumentRole(fullLicenceHolderDocumentRole);
+            expect(error).to.not.equal(null);
           });
 
           test('can be set to null', async () => {

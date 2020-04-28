@@ -206,6 +206,11 @@ experiment('v2/lib/entity-handlers', () => {
           const [location] = responseStub.created.lastCall.args;
           expect(location).to.equal('/crm/2.0/invoice-accounts/test-invoice-account-id');
         });
+
+        test('the saved entity is returned in the response body', async () => {
+          const [entity] = h.response.lastCall.args;
+          expect(entity.invoiceAccountId).to.equal('test-invoice-account-id');
+        });
       });
 
       experiment('if the invoice account is not valid', () => {
