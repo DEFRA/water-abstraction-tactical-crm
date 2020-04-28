@@ -82,7 +82,7 @@ experiment('v2/connectors/repository/documents', () => {
 
     experiment('when the id does not find a document', () => {
       beforeEach(async () => {
-        stub.fetch.resolves();
+        stub.fetch.resolves(null);
         result = await documentRepo.findOne('test-id');
       });
 
@@ -95,9 +95,9 @@ experiment('v2/connectors/repository/documents', () => {
         expect(stub.fetch.called).to.equal(true);
       });
 
-      // test('null is returned', async () => {
-      //   expect(result).to.equal(null);
-      // });
+      test('null is returned', async () => {
+        expect(result).to.equal(null);
+      });
     });
   });
 });

@@ -348,8 +348,6 @@ experiment('v2/lib/entity-handlers', () => {
       });
     });
 
-    // zhvldskVJHLDv d
-
     experiment('when fetching a contact', () => {
       experiment('if the contact exists', () => {
         beforeEach(async () => {
