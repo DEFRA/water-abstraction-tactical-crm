@@ -12,6 +12,7 @@ const sandbox = require('sinon').createSandbox();
 
 const companyAddressesRepo = require('../../../../src/v2/connectors/repository/company-addresses');
 const CompanyAddress = require('../../../../src/v2/connectors/bookshelf/CompanyAddress');
+const repoHelpers = require('../../../../src/v2/connectors/repository/helpers');
 
 experiment('v2/connectors/repository/company-addresses', () => {
   let stub, model;
@@ -27,6 +28,7 @@ experiment('v2/connectors/repository/company-addresses', () => {
     };
 
     sandbox.stub(CompanyAddress, 'forge').returns(stub);
+    sandbox.stub(repoHelpers, 'deleteTestData');
   });
 
   afterEach(async () => {
@@ -60,6 +62,15 @@ experiment('v2/connectors/repository/company-addresses', () => {
     test('the JSON representation is returned', async () => {
       expect(model.toJSON.called).to.be.true();
       expect(result.companyAddressId).to.equal('test-id');
+    });
+  });
+
+  experiment('.deleteTestData', () => {
+    test('is created using the helpers', async () => {
+      await companyAddressesRepo.deleteTestData();
+
+      const [model] = repoHelpers.deleteTestData.lastCall.args;
+      expect(model).to.equal(CompanyAddress);
     });
   });
 });

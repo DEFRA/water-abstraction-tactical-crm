@@ -1,4 +1,7 @@
-const { CompanyContact } = require('../bookshelf');
+'use strict';
+
+const CompanyContact = require('../bookshelf/CompanyContact');
+const helpers = require('./helpers');
 
 /**
  * Insert a new company contact record
@@ -11,4 +14,7 @@ const create = async companyContact => {
   return model.toJSON();
 };
 
+const deleteTestData = async () => helpers.deleteTestData(CompanyContact);
+
 exports.create = create;
+exports.deleteTestData = deleteTestData;

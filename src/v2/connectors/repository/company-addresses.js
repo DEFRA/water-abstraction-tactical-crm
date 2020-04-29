@@ -1,6 +1,7 @@
 'use strict';
 
 const { CompanyAddress } = require('../bookshelf');
+const helpers = require('./helpers');
 
 /**
  * Create a new company address and saves in crm_v2.company_addresses
@@ -13,4 +14,7 @@ const create = async companyAddress => {
   return model.toJSON();
 };
 
+const deleteTestData = async () => helpers.deleteTestData(CompanyAddress);
+
 exports.create = create;
+exports.deleteTestData = deleteTestData;
