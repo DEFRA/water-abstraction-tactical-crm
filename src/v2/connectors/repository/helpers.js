@@ -25,3 +25,9 @@ exports.create = async (bookShelfModel, data) => {
   const model = await bookShelfModel.forge(data).save();
   return model.toJSON();
 };
+
+exports.deleteTestData = async (bookShelfModel) => {
+  return bookShelfModel.forge().where({ is_test: true }).destroy({
+    require: false
+  });
+};
