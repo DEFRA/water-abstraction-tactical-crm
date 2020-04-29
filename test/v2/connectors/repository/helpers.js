@@ -93,4 +93,42 @@ experiment('v2/connectors/repository/helpers', () => {
       expect(result.toJSON.called).to.equal(true);
     });
   });
+
+  experiment('.findAll', () => {
+    let result;
+    let model;
+
+    beforeEach(async () => {
+      result = {
+        toJSON: sandbox.spy()
+      };
+      model = {
+        forge: sandbox.stub().returnsThis(),
+        where: sandbox.stub().returnsThis(),
+        fetchAll: sandbox.stub().resolves(result)
+      };
+
+      await helpers.findAll(model, 'testKey', 'test-id');
+    });
+
+    test('filters the result', async () => {
+      const [idFilter] = model.where.lastCall.args;
+      expect(idFilter).to.equal({
+        test_key: 'test-id'
+      });
+    });
+
+    test('fetches all relevant data', async () => {
+      expect(model.fetchAll.called).to.be.true();
+    });
+
+    test('will not throw if no entity found', async () => {
+      const [options] = model.fetchAll.lastCall.args;
+      expect(options.require).to.equal(false);
+    });
+
+    test('returns the entity as JSON', async () => {
+      expect(result.toJSON.called).to.equal(true);
+    });
+  });
 });
