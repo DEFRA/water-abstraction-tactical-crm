@@ -37,6 +37,14 @@ class EntityValidationError extends Error {
   }
 }
 
-exports.UniqueConstraintViolation = UniqueConstraintViolation;
-exports.ForeignKeyConstraintViolation = ForeignKeyConstraintViolation;
+class ConflictingDataError extends Error {
+  constructor (message) {
+    super(message);
+    this.name = 'ConflictingDataError';
+  }
+}
+
+exports.ConflictingDataError = ConflictingDataError;
 exports.EntityValidationError = EntityValidationError;
+exports.ForeignKeyConstraintViolation = ForeignKeyConstraintViolation;
+exports.UniqueConstraintViolation = UniqueConstraintViolation;
