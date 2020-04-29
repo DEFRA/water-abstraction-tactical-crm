@@ -9,6 +9,7 @@ const { omit } = require('lodash');
 const documentValidator = require('../modules/documents/validator');
 const documentRoleRepo = require('../connectors/repository/document-roles');
 const rolesRepo = require('../connectors/repository/roles');
+const { mapValidationErrorDetails } = require('../lib/map-error-response');
 const errors = require('../lib/errors');
 
 /**
@@ -87,8 +88,7 @@ const createDocumentRole = async documentRole => {
   const { error, value: validatedDocumentRole } = documentValidator.validateDocumentRole(documentRole);
 
   if (error) {
-    const details = error.details.map(detail => detail.message);
-    throw new errors.EntityValidationError('Document Role not valid', details);
+    throw new errors.EntityValidationError('Document Role not valid', mapValidationErrorDetails(error));
   }
 
   await ensureDateRangeDoesNotOverlapWithExistingRoles(validatedDocumentRole);

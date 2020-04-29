@@ -2,8 +2,9 @@ const { experiment, test, beforeEach, afterEach } = exports.lab = require('@hapi
 const { expect } = require('@hapi/code');
 const sandbox = require('sinon').createSandbox();
 
-const { invoiceAccounts } = require('../../../../src/v2/connectors/repository');
+const { invoiceAccounts, invoiceAccountAddresses } = require('../../../../src/v2/connectors/repository');
 const { InvoiceAccount } = require('../../../../src/v2/connectors/bookshelf');
+const repoHelpers = require('../../../../src/v2/connectors/repository/helpers');
 
 experiment('v2/connectors/repository/invoice-account', () => {
   let stub, model;
@@ -19,6 +20,7 @@ experiment('v2/connectors/repository/invoice-account', () => {
     };
     sandbox.stub(InvoiceAccount, 'forge').returns(stub);
     sandbox.stub(InvoiceAccount, 'collection').returns(stub);
+    sandbox.stub(invoiceAccountAddresses, 'create').resolves({ invoiceAccountAddressId: 'test-id' });
   });
 
   afterEach(async () => {
@@ -127,26 +129,24 @@ experiment('v2/connectors/repository/invoice-account', () => {
   });
 
   experiment('.create', () => {
-    let result;
-    let invoiceAccount;
+    let invoiceAccount, result;
 
     beforeEach(async () => {
+      sandbox.stub(repoHelpers, 'create').returns('create-response');
+
       invoiceAccount = { companyId: 'test-company-id', invoiceAccountNumber: 'A12345678A', startDate: '2020-04-01' };
       result = await invoiceAccounts.create(invoiceAccount);
     });
 
-    test('.forge() is called on the model with the data', async () => {
-      const [data] = InvoiceAccount.forge.lastCall.args;
+    test('uses the repository helpers create function', async () => {
+      const [model, data] = repoHelpers.create.lastCall.args;
+
+      expect(model).to.equal(InvoiceAccount);
       expect(data).to.equal(invoiceAccount);
     });
 
-    test('.save() is called after the forge', async () => {
-      expect(stub.save.called).to.equal(true);
-    });
-
-    test('the JSON representation is returned', async () => {
-      expect(model.toJSON.called).to.be.true();
-      expect(result.invoiceAccountId).to.equal('test-id');
+    test('returns the data from the helper', async () => {
+      expect(result).to.equal('create-response');
     });
   });
 });

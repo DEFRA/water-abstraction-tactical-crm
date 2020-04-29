@@ -4,7 +4,7 @@ const urlJoin = require('url-join');
 const Boom = require('@hapi/boom');
 
 const { startCase, lowerCase } = require('lodash');
-const mapErrorResponse = require('./map-error-response');
+const { mapErrorResponse } = require('./map-error-response');
 const contactsService = require('../services/contacts');
 const addressService = require('../services/address');
 const invoiceAccountsService = require('../services/invoice-accounts');
@@ -14,6 +14,7 @@ const services = {
   contact: contactsService,
   address: addressService,
   invoiceAccount: invoiceAccountsService,
+  invoiceAccountAddress: invoiceAccountsService,
   documentRole: documentsService
 };
 

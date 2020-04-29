@@ -31,4 +31,7 @@ const mapErrorResponse = error => {
   throw error;
 };
 
-module.exports = mapErrorResponse;
+const mapValidationErrorDetails = error => error.details.map(detail => detail.message);
+
+exports.mapErrorResponse = mapErrorResponse;
+exports.mapValidationErrorDetails = mapValidationErrorDetails;
