@@ -3,6 +3,7 @@
 const Hapi = require('@hapi/hapi');
 const { cloneDeep } = require('lodash');
 const uuid = require('uuid/v4');
+const qs = require('qs');
 
 const {
   experiment,
@@ -46,10 +47,13 @@ experiment('v2/modules/invoice-account/routes', () => {
   experiment('getInvoiceAccounts', () => {
     let server;
 
-    const getRequest = query => ({
-      method: 'GET',
-      url: `/crm/2.0/invoice-accounts?id=${query}`
-    });
+    const getRequest = id => {
+      const query = qs.stringify({ id }, { arrayFormat: 'brackets', encode: false });
+      return {
+        method: 'GET',
+        url: `/crm/2.0/invoice-accounts?${query}`
+      };
+    };
 
     beforeEach(() => {
       server = createServer(routes.getInvoiceAccounts);
@@ -59,6 +63,19 @@ experiment('v2/modules/invoice-account/routes', () => {
       const request = getRequest([uuid(), 123]);
       const response = await server.inject(request);
       expect(response.statusCode).to.equal(400);
+    });
+
+    test('returns a 200 if the query ids are valid', async () => {
+      const request = getRequest([uuid(), uuid()]);
+      console.log(request);
+      const response = await server.inject(request);
+      expect(response.statusCode).to.equal(200);
+    });
+
+    test('returns a 200 if a single value is provided', async () => {
+      const request = getRequest(uuid());
+      const response = await server.inject(request);
+      expect(response.statusCode).to.equal(200);
     });
   });
 

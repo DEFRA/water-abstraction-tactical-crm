@@ -55,5 +55,21 @@ experiment('v2/lib/map-error-response', () => {
         expect(mappedError.output.payload.message).to.equal('Non unique');
       });
     });
+
+    experiment('for a ConflictingDataError', () => {
+      beforeEach(async () => {
+        const error = new errors.ConflictingDataError('This conflicts');
+        mappedError = mapErrorResponse(error);
+      });
+
+      test('creates a 409 response code', async () => {
+        expect(mappedError.output.payload.statusCode).to.equal(409);
+        expect(mappedError.output.payload.error).to.equal('Conflict');
+      });
+
+      test('includes the error message', async () => {
+        expect(mappedError.output.payload.message).to.equal('This conflicts');
+      });
+    });
   });
 });

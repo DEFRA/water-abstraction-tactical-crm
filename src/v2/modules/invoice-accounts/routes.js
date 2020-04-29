@@ -25,9 +25,9 @@ exports.getInvoiceAccounts = {
   options: {
     description: 'Get a list of invoice accounts by id',
     validate: {
-      query: {
-        ids: Joi.array().single().items(validators.GUID).required()
-      }
+      query: Joi.object({
+        id: Joi.array().single().items(validators.GUID).required()
+      }).rename('id[]', 'id', { ignoreUndefined: true })
     }
   }
 };
