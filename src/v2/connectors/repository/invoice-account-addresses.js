@@ -15,7 +15,7 @@ const create = async invoiceAccountAddress => helpers.create(InvoiceAccountAddre
  * @param {Object} invoiceAccountAddress An object to persist to crm_v2.invoice_account_addresses
  * @returns {Object} The created invoice account address from the database
  */
-const findMostRecent = async invoiceAccountId => helpers.findMostRecent(InvoiceAccountAddress, 'invoiceAccountId', invoiceAccountId);
+const findAll = async invoiceAccountId => helpers.findAll(InvoiceAccountAddress, 'invoiceAccountId', invoiceAccountId);
 
 exports.create = create;
-exports.findMostRecent = findMostRecent;
+exports.findAll = findAll;

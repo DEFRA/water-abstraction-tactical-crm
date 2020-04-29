@@ -94,7 +94,7 @@ experiment('v2/connectors/repository/helpers', () => {
     });
   });
 
-  experiment('.findMostRecent', () => {
+  experiment('.findAll', () => {
     let result;
     let model;
 
@@ -105,11 +105,10 @@ experiment('v2/connectors/repository/helpers', () => {
       model = {
         forge: sandbox.stub().returnsThis(),
         where: sandbox.stub().returnsThis(),
-        orderBy: sandbox.stub().returnsThis(),
-        fetchPage: sandbox.stub().resolves([result])
+        fetchAll: sandbox.stub().resolves(result)
       };
 
-      await helpers.findMostRecent(model, 'testKey', 'test-id');
+      await helpers.findAll(model, 'testKey', 'test-id');
     });
 
     test('filters the result', async () => {
@@ -119,16 +118,13 @@ experiment('v2/connectors/repository/helpers', () => {
       });
     });
 
-    test('orders the results in descending order by start date', async () => {
-      const [column, sortOrder] = model.orderBy.lastCall.args;
-      expect(column).to.equal('start_date');
-      expect(sortOrder).to.equal('desc');
+    test('fetches all relevant data', async () => {
+      expect(model.fetchAll.called).to.be.true();
     });
 
-    test('fetches the first record', async () => {
-      const [{ page, pageSize }] = model.fetchPage.lastCall.args;
-      expect(page).to.equal(1);
-      expect(pageSize).to.equal(1);
+    test('will not throw if no entity found', async () => {
+      const [options] = model.fetchAll.lastCall.args;
+      expect(options.require).to.equal(false);
     });
 
     test('returns the entity as JSON', async () => {

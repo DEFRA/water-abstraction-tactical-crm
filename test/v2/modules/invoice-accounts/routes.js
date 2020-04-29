@@ -25,7 +25,7 @@ const createServer = route => {
 };
 
 experiment('v2/modules/invoice-account/routes', () => {
-  experiment('getInvoiceAccount', () => {
+  experiment('.getInvoiceAccount', () => {
     let server;
 
     const getRequest = invoiceAccountId => ({
@@ -44,7 +44,7 @@ experiment('v2/modules/invoice-account/routes', () => {
     });
   });
 
-  experiment('getInvoiceAccounts', () => {
+  experiment('.getInvoiceAccounts', () => {
     let server;
 
     const getRequest = id => {
@@ -79,7 +79,7 @@ experiment('v2/modules/invoice-account/routes', () => {
     });
   });
 
-  experiment('createInvoiceAccount', () => {
+  experiment('.createInvoiceAccount', () => {
     let server;
 
     const getRequest = payload => ({
@@ -272,7 +272,7 @@ experiment('v2/modules/invoice-account/routes', () => {
     });
   });
 
-  experiment('postInvoiceAccountAddress', () => {
+  experiment('.postInvoiceAccountAddress', () => {
     let server;
 
     const getRequest = (invoiceAccountId, payload) => ({

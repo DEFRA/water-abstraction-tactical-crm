@@ -12,14 +12,13 @@ exports.findOne = async (bookshelfModel, idKey, id, withRelated = []) => {
   return result && result.toJSON();
 };
 
-exports.findMostRecent = async (bookshelfModel, idKey, id) => {
-  const [result] = await bookshelfModel
+exports.findAll = async (bookshelfModel, idKey, id) => {
+  const result = await bookshelfModel
     .forge()
     .where({ [snakeCase(idKey)]: id })
-    .orderBy('start_date', 'desc')
-    .fetchPage({ page: 1, pageSize: 1 });
+    .fetchAll({ require: false });
 
-  return result && result.toJSON();
+  return result.toJSON();
 };
 
 exports.create = async (bookShelfModel, data) => {

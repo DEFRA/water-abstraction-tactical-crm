@@ -25,25 +25,26 @@ const getInvoiceAccountsByIds = async ids => {
   return results.map(mappers.invoiceAccount.currentAddressOnly);
 };
 
-const addInvoiceAccountAddress = async invoiceAccountAddress => {
-  const { error, value: validatedInvoiceAccountAddress } = invoiceAccountValidator.validate(invoiceAccountAddress, 'invoiceAccountAddress');
+const ensureDateRangeDoesNotOverlapWithExistingAddress = async invoiceAccountAddress => {
+  const allInvoiceAccountAddresses = await invoiceAccountAddressesRepo.findAll(invoiceAccountAddress.invoiceAccountId);
 
+  if (dateHelpers.hasOverlap(invoiceAccountAddress, allInvoiceAccountAddresses)) {
+    throw new errors.ConflictingDataError('Existing invoice account address exists for date range');
+  }
+};
+
+const createInvoiceAccountAddress = async invoiceAccountAddress => {
+  const { error, value: validatedInvoiceAccountAddress } = invoiceAccountValidator.validate(invoiceAccountAddress, 'invoiceAccountAddress');
   if (error) {
     throw new errors.EntityValidationError('Invoice account address not valid', mapValidationErrorDetails(error));
   }
+  await ensureDateRangeDoesNotOverlapWithExistingAddress(validatedInvoiceAccountAddress);
 
-  const { invoiceAccountId } = invoiceAccountAddress;
-  const recentInvoiceAccountAddress = await invoiceAccountAddressesRepo.findMostRecent(invoiceAccountId);
-
-  if (recentInvoiceAccountAddress && dateHelpers.newEntityOverlapsExistingEntity(recentInvoiceAccountAddress, validatedInvoiceAccountAddress)) {
-    throw new errors.UniqueConstraintViolation(`New address conflicts with existing address for Invoice account: ${invoiceAccountId}`);
-  }
-
-  return invoiceAccountsRepo.addAddress(validatedInvoiceAccountAddress);
+  return invoiceAccountAddressesRepo.create(validatedInvoiceAccountAddress);
 };
 
 exports.createInvoiceAccount = createInvoiceAccount;
 exports.getInvoiceAccount = getInvoiceAccount;
 exports.getInvoiceAccountsByIds = getInvoiceAccountsByIds;
 
-exports.addInvoiceAccountAddress = addInvoiceAccountAddress;
+exports.createInvoiceAccountAddress = createInvoiceAccountAddress;

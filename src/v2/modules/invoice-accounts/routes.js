@@ -53,7 +53,7 @@ exports.createInvoiceAccount = {
 exports.postInvoiceAccountAddress = {
   method: 'POST',
   path: '/crm/2.0/invoice-accounts/{invoiceAccountId}/addresses',
-  handler: (request, h) => entityHandlers.addEntity(request, h, 'invoiceAccount', 'address'),
+  handler: (request, h) => entityHandlers.createEntity(request, h, 'invoiceAccountAddress'),
   options: {
     description: 'Adds an address to an invoice account entity',
     validate: {
