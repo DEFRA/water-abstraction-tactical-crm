@@ -3,8 +3,9 @@
 const Joi = require('@hapi/joi')
   .extend(require('@hapi/joi-date'));
 const DATE = Joi.date().format('YYYY-MM-DD');
+const validators = require('../../lib/validators');
 
-const schema = Joi.object({
+const documentSchema = Joi.object({
   regime: Joi.string().required().valid('water'),
   documentType: Joi.string().required().valid('abstraction_licence'),
   versionNumber: Joi.number().integer().required().min(0),
@@ -15,7 +16,35 @@ const schema = Joi.object({
   isTest: Joi.boolean().optional().default(false)
 });
 
+const requiredUuidUnlessRoleIs = role => {
+  return Joi.string().uuid().required().when('role', {
+    is: role,
+    then: Joi.any().optional().valid(null)
+  });
+};
+
+const documentRoleSchema = Joi.object({
+  documentId: validators.GUID,
+  role: Joi.string().valid('billing', 'licenceHolder').required(),
+  isDefault: Joi.boolean().optional().default(false),
+  startDate: validators.START_DATE,
+  endDate: validators.END_DATE,
+  invoiceAccountId: requiredUuidUnlessRoleIs('licenceHolder'),
+  companyId: requiredUuidUnlessRoleIs('billing'),
+  contactId: requiredUuidUnlessRoleIs('billing'),
+  addressId: requiredUuidUnlessRoleIs('billing'),
+  isTest: validators.TEST_FLAG
+});
+
 /**
- * Validates that an object conforms to the requirements of an address.
+ * Validates that an object conforms to the requirements of a document role
+ * based on the role being proposed.
  */
-exports.validate = document => Joi.validate(document, schema, { abortEarly: false });
+exports.validateDocumentRole = documentRole =>
+  Joi.validate(documentRole, documentRoleSchema, { abortEarly: false });
+
+/**
+ * Validates that an object conforms to the requirements of an document.
+ */
+exports.validateDocument = document =>
+  Joi.validate(document, documentSchema, { abortEarly: false });

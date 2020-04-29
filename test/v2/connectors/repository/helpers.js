@@ -51,6 +51,17 @@ experiment('v2/connectors/repository/helpers', () => {
       const data = await helpers.findOne(model, 'testKey', 'test-id');
       expect(data).to.equal(null);
     });
+
+    test('can add relations', async () => {
+      await helpers.findOne(model, 'testKey', 'test-id', ['one', 'two']);
+      const [options] = model.fetch.lastCall.args;
+      expect(options.withRelated).to.equal(['one', 'two']);
+    });
+
+    test('will not throw if no entity found', async () => {
+      const [options] = model.fetch.lastCall.args;
+      expect(options.require).to.equal(false);
+    });
   });
 
   experiment('.create', () => {
