@@ -9,7 +9,7 @@ const { mapValidationErrorDetails } = require('../lib/map-error-response');
 const dateHelpers = require('../lib/date-helpers');
 
 const createInvoiceAccount = async invoiceAccount => {
-  const { error, value: validatedInvoiceAccount } = invoiceAccountValidator.validate(invoiceAccount, 'invoiceAccount');
+  const { error, value: validatedInvoiceAccount } = invoiceAccountValidator.validateInvoiceAccount(invoiceAccount);
 
   if (error) {
     throw new errors.EntityValidationError('Invoice account not valid', mapValidationErrorDetails(error));
@@ -34,7 +34,7 @@ const ensureDateRangeDoesNotOverlapWithExistingAddress = async invoiceAccountAdd
 };
 
 const createInvoiceAccountAddress = async invoiceAccountAddress => {
-  const { error, value: validatedInvoiceAccountAddress } = invoiceAccountValidator.validate(invoiceAccountAddress, 'invoiceAccountAddress');
+  const { error, value: validatedInvoiceAccountAddress } = invoiceAccountValidator.validateInvoiceAccountAddress(invoiceAccountAddress);
   if (error) {
     throw new errors.EntityValidationError('Invoice account address not valid', mapValidationErrorDetails(error));
   }

@@ -22,12 +22,11 @@ const invoiceAccountAddressSchema = Joi.object({
   isTest: Joi.boolean().optional().default(false)
 });
 
-const schemas = {
-  invoiceAccount: invoiceAccountSchema,
-  invoiceAccountAddress: invoiceAccountAddressSchema
-};
-
 /**
  * Validates that an object conforms to the requirements of a contact.
  */
-exports.validate = (obj, key) => Joi.validate(obj, schemas[key], { abortEarly: false });
+exports.validateInvoiceAccount = invoiceAccount =>
+  Joi.validate(invoiceAccount, invoiceAccountSchema, { abortEarly: false });
+
+exports.validateInvoiceAccountAddress = invoiceAccountAddress =>
+  Joi.validate(invoiceAccountAddress, invoiceAccountAddressSchema, { abortEarly: false });
