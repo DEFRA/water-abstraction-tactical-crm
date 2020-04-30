@@ -1,4 +1,6 @@
-const { InvoiceAccountAddress } = require('../bookshelf');
+'use strict';
+
+const InvoiceAccountAddress = require('../bookshelf/InvoiceAccountAddress');
 const helpers = require('./helpers');
 
 /**
@@ -17,5 +19,8 @@ const create = async invoiceAccountAddress => helpers.create(InvoiceAccountAddre
  */
 const findAll = async invoiceAccountId => helpers.findAll(InvoiceAccountAddress, 'invoiceAccountId', invoiceAccountId);
 
+const deleteTestData = async () => helpers.deleteTestData(InvoiceAccountAddress);
+
 exports.create = create;
+exports.deleteTestData = deleteTestData;
 exports.findAll = findAll;

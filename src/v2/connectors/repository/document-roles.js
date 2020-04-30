@@ -34,6 +34,9 @@ const findByDocumentId = async documentId => {
   return documentRoles.toJSON();
 };
 
+const deleteTestData = async () => helpers.deleteTestData(DocumentRole);
+
+exports.create = create;
+exports.deleteTestData = deleteTestData;
 exports.findByDocumentId = findByDocumentId;
 exports.findOne = findOne;
-exports.create = create;
