@@ -8,13 +8,15 @@ const {
 } = exports.lab = require('@hapi/lab').script();
 
 const uuid = require('uuid/v4');
-const { expect } = require('@hapi/code');
+const { expect, fail } = require('@hapi/code');
 const sandbox = require('sinon').createSandbox();
 
 const errors = require('../../../src/v2/lib/errors');
 const documentRolesRepo = require('../../../src/v2/connectors/repository/document-roles');
 const rolesRepo = require('../../../src/v2/connectors/repository/roles');
 const documentsService = require('../../../src/v2/services/documents');
+const documentRepo = require('../../../src/v2/connectors/repository/documents');
+const { documentRoles: oldDocRolesRepo } = require('../../../src/v2/connectors/repository');
 
 experiment('services/documents', () => {
   beforeEach(async () => {
@@ -23,6 +25,10 @@ experiment('services/documents', () => {
     sandbox.stub(rolesRepo, 'findOneByName').resolves({
       roleId: 'test-role-id'
     });
+    sandbox.stub(documentRepo, 'findOne').resolves();
+    sandbox.stub(documentRepo, 'findByDocumentRef').resolves();
+    sandbox.stub(documentRepo, 'create').resolves();
+    sandbox.stub(oldDocRolesRepo, 'findByDocumentId').resolves();
   });
 
   afterEach(async () => {
@@ -249,6 +255,253 @@ experiment('services/documents', () => {
               expect(error).to.be.instanceOf(errors.ConflictingDataError);
               expect(error.message).to.equal('Existing document role exists for date range');
             });
+          });
+        });
+      });
+    });
+  });
+
+  experiment('getDocument', () => {
+    let request, response;
+
+    experiment('when document is not found', () => {
+      beforeEach(async () => {
+        documentRepo.findOne.resolves();
+        request = {
+          params: {
+            documentId: 'doc_1'
+          }
+        };
+      });
+
+      test('throws a Boom 404 error', async () => {
+        try {
+          await documentsService.getDocument(request);
+          fail();
+        } catch (err) {
+          expect(err.isBoom).to.be.true();
+          expect(err.output.statusCode).to.equal(404);
+        }
+      });
+    });
+
+    experiment('when document is found', () => {
+      let documentId;
+      beforeEach(async () => {
+        documentId = 'doc_1';
+        documentRepo.findOne.resolves({
+          documentId: 'doc_1'
+        });
+        oldDocRolesRepo.findByDocumentId.resolves([{
+          document_id: 'doc_1'
+        }, {
+          document_id: 'doc_2'
+        }]);
+
+        response = await documentsService.getDocument(documentId);
+      });
+
+      test('calls repository methods with correct arguments', async () => {
+        expect(documentRepo.findOne.calledWith(documentId)).to.be.true();
+        expect(oldDocRolesRepo.findByDocumentId.calledWith(documentId)).to.be.true();
+      });
+
+      test('responds with mapped object', async () => {
+        expect(response.documentId).to.equal(documentId);
+        expect(response.documentRoles).to.be.an.array();
+      });
+    });
+  });
+
+  experiment('.getDocumentsByRef', () => {
+    let result;
+
+    beforeEach(async () => {
+      const regime = 'water';
+      const documentType = 'water_abstraction';
+      const documentRef = '01/115';
+
+      await documentRepo.findByDocumentRef.resolves([{
+        documentId: 'doc_1'
+      }, {
+        documentId: 'doc_2'
+      }]);
+
+      result = await documentsService.getDocumentsByRef(regime, documentType, documentRef);
+    });
+
+    test('calls repository method with correct arguments', async () => {
+      expect(documentRepo.findByDocumentRef.calledWith(
+        'water',
+        'water_abstraction',
+        '01/115'
+      )).to.be.true();
+    });
+
+    test('resolves with mapped response', async () => {
+      expect(result).to.equal([{
+        documentId: 'doc_1'
+      }, {
+        documentId: 'doc_2'
+      }]);
+    });
+  });
+
+  experiment('.createDocument', () => {
+    experiment('when the document data is invalid', () => {
+      let document;
+
+      beforeEach(async () => {
+        document = {
+          regime: 'water'
+        };
+      });
+
+      test('any EntityValidationError is thrown', async () => {
+        const err = await expect(documentsService.createDocument(document))
+          .to
+          .reject(errors.EntityValidationError, 'Document not valid');
+
+        expect(err.validationDetails).to.be.an.array();
+      });
+
+      test('the document is not saved', async () => {
+        expect(documentRepo.create.called).to.equal(false);
+      });
+    });
+
+    experiment('when the document data is valid', async () => {
+      let result;
+      let document;
+
+      beforeEach(async () => {
+        document = {
+          regime: 'water',
+          documentType: 'abstraction_licence',
+          versionNumber: 100,
+          documentRef: 'doc-ref',
+          status: 'current',
+          startDate: '2000-01-13',
+          endDate: '2010-01-18',
+          isTest: true
+        };
+        documentRepo.findByDocumentRef.resolves([]);
+
+        documentRepo.create.resolves({ documentId: 'test-id' });
+        result = await documentsService.createDocument(document);
+      });
+
+      test('the document is saved via the repository', async () => {
+        expect(documentRepo.create.called).to.equal(true);
+      });
+
+      test('the document has the id from the documents repo', async () => {
+        expect(result.documentId).to.equal('test-id');
+      });
+
+      test('the saved document is returned', async () => {
+        expect(result.documentId).to.equal('test-id');
+      });
+
+      experiment('and the dates do overlap', () => {
+        // the test data has a start and end date of
+        // startDate: '2000-01-13',
+        // endDate: '2010-01-18',
+        const overlapScenarios = [
+          // existing documents starts before the new document
+          { startDate: new Date(1999, 1, 1), endDate: new Date(2020, 1, 2) },
+          { startDate: new Date(1999, 1, 1), endDate: null },
+
+          // existing document starts after new document
+          { startDate: new Date(2001, 1, 20), endDate: new Date(2009, 1, 2) },
+          { startDate: new Date(2002, 1, 20), endDate: null },
+
+          // existing document starts after and ends before the new document
+          { startDate: new Date(2002, 1, 20), endDate: new Date(2003, 1, 25) }
+        ];
+
+        overlapScenarios.forEach(scenario => {
+          const { startDate, endDate } = scenario;
+          const testName = `throws for start ${startDate} and end ${endDate}`;
+          test(testName, async () => {
+            document = {
+              regime: 'water',
+              documentType: 'abstraction_licence',
+              versionNumber: 100,
+              documentRef: 'doc-ref',
+              status: 'current',
+              startDate: '2000-01-13',
+              endDate: '2010-01-18'
+            };
+
+            documentRepo.findByDocumentRef.resolves([
+              {
+                documentId: uuid(),
+                regime: 'water',
+                documentType: 'abstraction_licence',
+                versionNumber: 102,
+                documentRef: 'doc-ref',
+                status: 'current',
+                startDate,
+                endDate
+              }
+            ]);
+
+            const error = await expect(documentsService.createDocument(document)).reject();
+            console.log(error);
+            expect(error).to.be.instanceOf(errors.ConflictingDataError);
+            expect(error.message).to.equal('Overlapping start and end date for document');
+          });
+        });
+      });
+
+      experiment('and the dates do overlap where the new document endDate is null', () => {
+        // the new document to be created has a start and end date of
+        // startDate: '2000-01-13',
+        // endDate: null,
+        const overlapScenarios = [
+          // existing documents starts before the new document
+          { startDate: new Date(1999, 1, 1), endDate: new Date(2020, 1, 2) },
+          { startDate: new Date(1999, 1, 1), endDate: null },
+
+          // existing document starts after new document
+          { startDate: new Date(2001, 1, 20), endDate: new Date(2009, 1, 2) },
+          { startDate: new Date(2002, 1, 20), endDate: null },
+
+          // existing document starts after and ends before the new document
+          { startDate: new Date(2002, 1, 20), endDate: new Date(2003, 1, 25) }
+        ];
+
+        overlapScenarios.forEach(scenario => {
+          const { startDate, endDate } = scenario;
+          const testName = `throws for start ${startDate} and end ${endDate}`;
+          test(testName, async () => {
+            document = {
+              regime: 'water',
+              documentType: 'abstraction_licence',
+              versionNumber: 100,
+              documentRef: 'doc-ref',
+              status: 'current',
+              startDate: '2000-01-13',
+              endDate: null
+            };
+
+            documentRepo.findByDocumentRef.resolves([
+              {
+                documentId: uuid(),
+                regime: 'water',
+                documentType: 'abstraction_licence',
+                versionNumber: 102,
+                documentRef: 'doc-ref',
+                status: 'current',
+                startDate,
+                endDate
+              }
+            ]);
+
+            const error = await expect(documentsService.createDocument(document)).reject();
+            expect(error).to.be.instanceOf(errors.ConflictingDataError);
+            expect(error.message).to.equal('Overlapping start and end date for document');
           });
         });
       });

@@ -34,7 +34,7 @@ const createDocument = async document => {
   // get the existing documents for the document ref
   const currentDocuments = await repo.documents.findByDocumentRef(document.regime, document.documentType, document.documentRef);
   if (datesOverlap(currentDocuments, document)) {
-    throw new errors.UniqueConstraintViolation('Overlapping start and end date for document reference: ' + document.documentRef);
+    throw new errors.ConflictingDataError('Overlapping start and end date for document');
   }
   return repo.documents.create(validatedDocument);
 };
@@ -52,7 +52,7 @@ const getDocument = async documentId => {
 
   // Map data
   return {
-    doc,
+    ...doc,
     documentRoles: roles.map(mappers.mapDocumentRole)
   };
 };
@@ -64,7 +64,7 @@ const getDocument = async documentId => {
  * @param {*} documentRef
  * @returns collection of document objects
  */
-const getDocumentByRef = async (regime, documentType, documentRef) => {
+const getDocumentsByRef = async (regime, documentType, documentRef) => {
   const data = await repo.documents.findByDocumentRef(regime, documentType, documentRef);
   return data;
 };
@@ -137,4 +137,4 @@ exports.createDocumentRole = createDocumentRole;
 exports.getDocumentRole = getDocumentRole;
 exports.createDocument = createDocument;
 exports.getDocument = getDocument;
-exports.getDocumentByRef = getDocumentByRef;
+exports.getDocumentsByRef = getDocumentsByRef;
