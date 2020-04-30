@@ -16,6 +16,7 @@ const services = {
   address: addressService,
   document: documentService,
   invoiceAccount: invoiceAccountsService,
+  invoiceAccountAddress: invoiceAccountsService,
   documentRole: documentsService
 };
 

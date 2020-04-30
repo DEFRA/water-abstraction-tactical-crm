@@ -8,6 +8,7 @@ const uuid = require('uuid/v4');
 
 const invoiceAccountsService = require('../../../src/v2/services/invoice-accounts');
 const invoiceAccountsRepo = require('../../../src/v2/connectors/repository/invoice-accounts');
+const invoiceAccountAddressesRepo = require('../../../src/v2/connectors/repository/invoice-account-addresses');
 const errors = require('../../../src/v2/lib/errors');
 
 const createCompany = () => ({
@@ -54,6 +55,8 @@ experiment('v2/services/invoice-accounts', () => {
     sandbox.stub(invoiceAccountsRepo, 'create');
     sandbox.stub(invoiceAccountsRepo, 'findOne');
     sandbox.stub(invoiceAccountsRepo, 'findWithCurrentAddress');
+    sandbox.stub(invoiceAccountAddressesRepo, 'findAll').resolves([{ startDate: '2018-05-03', endDate: '2020-03-31' }]);
+    sandbox.stub(invoiceAccountAddressesRepo, 'create');
   });
 
   afterEach(() => sandbox.restore());
@@ -75,7 +78,7 @@ experiment('v2/services/invoice-accounts', () => {
         expect(err.validationDetails).to.be.an.array();
       });
 
-      test('the contact is not saved', async () => {
+      test('the invoice account is not saved', async () => {
         expect(invoiceAccountsRepo.create.called).to.equal(false);
       });
     });
@@ -148,6 +151,109 @@ experiment('v2/services/invoice-accounts', () => {
     test('includes the current address only', async () => {
       expect(result[0].address).to.equal(repositoryResponse[0].invoiceAccountAddresses[1].address);
       expect(result[1].address).to.equal(repositoryResponse[1].invoiceAccountAddresses[1].address);
+    });
+  });
+
+  experiment('.createInvoiceAccountAddress', () => {
+    experiment('when the invoice account address data is invalid', () => {
+      let invoiceAccountAddress;
+      beforeEach(() => {
+        invoiceAccountAddress = {
+          invoiceAccountId: 'not-valid',
+          addressId: '123abc',
+          startDate: '2020-04-01'
+        };
+      });
+
+      test('any EntityValidationError is thrown', async () => {
+        const err = await expect(invoiceAccountsService.createInvoiceAccountAddress(invoiceAccountAddress))
+          .to.reject(errors.EntityValidationError, 'Invoice account address not valid');
+
+        expect(err.validationDetails).to.be.an.array();
+      });
+
+      test('the invoice account address is not saved', async () => {
+        expect(invoiceAccountAddressesRepo.create.called).to.equal(false);
+      });
+    });
+
+    experiment('when the invoice account address data is valid', async () => {
+      let result, invoiceAccountId, invoiceAccountAddress;
+
+      beforeEach(async () => {
+        invoiceAccountId = uuid();
+        invoiceAccountAddress = {
+          invoiceAccountId,
+          addressId: uuid(),
+          startDate: '2020-04-01'
+        };
+
+        invoiceAccountAddressesRepo.create.resolves({
+          invoiceAccountAddressId: 'test-id',
+          ...invoiceAccountAddress
+        });
+      });
+
+      test('invoice account addresses are found', async () => {
+        await invoiceAccountsService.createInvoiceAccountAddress(invoiceAccountAddress);
+        expect(
+          invoiceAccountAddressesRepo.findAll.calledWith(invoiceAccountId)
+        ).to.be.true();
+      });
+
+      experiment('when there are no date conflicts', async () => {
+        beforeEach(async () => {
+          result = await invoiceAccountsService.createInvoiceAccountAddress(invoiceAccountAddress);
+        });
+
+        test('the invoice account address is saved via the repository', async () => {
+          expect(invoiceAccountAddressesRepo.create.called).to.equal(true);
+        });
+
+        test('the saved invoice account address is returned', async () => {
+          expect(result.invoiceAccountAddressId).to.equal('test-id');
+        });
+      });
+
+      experiment('when there are date conflicts', async () => {
+        beforeEach(() => {
+          invoiceAccountAddressesRepo.findAll.resolves([
+            { startDate: '2016-01-01', endDate: '2018-05-02' },
+            { startDate: '2018-05-03', endDate: null }]);
+        });
+
+        test('a ConflictingDataError is thrown', async () => {
+          const err = await expect(invoiceAccountsService.createInvoiceAccountAddress(invoiceAccountAddress))
+            .to.reject();
+
+          expect(err.name).to.equal('ConflictingDataError');
+          expect(err.message).to.equal('Existing invoice account address exists for date range');
+        });
+
+        test('the invoice account address is not saved', async () => {
+          try {
+            await invoiceAccountsService.createInvoiceAccountAddress(invoiceAccountAddress);
+          } catch (err) {
+          }
+          expect(invoiceAccountAddressesRepo.create.called).to.equal(false);
+        });
+      });
+
+      experiment('when there are no address for the invoice account', async () => {
+        beforeEach(async () => {
+          invoiceAccountAddressesRepo.findAll.resolves([]);
+
+          result = await invoiceAccountsService.createInvoiceAccountAddress(invoiceAccountAddress);
+        });
+
+        test('the invoice account address is saved via the repository', async () => {
+          expect(invoiceAccountAddressesRepo.create.called).to.equal(true);
+        });
+
+        test('the saved invoice account address is returned', async () => {
+          expect(result.invoiceAccountAddressId).to.equal('test-id');
+        });
+      });
     });
   });
 });
