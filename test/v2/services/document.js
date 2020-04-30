@@ -12,6 +12,7 @@ const documentRolesRepo = require('../../../src/v2/connectors/repository/documen
 const rolesRepo = require('../../../src/v2/connectors/repository/roles');
 const documentsService = require('../../../src/v2/services/documents');
 const documentRepo = require('../../../src/v2/connectors/repository/documents');
+const uuid = require('uuid/v4');
 
 experiment('v2/services/document', () => {
   beforeEach(async () => {
@@ -19,185 +20,240 @@ experiment('v2/services/document', () => {
     const sandbox = require('sinon').createSandbox();
     sandbox.stub(documentRepo, 'create').resolves();
     sandbox.stub(documentRepo, 'findByDocumentRef').resolves();
-    const uuid = require('uuid/v4');
+    sandbox.stub(documentRepo, 'findOne').resolves();
+    sandbox.stub(documentRolesRepo, 'create');
+    sandbox.stub(documentRolesRepo, 'findByDocumentId');
+    sandbox.stub(rolesRepo, 'findOneByName').resolves({
+      roleId: 'test-role-id'
+    });
 
-    experiment('services/documents', () => {
+    afterEach(async () => {
+      sandbox.restore();
+    });
+
+    const document = {
+      regime: 'water',
+      documentType: 'abstraction_licence',
+      versionNumber: 100,
+      documentRef: 'doc-ref',
+      status: 'current',
+      startDate: '2001-01-18',
+      endDate: '2010-01-17',
+      isTest: true
+    };
+
+    experiment('.createDocument', () => {
+      experiment('for an invalid document', () => {
+        let err;
+
+        beforeEach(async () => {
+          try {
+            await documentsService.createDocument({});
+          } catch (error) {
+            err = error;
+          }
+        });
+
+        test('does not create the document at the database', async () => {
+          expect(documentRepo.create.called).to.equal(false);
+        });
+
+        test('throws an error containing the validation messages', async () => {
+          expect(err.message).to.equal('Document not valid');
+          expect(err.validationDetails).to.include('"regime" is required');
+        });
+      });
+
+      experiment('for a valid document', () => {
+        let result;
+
+        beforeEach(async () => {
+          documentRepo.create.resolves({
+            documentId: 'test-document-id'
+          });
+
+          documentRepo.findByDocumentRef.resolves([]);
+
+          result = await documentsService.createDocument(document);
+        });
+
+        test('includes the saved document in the response', async () => {
+          expect(result.documentId).to.equal('test-document-id');
+        });
+        test('calls the findByDocumentRef with correct regime, doc type and doc ref', async () => {
+          expect(documentRepo.findByDocumentRef.lastCall.args).to.equal(['water', 'abstraction_licence', 'doc-ref']);
+        });
+      });
+
+      experiment('for an invalid document', () => {
+        let err;
+
+        beforeEach(async () => {
+          documentRepo.findByDocumentRef.resolves([{
+            ...document,
+            startDate: '2000-01-16',
+            endDate: null
+          }]);
+
+          try {
+            await documentsService.createDocument(document);
+          } catch (error) {
+            err = error;
+          }
+        });
+
+        test('does not create the document at the database', async () => {
+          expect(documentRepo.create.called).to.equal(false);
+        });
+
+        test('throws an error containing the validation messages', async () => {
+          expect(err.name).to.equal('UniqueConstraintViolation');
+          expect(err.message).to.equal('Overlapping start and end date for document reference: doc-ref');
+        });
+      });
+    });
+
+    experiment('.getDocument', () => {
       beforeEach(async () => {
-        sandbox.stub(documentRolesRepo, 'create');
-        sandbox.stub(documentRolesRepo, 'findByDocumentId');
-        sandbox.stub(rolesRepo, 'findOneByName').resolves({
-          roleId: 'test-role-id'
+        documentRepo.findOne.resolves(document);
+        await documentsService.getDocument();
+      });
+
+      test('calls findOne from the documents repo', async () => {
+        expect(documentRepo.findOne.called).to.equal(true);
+      });
+      test('calls findOne from the document roles repo', async () => {
+        expect(documentRolesRepo.findByDocumentId.called).to.equal(true);
+      });
+    });
+
+    experiment('.getDocumentByRef', () => {
+      beforeEach(async () => {
+        await documentsService.getDocument();
+      });
+      test('calls the documents repo to findOne document for the documentId', async () => {
+        expect('something').to.equal('something');
+      });
+    });
+
+    experiment('.getDocumentRole', () => {
+      beforeEach(async () => {
+        await documentsService.getDocumentRole();
+      });
+      test('calls the documents repo to findOne document for the documentId', async () => {
+        expect('something').to.equal('something');
+      });
+    });
+
+    experiment('.createDocumentRole', () => {
+      experiment('when the documentRole data is invalid', () => {
+        let documentRole;
+
+        beforeEach(async () => {
+          documentRole = {
+            role: 'billing',
+            invoiceAccountId: uuid()
+          };
+        });
+
+        test('any EntityValidationError is thrown', async () => {
+          const err = await expect(documentsService.createDocumentRole(documentRole))
+            .to
+            .reject(errors.EntityValidationError, 'Document Role not valid');
+
+          expect(err.validationDetails).to.be.an.array();
+        });
+
+        test('the document role is not saved', async () => {
+          expect(documentRolesRepo.create.called).to.equal(false);
         });
       });
 
-      afterEach(async () => {
-        sandbox.restore();
-      });
+      experiment('when the documentRole data is valid', async () => {
+        let result;
+        let documentRole;
 
-      const document = {
-        regime: 'water',
-        documentType: 'abstraction_licence',
-        versionNumber: 100,
-        documentRef: 'doc-ref',
-        status: 'current',
-        startDate: '2001-01-18',
-        endDate: '2010-01-17',
-        isTest: true
-      };
+        beforeEach(async () => {
+          documentRole = {
+            documentId: uuid(),
+            role: 'billing',
+            startDate: '2020-02-01',
+            endDate: '2020-03-01',
+            invoiceAccountId: uuid(),
+            isTest: true
+          };
 
-      experiment('.createDocument', () => {
-        experiment('for an invalid document', () => {
-          let err;
-
-          beforeEach(async () => {
-            try {
-              await documentsService.createDocument({});
-            } catch (error) {
-              err = error;
-            }
-          });
-
-          test('does not create the document at the database', async () => {
-            expect(documentRepo.create.called).to.equal(false);
-          });
-
-          test('throws an error containing the validation messages', async () => {
-            expect(err.message).to.equal('Document not valid');
-            expect(err.validationDetails).to.include('"regime" is required');
+          documentRolesRepo.create.resolves({
+            documentRoleId: 'test-id',
+            ...documentRole
           });
         });
 
-        experiment('for a valid document', () => {
-          let result;
-
+        experiment('if there are no existing document roles for the document and role', () => {
           beforeEach(async () => {
-            documentRepo.create.resolves({
-              documentId: 'test-document-id'
-            });
+            documentRolesRepo.findByDocumentId.resolves([]);
 
-            documentRepo.findByDocumentRef.resolves([]);
-
-            result = await documentsService.createDocument(document);
+            result = await documentsService.createDocumentRole(documentRole);
           });
 
-          test('includes the saved document in the response', async () => {
-            expect(result.documentId).to.equal('test-document-id');
+          test('the document role is saved via the repository', async () => {
+            expect(documentRolesRepo.create.called).to.equal(true);
           });
-          test('calls the findByDocumentRef with correct regime, doc type and doc ref', async () => {
-            expect(documentRepo.findByDocumentRef.lastCall.args).to.equal(['water', 'abstraction_licence', 'doc-ref']);
+
+          test('the document role being saved does not have a role property', async () => {
+            const [docRole] = documentRolesRepo.create.lastCall.args;
+            expect(docRole.role).to.equal(undefined);
+          });
+
+          test('the document role have the role id from the roles repo', async () => {
+            const [docRole] = documentRolesRepo.create.lastCall.args;
+            expect(docRole.roleId).to.equal('test-role-id');
+          });
+
+          test('the saved document role is returned', async () => {
+            expect(result.documentRoleId).to.equal('test-id');
           });
         });
 
-        experiment('for an invalid document', () => {
-          let err;
-
+        experiment('if there are no existing document roles for the document and role type', () => {
           beforeEach(async () => {
-            documentRepo.findByDocumentRef.resolves([{
-              ...document,
-              startDate: '2000-01-16',
-              endDate: null
-            }]);
+            documentRolesRepo.findByDocumentId.resolves([
+              {
+                documentId: documentRole.documentId,
+                role: {
+                  roleId: uuid(),
+                  name: 'licenceHolder'
+                }
+              },
+              {
+                documentId: documentRole.documentId,
+                role: {
+                  roleId: uuid(),
+                  name: 'licenceHolder'
+                }
+              }
+            ]);
 
-            try {
-              await documentsService.createDocument(document);
-            } catch (error) {
-              err = error;
-            }
+            result = await documentsService.createDocumentRole(documentRole);
           });
 
-          test('does not create the document at the database', async () => {
-            expect(documentRepo.create.called).to.equal(false);
+          test('the document role is saved via the repository', async () => {
+            expect(documentRolesRepo.create.called).to.equal(true);
           });
 
-          test('throws an error containing the validation messages', async () => {
-            expect(err.name).to.equal('UniqueConstraintViolation');
-            expect(err.message).to.equal('Overlapping start and end date for document reference: doc-ref');
-          });
-        });
-      });
-
-      experiment('.createDocumentRole', () => {
-        experiment('when the documentRole data is invalid', () => {
-          let documentRole;
-
-          beforeEach(async () => {
-            documentRole = {
-              role: 'billing',
-              invoiceAccountId: uuid()
-            };
-          });
-
-          test('any EntityValidationError is thrown', async () => {
-            const err = await expect(documentsService.createDocumentRole(documentRole))
-              .to
-              .reject(errors.EntityValidationError, 'Document Role not valid');
-
-            expect(err.validationDetails).to.be.an.array();
-          });
-
-          test('the document role is not saved', async () => {
-            expect(documentRolesRepo.create.called).to.equal(false);
+          test('the saved document role is returned', async () => {
+            expect(result.documentRoleId).to.equal('test-id');
           });
         });
 
-        experiment('when the documentRole data is valid', async () => {
-          let result;
-          let documentRole;
-
-          beforeEach(async () => {
-            documentRole = {
-              documentId: uuid(),
-              role: 'billing',
-              startDate: '2020-02-01',
-              endDate: '2020-03-01',
-              invoiceAccountId: uuid(),
-              isTest: true
-            };
-
-            documentRolesRepo.create.resolves({
-              documentRoleId: 'test-id',
-              ...documentRole
-            });
-          });
-
-          experiment('if there are no existing document roles for the document and role', () => {
-            beforeEach(async () => {
-              documentRolesRepo.findByDocumentId.resolves([]);
-
-              result = await documentsService.createDocumentRole(documentRole);
-            });
-
-            test('the document role is saved via the repository', async () => {
-              expect(documentRolesRepo.create.called).to.equal(true);
-            });
-
-            test('the document role being saved does not have a role property', async () => {
-              const [docRole] = documentRolesRepo.create.lastCall.args;
-              expect(docRole.role).to.equal(undefined);
-            });
-
-            test('the document role have the role id from the roles repo', async () => {
-              const [docRole] = documentRolesRepo.create.lastCall.args;
-              expect(docRole.roleId).to.equal('test-role-id');
-            });
-
-            test('the saved document role is returned', async () => {
-              expect(result.documentRoleId).to.equal('test-id');
-            });
-          });
-
-          experiment('if there are no existing document roles for the document and role type', () => {
+        experiment('if there are existing document roles for the document and role type', () => {
+          experiment('and the dates do not overlap', () => {
             beforeEach(async () => {
               documentRolesRepo.findByDocumentId.resolves([
                 {
                   documentId: documentRole.documentId,
-                  role: {
-                    roleId: uuid(),
-                    name: 'licenceHolder'
-                  }
-                },
-                {
-                  documentId: documentRole.documentId,
+                  startDate: new Date(2000, 0, 1),
+                  endDate: new Date(2001, 0, 1),
                   role: {
                     roleId: uuid(),
                     name: 'licenceHolder'
@@ -217,125 +273,97 @@ experiment('v2/services/document', () => {
             });
           });
 
-          experiment('if there are existing document roles for the document and role type', () => {
-            experiment('and the dates do not overlap', () => {
-              beforeEach(async () => {
+          experiment('and the dates do overlap', () => {
+            // the test data has a start and end date of
+            // startDate: '2020-02-01',
+            // endDate: '2020-03-01',
+            const overlapScenarios = [
+              // starts before and ends after incoming data
+              { startDate: new Date(2019, 0, 1), endDate: new Date(2022, 1, 2) },
+              { startDate: new Date(2019, 0, 1), endDate: null },
+
+              // starts after existing started, but before finished
+              { startDate: new Date(2020, 1, 20), endDate: new Date(2022, 1, 2) },
+              { startDate: new Date(2020, 1, 20), endDate: null },
+
+              // starts and ends within existing data
+              { startDate: new Date(2020, 1, 20), endDate: new Date(2020, 1, 25) }
+            ];
+
+            overlapScenarios.forEach(scenario => {
+              const { startDate, endDate } = scenario;
+              const testName = `throws for start ${startDate} and end ${endDate}`;
+              test(testName, async () => {
+                const documentRole = {
+                  startDate: '2020-02-01',
+                  endDate: '2020-03-01',
+                  role: 'billing',
+                  invoiceAccountId: uuid(),
+                  documentId: uuid()
+                };
+
                 documentRolesRepo.findByDocumentId.resolves([
                   {
                     documentId: documentRole.documentId,
-                    startDate: new Date(2000, 0, 1),
-                    endDate: new Date(2001, 0, 1),
+                    startDate,
+                    endDate,
                     role: {
                       roleId: uuid(),
-                      name: 'licenceHolder'
+                      name: 'billing'
                     }
                   }
                 ]);
 
-                result = await documentsService.createDocumentRole(documentRole);
-              });
+                const error = await expect(documentsService.createDocumentRole(documentRole)).reject();
 
-              test('the document role is saved via the repository', async () => {
-                expect(documentRolesRepo.create.called).to.equal(true);
-              });
-
-              test('the saved document role is returned', async () => {
-                expect(result.documentRoleId).to.equal('test-id');
+                expect(error).to.be.instanceOf(errors.ConflictingDataError);
+                expect(error.message).to.equal('Existing document role exists for date range');
               });
             });
+          });
 
-            experiment('and the dates do overlap', () => {
-              // the test data has a start and end date of
-              // startDate: '2020-02-01',
-              // endDate: '2020-03-01',
-              const overlapScenarios = [
-                // starts before and ends after incoming data
-                { startDate: new Date(2019, 0, 1), endDate: new Date(2022, 1, 2) },
-                { startDate: new Date(2019, 0, 1), endDate: null },
+          experiment('and the proposed role has no end date and the dates do overlap', () => {
+            // the test data has a start and end date of
+            // startDate: '2020-02-01',
+            // endDate: 'null',
+            const overlapScenarios = [
+              // starts before and ends after incoming data
+              { startDate: new Date(2019, 0, 1), endDate: new Date(2022, 1, 2) },
+              { startDate: new Date(2019, 0, 1), endDate: null },
 
-                // starts after existing started, but before finished
-                { startDate: new Date(2020, 1, 20), endDate: new Date(2022, 1, 2) },
-                { startDate: new Date(2020, 1, 20), endDate: null },
+              // starts after existing started, but before finished
+              { startDate: new Date(2020, 1, 20), endDate: new Date(2022, 1, 2) },
+              { startDate: new Date(2020, 1, 20), endDate: null }
+            ];
 
-                // starts and ends within existing data
-                { startDate: new Date(2020, 1, 20), endDate: new Date(2020, 1, 25) }
-              ];
+            overlapScenarios.forEach(scenario => {
+              const { startDate, endDate } = scenario;
+              const testName = `throws for start ${startDate} and end ${endDate}`;
+              test(testName, async () => {
+                const documentRole = {
+                  startDate: '2020-02-01',
+                  endDate: null,
+                  role: 'billing',
+                  invoiceAccountId: uuid(),
+                  documentId: uuid()
+                };
 
-              overlapScenarios.forEach(scenario => {
-                const { startDate, endDate } = scenario;
-                const testName = `throws for start ${startDate} and end ${endDate}`;
-                test(testName, async () => {
-                  const documentRole = {
-                    startDate: '2020-02-01',
-                    endDate: '2020-03-01',
-                    role: 'billing',
-                    invoiceAccountId: uuid(),
-                    documentId: uuid()
-                  };
-
-                  documentRolesRepo.findByDocumentId.resolves([
-                    {
-                      documentId: documentRole.documentId,
-                      startDate,
-                      endDate,
-                      role: {
-                        roleId: uuid(),
-                        name: 'billing'
-                      }
+                documentRolesRepo.findByDocumentId.resolves([
+                  {
+                    documentId: documentRole.documentId,
+                    startDate,
+                    endDate,
+                    role: {
+                      roleId: uuid(),
+                      name: 'billing'
                     }
-                  ]);
+                  }
+                ]);
 
-                  const error = await expect(documentsService.createDocumentRole(documentRole)).reject();
+                const error = await expect(documentsService.createDocumentRole(documentRole)).reject();
 
-                  expect(error).to.be.instanceOf(errors.ConflictingDataError);
-                  expect(error.message).to.equal('Existing document role exists for date range');
-                });
-              });
-            });
-
-            experiment('and the proposed role has no end date and the dates do overlap', () => {
-              // the test data has a start and end date of
-              // startDate: '2020-02-01',
-              // endDate: 'null',
-              const overlapScenarios = [
-                // starts before and ends after incoming data
-                { startDate: new Date(2019, 0, 1), endDate: new Date(2022, 1, 2) },
-                { startDate: new Date(2019, 0, 1), endDate: null },
-
-                // starts after existing started, but before finished
-                { startDate: new Date(2020, 1, 20), endDate: new Date(2022, 1, 2) },
-                { startDate: new Date(2020, 1, 20), endDate: null }
-              ];
-
-              overlapScenarios.forEach(scenario => {
-                const { startDate, endDate } = scenario;
-                const testName = `throws for start ${startDate} and end ${endDate}`;
-                test(testName, async () => {
-                  const documentRole = {
-                    startDate: '2020-02-01',
-                    endDate: null,
-                    role: 'billing',
-                    invoiceAccountId: uuid(),
-                    documentId: uuid()
-                  };
-
-                  documentRolesRepo.findByDocumentId.resolves([
-                    {
-                      documentId: documentRole.documentId,
-                      startDate,
-                      endDate,
-                      role: {
-                        roleId: uuid(),
-                        name: 'billing'
-                      }
-                    }
-                  ]);
-
-                  const error = await expect(documentsService.createDocumentRole(documentRole)).reject();
-
-                  expect(error).to.be.instanceOf(errors.ConflictingDataError);
-                  expect(error.message).to.equal('Existing document role exists for date range');
-                });
+                expect(error).to.be.instanceOf(errors.ConflictingDataError);
+                expect(error.message).to.equal('Existing document role exists for date range');
               });
             });
           });
