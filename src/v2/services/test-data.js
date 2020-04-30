@@ -14,18 +14,16 @@ const invoiceAccountsRepo = require('../connectors/repository/invoice-accounts')
  * Calls through to the relevant repositories to delete all test
  * data that may have been created.
  */
-const deleteAllTestData = () => {
-  return Promise.all([
-    documentRolesRepo.deleteTestData(),
-    companyAddressesRepo.deleteTestData(),
-    invoiceAccountAddressesRepo.deleteTestData(),
-    companyContactsRepo.deleteTestData(),
-    invoiceAccountsRepo.deleteTestData(),
-    companiesRepo.deleteTestData(),
-    addressesRepo.deleteTestData(),
-    documentsRepo.deleteTestData(),
-    contactsRepo.deleteTestData()
-  ]);
+const deleteAllTestData = async () => {
+  await documentRolesRepo.deleteTestData();
+  await companyAddressesRepo.deleteTestData();
+  await invoiceAccountAddressesRepo.deleteTestData();
+  await companyContactsRepo.deleteTestData();
+  await invoiceAccountsRepo.deleteTestData();
+  await companiesRepo.deleteTestData();
+  await addressesRepo.deleteTestData();
+  await documentsRepo.deleteTestData();
+  await contactsRepo.deleteTestData();
 };
 
 exports.deleteAllTestData = deleteAllTestData;
