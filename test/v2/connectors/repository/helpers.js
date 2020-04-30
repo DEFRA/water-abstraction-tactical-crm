@@ -131,4 +131,32 @@ experiment('v2/connectors/repository/helpers', () => {
       expect(result.toJSON.called).to.equal(true);
     });
   });
+
+  experiment('.deleteTestData', () => {
+    let model;
+
+    beforeEach(async () => {
+      model = {
+        forge: sandbox.stub().returnsThis(),
+        where: sandbox.stub().returnsThis(),
+        destroy: sandbox.stub().resolves()
+      };
+
+      await helpers.deleteTestData(model);
+    });
+
+    test('calls forge on the model', async () => {
+      expect(model.forge.called).to.equal(true);
+    });
+
+    test('filters where is_test is true', async () => {
+      const [where] = model.where.lastCall.args;
+      expect(where).to.equal({ is_test: true });
+    });
+
+    test('deletes the data but does not require a match', async () => {
+      const [destroy] = model.destroy.lastCall.args;
+      expect(destroy).to.equal({ require: false });
+    });
+  });
 });

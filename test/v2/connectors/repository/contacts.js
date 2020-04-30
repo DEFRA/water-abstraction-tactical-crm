@@ -30,6 +30,7 @@ experiment('v2/connectors/repository/contacts', () => {
     sandbox.stub(Contact, 'forge').returns(stub);
     sandbox.stub(repoHelpers, 'findOne');
     sandbox.stub(repoHelpers, 'create');
+    sandbox.stub(repoHelpers, 'deleteTestData');
   });
 
   afterEach(async () => {
@@ -80,6 +81,15 @@ experiment('v2/connectors/repository/contacts', () => {
 
     test('returns the data from fetchAll', async () => {
       expect(result).to.equal(model);
+    });
+  });
+
+  experiment('.deleteTestData', () => {
+    test('is created using the helpers', async () => {
+      await contactsRepo.deleteTestData();
+
+      const [model] = repoHelpers.deleteTestData.lastCall.args;
+      expect(model).to.equal(Contact);
     });
   });
 });

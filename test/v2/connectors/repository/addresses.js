@@ -12,6 +12,7 @@ const sandbox = require('sinon').createSandbox();
 
 const addressesRepo = require('../../../../src/v2/connectors/repository/addresses');
 const Address = require('../../../../src/v2/connectors/bookshelf/Address');
+const repoHelpers = require('../../../../src/v2/connectors/repository/helpers');
 
 experiment('v2/connectors/repository/addresses', () => {
   let stub, model;
@@ -27,6 +28,7 @@ experiment('v2/connectors/repository/addresses', () => {
     };
 
     sandbox.stub(Address, 'forge').returns(stub);
+    sandbox.stub(repoHelpers, 'deleteTestData');
   });
 
   afterEach(async () => {
@@ -98,6 +100,15 @@ experiment('v2/connectors/repository/addresses', () => {
       test('null is returned', async () => {
         expect(result).to.equal(null);
       });
+    });
+  });
+
+  experiment('.deleteTestData', () => {
+    test('is created using the helpers', async () => {
+      await addressesRepo.deleteTestData();
+
+      const [model] = repoHelpers.deleteTestData.lastCall.args;
+      expect(model).to.equal(Address);
     });
   });
 });
