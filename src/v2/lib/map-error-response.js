@@ -23,9 +23,6 @@ commandMap.set('UniqueConstraintViolation', transformConflict);
  * @return {Error} Boom error
  */
 const mapErrorResponse = error => {
-  error.name = error.code === '23503' ? 'ForeignKeyConstraintViolation' : error.name;
-  error.name = error.code === '23505' ? 'UniqueConstraintViolation' : error.name;
-
   const func = commandMap.get(error.name);
 
   if (func) {
@@ -34,4 +31,7 @@ const mapErrorResponse = error => {
   throw error;
 };
 
-module.exports = mapErrorResponse;
+const mapValidationErrorDetails = error => error.details.map(detail => detail.message);
+
+exports.mapErrorResponse = mapErrorResponse;
+exports.mapValidationErrorDetails = mapValidationErrorDetails;

@@ -1,14 +1,19 @@
 'use strict';
-const repo = require('../connectors/repository');
-const errors = require('../lib/errors');
-const moment = require('moment');
-const Boom = require('@hapi/boom');
-const mappers = require('./lib/mappers');
+
+const Moment = require('moment');
+const MomentRange = require('moment-range');
+
+const moment = MomentRange.extendMoment(Moment);
 const { omit } = require('lodash');
 
 const documentValidator = require('../modules/documents/validator');
 const documentRoleRepo = require('../connectors/repository/document-roles');
 const rolesRepo = require('../connectors/repository/roles');
+const { mapValidationErrorDetails } = require('../lib/map-error-response');
+const errors = require('../lib/errors');
+const repo = require('../connectors/repository');
+const Boom = require('@hapi/boom');
+const mappers = require('./lib/mappers');
 
 const datesOverlap = (list, item) => {
   return list.map(row => {
@@ -65,6 +70,29 @@ const getDocumentByRef = async (regime, documentType, documentRef) => {
 };
 
 /**
+   * Checks that the proposed document role object does not have a date range
+   * that conflicts with the date create for any existing document roles
+   * that represent the same role type and document.
+   *
+   * Throws an error if there is a clash
+   *
+   * @param {Object} documentRole The incoming request data for a proposed document role record
+   */
+const ensureDateRangeDoesNotOverlapWithExistingRoles = async documentRole => {
+  const { role, documentId } = documentRole;
+
+  // get the existing document roles for the document and role
+  const allDocumentRoles = await documentRoleRepo.findByDocumentId(documentId);
+
+  // ensure there is no overlap on the dates
+  const documentRoles = allDocumentRoles.filter(dr => dr.role.name === role);
+
+  if (datesOverlap(documentRoles, documentRole)) {
+    throw new errors.ConflictingDataError('Existing document role exists for date range');
+  }
+};
+
+/**
  * Replaces the role name with the role id in the data ready for
  * persisting to the data store.
  *
@@ -79,7 +107,8 @@ const replaceRoleNameWithRoleId = async documentRole => {
   };
 };
 
-/*
+/**
+ *
  * Attempts to create a new document role entry. Will only save if:
  *
  * The data is valid
@@ -92,16 +121,10 @@ const createDocumentRole = async documentRole => {
   const { error, value: validatedDocumentRole } = documentValidator.validateDocumentRole(documentRole);
 
   if (error) {
-    const details = error.details.map(detail => detail.message);
-    throw new errors.EntityValidationError('Document Role not valid', details);
+    throw new errors.EntityValidationError('Document Role not valid', mapValidationErrorDetails(error));
   }
 
-  // get the existing document roles for the document and role
-  const allDocumentRoles = await documentRoleRepo.findByDocumentId(documentRole.documentId);
-
-  if (datesOverlap(allDocumentRoles, validatedDocumentRole)) {
-    throw new errors.ConflictingDataError('Existing document role exists for date range');
-  }
+  await ensureDateRangeDoesNotOverlapWithExistingRoles(validatedDocumentRole);
 
   const documentRoleToSave = await replaceRoleNameWithRoleId(validatedDocumentRole);
 
