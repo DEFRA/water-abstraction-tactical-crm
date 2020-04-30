@@ -2,7 +2,7 @@
 
 const companiesService = require('../../services/companies');
 const companyTypes = require('../../lib/company-types');
-const mapErrorResponse = require('../../lib/map-error-response');
+const { mapErrorResponse } = require('../../lib/map-error-response');
 
 const postCompany = async (request, h) => {
   const { type, name, companyNumber = null, isTest = false } = request.payload;
