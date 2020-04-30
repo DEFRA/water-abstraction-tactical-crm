@@ -1,4 +1,5 @@
 'use strict';
+const { snakeCase } = require('lodash');
 
 exports.findOne = async (bookshelfModel, idKey, id, withRelated = []) => {
   const result = await bookshelfModel
@@ -9,6 +10,15 @@ exports.findOne = async (bookshelfModel, idKey, id, withRelated = []) => {
     });
 
   return result && result.toJSON();
+};
+
+exports.findAll = async (bookshelfModel, idKey, id) => {
+  const result = await bookshelfModel
+    .forge()
+    .where({ [snakeCase(idKey)]: id })
+    .fetchAll({ require: false });
+
+  return result.toJSON();
 };
 
 exports.create = async (bookShelfModel, data) => {
