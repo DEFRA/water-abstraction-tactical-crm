@@ -3,7 +3,7 @@ const repo = require('../connectors/repository');
 const errors = require('../lib/errors');
 const moment = require('moment');
 const Boom = require('@hapi/boom');
-const mappers = require('../mappers');
+const mappers = require('./lib/mappers');
 const { omit } = require('lodash');
 
 const documentValidator = require('../modules/documents/validator');
@@ -19,7 +19,7 @@ const datesOverlap = (list, item) => {
 };
 
 const createDocument = async document => {
-  const { error, value: validatedDocument } = documentValidator.validatedDocument(document);
+  const { error, value: validatedDocument } = documentValidator.validateDocument(document);
 
   if (error) {
     const details = error.details.map(detail => detail.message);

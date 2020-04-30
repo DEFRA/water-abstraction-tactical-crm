@@ -1,6 +1,6 @@
 const { experiment, test, beforeEach } = exports.lab = require('@hapi/lab').script();
 const { expect } = require('@hapi/code');
-const mappers = require('../../../../../src/v2/modules/documents/lib/mappers');
+const mappers = require('../../../../../src/v2/services/lib/mappers');
 
 const createRow = (options = {}) => Object.assign({}, {
   document_role_id: 'role_1',
