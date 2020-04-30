@@ -9,7 +9,7 @@ const {
 const { expect } = require('@hapi/code');
 
 const errors = require('../../../src/v2/lib/errors');
-const mapErrorResponse = require('../../../src/v2/lib/map-error-response');
+const { mapErrorResponse } = require('../../../src/v2/lib/map-error-response');
 
 experiment('v2/lib/map-error-response', () => {
   experiment('.mapErrorResponse', () => {
@@ -74,7 +74,8 @@ experiment('v2/lib/map-error-response', () => {
 
     experiment('for an uncaught DB UniqueConstraintViolation', () => {
       beforeEach(async () => {
-        const err = new Error();
+        const err = new errors.ConflictingDataError('test');
+        // change the error code to mock DB error at entity handler level
         err.code = '23505';
         mappedError = mapErrorResponse(err);
       });
@@ -87,7 +88,8 @@ experiment('v2/lib/map-error-response', () => {
 
     experiment('for an uncaught DB ForeignKeyConstraintViolation', () => {
       beforeEach(async () => {
-        const err = new Error();
+        const err = new errors.ConflictingDataError('test');
+        // change the error code to mock DB error at entity handler level
         err.code = '23503';
         mappedError = mapErrorResponse(err);
       });
