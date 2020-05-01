@@ -14,6 +14,7 @@ const errors = require('../lib/errors');
 const repo = require('../connectors/repository');
 const Boom = require('@hapi/boom');
 const mappers = require('./lib/mappers');
+const handleRepoError = require('./lib/error-handler');
 
 const datesOverlap = (list, item) => {
   return list.map(row => {
@@ -36,7 +37,12 @@ const createDocument = async document => {
   if (datesOverlap(currentDocuments, document)) {
     throw new errors.ConflictingDataError('Overlapping start and end date for document');
   }
-  return repo.documents.create(validatedDocument);
+  try {
+    const doc = await repo.documents.create(validatedDocument);
+    return doc;
+  } catch (err) {
+    return handleRepoError(err);
+  }
 };
 
 const getDocument = async documentId => {

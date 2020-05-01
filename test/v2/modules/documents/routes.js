@@ -115,19 +115,8 @@ experiment('modules/documents/routes', () => {
       const response = await server.inject(createDocumentRequest(fullPayload));
       expect(response.statusCode).to.equal(400);
     });
-    test('requires regime to equal water', async () => {
-      fullPayload.regime = 'wrongRegime';
-      const response = await server.inject(createDocumentRequest(fullPayload));
-      expect(response.statusCode).to.equal(400);
-    });
-
     test('requires documentType', async () => {
       delete fullPayload.documentType;
-      const response = await server.inject(createDocumentRequest(fullPayload));
-      expect(response.statusCode).to.equal(400);
-    });
-    test('requires documentType to equal abstraction_licence', async () => {
-      fullPayload.documentType = 'wrongDocType';
       const response = await server.inject(createDocumentRequest(fullPayload));
       expect(response.statusCode).to.equal(400);
     });
@@ -152,12 +141,6 @@ experiment('modules/documents/routes', () => {
 
     test('requires status', async () => {
       delete fullPayload.status;
-      const response = await server.inject(createDocumentRequest(fullPayload));
-      expect(response.statusCode).to.equal(400);
-    });
-
-    test('requires status to be one of current, draft or superseded', async () => {
-      fullPayload.status = 'something';
       const response = await server.inject(createDocumentRequest(fullPayload));
       expect(response.statusCode).to.equal(400);
     });

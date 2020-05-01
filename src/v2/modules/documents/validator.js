@@ -2,7 +2,6 @@
 
 const Joi = require('@hapi/joi')
   .extend(require('@hapi/joi-date'));
-const DATE = Joi.date().format('YYYY-MM-DD');
 const validators = require('../../lib/validators');
 
 const documentSchema = Joi.object({
@@ -11,9 +10,9 @@ const documentSchema = Joi.object({
   versionNumber: Joi.number().integer().required().min(0),
   documentRef: Joi.string().required(),
   status: Joi.string().required().valid('current', 'draft', 'superseded'),
-  startDate: DATE.required(),
-  endDate: DATE.min(Joi.ref('startDate')).optional().default(null).allow(null),
-  isTest: Joi.boolean().optional().default(false)
+  startDate: validators.START_DATE,
+  endDate: validators.END_DATE,
+  isTest: validators.TEST_FLAG
 });
 
 const requiredUuidUnlessRoleIs = role => {

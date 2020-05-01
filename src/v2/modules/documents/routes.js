@@ -41,14 +41,14 @@ exports.postDocument = {
     description: 'Add a document for a licence number',
     validate: {
       payload: {
-        regime: Joi.string().required().valid('water'),
-        documentType: Joi.string().required().valid('abstraction_licence'),
-        versionNumber: Joi.number().integer().required().min(0),
+        regime: Joi.string().required(),
+        documentType: Joi.string().required(),
+        versionNumber: Joi.number().integer().required(),
         documentRef: Joi.string().required(),
-        status: Joi.string().required().valid('current', 'draft', 'superseded'),
+        status: Joi.string().required(),
         startDate: validators.START_DATE,
         endDate: validators.END_DATE,
-        isTest: Joi.boolean().default(false)
+        isTest: validators.TEST_FLAG
       }
     }
   }
