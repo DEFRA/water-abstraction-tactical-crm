@@ -12,6 +12,7 @@ const sandbox = require('sinon').createSandbox();
 
 const companiesRepo = require('../../../../src/v2/connectors/repository/companies');
 const Company = require('../../../../src/v2/connectors/bookshelf/Company');
+const repoHelpers = require('../../../../src/v2/connectors/repository/helpers');
 
 experiment('v2/connectors/repository/companies', () => {
   let stub, model;
@@ -27,6 +28,7 @@ experiment('v2/connectors/repository/companies', () => {
     };
 
     sandbox.stub(Company, 'forge').returns(stub);
+    sandbox.stub(repoHelpers, 'deleteTestData');
   });
 
   afterEach(async () => {
@@ -98,6 +100,15 @@ experiment('v2/connectors/repository/companies', () => {
       test('null is returned', async () => {
         expect(result).to.equal(null);
       });
+    });
+  });
+
+  experiment('.deleteTestData', () => {
+    test('is created using the helpers', async () => {
+      await companiesRepo.deleteTestData();
+
+      const [model] = repoHelpers.deleteTestData.lastCall.args;
+      expect(model).to.equal(Company);
     });
   });
 });

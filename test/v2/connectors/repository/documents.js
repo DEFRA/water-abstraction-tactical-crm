@@ -12,6 +12,8 @@ const sandbox = require('sinon').createSandbox();
 
 const documentRepo = require('../../../../src/v2/connectors/repository/documents');
 const Document = require('../../../../src/v2/connectors/bookshelf/Document');
+const documentsRepo = require('../../../../src/v2/connectors/repository/documents');
+const repoHelpers = require('../../../../src/v2/connectors/repository/helpers');
 
 experiment('v2/connectors/repository/documents', () => {
   let stub, model;
@@ -98,6 +100,25 @@ experiment('v2/connectors/repository/documents', () => {
       test('null is returned', async () => {
         expect(result).to.equal(null);
       });
+    });
+  });
+});
+
+experiment('v2/connectors/repository/document-roles', () => {
+  beforeEach(async () => {
+    sandbox.stub(repoHelpers, 'deleteTestData');
+  });
+
+  afterEach(async () => {
+    sandbox.restore();
+  });
+
+  experiment('.deleteTestData', () => {
+    test('is created using the helpers', async () => {
+      await documentsRepo.deleteTestData();
+
+      const [model] = repoHelpers.deleteTestData.lastCall.args;
+      expect(model).to.equal(Document);
     });
   });
 });

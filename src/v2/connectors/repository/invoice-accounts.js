@@ -1,3 +1,5 @@
+'use strict';
+
 const { InvoiceAccount } = require('../bookshelf');
 const helpers = require('./helpers');
 
@@ -50,6 +52,9 @@ const findWithCurrentAddress = async ids => {
  */
 const create = async invoiceAccount => helpers.create(InvoiceAccount, invoiceAccount);
 
+const deleteTestData = async () => helpers.deleteTestData(InvoiceAccount);
+
+exports.create = create;
+exports.deleteTestData = deleteTestData;
 exports.findOne = findOne;
 exports.findWithCurrentAddress = findWithCurrentAddress;
-exports.create = create;
