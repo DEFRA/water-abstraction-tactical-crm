@@ -2,8 +2,7 @@
 
 const {
   experiment,
-  test,
-  beforeEach
+  test
 } = exports.lab = require('@hapi/lab').script();
 
 const { expect } = require('@hapi/code');
