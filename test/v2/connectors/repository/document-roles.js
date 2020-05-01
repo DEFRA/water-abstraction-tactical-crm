@@ -19,6 +19,7 @@ experiment('v2/connectors/repository/document-roles', () => {
   beforeEach(async () => {
     sandbox.stub(repoHelpers, 'create').resolves('create-response');
     sandbox.stub(repoHelpers, 'findOne').resolves('find-one-response');
+    sandbox.stub(repoHelpers, 'deleteTestData');
   });
 
   afterEach(async () => {
@@ -98,6 +99,15 @@ experiment('v2/connectors/repository/document-roles', () => {
       const [options] = stub.fetch.lastCall.args;
 
       expect(options.withRelated).to.equal(['role']);
+    });
+  });
+
+  experiment('.deleteTestData', () => {
+    test('is created using the helpers', async () => {
+      await documentRolesRepo.deleteTestData();
+
+      const [model] = repoHelpers.deleteTestData.lastCall.args;
+      expect(model).to.equal(DocumentRole);
     });
   });
 });

@@ -29,6 +29,9 @@ const findByDocumentRef = (regime, documentType, documentRef) =>
  */
 const create = async document => helpers.create(Document, document);
 
+const deleteTestData = async () => helpers.deleteTestData(Document);
+
 exports.findByDocumentRef = findByDocumentRef;
 exports.findOne = findOne;
 exports.create = create;
+exports.deleteTestData = deleteTestData;
