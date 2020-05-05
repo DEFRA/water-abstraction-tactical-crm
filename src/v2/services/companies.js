@@ -2,16 +2,7 @@
 
 const companyTypes = require('../lib/company-types');
 const repos = require('../connectors/repository');
-const errors = require('../lib/errors');
-
-const handleRepoError = (err) => {
-  if (parseInt(err.code) === 23505) {
-    throw new errors.UniqueConstraintViolation(err.detail);
-  } else if (parseInt(err.code) === 23503) {
-    throw new errors.ForeignKeyConstraintViolation(err.detail);
-  }
-  throw err;
-};
+const handleRepoError = require('./lib/error-handler');
 
 const createPerson = async (name, isTest = false) => {
   const person = { name, type: companyTypes.PERSON, isTest };

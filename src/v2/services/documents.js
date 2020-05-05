@@ -11,26 +11,69 @@ const documentRoleRepo = require('../connectors/repository/document-roles');
 const rolesRepo = require('../connectors/repository/roles');
 const { mapValidationErrorDetails } = require('../lib/map-error-response');
 const errors = require('../lib/errors');
+const repo = require('../connectors/repository');
+const Boom = require('@hapi/boom');
+const mappers = require('./lib/mappers');
+const handleRepoError = require('./lib/error-handler');
 
-/**
- * Create a moment date range
- *
- * @param {String} startDate A start date in the format YYYY-MM-DD
- * @param {String|null} endDate A end date in the format YYYY-MM-DD or null
- */
-const getDateRange = (startDate, endDate) => {
-  const start = moment(startDate, 'YYYY-MM-DD');
-  const end = endDate === null ? null : moment(endDate, 'YYYY-MM-DD');
-  return moment.range(start, end);
+const datesOverlap = (list, item) => {
+  return list.map(row => {
+    const rangeA = moment.range(item.startDate, item.endDate);
+    const rangeB = moment.range(row.startDate, row.endDate);
+    return !!(rangeA.intersect(rangeB));
+  }).includes(true);
+};
+
+const createDocument = async document => {
+  const { error, value: validatedDocument } = documentValidator.validateDocument(document);
+
+  if (error) {
+    const details = error.details.map(detail => detail.message);
+    throw new errors.EntityValidationError('Document not valid', details);
+  }
+
+  // get the existing documents for the document ref
+  const currentDocuments = await repo.documents.findByDocumentRef(document.regime, document.documentType, document.documentRef);
+  if (datesOverlap(currentDocuments, document)) {
+    throw new errors.ConflictingDataError('Overlapping start and end date for document');
+  }
+  try {
+    const doc = await repo.documents.create(validatedDocument);
+    return doc;
+  } catch (err) {
+    return handleRepoError(err);
+  }
+};
+
+const getDocument = async documentId => {
+  // Load document and roles from DB
+  const [doc, roles] = await Promise.all([
+    await repo.documents.findOne(documentId),
+    await repo.documentRoles.findByDocumentId(documentId)
+  ]);
+
+  if (!doc) {
+    throw Boom.notFound(`Document ${documentId} not found`);
+  }
+
+  // Map data
+  return {
+    ...doc,
+    documentRoles: roles.map(mappers.mapDocumentRole)
+  };
 };
 
 /**
- * Creates a date range using the start and end dates from a docment role
- *
- * @param {Object} documentRole A document role
+ * Gets all the documents where the regime, type and reference matches.
+ * @param {*} regime
+ * @param {*} documentType
+ * @param {*} documentRef
+ * @returns collection of document objects
  */
-const getDocumentRoleDateRange = documentRole =>
-  getDateRange(documentRole.startDate, documentRole.endDate);
+const getDocumentsByRef = async (regime, documentType, documentRef) => {
+  const data = await repo.documents.findByDocumentRef(regime, documentType, documentRef);
+  return data;
+};
 
 /**
    * Checks that the proposed document role object does not have a date range
@@ -42,19 +85,15 @@ const getDocumentRoleDateRange = documentRole =>
    * @param {Object} documentRole The incoming request data for a proposed document role record
    */
 const ensureDateRangeDoesNotOverlapWithExistingRoles = async documentRole => {
-  const { role, documentId, startDate, endDate } = documentRole;
-  const incomingDateRange = getDateRange(startDate, endDate);
+  const { role, documentId } = documentRole;
 
   // get the existing document roles for the document and role
   const allDocumentRoles = await documentRoleRepo.findByDocumentId(documentId);
 
   // ensure there is no overlap on the dates
-  const hasOverlap = allDocumentRoles
-    .filter(dr => dr.role.name === role)
-    .map(getDocumentRoleDateRange)
-    .some(range => range.overlaps(incomingDateRange));
+  const documentRoles = allDocumentRoles.filter(dr => dr.role.name === role);
 
-  if (hasOverlap) {
+  if (datesOverlap(documentRoles, documentRole)) {
     throw new errors.ConflictingDataError('Existing document role exists for date range');
   }
 };
@@ -102,3 +141,6 @@ const getDocumentRole = documentRoleId => documentRoleRepo.findOne(documentRoleI
 
 exports.createDocumentRole = createDocumentRole;
 exports.getDocumentRole = getDocumentRole;
+exports.createDocument = createDocument;
+exports.getDocument = getDocument;
+exports.getDocumentsByRef = getDocumentsByRef;

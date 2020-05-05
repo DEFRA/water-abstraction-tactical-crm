@@ -7,12 +7,14 @@ const { startCase, lowerCase } = require('lodash');
 const { mapErrorResponse } = require('./map-error-response');
 const contactsService = require('../services/contacts');
 const addressService = require('../services/address');
+const documentService = require('../services/documents');
 const invoiceAccountsService = require('../services/invoice-accounts');
 const documentsService = require('../services/documents');
 
 const services = {
   contact: contactsService,
   address: addressService,
+  document: documentService,
   invoiceAccount: invoiceAccountsService,
   invoiceAccountAddress: invoiceAccountsService,
   documentRole: documentsService
