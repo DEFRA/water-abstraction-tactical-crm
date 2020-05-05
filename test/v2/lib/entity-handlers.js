@@ -36,6 +36,8 @@ experiment('v2/lib/entity-handlers', () => {
     sandbox.stub(addressService, 'getAddress');
     sandbox.stub(contactsService, 'createContact');
     sandbox.stub(contactsService, 'getContact');
+    sandbox.stub(documentsService, 'createDocument');
+    sandbox.stub(documentsService, 'getDocument');
     sandbox.stub(invoiceAccountsService, 'getInvoiceAccount');
     sandbox.stub(invoiceAccountsService, 'createInvoiceAccount');
     sandbox.stub(invoiceAccountsService, 'createInvoiceAccountAddress');
@@ -559,6 +561,67 @@ experiment('v2/lib/entity-handlers', () => {
         test('a Boom error is returned', async () => {
           expect(result.output.payload.statusCode).to.equal(404);
           expect(result.output.payload.message).to.equal(`No document role found for ${documentRoleId}`);
+        });
+      });
+    });
+
+    experiment('when creating a contact', () => {
+      experiment('if the contact is valid', () => {
+        beforeEach(async () => {
+          request = {
+            path: '/crm/2.0/contacts',
+            payload: {
+              firstName: 'test-first-1',
+              lastName: 'test-last-1'
+            }
+          };
+
+          contactsService.createContact.resolves({
+            contactId: 'test-contact-id'
+          });
+
+          await entityHandlers.createEntity(request, h, 'contact');
+        });
+
+        test('the payload is passed to the service', async () => {
+          const [entity] = contactsService.createContact.lastCall.args;
+          expect(entity.firstName).to.equal('test-first-1');
+        });
+
+        test('the saved entity is returned in the response body', async () => {
+          const [entity] = h.response.lastCall.args;
+          expect(entity.contactId).to.equal('test-contact-id');
+        });
+
+        test('the location header points to the saved entity', async () => {
+          const [location] = responseStub.created.lastCall.args;
+          expect(location).to.equal('/crm/2.0/contacts/test-contact-id');
+        });
+      });
+
+      experiment('if the contact is not valid', () => {
+        beforeEach(async () => {
+          request = {
+            path: '/crm/2.0/contacts',
+            payload: {
+              firstName: 'test-first-1'
+            }
+          };
+
+          const validationError = new errors.EntityValidationError(
+            'Contact not valid',
+            ['fail-1', 'fail-2']
+          );
+
+          contactsService.createContact.rejects(validationError);
+
+          result = await entityHandlers.createEntity(request, h, 'contact');
+        });
+
+        test('an Boom error is returned', async () => {
+          expect(result.output.payload.statusCode).to.equal(422);
+          expect(result.output.payload.message).to.equal('Contact not valid');
+          expect(result.output.payload.validationDetails).to.equal(['fail-1', 'fail-2']);
         });
       });
     });

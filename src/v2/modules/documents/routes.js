@@ -1,12 +1,12 @@
 const Joi = require('@hapi/joi');
 const controller = require('./controller');
-const entityHandlers = require('../../lib/entity-handlers');
 const validators = require('../../lib/validators');
+const entityHandlers = require('../../lib/entity-handlers');
 
 exports.getDocument = {
   method: 'GET',
   path: '/crm/2.0/documents/{documentId}',
-  handler: controller.getDocument,
+  handler: request => entityHandlers.getEntity(request, 'document'),
   options: {
     description: 'Get document with roles',
     validate: {
@@ -28,6 +28,27 @@ exports.getDocuments = {
         regime: Joi.string().default('water'),
         documentType: Joi.string().default('abstraction_licence'),
         documentRef: Joi.string().required()
+      }
+    }
+  }
+};
+
+exports.postDocument = {
+  method: 'POST',
+  path: '/crm/2.0/documents',
+  handler: (request, h) => entityHandlers.createEntity(request, h, 'document'),
+  options: {
+    description: 'Add a document for a licence number',
+    validate: {
+      payload: {
+        regime: Joi.string().required(),
+        documentType: Joi.string().required(),
+        versionNumber: Joi.number().integer().required(),
+        documentRef: Joi.string().required(),
+        status: Joi.string().required(),
+        startDate: validators.START_DATE,
+        endDate: validators.END_DATE,
+        isTest: validators.TEST_FLAG
       }
     }
   }

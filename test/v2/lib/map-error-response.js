@@ -71,5 +71,33 @@ experiment('v2/lib/map-error-response', () => {
         expect(mappedError.output.payload.message).to.equal('This conflicts');
       });
     });
+
+    experiment('for an uncaught DB UniqueConstraintViolation', () => {
+      beforeEach(async () => {
+        const err = new errors.ConflictingDataError('test');
+        // change the error code to mock DB error at entity handler level
+        err.code = '23505';
+        mappedError = mapErrorResponse(err);
+      });
+
+      test('creates a 409 response code', async () => {
+        expect(mappedError.output.payload.statusCode).to.equal(409);
+        expect(mappedError.output.payload.error).to.equal('Conflict');
+      });
+    });
+
+    experiment('for an uncaught DB ForeignKeyConstraintViolation', () => {
+      beforeEach(async () => {
+        const err = new errors.ConflictingDataError('test');
+        // change the error code to mock DB error at entity handler level
+        err.code = '23503';
+        mappedError = mapErrorResponse(err);
+      });
+
+      test('creates a 409 response code', async () => {
+        expect(mappedError.output.payload.statusCode).to.equal(409);
+        expect(mappedError.output.payload.error).to.equal('Conflict');
+      });
+    });
   });
 });

@@ -11,3 +11,5 @@ exports.Document = require('./Document');
 exports.DocumentRole = require('./DocumentRole');
 exports.InvoiceAccount = require('./InvoiceAccount');
 exports.InvoiceAccountAddress = require('./InvoiceAccountAddress');
+exports.CompanyContact = require('./CompanyContact');
+exports.Document = require('./Document');
