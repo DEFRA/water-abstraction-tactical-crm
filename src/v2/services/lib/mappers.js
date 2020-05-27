@@ -1,5 +1,5 @@
 const { mapKeys, pick, camelCase } = require('lodash');
-const camelCaseKeys = require('../../../../lib/camel-case-keys');
+const camelCaseKeys = require('../../../lib/camel-case-keys');
 
 const stripPrefix = (str, prefix) => camelCase(str.replace(prefix, ''));
 const stripKeyPrefix = (obj, prefix) =>
