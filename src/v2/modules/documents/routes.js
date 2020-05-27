@@ -1,10 +1,12 @@
 const Joi = require('@hapi/joi');
 const controller = require('./controller');
+const validators = require('../../lib/validators');
+const entityHandlers = require('../../lib/entity-handlers');
 
 exports.getDocument = {
   method: 'GET',
   path: '/crm/2.0/documents/{documentId}',
-  handler: controller.getDocument,
+  handler: request => entityHandlers.getEntity(request, 'document'),
   options: {
     description: 'Get document with roles',
     validate: {
@@ -26,6 +28,71 @@ exports.getDocuments = {
         regime: Joi.string().default('water'),
         documentType: Joi.string().default('abstraction_licence'),
         documentRef: Joi.string().required()
+      }
+    }
+  }
+};
+
+exports.postDocument = {
+  method: 'POST',
+  path: '/crm/2.0/documents',
+  handler: (request, h) => entityHandlers.createEntity(request, h, 'document'),
+  options: {
+    description: 'Add a document for a licence number',
+    validate: {
+      payload: {
+        regime: Joi.string().required(),
+        documentType: Joi.string().required(),
+        versionNumber: Joi.number().integer().required(),
+        documentRef: Joi.string().required(),
+        status: Joi.string().required(),
+        startDate: validators.START_DATE,
+        endDate: validators.END_DATE,
+        isTest: validators.TEST_FLAG
+      }
+    }
+  }
+};
+
+exports.postDocumentRole = {
+  method: 'POST',
+  path: '/crm/2.0/documents/{documentId}/roles',
+  handler: async (request, h) => entityHandlers.createEntity(
+    request,
+    h,
+    'documentRole',
+    documentRole => `/crm/2.0/document-roles/${documentRole.documentRoleId}`
+  ),
+  options: {
+    description: 'Creates a new document role',
+    validate: {
+      params: {
+        documentId: validators.GUID
+      },
+      payload: {
+        role: Joi.string().valid('billing', 'licenceHolder').required(),
+        isDefault: Joi.boolean().optional().default(false),
+        startDate: validators.START_DATE,
+        endDate: validators.END_DATE,
+        invoiceAccountId: Joi.string().uuid().allow(null),
+        companyId: Joi.string().uuid().allow(null),
+        contactId: Joi.string().uuid().allow(null),
+        addressId: Joi.string().uuid().allow(null),
+        isTest: validators.TEST_FLAG
+      }
+    }
+  }
+};
+
+exports.getDocumentRole = {
+  method: 'GET',
+  path: '/crm/2.0/document-roles/{documentRoleId}',
+  handler: async request => entityHandlers.getEntity(request, 'documentRole'),
+  options: {
+    description: 'Get a document role entity',
+    validate: {
+      params: {
+        documentRoleId: validators.GUID
       }
     }
   }

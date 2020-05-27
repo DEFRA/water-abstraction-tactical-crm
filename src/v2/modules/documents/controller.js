@@ -1,33 +1,9 @@
-const Boom = require('@hapi/boom');
-const camelCaseKeys = require('../../../lib/camel-case-keys');
-const repositories = require('../../connectors/repository');
-const mappers = require('./lib/mappers');
+
+const docService = require('../../services/documents');
 
 const getDocuments = async (request) => {
   const { regime, documentType, documentRef } = request.query;
-  const data = await repositories.documents.findByDocumentRef(regime, documentType, documentRef);
-  return data.map(camelCaseKeys);
-};
-
-const getDocument = async (request, h) => {
-  const { documentId } = request.params;
-
-  // Load document and roles from DB
-  const [doc, roles] = await Promise.all([
-    repositories.documents.findOneById(documentId),
-    repositories.documentRoles.findByDocumentId(documentId)
-  ]);
-
-  if (!doc) {
-    throw Boom.notFound(`Document ${documentId} not found`);
-  }
-
-  // Map data
-  return {
-    ...camelCaseKeys(doc),
-    documentRoles: roles.map(mappers.mapDocumentRole)
-  };
+  return docService.getDocumentsByRef(regime, documentType, documentRef);
 };
 
 exports.getDocuments = getDocuments;
-exports.getDocument = getDocument;

@@ -21,7 +21,7 @@ experiment('v2/connectors/bookshelf/Company', () => {
     sandbox.restore();
   });
 
-  test('uses the address table', async () => {
+  test('uses the companies table', async () => {
     expect(instance.tableName).to.equal('companies');
   });
 

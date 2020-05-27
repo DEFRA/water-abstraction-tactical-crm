@@ -5,6 +5,6 @@ exports.findOneById = `
 
 exports.findByDocumentRef = `
   select * from crm_v2.documents
-  where regime=$1 and document_type=$2 and document_ref=$3
+  where regime=:regime and document_type=:documentType and document_ref=:documentRef
   order by start_date, version_number, end_date
 `;
