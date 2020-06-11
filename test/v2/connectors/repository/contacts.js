@@ -92,4 +92,16 @@ experiment('v2/connectors/repository/contacts', () => {
       expect(model).to.equal(Contact);
     });
   });
+
+  experiment('.findOneWithCompanies', () => {
+    test('is created using the helpers', async () => {
+      await contactsRepo.findOneWithCompanies('test-id');
+
+      const [model, field, id, related] = repoHelpers.findOne.lastCall.args;
+      expect(model).to.equal(Contact);
+      expect(field).to.equal('contactId');
+      expect(id).to.equal('test-id');
+      expect(related).to.equal(['companyContacts']);
+    });
+  });
 });
