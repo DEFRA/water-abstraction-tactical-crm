@@ -3,6 +3,8 @@
 const Joi = require('@hapi/joi')
   .extend(require('@hapi/joi-date'));
 
+const validators = require('../../lib/validators');
+
 const invoiceAccountNumberRegex = /^[ABENSTWY][0-9]{8}A$/;
 const DATE = Joi.date().utc().format('YYYY-MM-DD');
 
@@ -24,8 +26,8 @@ const createInvoiceAccountAddressSchema = invoiceAccount => {
     startDate: DATE.required(),
     endDate: DATE.min(Joi.ref('startDate')).optional().default(null).allow(null),
     isTest: Joi.boolean().optional().default(false),
-    agentCompanyId: Joi.string().guid().allow(null).invalid(companyId).default(null),
-    contactId: Joi.string().guid().allow(null).default(null)
+    agentCompanyId: validators.GUID.allow(null).invalid(companyId),
+    contactId: validators.GUID.allow(null)
   });
 };
 
