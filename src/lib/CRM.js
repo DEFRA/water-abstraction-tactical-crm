@@ -185,9 +185,52 @@ async function createColleague (request, h) {
   return h.response({ data, error }).code(error ? 500 : 201);
 }
 
+/**
+ * returns the number of delegated access granted by month for the current year including the % change by month
+ * with the totals for the year to date and overall total
+ */
+const getKPIAccessRequests = async (request, h) => {
+  const query = `
+  SELECT date_part('month', created_at)::integer AS month,
+  date_part('year', created_at)::integer as year,
+  COUNT(entity_id) AS total,
+  date_part('year', created_at) = date_part('year', CURRENT_DATE) AS current_year
+  FROM
+     (SELECT distinct entity_id, created_at FROM crm.entity_roles where role <> 'primary_user') AS tbl
+     GROUP BY month, current_year, year;`;
+
+  const { rows: data, error } = await pool.query(query);
+  if (!data) {
+    return Boom.notFound('entity roles data not found', error);
+  }
+  // sort the data in ascending order
+  const sorted = data.sort((a, b) => a.year + '' + a.month - b.year + '' + b.month);
+  // map the monthly data and calculate the percentage change by  month
+  const monthly = sorted.reduce((acc, row, index) => {
+    if (row.current_year) {
+      acc.push({
+        month: row.month,
+        total: row.total,
+        change: (row.total - sorted[(index - 1)].total) / sorted[(index - 1)].total * 100
+      });
+    }
+    return acc;
+  }, []);
+
+  // calculate the overall totals
+  const totals = data.reduce((acc, row) => {
+    acc.allTime = acc.allTime + row.total;
+    acc.ytd = row.current_year ? acc.ytd + row.total : acc.ytd;
+    return acc;
+  }, { allTime: 0, ytd: 0 });
+
+  return { data: { totals, monthly }, error: null };
+};
+
 module.exports = {
   setDocumentOwner,
   getColleagues,
   deleteColleague,
-  createColleague
+  createColleague,
+  getKPIAccessRequests
 };
