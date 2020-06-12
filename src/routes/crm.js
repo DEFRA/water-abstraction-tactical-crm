@@ -184,6 +184,14 @@ module.exports = [
     path: '/crm/' + version + '/document_verifications',
     handler: getVerificationsByDocumentID
   },
+  {
+    method: 'GET',
+    path: '/crm/' + version + '/kpi/access-requests',
+    handler: CRM.getKPIAccessRequests,
+    options: {
+      description: 'Get access requests data for KPI reporting'
+    }
+  },
   KpiApi.findManyRoute(),
 
   ...Object.values(documentsRoutes),
