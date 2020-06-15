@@ -187,7 +187,7 @@ module.exports = [
   {
     method: 'GET',
     path: '/crm/' + version + '/kpi/access-requests',
-    handler: CRM.getKPIAccessRequests,
+    handler: KpiApi.getKPIEntityRolesData,
     options: {
       description: 'Get access requests data for KPI reporting'
     }
