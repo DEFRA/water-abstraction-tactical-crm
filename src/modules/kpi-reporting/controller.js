@@ -19,8 +19,6 @@ const getKPIEntityRolesData = async () => {
   // get the data from the repo
   const { data, error } = await repo.getEntityRolesKPIdata();
 
-  console.log(error);
-
   if (error) {
     return Boom.notFound('Entity roles data not found', error);
   }
