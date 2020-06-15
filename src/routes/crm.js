@@ -7,6 +7,7 @@ const Joi = require('@hapi/joi');
 
 const documentsRoutes = Object.values(require('./documents'));
 const acceptanceTestRoutes = require('../routes/acceptance-tests');
+const KPIReportingRoutes = require('../modules/kpi-reporting/routes');
 
 const EntityApi = require('../controllers/entities.js');
 const VerificationApi = require('../controllers/verifications.js');
@@ -184,16 +185,8 @@ module.exports = [
     path: '/crm/' + version + '/document_verifications',
     handler: getVerificationsByDocumentID
   },
-  {
-    method: 'GET',
-    path: '/crm/' + version + '/kpi/access-requests',
-    handler: KpiApi.getKPIEntityRolesData,
-    options: {
-      description: 'Get access requests data for KPI reporting'
-    }
-  },
   KpiApi.findManyRoute(),
-
+  ...Object.values(KPIReportingRoutes),
   ...Object.values(documentsRoutes),
   ...Object.values(acceptanceTestRoutes)
 ];
