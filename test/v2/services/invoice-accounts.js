@@ -282,10 +282,8 @@ experiment('v2/services/invoice-accounts', () => {
         });
 
         test('no error is thrown', async () => {
-          test('no error is thrown', async () => {
-            const func = () => invoiceAccountsService.createInvoiceAccountAddress(invoiceAccountAddress);
-            expect(func()).to.not.reject();
-          });
+          const func = () => invoiceAccountsService.createInvoiceAccountAddress(invoiceAccountAddress);
+          expect(func()).to.not.reject();
         });
       });
     });
@@ -371,6 +369,14 @@ experiment('v2/services/invoice-accounts', () => {
 
       experiment('and the posted contact ID belongs to the agent company', () => {
         beforeEach(async () => {
+          invoiceAccountAddress.contactId = uuid();
+
+          addressesRepo.findOneWithCompanies.resolves({
+            companyAddresses: [{
+              companyId: invoiceAccountAddress.agentCompanyId
+            }]
+          });
+
           contactsRepo.findOneWithCompanies.resolves({
             companyContacts: [{
               companyId: invoiceAccountAddress.agentCompanyId
@@ -379,10 +385,8 @@ experiment('v2/services/invoice-accounts', () => {
         });
 
         test('no error is thrown', async () => {
-          test('no error is thrown', async () => {
-            const func = () => invoiceAccountsService.createInvoiceAccountAddress(invoiceAccountAddress);
-            expect(func()).to.not.reject();
-          });
+          const func = () => invoiceAccountsService.createInvoiceAccountAddress(invoiceAccountAddress);
+          expect(func()).to.not.reject();
         });
       });
     });
