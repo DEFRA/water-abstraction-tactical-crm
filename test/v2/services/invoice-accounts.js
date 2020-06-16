@@ -63,8 +63,16 @@ experiment('v2/services/invoice-accounts', () => {
     sandbox.stub(invoiceAccountsRepo, 'findWithCurrentAddress');
     sandbox.stub(invoiceAccountAddressesRepo, 'findAll').resolves([{ startDate: '2018-05-03', endDate: '2020-03-31' }]);
     sandbox.stub(invoiceAccountAddressesRepo, 'create');
-    sandbox.stub(contactsRepo, 'findOneWithCompanies');
-    sandbox.stub(addressesRepo, 'findOneWithCompanies');
+    sandbox.stub(contactsRepo, 'findOneWithCompanies').resolves({
+      companyContacts: [{
+        companyId
+      }]
+    });
+    sandbox.stub(addressesRepo, 'findOneWithCompanies').resolves({
+      companyAddresses: [{
+        companyId
+      }]
+    });
   });
 
   afterEach(() => sandbox.restore());
@@ -201,55 +209,170 @@ experiment('v2/services/invoice-accounts', () => {
       });
     });
 
-    experiment('when there is no agent company and the posted address ID belongs to the wrong company', () => {
-      beforeEach(async () => {
-        addressesRepo.findOneWithCompanies.resolves({
-          companyAddresses: [{
-            companyId: 'some-other-id'
-          }]
-        });
-      });
+    experiment('when there is no agent company', () => {
+      let invoiceAccountAddress;
 
-      test('a ConflictingDataError is thrown', async () => {
-        const invoiceAccountAddress = {
+      beforeEach(async () => {
+        invoiceAccountAddress = {
           invoiceAccountId: uuid(),
           addressId: uuid(),
           startDate: '2020-04-01',
           agentCompanyId: null,
           contactId: null
         };
-        await expect(invoiceAccountsService.createInvoiceAccountAddress(invoiceAccountAddress))
-          .to.reject(errors.ConflictingDataError);
       });
 
-      test('the invoice account address is not saved', async () => {
-        expect(invoiceAccountAddressesRepo.create.called).to.equal(false);
-      });
-    });
+      experiment('and the posted address ID does not belong to the licence holder company', () => {
+        beforeEach(async () => {
+          addressesRepo.findOneWithCompanies.resolves({
+            companyAddresses: [{
+              companyId: 'some-other-id'
+            }]
+          });
+        });
 
-    experiment('when there is an agent company and the posted address ID belongs to the wrong company', () => {
-      beforeEach(async () => {
-        addressesRepo.findOneWithCompanies.resolves({
-          companyAddresses: [{
-            companyId: 'some-other-id'
-          }]
+        test('a ConflictingDataError is thrown', async () => {
+          await expect(invoiceAccountsService.createInvoiceAccountAddress(invoiceAccountAddress))
+            .to.reject(errors.ConflictingDataError);
+        });
+
+        test('the invoice account address is not saved', async () => {
+          await expect(invoiceAccountsService.createInvoiceAccountAddress(invoiceAccountAddress))
+            .to.reject(errors.ConflictingDataError);
+          expect(invoiceAccountAddressesRepo.create.called).to.equal(false);
         });
       });
 
-      test('a ConflictingDataError is thrown', async () => {
-        const invoiceAccountAddress = {
+      experiment('and the posted address ID belongs to the licence holder company', () => {
+        test('no error is thrown', async () => {
+          const func = () => invoiceAccountsService.createInvoiceAccountAddress(invoiceAccountAddress);
+          expect(func()).to.not.reject();
+        });
+      });
+
+      experiment('and the posted contact ID does not belong to the licence holder company', () => {
+        beforeEach(async () => {
+          invoiceAccountAddress.contactId = uuid();
+
+          contactsRepo.findOneWithCompanies.resolves({
+            companyContacts: [{
+              companyId: 'some-other-id'
+            }]
+          });
+        });
+
+        test('a ConflictingDataError is thrown', async () => {
+          await expect(invoiceAccountsService.createInvoiceAccountAddress(invoiceAccountAddress))
+            .to.reject(errors.ConflictingDataError);
+        });
+
+        test('the invoice account address is not saved', async () => {
+          await expect(invoiceAccountsService.createInvoiceAccountAddress(invoiceAccountAddress))
+            .to.reject(errors.ConflictingDataError);
+          expect(invoiceAccountAddressesRepo.create.called).to.equal(false);
+        });
+      });
+
+      experiment('and the posted contact ID belongs to the licence holder company', () => {
+        beforeEach(async () => {
+          invoiceAccountAddress.contactId = uuid();
+        });
+
+        test('no error is thrown', async () => {
+          test('no error is thrown', async () => {
+            const func = () => invoiceAccountsService.createInvoiceAccountAddress(invoiceAccountAddress);
+            expect(func()).to.not.reject();
+          });
+        });
+      });
+    });
+
+    experiment('when there is an agent company', () => {
+      let invoiceAccountAddress;
+
+      beforeEach(async () => {
+        invoiceAccountAddress = {
           invoiceAccountId: uuid(),
           addressId: uuid(),
           startDate: '2020-04-01',
           agentCompanyId: uuid(),
           contactId: null
         };
-        await expect(invoiceAccountsService.createInvoiceAccountAddress(invoiceAccountAddress))
-          .to.reject(errors.ConflictingDataError);
       });
 
-      test('the invoice account address is not saved', async () => {
-        expect(invoiceAccountAddressesRepo.create.called).to.equal(false);
+      experiment('and the posted address ID does not belong to the agent company', () => {
+        beforeEach(async () => {
+          addressesRepo.findOneWithCompanies.resolves({
+            companyAddresses: [{
+              companyId: 'some-other-id'
+            }]
+          });
+        });
+
+        test('a ConflictingDataError is thrown', async () => {
+          await expect(invoiceAccountsService.createInvoiceAccountAddress(invoiceAccountAddress))
+            .to.reject(errors.ConflictingDataError);
+        });
+
+        test('the invoice account address is not saved', async () => {
+          await expect(invoiceAccountsService.createInvoiceAccountAddress(invoiceAccountAddress))
+            .to.reject(errors.ConflictingDataError);
+          expect(invoiceAccountAddressesRepo.create.called).to.equal(false);
+        });
+      });
+
+      experiment('and the posted address ID belongs to the agent company', () => {
+        beforeEach(async () => {
+          addressesRepo.findOneWithCompanies.resolves({
+            companyAddresses: [{
+              companyId: invoiceAccountAddress.agentCompanyId
+            }]
+          });
+        });
+
+        test('no error is thrown', async () => {
+          await invoiceAccountsService.createInvoiceAccountAddress(invoiceAccountAddress);
+        });
+      });
+
+      experiment('and the posted contact ID does not belong to the agent company', () => {
+        beforeEach(async () => {
+          invoiceAccountAddress.contactId = uuid();
+
+          contactsRepo.findOneWithCompanies.resolves({
+            companyContacts: [{
+              companyId: 'some-other-id'
+            }]
+          });
+        });
+
+        test('a ConflictingDataError is thrown', async () => {
+          await expect(invoiceAccountsService.createInvoiceAccountAddress(invoiceAccountAddress))
+            .to.reject(errors.ConflictingDataError);
+        });
+
+        test('the invoice account address is not saved', async () => {
+          await expect(invoiceAccountsService.createInvoiceAccountAddress(invoiceAccountAddress))
+            .to.reject(errors.ConflictingDataError);
+          expect(invoiceAccountAddressesRepo.create.called).to.equal(false);
+        });
+      });
+
+      experiment('and the posted contact ID belongs to the agent company', () => {
+        beforeEach(async () => {
+          contactsRepo.findOneWithCompanies.resolves({
+            companyContacts: [{
+              companyId: invoiceAccountAddress.agentCompanyId
+            }]
+          });
+        });
+
+        test('no error is thrown', async () => {
+          test('no error is thrown', async () => {
+            const func = () => invoiceAccountsService.createInvoiceAccountAddress(invoiceAccountAddress);
+            expect(func()).to.not.reject();
+          });
+        });
       });
     });
 
