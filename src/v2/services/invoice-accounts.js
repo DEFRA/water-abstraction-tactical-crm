@@ -47,10 +47,9 @@ const getCompanyId = (invoiceAccount, invoiceAccountAddress) =>
  */
 const ensureContactIsInCompany = async (invoiceAccountAddress, invoiceAccount) => {
   const { contactId } = invoiceAccountAddress;
-
   // If contact set, need to check it is in a valid company
   if (contactId) {
-    // If an agent company specified, it should be in that company.
+    // If an agent company specified, contact should be in that company.
     // Otherwise it should be in the licence-holders' company
     const companyId = getCompanyId(invoiceAccount, invoiceAccountAddress);
     const contact = await contactsRepo.findOneWithCompanies(contactId);
