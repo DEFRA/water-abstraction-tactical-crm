@@ -202,6 +202,7 @@ experiment('v2/services/invoice-accounts', () => {
           .to.reject(errors.EntityValidationError, 'Invoice account address not valid');
 
         expect(err.validationDetails).to.be.an.array();
+        expect(err.message).to.equal('Invoice account address not valid');
       });
 
       test('the invoice account address is not saved', async () => {
@@ -232,8 +233,9 @@ experiment('v2/services/invoice-accounts', () => {
         });
 
         test('a ConflictingDataError is thrown', async () => {
-          await expect(invoiceAccountsService.createInvoiceAccountAddress(invoiceAccountAddress))
+          const err = await expect(invoiceAccountsService.createInvoiceAccountAddress(invoiceAccountAddress))
             .to.reject(errors.ConflictingDataError);
+          expect(err.message).to.equal(`Specified address ${invoiceAccountAddress.addressId} is not in company ${companyId}`);
         });
 
         test('the invoice account address is not saved', async () => {
@@ -262,8 +264,9 @@ experiment('v2/services/invoice-accounts', () => {
         });
 
         test('a ConflictingDataError is thrown', async () => {
-          await expect(invoiceAccountsService.createInvoiceAccountAddress(invoiceAccountAddress))
+          const err = await expect(invoiceAccountsService.createInvoiceAccountAddress(invoiceAccountAddress))
             .to.reject(errors.ConflictingDataError);
+          expect(err.message).to.equal(`Specified contact ${invoiceAccountAddress.contactId} is not in the company ${companyId}`);
         });
 
         test('the invoice account address is not saved', async () => {
@@ -310,8 +313,9 @@ experiment('v2/services/invoice-accounts', () => {
         });
 
         test('a ConflictingDataError is thrown', async () => {
-          await expect(invoiceAccountsService.createInvoiceAccountAddress(invoiceAccountAddress))
+          const err = await expect(invoiceAccountsService.createInvoiceAccountAddress(invoiceAccountAddress))
             .to.reject(errors.ConflictingDataError);
+          expect(err.message).to.equal(`Specified address ${invoiceAccountAddress.addressId} is not in company ${invoiceAccountAddress.agentCompanyId}`);
         });
 
         test('the invoice account address is not saved', async () => {
@@ -339,6 +343,12 @@ experiment('v2/services/invoice-accounts', () => {
         beforeEach(async () => {
           invoiceAccountAddress.contactId = uuid();
 
+          addressesRepo.findOneWithCompanies.resolves({
+            companyAddresses: [{
+              companyId: invoiceAccountAddress.agentCompanyId
+            }]
+          });
+
           contactsRepo.findOneWithCompanies.resolves({
             companyContacts: [{
               companyId: 'some-other-id'
@@ -347,8 +357,9 @@ experiment('v2/services/invoice-accounts', () => {
         });
 
         test('a ConflictingDataError is thrown', async () => {
-          await expect(invoiceAccountsService.createInvoiceAccountAddress(invoiceAccountAddress))
+          const err = await expect(invoiceAccountsService.createInvoiceAccountAddress(invoiceAccountAddress))
             .to.reject(errors.ConflictingDataError);
+          expect(err.message).to.equal(`Specified contact ${invoiceAccountAddress.contactId} is not in the company ${invoiceAccountAddress.agentCompanyId}`);
         });
 
         test('the invoice account address is not saved', async () => {
