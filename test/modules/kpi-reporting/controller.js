@@ -45,7 +45,7 @@ experiment('./modules/kpi-reporting/controller', async () => {
       sandbox.stub(repos, 'getEntityRolesKPIdata').resolves(repoData);
     });
     test('the right data shape is returned', async () => {
-      const { data, error } = await controller.getKPIEntityRolesData();
+      const { data } = await controller.getKPIEntityRolesData();
       expect(data.totals.allTime).to.equal(130);
       expect(data.totals.ytd).to.equal(30);
       expect(data.monthly).to.be.array();
@@ -53,7 +53,6 @@ experiment('./modules/kpi-reporting/controller', async () => {
       expect(data.monthly[0].total).to.equal(10);
       expect(data.monthly[0].month).to.equal(1);
       expect(data.monthly[0].change).to.equal(-90);
-      expect(error).to.equal(null);
     });
   });
 

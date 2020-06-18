@@ -35,7 +35,7 @@ const getKPIEntityRolesData = async () => {
     return acc;
   }, { allTime: 0, ytd: 0 });
 
-  return { data: { totals, monthly }, error: null };
+  return { data: { totals, monthly } };
 };
 
 module.exports.getKPIEntityRolesData = getKPIEntityRolesData;
