@@ -153,7 +153,7 @@ experiment('v2/modules/invoice-accounts/validator', () => {
   });
 
   experiment('.validateInvoiceAccountAddress', () => {
-    let invoiceAccountAddressData, invoiceAccountId, addressId;
+    let invoiceAccountData, invoiceAccountAddressData, invoiceAccountId, addressId;
 
     beforeEach(async () => {
       invoiceAccountId = uuid();
@@ -162,8 +162,21 @@ experiment('v2/modules/invoice-accounts/validator', () => {
         invoiceAccountId,
         addressId,
         startDate: '2020-04-01',
-        endDate: '2020-12-31'
+        endDate: '2020-12-31',
+        agentCompanyId: null,
+        contactId: null
+      };
 
+      const companyId = uuid();
+
+      invoiceAccountData = {
+        companyId,
+        invoiceAccountNumber: 'A12345678A',
+        startDate: '2020-04-01',
+        endDate: '2020-12-31',
+        company: {
+          companyId
+        }
       };
     });
 
@@ -171,19 +184,19 @@ experiment('v2/modules/invoice-accounts/validator', () => {
       test('is required', async () => {
         delete invoiceAccountAddressData.invoiceAccountId;
 
-        const { error } = invoiceAccountValidator.validateInvoiceAccountAddress(invoiceAccountAddressData, 'invoiceAccountAddress');
+        const { error } = invoiceAccountValidator.validateInvoiceAccountAddress(invoiceAccountAddressData, invoiceAccountData);
         expect(error).to.not.equal(null);
       });
 
       test('cannot equal a string that is not a guid', async () => {
         invoiceAccountAddressData.invoiceAccountId = 'test-id';
 
-        const { error } = invoiceAccountValidator.validateInvoiceAccountAddress(invoiceAccountAddressData, 'invoiceAccountAddress');
+        const { error } = invoiceAccountValidator.validateInvoiceAccountAddress(invoiceAccountAddressData, invoiceAccountData);
         expect(error).to.not.equal(null);
       });
 
       test('is valid when present', async () => {
-        const { error, value } = invoiceAccountValidator.validateInvoiceAccountAddress(invoiceAccountAddressData, 'invoiceAccountAddress');
+        const { error, value } = invoiceAccountValidator.validateInvoiceAccountAddress(invoiceAccountAddressData, invoiceAccountData);
         expect(error).to.equal(null);
         expect(value.invoiceAccountId).to.equal(invoiceAccountAddressData.invoiceAccountId);
       });
@@ -193,19 +206,19 @@ experiment('v2/modules/invoice-accounts/validator', () => {
       test('is required', async () => {
         delete invoiceAccountAddressData.addressId;
 
-        const { error } = invoiceAccountValidator.validateInvoiceAccountAddress(invoiceAccountAddressData, 'invoiceAccountAddress');
+        const { error } = invoiceAccountValidator.validateInvoiceAccountAddress(invoiceAccountAddressData, invoiceAccountData);
         expect(error).to.not.equal(null);
       });
 
       test('cannot equal a string that is not a guid', async () => {
         invoiceAccountAddressData.addressId = 'test-id';
 
-        const { error } = invoiceAccountValidator.validateInvoiceAccountAddress(invoiceAccountAddressData, 'invoiceAccountAddress');
+        const { error } = invoiceAccountValidator.validateInvoiceAccountAddress(invoiceAccountAddressData, invoiceAccountData);
         expect(error).to.not.equal(null);
       });
 
       test('is valid when present', async () => {
-        const { error, value } = invoiceAccountValidator.validateInvoiceAccountAddress(invoiceAccountAddressData, 'invoiceAccountAddress');
+        const { error, value } = invoiceAccountValidator.validateInvoiceAccountAddress(invoiceAccountAddressData, invoiceAccountData);
         expect(error).to.equal(null);
         expect(value.addressId).to.equal(invoiceAccountAddressData.addressId);
       });
@@ -215,19 +228,19 @@ experiment('v2/modules/invoice-accounts/validator', () => {
       test('is required', async () => {
         delete invoiceAccountAddressData.startDate;
 
-        const { error } = invoiceAccountValidator.validateInvoiceAccountAddress(invoiceAccountAddressData, 'invoiceAccountAddress');
+        const { error } = invoiceAccountValidator.validateInvoiceAccountAddress(invoiceAccountAddressData, invoiceAccountData);
         expect(error).to.not.equal(null);
       });
 
       test('must be a valid date', async () => {
         invoiceAccountAddressData.startDate = '2020-04-31';
 
-        const { error } = invoiceAccountValidator.validateInvoiceAccountAddress(invoiceAccountAddressData, 'invoiceAccountAddress');
+        const { error } = invoiceAccountValidator.validateInvoiceAccountAddress(invoiceAccountAddressData, invoiceAccountData);
         expect(error).to.not.equal(null);
       });
 
       test('is valid when present', async () => {
-        const { error, value } = invoiceAccountValidator.validateInvoiceAccountAddress(invoiceAccountAddressData, 'invoiceAccountAddress');
+        const { error, value } = invoiceAccountValidator.validateInvoiceAccountAddress(invoiceAccountAddressData, invoiceAccountData);
         expect(error).to.equal(null);
         expect(value.startDate).to.equal(new Date(invoiceAccountAddressData.startDate));
       });
@@ -237,33 +250,33 @@ experiment('v2/modules/invoice-accounts/validator', () => {
       test('is optional', async () => {
         delete invoiceAccountAddressData.endDate;
 
-        const { error } = invoiceAccountValidator.validateInvoiceAccountAddress(invoiceAccountAddressData, 'invoiceAccountAddress');
+        const { error } = invoiceAccountValidator.validateInvoiceAccountAddress(invoiceAccountAddressData, invoiceAccountData);
         expect(error).to.equal(null);
       });
 
       test('defaults to null', async () => {
         delete invoiceAccountAddressData.endDate;
 
-        const { value } = invoiceAccountValidator.validateInvoiceAccountAddress(invoiceAccountAddressData, 'invoiceAccountAddress');
+        const { value } = invoiceAccountValidator.validateInvoiceAccountAddress(invoiceAccountAddressData, invoiceAccountData);
         expect(value.endDate).to.equal(null);
       });
 
       test('must be a valid date', async () => {
         invoiceAccountAddressData.endDate = '2020-12-00';
 
-        const { error } = invoiceAccountValidator.validateInvoiceAccountAddress(invoiceAccountAddressData, 'invoiceAccountAddress');
+        const { error } = invoiceAccountValidator.validateInvoiceAccountAddress(invoiceAccountAddressData, invoiceAccountData);
         expect(error).to.not.equal(null);
       });
 
       test('must be after the start date', async () => {
         invoiceAccountAddressData.endDate = '2020-01-01';
 
-        const { error } = invoiceAccountValidator.validateInvoiceAccountAddress(invoiceAccountAddressData, 'invoiceAccountAddress');
+        const { error } = invoiceAccountValidator.validateInvoiceAccountAddress(invoiceAccountAddressData, invoiceAccountData);
         expect(error).to.not.equal(null);
       });
 
       test('is valid when present', async () => {
-        const { error, value } = invoiceAccountValidator.validateInvoiceAccountAddress(invoiceAccountAddressData, 'invoiceAccountAddress');
+        const { error, value } = invoiceAccountValidator.validateInvoiceAccountAddress(invoiceAccountAddressData, invoiceAccountData);
         expect(error).to.equal(null);
         expect(value.endDate).to.equal(new Date(invoiceAccountAddressData.endDate));
       });
@@ -271,26 +284,72 @@ experiment('v2/modules/invoice-accounts/validator', () => {
 
     experiment('isTest', () => {
       test('can be omitted', async () => {
-        const { error } = invoiceAccountValidator.validateInvoiceAccountAddress(invoiceAccountAddressData, 'invoiceAccountAddress');
+        const { error } = invoiceAccountValidator.validateInvoiceAccountAddress(invoiceAccountAddressData, invoiceAccountData);
         expect(error).to.equal(null);
       });
 
       test('defaults to false', async () => {
-        const { value } = invoiceAccountValidator.validateInvoiceAccountAddress(invoiceAccountAddressData, 'invoiceAccountAddress');
+        const { value } = invoiceAccountValidator.validateInvoiceAccountAddress(invoiceAccountAddressData, invoiceAccountData);
         expect(value.isTest).to.equal(false);
       });
 
       test('can be set', async () => {
         invoiceAccountAddressData.isTest = true;
-        const { error, value } = invoiceAccountValidator.validateInvoiceAccountAddress(invoiceAccountAddressData, 'invoiceAccountAddress');
+        const { error, value } = invoiceAccountValidator.validateInvoiceAccountAddress(invoiceAccountAddressData, invoiceAccountData);
         expect(error).to.equal(null);
         expect(value.isTest).to.equal(true);
       });
 
       test('cannt be a string', async () => {
         invoiceAccountAddressData.isTest = 'yep';
-        const { error } = invoiceAccountValidator.validateInvoiceAccountAddress(invoiceAccountAddressData, 'invoiceAccountAddress');
+        const { error } = invoiceAccountValidator.validateInvoiceAccountAddress(invoiceAccountAddressData, invoiceAccountData);
         expect(error).to.not.equal(null);
+      });
+    });
+
+    experiment('agentCompanyId', () => {
+      test('cannot be omitted', async () => {
+        delete invoiceAccountAddressData.agentCompanyId;
+        const { error } = invoiceAccountValidator.validateInvoiceAccountAddress(invoiceAccountAddressData, invoiceAccountData);
+        expect(error).to.not.equal(null);
+      });
+
+      test('can be set to a GUID', async () => {
+        invoiceAccountAddressData.agentCompanyId = uuid();
+        const { error } = invoiceAccountValidator.validateInvoiceAccountAddress(invoiceAccountAddressData, invoiceAccountData);
+        expect(error).to.equal(null);
+      });
+
+      test('can be set to null', async () => {
+        invoiceAccountAddressData.agentCompanyId = null;
+        const { error } = invoiceAccountValidator.validateInvoiceAccountAddress(invoiceAccountAddressData, invoiceAccountData);
+        expect(error).to.equal(null);
+      });
+
+      test('cannot be set to the same GUID as the company ID', async () => {
+        invoiceAccountAddressData.agentCompanyId = invoiceAccountData.companyId;
+        const { error } = invoiceAccountValidator.validateInvoiceAccountAddress(invoiceAccountAddressData, invoiceAccountData);
+        expect(error).to.not.equal(null);
+      });
+    });
+
+    experiment('contactId', () => {
+      test('cannot be omitted', async () => {
+        delete invoiceAccountAddressData.contactId;
+        const { error } = invoiceAccountValidator.validateInvoiceAccountAddress(invoiceAccountAddressData, invoiceAccountData);
+        expect(error).to.not.equal(null);
+      });
+
+      test('can be set to a GUID', async () => {
+        invoiceAccountAddressData.contactId = uuid();
+        const { error } = invoiceAccountValidator.validateInvoiceAccountAddress(invoiceAccountAddressData, invoiceAccountData);
+        expect(error).to.equal(null);
+      });
+
+      test('can be set to null', async () => {
+        invoiceAccountAddressData.contactId = null;
+        const { error } = invoiceAccountValidator.validateInvoiceAccountAddress(invoiceAccountAddressData, invoiceAccountData);
+        expect(error).to.equal(null);
       });
     });
   });
