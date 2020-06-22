@@ -5,9 +5,14 @@ const currentAddressOnly = invoiceAccount => {
     invoiceAccountAddress => invoiceAccountAddress.endDate === null
   );
   const address = get(invoiceAccountAddress, 'address', null);
+  const agentCompany = get(invoiceAccountAddress, 'agentCompany', null);
+  const contact = get(invoiceAccountAddress, 'contact', null);
+
   return {
     ...omit(invoiceAccount, 'invoiceAccountAddresses'),
-    address
+    address,
+    agentCompany,
+    contact
   };
 };
 

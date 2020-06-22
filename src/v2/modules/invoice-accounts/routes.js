@@ -64,6 +64,8 @@ exports.postInvoiceAccountAddress = {
         addressId: validators.GUID,
         startDate: validators.START_DATE,
         endDate: validators.END_DATE,
+        agentCompanyId: validators.GUID.allow(null).default(null),
+        contactId: validators.GUID.allow(null).default(null),
         isTest: validators.TEST_FLAG
       }
     }

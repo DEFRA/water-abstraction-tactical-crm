@@ -15,10 +15,13 @@ const findOne = async id => {
       withRelated: [
         'company',
         'invoiceAccountAddresses',
-        'invoiceAccountAddresses.address'
+        'invoiceAccountAddresses.address',
+        'invoiceAccountAddresses.agentCompany',
+        'invoiceAccountAddresses.contact'
       ],
       require: false
     });
+
   return result ? result.toJSON() : null;
 };
 
@@ -38,7 +41,9 @@ const findWithCurrentAddress = async ids => {
           invoiceAccountAddresses: qb => qb
             .where('end_date', null)
         },
-        'invoiceAccountAddresses.address'
+        'invoiceAccountAddresses.address',
+        'invoiceAccountAddresses.agentCompany',
+        'invoiceAccountAddresses.contact'
       ]
     });
   return result.toJSON();
