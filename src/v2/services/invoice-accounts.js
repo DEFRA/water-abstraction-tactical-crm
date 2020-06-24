@@ -24,7 +24,7 @@ const getInvoiceAccount = invoiceAccountId => invoiceAccountsRepo.findOne(invoic
 
 const getInvoiceAccountsByIds = async ids => {
   const results = await invoiceAccountsRepo.findWithCurrentAddress(ids);
-  return results.map(mappers.invoiceAccount.currentAddressOnly);
+  return results.map(mappers.invoiceAccount.mostRecentAddressOnly);
 };
 
 const ensureDateRangeDoesNotOverlapWithExistingAddress = async invoiceAccountAddress => {
