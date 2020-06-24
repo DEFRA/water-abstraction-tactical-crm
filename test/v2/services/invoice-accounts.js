@@ -164,9 +164,13 @@ experiment('v2/services/invoice-accounts', () => {
       expect(result[1].company).to.equal(repositoryResponse[1].company);
     });
 
-    test('includes the current address only', async () => {
-      expect(result[0].address).to.equal(repositoryResponse[0].invoiceAccountAddresses[1].address);
-      expect(result[1].address).to.equal(repositoryResponse[1].invoiceAccountAddresses[1].address);
+    test('includes the most recent address only', async () => {
+      expect(result[0].invoiceAccountAddresses.length).to.equal(1);
+      expect(result[0].invoiceAccountAddresses[0].startDate).to.equal('2019-06-02');
+      expect(result[0].invoiceAccountAddresses[0].address).to.equal(repositoryResponse[0].invoiceAccountAddresses[1].address);
+      expect(result[1].invoiceAccountAddresses.length).to.equal(1);
+      expect(result[1].invoiceAccountAddresses[0].startDate).to.equal('2019-06-02');
+      expect(result[1].invoiceAccountAddresses[0].address).to.equal(repositoryResponse[1].invoiceAccountAddresses[1].address);
     });
   });
 
