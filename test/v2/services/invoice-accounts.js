@@ -141,10 +141,26 @@ experiment('v2/services/invoice-accounts', () => {
           invoiceAccountsRepo.create.rejects(err);
         });
 
+        test('rejects with a UniqueConstraintViolation error', async () => {
+          const func = () => invoiceAccountsService.createInvoiceAccount(invoiceAccount);
+          const err = await expect(func()).to.reject();
+          expect(err instanceof errors.UniqueConstraintViolation).to.be.true();
+        });
+      });
+
+      experiment('when there is any other error', () => {
+        let error;
+
+        beforeEach(async () => {
+          error = new Error();
+          error.code = '1234';
+          invoiceAccountsRepo.create.rejects(error);
+        });
+
         test('rejects with a ConflictingData error', async () => {
           const func = () => invoiceAccountsService.createInvoiceAccount(invoiceAccount);
           const err = await expect(func()).to.reject();
-          expect(err instanceof errors.ConflictingDataError).to.be.true();
+          expect(err).to.equal(error);
         });
       });
     });

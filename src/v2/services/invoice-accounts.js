@@ -9,6 +9,7 @@ const mappers = require('../mappers');
 const errors = require('../lib/errors');
 const { mapValidationErrorDetails } = require('../lib/map-error-response');
 const dateHelpers = require('../lib/date-helpers');
+const handleRepoError = require('./lib/error-handler');
 
 /**
  * Creates a new invoice account number in the specified region
@@ -67,11 +68,7 @@ const createInvoiceAccount = async payload => {
     const data = await invoiceAccountsRepo.create(validatedInvoiceAccount);
     return data;
   } catch (err) {
-    // Handle conflict
-    if (err.code === '23505') {
-      throw new errors.ConflictingDataError(`Invoice account ${invoiceAccount.invoiceAccountNumber} already exists`);
-    }
-    throw err;
+    handleRepoError(err);
   }
 };
 
