@@ -84,3 +84,17 @@ exports.postCompanyContact = {
     }
   }
 };
+
+exports.getCompanyAddresses = {
+  method: 'GET',
+  path: '/crm/2.0/companies/{companyId}/addresses',
+  handler: controller.getCompanyAddresses,
+  options: {
+    description: 'Get the addresses belonging to a company',
+    validate: {
+      params: {
+        companyId: validators.GUID
+      }
+    }
+  }
+};

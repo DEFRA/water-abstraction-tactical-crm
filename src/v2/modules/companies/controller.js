@@ -45,7 +45,17 @@ const postCompanyContact = async (request, h) => {
   };
 };
 
+const getCompanyAddresses = async (request, h) => {
+  try {
+    const companyAddresses = await companiesService.getAddresses(request.params.companyId);
+    return companyAddresses;
+  } catch (err) {
+    return mapErrorResponse(err);
+  }
+};
+
 exports.getCompany = getCompany;
 exports.postCompany = postCompany;
 exports.postCompanyAddress = postCompanyAddress;
 exports.postCompanyContact = postCompanyContact;
+exports.getCompanyAddresses = getCompanyAddresses;

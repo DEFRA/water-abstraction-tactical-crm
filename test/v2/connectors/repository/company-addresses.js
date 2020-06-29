@@ -24,7 +24,8 @@ experiment('v2/connectors/repository/company-addresses', () => {
 
     stub = {
       save: sandbox.stub().resolves(model),
-      fetch: sandbox.stub().resolves(model)
+      fetch: sandbox.stub().resolves(model),
+      where: sandbox.stub().returnsThis()
     };
 
     sandbox.stub(CompanyAddress, 'forge').returns(stub);
@@ -71,6 +72,38 @@ experiment('v2/connectors/repository/company-addresses', () => {
 
       const [model] = repoHelpers.deleteTestData.lastCall.args;
       expect(model).to.equal(CompanyAddress);
+    });
+  });
+
+  experiment('.findManyByCompanyId', () => {
+    let result;
+    const companyId = 'company-id';
+
+    beforeEach(async () => {
+      result = await companyAddressesRepo.findManyByCompanyId(companyId);
+    });
+
+    test('.forge() is called on the model with the data', async () => {
+      expect(CompanyAddress.forge.called).to.be.true();
+    });
+
+    test('.where() is called to get company addresses by company ID', async () => {
+      expect(stub.where.calledWith(
+        'company_id', companyId
+      )).to.be.true();
+    });
+
+    test('.fetch() is callled with related addresses', async () => {
+      expect(stub.fetch.calledWith({
+        withRelated: [
+          'address'
+        ]
+      })).to.be.true();
+    });
+
+    test('the JSON representation is returned', async () => {
+      expect(model.toJSON.called).to.be.true();
+      expect(result.companyAddressId).to.equal('test-id');
     });
   });
 });
