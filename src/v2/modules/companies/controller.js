@@ -3,6 +3,7 @@
 const companiesService = require('../../services/companies');
 const companyTypes = require('../../lib/company-types');
 const { mapErrorResponse } = require('../../lib/map-error-response');
+const { wrapServiceCall } = require('../../lib/wrap-service-call');
 
 const postCompany = async (request, h) => {
   const { type, name, companyNumber = null, isTest = false } = request.payload;
@@ -45,17 +46,13 @@ const postCompanyContact = async (request, h) => {
   };
 };
 
-const getCompanyAddresses = async (request, h) => {
-  try {
-    const companyAddresses = await companiesService.getAddresses(request.params.companyId);
-    return companyAddresses;
-  } catch (err) {
-    return mapErrorResponse(err);
-  }
-};
+const getCompanyAddresses = wrapServiceCall(companiesService, 'getAddresses', request => [request.params.companyId]);
+
+const getCompanyContacts = wrapServiceCall(companiesService, 'getContacts', request => [request.params.companyId]);
 
 exports.getCompany = getCompany;
 exports.postCompany = postCompany;
 exports.postCompanyAddress = postCompanyAddress;
 exports.postCompanyContact = postCompanyContact;
 exports.getCompanyAddresses = getCompanyAddresses;
+exports.getCompanyContacts = getCompanyContacts;

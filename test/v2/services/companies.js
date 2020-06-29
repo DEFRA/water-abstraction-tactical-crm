@@ -35,6 +35,10 @@ experiment('services/companies', () => {
     sandbox.stub(repos.companyAddresses, 'findManyByCompanyId').resolves([{
       companyAddressId: 'test-company-address-id'
     }]);
+
+    sandbox.stub(repos.companyContacts, 'findManyByCompanyId').resolves([{
+      companyContactId: 'test-company-contact-id'
+    }]);
   });
 
   afterEach(async () => {
@@ -291,6 +295,44 @@ experiment('services/companies', () => {
 
       test('rejects with a NotFoundError', async () => {
         const func = () => companiesService.getAddresses(companyId);
+        const err = await expect(func()).to.reject();
+        expect(err instanceof errors.NotFoundError).to.be.true();
+        expect(err.message).to.equal('Company not found test-company-id');
+      });
+    });
+  });
+
+  experiment('.getContacts', () => {
+    const companyId = 'test-company-id';
+    let result;
+
+    experiment('when the company is found', () => {
+      beforeEach(async () => {
+        result = await companiesService.getContacts(companyId);
+      });
+
+      test('the company is found by ID to check it exists', async () => {
+        expect(repos.companies.findOne.calledWith(companyId));
+      });
+
+      test('the contacts are found', async () => {
+        expect(repos.companyContacts.findManyByCompanyId.calledWith(
+          companyId
+        )).to.be.true();
+      });
+
+      test('resolves with the CompanyContacts', async () => {
+        expect(result[0].companyContactId).to.equal('test-company-contact-id');
+      });
+    });
+
+    experiment('when the company is not found', () => {
+      beforeEach(async () => {
+        repos.companies.findOne.resolves(null);
+      });
+
+      test('rejects with a NotFoundError', async () => {
+        const func = () => companiesService.getContacts(companyId);
         const err = await expect(func()).to.reject();
         expect(err instanceof errors.NotFoundError).to.be.true();
         expect(err.message).to.equal('Company not found test-company-id');

@@ -29,6 +29,8 @@ experiment('v2/connectors/repository/company-addresses', () => {
     };
 
     sandbox.stub(CompanyAddress, 'forge').returns(stub);
+    sandbox.stub(CompanyAddress, 'collection').returns(stub);
+
     sandbox.stub(repoHelpers, 'deleteTestData');
   });
 
@@ -76,15 +78,14 @@ experiment('v2/connectors/repository/company-addresses', () => {
   });
 
   experiment('.findManyByCompanyId', () => {
-    let result;
     const companyId = 'company-id';
 
     beforeEach(async () => {
-      result = await companyAddressesRepo.findManyByCompanyId(companyId);
+      await companyAddressesRepo.findManyByCompanyId(companyId);
     });
 
-    test('.forge() is called on the model with the data', async () => {
-      expect(CompanyAddress.forge.called).to.be.true();
+    test('.collection() is called on the model', async () => {
+      expect(CompanyAddress.collection.called).to.be.true();
     });
 
     test('.where() is called to get company addresses by company ID', async () => {
@@ -103,7 +104,6 @@ experiment('v2/connectors/repository/company-addresses', () => {
 
     test('the JSON representation is returned', async () => {
       expect(model.toJSON.called).to.be.true();
-      expect(result.companyAddressId).to.equal('test-id');
     });
   });
 });

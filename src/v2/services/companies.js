@@ -76,6 +76,13 @@ const addContact = async (companyId, contactId, data = {}, isTest = false) => {
   }
 };
 
+const assertCompanyExists = async companyId => {
+  const company = await getCompany(companyId);
+  if (!company) {
+    throw new errors.NotFoundError(`Company not found ${companyId}`);
+  }
+};
+
 /**
  * Gets the CompanyAddress models and related Addresses for the
  * specified company ID
@@ -83,11 +90,19 @@ const addContact = async (companyId, contactId, data = {}, isTest = false) => {
  * @return {Promise<Array>}
  */
 const getAddresses = async companyId => {
-  const company = await getCompany(companyId);
-  if (!company) {
-    throw new errors.NotFoundError(`Company not found ${companyId}`);
-  }
+  await assertCompanyExists(companyId);
   return repos.companyAddresses.findManyByCompanyId(companyId);
+};
+
+/**
+ * Gets the CompanyAddress models and related Addresses for the
+ * specified company ID
+ * @param {String} companyId
+ * @return {Promise<Array>}
+ */
+const getContacts = async companyId => {
+  await assertCompanyExists(companyId);
+  return repos.companyContacts.findManyByCompanyId(companyId);
 };
 
 exports.createPerson = createPerson;
@@ -96,3 +111,4 @@ exports.getCompany = getCompany;
 exports.addAddress = addAddress;
 exports.addContact = addContact;
 exports.getAddresses = getAddresses;
+exports.getContacts = getContacts;

@@ -23,7 +23,7 @@ const deleteTestData = async () => helpers.deleteTestData(CompanyAddress);
  */
 const findManyByCompanyId = async companyId => {
   const collection = await CompanyAddress
-    .forge()
+    .collection()
     .where('company_id', companyId)
     .fetch({
       withRelated: [
