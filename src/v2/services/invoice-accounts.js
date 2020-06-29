@@ -1,5 +1,4 @@
 'use strict';
-
 const invoiceAccountValidator = require('../modules/invoice-accounts/validator');
 const invoiceAccountsRepo = require('../connectors/repository/invoice-accounts');
 const invoiceAccountAddressesRepo = require('../connectors/repository/invoice-account-addresses');
@@ -10,14 +9,51 @@ const errors = require('../lib/errors');
 const { mapValidationErrorDetails } = require('../lib/map-error-response');
 const dateHelpers = require('../lib/date-helpers');
 
-const createInvoiceAccount = async invoiceAccount => {
+const getNextAccountNumber = invoiceAccountNumber => {
+  const regionCode = invoiceAccountNumber.substr(0, 1);
+  const number = parseInt(invoiceAccountNumber.replace(/[^0-9]/g, '')) + 1;
+  return `${regionCode}${number.toString().padStart(8, '0')}A`;
+};
+
+/**
+ * Pre-processes the invoice account object for creation of a new invoice account.
+ * If only a region code is supplied, a new invoice account number is generated and used
+ * @param {Object} invoiceAccount
+ * @return {Promise<Object>}
+ */
+const getInvoiceAccountData = async invoiceAccount => {
+  const { regionCode, ...rest } = invoiceAccount;
+  // Auto-generate invoice account number
+  if (regionCode) {
+    const currentMaxAccount = await invoiceAccountsRepo.findOneByGreatestAccountNumber(regionCode);
+    return {
+      ...rest,
+      invoiceAccountNumber: getNextAccountNumber(currentMaxAccount.invoiceAccountNumber)
+    };
+  }
+  // Use supplied invoice account number
+  return invoiceAccount;
+};
+
+const createInvoiceAccount = async payload => {
+  const invoiceAccount = await getInvoiceAccountData(payload);
+
   const { error, value: validatedInvoiceAccount } = invoiceAccountValidator.validateInvoiceAccount(invoiceAccount);
 
   if (error) {
     throw new errors.EntityValidationError('Invoice account not valid', mapValidationErrorDetails(error));
   }
 
-  return invoiceAccountsRepo.create(validatedInvoiceAccount);
+  try {
+    const data = await invoiceAccountsRepo.create(validatedInvoiceAccount);
+    return data;
+  } catch (err) {
+    // Handle conflict
+    if (err.code === '23505') {
+      throw new errors.ConflictingDataError(`Invoice account ${invoiceAccount.invoiceAccountNumber} already exists`);
+    }
+    throw err;
+  }
 };
 
 const getInvoiceAccount = invoiceAccountId => invoiceAccountsRepo.findOne(invoiceAccountId);
