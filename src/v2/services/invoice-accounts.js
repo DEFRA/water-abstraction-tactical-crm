@@ -1,4 +1,5 @@
 'use strict';
+
 const invoiceAccountValidator = require('../modules/invoice-accounts/validator');
 const invoiceAccountsRepo = require('../connectors/repository/invoice-accounts');
 const invoiceAccountAddressesRepo = require('../connectors/repository/invoice-account-addresses');
@@ -9,11 +10,25 @@ const errors = require('../lib/errors');
 const { mapValidationErrorDetails } = require('../lib/map-error-response');
 const dateHelpers = require('../lib/date-helpers');
 
-const getNextAccountNumber = invoiceAccountNumber => {
-  const regionCode = invoiceAccountNumber.substr(0, 1);
-  const number = parseInt(invoiceAccountNumber.replace(/[^0-9]/g, '')) + 1;
-  return `${regionCode}${number.toString().padStart(8, '0')}A`;
-};
+/**
+ * Creates a new invoice account number in the specified region
+ * @param {String} regionCode
+ * @param {Number} accountNumber
+ * @return {String} formatted invoice account number
+ */
+const createAccountNumber = (regionCode, accountNumber = 0) =>
+  `${regionCode}${accountNumber.toString().padStart(8, '0')}A`;
+
+/**
+ * Parses an invoice account number into an alphabetic region code
+ * and a numeric account number
+ * @param {String} invoiceAccountNumber
+ * @return {Object} parsed account number
+ */
+const parseAccountNumber = invoiceAccountNumber => ({
+  regionCode: invoiceAccountNumber.substr(0, 1),
+  number: parseInt(invoiceAccountNumber.replace(/[^0-9]/g, ''))
+});
 
 /**
  * Pre-processes the invoice account object for creation of a new invoice account.
@@ -26,9 +41,13 @@ const getInvoiceAccountData = async invoiceAccount => {
   // Auto-generate invoice account number
   if (regionCode) {
     const currentMaxAccount = await invoiceAccountsRepo.findOneByGreatestAccountNumber(regionCode);
+    const currentMaxAccountNumber = currentMaxAccount
+      ? parseAccountNumber(currentMaxAccount.invoiceAccountNumber).number
+      : 0;
+
     return {
       ...rest,
-      invoiceAccountNumber: getNextAccountNumber(currentMaxAccount.invoiceAccountNumber)
+      invoiceAccountNumber: createAccountNumber(regionCode, currentMaxAccountNumber + 1)
     };
   }
   // Use supplied invoice account number

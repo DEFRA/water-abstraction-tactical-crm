@@ -76,6 +76,12 @@ const addContact = async (companyId, contactId, data = {}, isTest = false) => {
   }
 };
 
+/**
+ * Checks that the supplied company ID exists.
+ * If not it rejects with a NotFoundError
+ * @param {String} companyId
+ * @return {Promise}
+ */
 const assertCompanyExists = async companyId => {
   const company = await getCompany(companyId);
   if (!company) {

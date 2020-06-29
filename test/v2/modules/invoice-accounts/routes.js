@@ -204,6 +204,33 @@ experiment('v2/modules/invoice-account/routes', () => {
           const response = await server.inject(request);
           expect(response.statusCode).to.equal(400);
         });
+
+        test('is valid but account number is also supplied', async () => {
+          const request = getRequest({
+            companyId: uuid(),
+            invoiceAccountNumber: 'A12345678A',
+            regionCode: 'A',
+            startDate: '2020-04-31',
+            isTest: 'yes'
+          });
+
+          const response = await server.inject(request);
+          expect(response.statusCode).to.equal(400);
+        });
+      });
+
+      experiment('if regionCode', () => {
+        test('is not valid', async () => {
+          const request = getRequest({
+            companyId: uuid(),
+            regionCode: 'X',
+            startDate: '2020-04-31',
+            isTest: 'yes'
+          });
+
+          const response = await server.inject(request);
+          expect(response.statusCode).to.equal(400);
+        });
       });
     });
 
