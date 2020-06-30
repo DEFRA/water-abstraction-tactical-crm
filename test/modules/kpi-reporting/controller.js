@@ -10,20 +10,20 @@ experiment('./modules/kpi-reporting/controller', async () => {
     data: [
       {
         current_year: true,
-        total: 10,
-        month: 1,
+        total: 5,
+        month: 3,
         year: 2020
       },
       {
         current_year: true,
-        total: 15,
+        total: 20,
         month: 2,
         year: 2020
       },
       {
         current_year: true,
-        total: 5,
-        month: 3,
+        total: 10,
+        month: 1,
         year: 2020
       },
       {
@@ -46,13 +46,12 @@ experiment('./modules/kpi-reporting/controller', async () => {
     });
     test('the right data shape is returned', async () => {
       const { data } = await controller.getKPIEntityRolesData();
-      expect(data.totals.allTime).to.equal(130);
-      expect(data.totals.ytd).to.equal(30);
-      expect(data.monthly).to.be.array();
-      expect(Object.keys(data.monthly[0])).to.equal(['month', 'total', 'change']);
-      expect(data.monthly[0].total).to.equal(10);
-      expect(data.monthly[0].month).to.equal(1);
-      expect(data.monthly[0].change).to.equal(-90);
+      expect(data.totals.allTime).to.equal(135);
+      expect(data.totals.ytd).to.equal(35);
+      expect(Object.keys(data.monthly[0])).to.equal(['month', 'year', 'total', 'change']);
+      expect(data.monthly[0].total).to.equal(5);
+      expect(data.monthly[0].month).to.equal('March');
+      expect(data.monthly[0].change).to.equal(-75);
     });
   });
 
