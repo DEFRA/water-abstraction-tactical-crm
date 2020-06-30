@@ -9,5 +9,11 @@ module.exports = bookshelf.model('InvoiceAccountAddress', {
   },
   invoiceAccount () {
     return this.belongsTo('InvoiceAccount', 'invoice_account_id', 'invoice_account_id');
+  },
+  agentCompany () {
+    return this.hasOne('Company', 'company_id', 'agent_company_id');
+  },
+  contact () {
+    return this.hasOne('Contact', 'contact_id', 'contact_id');
   }
 });
