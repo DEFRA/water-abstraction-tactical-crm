@@ -3,6 +3,7 @@
 const companyTypes = require('../lib/company-types');
 const repos = require('../connectors/repository');
 const handleRepoError = require('./lib/error-handler');
+const errors = require('../lib/errors');
 
 const createPerson = async (name, isTest = false) => {
   const person = { name, type: companyTypes.PERSON, isTest };
@@ -75,8 +76,45 @@ const addContact = async (companyId, contactId, data = {}, isTest = false) => {
   }
 };
 
+/**
+ * Checks that the supplied company ID exists.
+ * If not it rejects with a NotFoundError
+ * @param {String} companyId
+ * @return {Promise}
+ */
+const assertCompanyExists = async companyId => {
+  const company = await getCompany(companyId);
+  if (!company) {
+    throw new errors.NotFoundError(`Company not found ${companyId}`);
+  }
+};
+
+/**
+ * Gets the CompanyAddress models and related Addresses for the
+ * specified company ID
+ * @param {String} companyId
+ * @return {Promise<Array>}
+ */
+const getAddresses = async companyId => {
+  await assertCompanyExists(companyId);
+  return repos.companyAddresses.findManyByCompanyId(companyId);
+};
+
+/**
+ * Gets the CompanyAddress models and related Addresses for the
+ * specified company ID
+ * @param {String} companyId
+ * @return {Promise<Array>}
+ */
+const getContacts = async companyId => {
+  await assertCompanyExists(companyId);
+  return repos.companyContacts.findManyByCompanyId(companyId);
+};
+
 exports.createPerson = createPerson;
 exports.createOrganisation = createOrganisation;
 exports.getCompany = getCompany;
 exports.addAddress = addAddress;
 exports.addContact = addContact;
+exports.getAddresses = getAddresses;
+exports.getContacts = getContacts;

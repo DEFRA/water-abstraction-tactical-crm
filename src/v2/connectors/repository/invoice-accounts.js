@@ -1,6 +1,8 @@
 'use strict';
 
 const { InvoiceAccount } = require('../bookshelf');
+const queries = require('./queries/invoice-accounts');
+const raw = require('./lib/raw');
 const helpers = require('./helpers');
 
 /**
@@ -59,7 +61,18 @@ const create = async invoiceAccount => helpers.create(InvoiceAccount, invoiceAcc
 
 const deleteTestData = async () => helpers.deleteTestData(InvoiceAccount);
 
+/**
+ * Finds the invoice account with the largest numeric account number in a particular region
+ * @param {String} regionCode
+ * @return {Promise<Object|null>}
+ */
+const findOneByGreatestAccountNumber = async regionCode => {
+  const query = `${regionCode}%`;
+  return raw.singleRow(queries.findOneByGreatestAccountNumber, { query });
+};
+
 exports.create = create;
 exports.deleteTestData = deleteTestData;
 exports.findOne = findOne;
 exports.findWithCurrentAddress = findWithCurrentAddress;
+exports.findOneByGreatestAccountNumber = findOneByGreatestAccountNumber;

@@ -16,5 +16,23 @@ const create = async companyContact => {
 
 const deleteTestData = async () => helpers.deleteTestData(CompanyContact);
 
+/**
+ * Finds many company contacts, including related company, by company ID
+ * @param {String} companyId
+ * @return {Promise<Array>}
+ */
+const findManyByCompanyId = async companyId => {
+  const collection = await CompanyContact
+    .collection()
+    .where('company_id', companyId)
+    .fetch({
+      withRelated: [
+        'contact'
+      ]
+    });
+  return collection.toJSON();
+};
+
 exports.create = create;
 exports.deleteTestData = deleteTestData;
+exports.findManyByCompanyId = findManyByCompanyId;
