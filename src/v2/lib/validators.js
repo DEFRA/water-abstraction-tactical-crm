@@ -13,6 +13,8 @@ const DOC_TYPE = Joi.string().required().valid('abstraction_licence');
 const DOC_STATUS = Joi.string().required().valid('current', 'draft', 'superseded');
 const VERSION = Joi.number().integer().required().min(0);
 const REQUIRED_STRING = Joi.string().required();
+const INVOICE_ACCOUNT_NUMBER = Joi.string().regex(/^[ABENSTWY][0-9]{8}A$/);
+const REGION_CODE = Joi.string().regex(/^[ABENSTWY]$/);
 
 exports.DATE = DATE;
 exports.GUID = GUID;
@@ -26,3 +28,5 @@ exports.DOC_TYPE = DOC_TYPE;
 exports.DOC_STATUS = DOC_STATUS;
 exports.VERSION = VERSION;
 exports.REQUIRED_STRING = REQUIRED_STRING;
+exports.INVOICE_ACCOUNT_NUMBER = INVOICE_ACCOUNT_NUMBER;
+exports.REGION_CODE = REGION_CODE;

@@ -9,12 +9,14 @@ const transformEntityValidationError = error => {
 };
 
 const transformConflict = error => Boom.conflict(error.message);
+const transformNotFound = error => Boom.notFound(error.message);
 
 const commandMap = new Map();
 commandMap.set('ConflictingDataError', transformConflict);
 commandMap.set('EntityValidationError', transformEntityValidationError);
 commandMap.set('ForeignKeyConstraintViolation', transformConflict);
 commandMap.set('UniqueConstraintViolation', transformConflict);
+commandMap.set('NotFoundError', transformNotFound);
 
 /**
  * Maps a service error to a Boom error for providing an HTTP response

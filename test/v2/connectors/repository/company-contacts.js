@@ -24,10 +24,13 @@ experiment('v2/connectors/repository/company-contacts', () => {
 
     stub = {
       save: sandbox.stub().resolves(model),
-      fetch: sandbox.stub().resolves(model)
+      fetch: sandbox.stub().resolves(model),
+      where: sandbox.stub().returnsThis()
     };
 
     sandbox.stub(CompanyContact, 'forge').returns(stub);
+    sandbox.stub(CompanyContact, 'collection').returns(stub);
+
     sandbox.stub(repoHelpers, 'deleteTestData');
   });
 
@@ -71,6 +74,36 @@ experiment('v2/connectors/repository/company-contacts', () => {
 
       const [model] = repoHelpers.deleteTestData.lastCall.args;
       expect(model).to.equal(CompanyContact);
+    });
+  });
+
+  experiment('.findManyByCompanyId', () => {
+    const companyId = 'company-id';
+
+    beforeEach(async () => {
+      await companyContactsRepo.findManyByCompanyId(companyId);
+    });
+
+    test('.collection() is called on the model', async () => {
+      expect(CompanyContact.collection.called).to.be.true();
+    });
+
+    test('.where() is called to get company contacts by company ID', async () => {
+      expect(stub.where.calledWith(
+        'company_id', companyId
+      )).to.be.true();
+    });
+
+    test('.fetch() is callled with related contacts', async () => {
+      expect(stub.fetch.calledWith({
+        withRelated: [
+          'contact'
+        ]
+      })).to.be.true();
+    });
+
+    test('the JSON representation is returned', async () => {
+      expect(model.toJSON.called).to.be.true();
     });
   });
 });
