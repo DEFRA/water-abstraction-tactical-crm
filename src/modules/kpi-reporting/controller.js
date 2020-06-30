@@ -2,13 +2,18 @@
 const repo = require('../../lib/repo/kpi-reporting');
 const Boom = require('@hapi/boom');
 
-const mapKPIAccessRequestData = (sortedList) => {
-  return sortedList.reduce((acc, row, index) => {
+const months = ['January', 'February', 'March', 'April', 'May', 'June',
+  'July', 'August', 'September', 'October', 'November', 'December'];
+
+const mapKPIAccessRequestData = (data) => {
+  return data.reduce((acc, row, index) => {
     if (row.current_year) {
       acc.push({
-        month: row.month,
+        month: months[row.month - 1],
+        year: row.year,
         total: row.total,
-        change: index > 0 ? (row.total - sortedList[(index - 1)].total) / sortedList[(index - 1)].total * 100 : 0
+        change: index < (data.length - 1) ? (row.total - data[(index + 1)].total) /
+          (data[(index + 1)].total < 1 ? 1 : data[(index + 1)].total) * 100 : 0
       });
     }
     return acc;
@@ -23,10 +28,8 @@ const getKPIEntityRolesData = async () => {
     return Boom.notFound('Entity roles data not found', error);
   }
 
-  // sort the data in ascending order
-  const sorted = data.sort((a, b) => (a.year + '' + a.month).localeCompare(b.year + '' + b.month));
   // map the monthly data and calculate the percentage change by  month
-  const monthly = mapKPIAccessRequestData(sorted);
+  const monthly = mapKPIAccessRequestData(data);
 
   // calculate the overall totals
   const totals = data.reduce((acc, row) => {

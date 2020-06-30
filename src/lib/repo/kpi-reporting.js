@@ -12,7 +12,8 @@ const getEntityRolesKPIdata = async () => {
     date_part('year', created_at) = date_part('year', CURRENT_DATE) AS current_year
     FROM
        (SELECT distinct entity_id, created_at FROM crm.entity_roles where role <> 'primary_user') AS tbl
-       GROUP BY month, current_year, year;`;
+       GROUP BY month, current_year, year
+    ORDER BY year desc, month desc;`;
 
   const { rows: data, error } = await pool.query(query);
   return { data, error };
