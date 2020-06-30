@@ -111,4 +111,20 @@ experiment('v2/connectors/repository/addresses', () => {
       expect(model).to.equal(Address);
     });
   });
+
+  experiment('.findOneWithCompanies', () => {
+    beforeEach(async () => {
+      sandbox.stub(repoHelpers, 'findOne');
+    });
+
+    test('is created using the helpers', async () => {
+      await addressesRepo.findOneWithCompanies('test-id');
+
+      const [model, field, id, related] = repoHelpers.findOne.lastCall.args;
+      expect(model).to.equal(Address);
+      expect(field).to.equal('addressId');
+      expect(id).to.equal('test-id');
+      expect(related).to.equal(['companyAddresses']);
+    });
+  });
 });

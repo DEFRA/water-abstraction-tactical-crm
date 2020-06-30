@@ -62,4 +62,38 @@ experiment('v2/connectors/bookshelf/InvoiceAccountAddress', () => {
       expect(foreignKeyTarget).to.equal('invoice_account_id');
     });
   });
+
+  experiment('the .agentCompany() relation', () => {
+    beforeEach(async () => {
+      instance.agentCompany();
+    });
+
+    test('is a function', async () => {
+      expect(instance.invoiceAccount).to.be.a.function();
+    });
+
+    test('calls .hasOne with correct params', async () => {
+      const [model, foreignKey, foreignKeyTarget] = instance.hasOne.lastCall.args;
+      expect(model).to.equal('Company');
+      expect(foreignKey).to.equal('company_id');
+      expect(foreignKeyTarget).to.equal('agent_company_id');
+    });
+  });
+
+  experiment('the .contact() relation', () => {
+    beforeEach(async () => {
+      instance.contact();
+    });
+
+    test('is a function', async () => {
+      expect(instance.invoiceAccount).to.be.a.function();
+    });
+
+    test('calls .hasOne with correct params', async () => {
+      const [model, foreignKey, foreignKeyTarget] = instance.hasOne.lastCall.args;
+      expect(model).to.equal('Contact');
+      expect(foreignKey).to.equal('contact_id');
+      expect(foreignKeyTarget).to.equal('contact_id');
+    });
+  });
 });
