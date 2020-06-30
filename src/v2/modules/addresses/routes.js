@@ -12,15 +12,17 @@ exports.postAddress = {
     description: 'Creates a new address',
     validate: {
       payload: {
-        address1: Joi.string().required(),
-        address2: Joi.string().optional(),
-        address3: Joi.string().optional(),
-        address4: Joi.string().optional(),
-        town: Joi.string().required(),
-        county: Joi.string().required(),
-        country: Joi.string().required(),
-        postcode: Joi.string().optional(),
-        isTest: validators.TEST_FLAG
+        address1: validators.REQUIRED_STRING,
+        address2: validators.OPTIONAL_STRING,
+        address3: validators.OPTIONAL_STRING,
+        address4: validators.OPTIONAL_STRING,
+        town: validators.REQUIRED_STRING,
+        county: validators.OPTIONAL_STRING,
+        country: validators.REQUIRED_STRING,
+        postcode: validators.OPTIONAL_STRING,
+        isTest: validators.TEST_FLAG,
+        dataSource: validators.DATA_SOURCE,
+        uprn: validators.UPRN
       }
     }
   }

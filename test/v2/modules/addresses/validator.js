@@ -22,7 +22,8 @@ experiment('modules/addresses/validator', () => {
       town: 'test-town',
       county: 'test-county',
       country: 'test-country',
-      postcode: 'E20 3EL'
+      postcode: 'E20 3EL',
+      uprn: 1234
     };
   });
 
@@ -56,8 +57,8 @@ experiment('modules/addresses/validator', () => {
       });
     });
 
-    experiment('address2, address3 and address4', () => {
-      const keys = ['address2', 'address3', 'address4'];
+    experiment('address2, address3, address4, county', () => {
+      const keys = ['address2', 'address3', 'address4', 'county'];
 
       keys.forEach(key => {
         test(`${key}: is optional`, async () => {
@@ -129,42 +130,6 @@ experiment('modules/addresses/validator', () => {
     });
   });
 
-  experiment('county', () => {
-    test('is required', async () => {
-      delete fullAddress.county;
-
-      const { error } = addressValidator.validate(fullAddress);
-      expect(error).to.not.equal(null);
-    });
-
-    test('cannot equal an empty string', async () => {
-      fullAddress.county = '';
-
-      const { error } = addressValidator.validate(fullAddress);
-      expect(error).to.not.equal(null);
-    });
-
-    test('cannot equal white space', async () => {
-      fullAddress.county = '    ';
-
-      const { error } = addressValidator.validate(fullAddress);
-      expect(error).to.not.equal(null);
-    });
-
-    test('is valid when present', async () => {
-      const { error, value } = addressValidator.validate(fullAddress);
-      expect(error).to.equal(null);
-      expect(value.county).to.equal(fullAddress.county);
-    });
-
-    test('is trimmed and valid when present with extra whitespace', async () => {
-      fullAddress.county = '   new county   ';
-      const { error, value } = addressValidator.validate(fullAddress);
-      expect(error).to.equal(null);
-      expect(value.county).to.equal('new county');
-    });
-  });
-
   experiment('country', () => {
     test('is required', async () => {
       delete fullAddress.country;
@@ -205,6 +170,35 @@ experiment('modules/addresses/validator', () => {
       const { error, value } = addressValidator.validate(fullAddress);
       expect(error).to.equal(null);
       expect(value.country).to.equal('UK');
+    });
+  });
+
+  experiment('uprn', () => {
+    test('is optional', async () => {
+      delete fullAddress.uprn;
+
+      const { error } = addressValidator.validate(fullAddress);
+      expect(error).to.equal(null);
+    });
+
+    test('cannot be a string', async () => {
+      fullAddress.uprn = 'abc';
+
+      const { error } = addressValidator.validate(fullAddress);
+      expect(error).to.not.equal(null);
+    });
+
+    test('cannot equal white space', async () => {
+      fullAddress.uprn = '    ';
+
+      const { error } = addressValidator.validate(fullAddress);
+      expect(error).to.not.equal(null);
+    });
+
+    test('is valid when present', async () => {
+      const { error, value } = addressValidator.validate(fullAddress);
+      expect(error).to.equal(null);
+      expect(value.uprn).to.equal(fullAddress.uprn);
     });
   });
 

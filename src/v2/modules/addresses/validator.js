@@ -1,6 +1,7 @@
 'use strict';
 
 const Joi = require('@hapi/joi');
+const validators = require('../../lib/validators');
 
 const mandatoryPostcodeCountries = [
   'united kingdom',
@@ -15,12 +16,12 @@ const mandatoryPostcodeCountries = [
 const postcodeRegex = /^(([A-Z]{1,2}[0-9][A-Z0-9]?|ASCN|STHL|TDCU|BBND|[BFS]IQQ|PCRN|TKCA) ?[0-9][A-Z]{2}|BFPO ?[0-9]{1,4}|(KY[0-9]|MSR|VG|AI)[ -]?[0-9]{4}|[A-Z]{2} ?[0-9]{2}|GE ?CX|GIR ?0A{2}|SAN ?TA1)$/;
 
 const schema = Joi.object({
-  address1: Joi.string().trim().required(),
-  address2: Joi.string().trim().default(null).empty('').optional(),
-  address3: Joi.string().trim().default(null).empty('').optional(),
-  address4: Joi.string().trim().default(null).empty('').optional(),
-  town: Joi.string().trim().required(),
-  county: Joi.string().trim().required(),
+  address1: validators.REQUIRED_STRING,
+  address2: validators.OPTIONAL_STRING,
+  address3: validators.OPTIONAL_STRING,
+  address4: validators.OPTIONAL_STRING,
+  town: validators.REQUIRED_STRING,
+  county: validators.OPTIONAL_STRING,
   country: Joi.string().trim().replace(/\./g, '').required(),
   postcode: Joi.string().trim().empty('').default(null).optional().when('country', {
     is: Joi.string().lowercase().replace(/\./g, '').valid(mandatoryPostcodeCountries),
@@ -30,7 +31,9 @@ const schema = Joi.object({
       // then ensure the space is before the inward code (BS11SB -> BS1 1SB)
       .replace(/(.{3})$/, ' $1').regex(postcodeRegex)
   }),
-  isTest: Joi.boolean().optional().default(false)
+  isTest: validators.TEST_FLAG,
+  uprn: validators.UPRN,
+  dataSource: validators.DATA_SOURCE
 });
 
 /**

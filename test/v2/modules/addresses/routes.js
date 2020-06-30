@@ -90,10 +90,10 @@ experiment('modules/addresses/routes', () => {
       expect(response.statusCode).to.equal(400);
     });
 
-    test('requires county', async () => {
+    test('county is optional', async () => {
       delete fullPayload.county;
       const response = await server.inject(createAddressRequest(fullPayload));
-      expect(response.statusCode).to.equal(400);
+      expect(response.statusCode).to.equal(200);
     });
 
     test('requires country', async () => {
