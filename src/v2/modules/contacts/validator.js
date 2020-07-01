@@ -1,21 +1,34 @@
 'use strict';
 
 const Joi = require('@hapi/joi');
+const validators = require('../../lib/validators');
 
-/**
- * Last name is always required
- * One of initials or first name must be supplied
- */
-const schema = Joi.object({
-  salutation: Joi.string().trim().empty('').optional(),
-  firstName: Joi.string().trim().empty('').optional(),
-  initials: Joi.string().trim().empty('').optional(),
-  lastName: Joi.string().trim().empty('').required(),
-  middleName: Joi.string().trim().empty('').optional(),
-  isTest: Joi.boolean().optional().default(false)
-}).or('firstName', 'initials');
+const personSchema = Joi.object({
+  salutation: validators.OPTIONAL_STRING,
+  firstName: validators.REQUIRED_STRING,
+  middleInitials: validators.OPTIONAL_STRING,
+  lastName: validators.REQUIRED_STRING,
+  suffix: validators.OPTIONAL_STRING,
+  department: validators.OPTIONAL_STRING,
+  isTest: validators.TEST_FLAG,
+  dataSource: validators.DATA_SOURCE
+});
+
+const departmentSchema = Joi.object({
+  department: validators.REQUIRED_STRING,
+  isTest: validators.TEST_FLAG,
+  dataSource: validators.DATA_SOURCE
+});
+
+const schemas = {
+  person: personSchema,
+  department: departmentSchema
+};
 
 /**
  * Validates that an object conforms to the requirements of a contact.
  */
-exports.validate = contact => Joi.validate(contact, schema, { abortEarly: false });
+exports.validate = contact => {
+  const { contactType, ...rest } = contact;
+  return schemas[contactType].validate(rest, { abortEarly: false });
+};

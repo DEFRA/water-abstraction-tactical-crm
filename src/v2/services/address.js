@@ -15,10 +15,7 @@ const createAddress = async address => {
   return addressRepo.create(validatedAddress);
 };
 
-const getAddress = async addressId => {
-  const result = await addressRepo.findOne(addressId);
-  return result;
-};
+const getAddress = addressId => addressRepo.findOne(addressId);
 
 exports.createAddress = createAddress;
 exports.getAddress = getAddress;
