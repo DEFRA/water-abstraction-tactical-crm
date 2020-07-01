@@ -5,6 +5,14 @@ const Boom = require('@hapi/boom');
 const months = ['January', 'February', 'March', 'April', 'May', 'June',
   'July', 'August', 'September', 'October', 'November', 'December'];
 
+const percentageChage = (index, data, row) => {
+  if (index < (data.length - 1)) {
+    return (row.total - data[(index + 1)].total) / (data[(index + 1)].total < 1 ? 1 : data[(index + 1)].total) * 100;
+  } else {
+    return 0;
+  }
+};
+
 const mapKPIAccessRequestData = (data) => {
   return data.reduce((acc, row, index) => {
     if (row.current_year) {
@@ -12,8 +20,7 @@ const mapKPIAccessRequestData = (data) => {
         month: months[row.month - 1],
         year: row.year,
         total: row.total,
-        change: index < (data.length - 1) ? (row.total - data[(index + 1)].total) /
-          (data[(index + 1)].total < 1 ? 1 : data[(index + 1)].total) * 100 : 0
+        change: percentageChage(index, data, row)
       });
     }
     return acc;
