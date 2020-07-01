@@ -16,11 +16,11 @@ const mandatoryPostcodeCountries = [
 const postcodeRegex = /^(([A-Z]{1,2}[0-9][A-Z0-9]?|ASCN|STHL|TDCU|BBND|[BFS]IQQ|PCRN|TKCA) ?[0-9][A-Z]{2}|BFPO ?[0-9]{1,4}|(KY[0-9]|MSR|VG|AI)[ -]?[0-9]{4}|[A-Z]{2} ?[0-9]{2}|GE ?CX|GIR ?0A{2}|SAN ?TA1)$/;
 
 const schema = Joi.object({
-  address1: validators.REQUIRED_STRING,
+  address1: validators.OPTIONAL_STRING,
   address2: validators.OPTIONAL_STRING,
-  address3: validators.OPTIONAL_STRING,
+  address3: Joi.when('address2', { is: null, then: validators.REQUIRED_STRING, otherwise: validators.OPTIONAL_STRING }),
   address4: validators.OPTIONAL_STRING,
-  town: validators.REQUIRED_STRING,
+  town: Joi.when('address4', { is: null, then: validators.REQUIRED_STRING, otherwise: validators.OPTIONAL_STRING }),
   county: validators.OPTIONAL_STRING,
   country: Joi.string().trim().replace(/\./g, '').required(),
   postcode: Joi.string().trim().empty('').default(null).optional().when('country', {
@@ -34,7 +34,7 @@ const schema = Joi.object({
   isTest: validators.TEST_FLAG,
   uprn: validators.UPRN,
   dataSource: validators.DATA_SOURCE
-});
+}).or('address2', 'address3');
 
 /**
  * Validates that an object conforms to the requirements of an address.

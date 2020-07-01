@@ -40,7 +40,10 @@ experiment('v2/services/address', () => {
 
       test('throws an error containing the validation messages', async () => {
         expect(err.message).to.equal('Address not valid');
-        expect(err.validationDetails).to.include('"address1" is required');
+        expect(err.validationDetails).to.include('"address3" is required');
+        expect(err.validationDetails).to.include('"town" is required');
+        expect(err.validationDetails).to.include('"postcode" is required');
+        expect(err.validationDetails).to.include('"country" is required');
       });
     });
 
@@ -53,7 +56,7 @@ experiment('v2/services/address', () => {
         });
 
         result = await addressService.createAddress({
-          address1: 'one',
+          address2: 'one',
           town: 'town',
           county: 'county',
           country: 'france'

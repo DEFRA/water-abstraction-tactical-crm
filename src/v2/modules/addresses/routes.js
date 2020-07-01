@@ -12,11 +12,11 @@ exports.postAddress = {
     description: 'Creates a new address',
     validate: {
       payload: {
-        address1: validators.REQUIRED_STRING,
+        address1: validators.OPTIONAL_STRING,
         address2: validators.OPTIONAL_STRING,
         address3: validators.OPTIONAL_STRING,
         address4: validators.OPTIONAL_STRING,
-        town: validators.REQUIRED_STRING,
+        town: validators.OPTIONAL_STRING,
         county: validators.OPTIONAL_STRING,
         country: validators.REQUIRED_STRING,
         postcode: validators.OPTIONAL_STRING,

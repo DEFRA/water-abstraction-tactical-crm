@@ -60,10 +60,10 @@ experiment('modules/addresses/routes', () => {
       expect(createArgs[2]).to.equal('address');
     });
 
-    test('requires address1', async () => {
+    test('address1 is optional', async () => {
       delete fullPayload.address1;
       const response = await server.inject(createAddressRequest(fullPayload));
-      expect(response.statusCode).to.equal(400);
+      expect(response.statusCode).to.equal(200);
     });
 
     test('address2 is optional', async () => {
@@ -84,10 +84,10 @@ experiment('modules/addresses/routes', () => {
       expect(response.statusCode).to.equal(200);
     });
 
-    test('requires town', async () => {
+    test('town is optional', async () => {
       delete fullPayload.town;
       const response = await server.inject(createAddressRequest(fullPayload));
-      expect(response.statusCode).to.equal(400);
+      expect(response.statusCode).to.equal(200);
     });
 
     test('county is optional', async () => {
