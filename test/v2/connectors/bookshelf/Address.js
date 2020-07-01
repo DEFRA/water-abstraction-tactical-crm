@@ -25,4 +25,8 @@ experiment('v2/connectors/bookshelf/Address', () => {
   test('uses the correct timestamp fields', async () => {
     expect(instance.hasTimestamps).to.equal(['date_created', 'date_updated']);
   });
+
+  test('has a companyAddresses relationship', async () => {
+    expect(instance.companyAddresses).to.be.a.function();
+  });
 });
