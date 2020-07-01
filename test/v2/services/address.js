@@ -16,6 +16,7 @@ const addressService = require('../../../src/v2/services/address');
 experiment('v2/services/address', () => {
   beforeEach(async () => {
     sandbox.stub(addressRepo, 'create').resolves();
+    sandbox.stub(addressRepo, 'findOne').resolves();
   });
 
   afterEach(async () => {
@@ -66,6 +67,13 @@ experiment('v2/services/address', () => {
       test('includes the saved address in the response', async () => {
         expect(result.addressId).to.equal('test-address-id');
       });
+    });
+  });
+
+  experiment('.getAddress', () => {
+    test('calls the findOne repo method', async () => {
+      await addressService.getAddress('test-address-id');
+      expect(addressRepo.findOne.calledWith('test-address-id')).to.be.true();
     });
   });
 });
