@@ -44,7 +44,15 @@ class ConflictingDataError extends Error {
   }
 }
 
+class NotFoundError extends Error {
+  constructor (message) {
+    super(message);
+    this.name = 'NotFoundError';
+  }
+}
+
 exports.ConflictingDataError = ConflictingDataError;
 exports.EntityValidationError = EntityValidationError;
 exports.ForeignKeyConstraintViolation = ForeignKeyConstraintViolation;
 exports.UniqueConstraintViolation = UniqueConstraintViolation;
+exports.NotFoundError = NotFoundError;

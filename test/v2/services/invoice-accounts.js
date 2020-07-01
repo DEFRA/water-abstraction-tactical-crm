@@ -73,6 +73,10 @@ experiment('v2/services/invoice-accounts', () => {
         companyId
       }]
     });
+
+    sandbox.stub(invoiceAccountsRepo, 'findOneByGreatestAccountNumber').resolves({
+      invoiceAccountNumber: 'A12345678A'
+    });
   });
 
   afterEach(() => sandbox.restore());
@@ -99,7 +103,7 @@ experiment('v2/services/invoice-accounts', () => {
       });
     });
 
-    experiment('when the invoice account data is valid', async () => {
+    experiment('when an invoice account number is supplied and the invoice account data is valid', async () => {
       let result;
       let invoiceAccount;
 
@@ -114,16 +118,103 @@ experiment('v2/services/invoice-accounts', () => {
           invoiceAccountId: 'test-id',
           ...invoiceAccount
         });
-
-        result = await invoiceAccountsService.createInvoiceAccount(invoiceAccount);
       });
 
-      test('the invoice account is saved via the repository', async () => {
-        expect(invoiceAccountsRepo.create.called).to.equal(true);
+      experiment('when there are no DB conflicts', () => {
+        beforeEach(async () => {
+          result = await invoiceAccountsService.createInvoiceAccount(invoiceAccount);
+        });
+
+        test('the invoice account is saved via the repository', async () => {
+          expect(invoiceAccountsRepo.create.called).to.equal(true);
+        });
+
+        test('the saved invoice account is returned', async () => {
+          expect(result.invoiceAccountId).to.equal('test-id');
+        });
       });
 
-      test('the saved invoice account is returned', async () => {
-        expect(result.invoiceAccountId).to.equal('test-id');
+      experiment('when there is a Postgres unique violation', () => {
+        beforeEach(async () => {
+          const err = new Error();
+          err.code = '23505';
+          invoiceAccountsRepo.create.rejects(err);
+        });
+
+        test('rejects with a UniqueConstraintViolation error', async () => {
+          const func = () => invoiceAccountsService.createInvoiceAccount(invoiceAccount);
+          const err = await expect(func()).to.reject();
+          expect(err instanceof errors.UniqueConstraintViolation).to.be.true();
+        });
+      });
+
+      experiment('when there is any other error', () => {
+        let error;
+
+        beforeEach(async () => {
+          error = new Error();
+          error.code = '1234';
+          invoiceAccountsRepo.create.rejects(error);
+        });
+
+        test('rejects with a ConflictingData error', async () => {
+          const func = () => invoiceAccountsService.createInvoiceAccount(invoiceAccount);
+          const err = await expect(func()).to.reject();
+          expect(err).to.equal(error);
+        });
+      });
+    });
+
+    experiment('when a valid region code is supplied', async () => {
+      let result;
+      let invoiceAccount;
+
+      beforeEach(async () => {
+        invoiceAccount = {
+          companyId: uuid(),
+          regionCode: 'A',
+          startDate: '2020-04-01'
+        };
+
+        invoiceAccountsRepo.create.resolves({
+          invoiceAccountId: 'test-id',
+          ...invoiceAccount
+        });
+      });
+
+      experiment('when invoice accounts exist in this region', async () => {
+        beforeEach(async () => {
+          result = await invoiceAccountsService.createInvoiceAccount(invoiceAccount);
+        });
+
+        test('the invoice account with the greatest numeric account number is loaded', async () => {
+          expect(invoiceAccountsRepo.findOneByGreatestAccountNumber.calledWith('A')).to.be.true();
+        });
+
+        test('the invoice account number used is the next one available', async () => {
+          const { invoiceAccountNumber } = invoiceAccountsRepo.create.lastCall.args[0];
+          expect(invoiceAccountNumber).to.equal('A12345679A');
+        });
+
+        test('the invoice account is saved via the repository', async () => {
+          expect(invoiceAccountsRepo.create.called).to.equal(true);
+        });
+
+        test('the saved invoice account is returned', async () => {
+          expect(result.invoiceAccountId).to.equal('test-id');
+        });
+      });
+
+      experiment('when there are no existing invoice accounts in this region', async () => {
+        beforeEach(async () => {
+          invoiceAccountsRepo.findOneByGreatestAccountNumber.resolves(null);
+          await invoiceAccountsService.createInvoiceAccount(invoiceAccount);
+        });
+
+        test('the invoice account number used is the first one', async () => {
+          const { invoiceAccountNumber } = invoiceAccountsRepo.create.lastCall.args[0];
+          expect(invoiceAccountNumber).to.equal('A00000001A');
+        });
       });
     });
   });
@@ -164,9 +255,13 @@ experiment('v2/services/invoice-accounts', () => {
       expect(result[1].company).to.equal(repositoryResponse[1].company);
     });
 
-    test('includes the current address only', async () => {
-      expect(result[0].address).to.equal(repositoryResponse[0].invoiceAccountAddresses[1].address);
-      expect(result[1].address).to.equal(repositoryResponse[1].invoiceAccountAddresses[1].address);
+    test('includes the most recent address only', async () => {
+      expect(result[0].invoiceAccountAddresses.length).to.equal(1);
+      expect(result[0].invoiceAccountAddresses[0].startDate).to.equal('2019-06-02');
+      expect(result[0].invoiceAccountAddresses[0].address).to.equal(repositoryResponse[0].invoiceAccountAddresses[1].address);
+      expect(result[1].invoiceAccountAddresses.length).to.equal(1);
+      expect(result[1].invoiceAccountAddresses[0].startDate).to.equal('2019-06-02');
+      expect(result[1].invoiceAccountAddresses[0].address).to.equal(repositoryResponse[1].invoiceAccountAddresses[1].address);
     });
   });
 

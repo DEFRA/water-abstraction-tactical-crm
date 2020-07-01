@@ -62,6 +62,7 @@ experiment('services/contacts', () => {
 
       beforeEach(async () => {
         contact = {
+          contactType: 'person',
           salutation: 'Mr',
           lastName: 'Invalid'
         };
@@ -86,6 +87,7 @@ experiment('services/contacts', () => {
 
       beforeEach(async () => {
         contact = {
+          contactType: 'person',
           firstName: 'Val',
           lastName: 'Id'
         };

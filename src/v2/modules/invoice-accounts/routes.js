@@ -39,13 +39,14 @@ exports.createInvoiceAccount = {
   options: {
     description: 'Creates an invoice account',
     validate: {
-      payload: {
+      payload: Joi.object({
         companyId: validators.GUID,
-        invoiceAccountNumber: Joi.string().regex(/^[ABENSTWY][0-9]{8}A$/).required(),
+        invoiceAccountNumber: validators.INVOICE_ACCOUNT_NUMBER,
+        regionCode: validators.REGION_CODE,
         startDate: validators.START_DATE,
         endDate: validators.END_DATE,
         isTest: validators.TEST_FLAG
-      }
+      }).xor('invoiceAccountNumber', 'regionCode')
     }
   }
 };
