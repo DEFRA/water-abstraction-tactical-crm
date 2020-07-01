@@ -41,12 +41,16 @@ exports.postContact = {
     description: 'Creates a new contact',
     validate: {
       payload: {
-        salutation: Joi.string().optional(),
-        firstName: Joi.string().optional(),
-        initials: Joi.string().optional(),
-        lastName: Joi.string().required(),
-        middleName: Joi.string().optional(),
-        isTest: validators.TEST_FLAG
+        contactType: validators.CONTACT_TYPE,
+        salutation: validators.OPTIONAL_STRING,
+        firstName: validators.OPTIONAL_STRING,
+        initials: validators.OPTIONAL_STRING,
+        lastName: validators.OPTIONAL_STRING,
+        middleInitials: validators.OPTIONAL_STRING,
+        department: validators.OPTIONAL_STRING,
+        suffix: validators.OPTIONAL_STRING,
+        isTest: validators.TEST_FLAG,
+        dataSource: validators.DATA_SOURCE
       }
     }
   }

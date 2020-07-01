@@ -102,12 +102,15 @@ experiment('modules/contacts/routes', () => {
 
     beforeEach(async () => {
       fullPayload = {
+        contactType: 'person',
         salutation: 'Dr',
         firstName: 'Firsty',
-        initials: 'A',
+        initials: 'F A',
+        middleInitials: 'A',
         lastName: 'Lasty',
-        middleName: 'Mid',
-        isTest: true
+        isTest: true,
+        department: 'Accounts',
+        dataSource: 'wrls'
       };
 
       server = createServerForRoute(routes.postContact);
@@ -127,6 +130,14 @@ experiment('modules/contacts/routes', () => {
     });
 
     experiment('when a contact is being created', () => {
+      test('contactType is required', async () => {
+        delete fullPayload.contactType;
+        const request = getRequest(fullPayload);
+        const response = await server.inject(request);
+
+        expect(response.statusCode).to.equal(400);
+      });
+
       test('isTest can be omitted', async () => {
         delete fullPayload.isTest;
         const request = getRequest(fullPayload);
@@ -222,12 +233,35 @@ experiment('modules/contacts/routes', () => {
         expect(response.statusCode).to.equal(400);
       });
 
-      test('the lastName is required', async () => {
-        delete fullPayload.lastName;
+      test('the middleInitials is optional', async () => {
+        delete fullPayload.middleInitials;
+        const request = getRequest(fullPayload);
+        const response = await server.inject(request);
+
+        expect(response.statusCode).to.equal(200);
+      });
+
+      test('the middleInitials accepts a string', async () => {
+        const request = getRequest(fullPayload);
+        const response = await server.inject(request);
+
+        expect(response.statusCode).to.equal(200);
+      });
+
+      test('the middleInitials rejects a number', async () => {
+        fullPayload.middleInitials = 1234;
         const request = getRequest(fullPayload);
         const response = await server.inject(request);
 
         expect(response.statusCode).to.equal(400);
+      });
+
+      test('the lastName is optional', async () => {
+        delete fullPayload.lastName;
+        const request = getRequest(fullPayload);
+        const response = await server.inject(request);
+
+        expect(response.statusCode).to.equal(200);
       });
 
       test('the lastName accepts a string', async () => {
@@ -245,23 +279,47 @@ experiment('modules/contacts/routes', () => {
         expect(response.statusCode).to.equal(400);
       });
 
-      test('the middleName is optional', async () => {
-        delete fullPayload.middleName;
+      test('the department is optional', async () => {
+        delete fullPayload.department;
         const request = getRequest(fullPayload);
         const response = await server.inject(request);
 
         expect(response.statusCode).to.equal(200);
       });
 
-      test('the middleName accepts a string', async () => {
+      test('the department accepts a string', async () => {
         const request = getRequest(fullPayload);
         const response = await server.inject(request);
 
         expect(response.statusCode).to.equal(200);
       });
 
-      test('the middleName rejects a number', async () => {
-        fullPayload.middleName = 1234;
+      test('the department rejects a number', async () => {
+        fullPayload.department = 1234;
+        const request = getRequest(fullPayload);
+        const response = await server.inject(request);
+
+        expect(response.statusCode).to.equal(400);
+      });
+
+      test('the dataSource is optional', async () => {
+        delete fullPayload.dataSource;
+        const request = getRequest(fullPayload);
+        const response = await server.inject(request);
+
+        expect(response.statusCode).to.equal(200);
+      });
+
+      test('the dataSource rejects a string that is not wrls|nald', async () => {
+        fullPayload.dataSource = 'not-a-data-source';
+        const request = getRequest(fullPayload);
+        const response = await server.inject(request);
+
+        expect(response.statusCode).to.equal(400);
+      });
+
+      test('the dataSource rejects a number', async () => {
+        fullPayload.dataSource = 1234;
         const request = getRequest(fullPayload);
         const response = await server.inject(request);
 
