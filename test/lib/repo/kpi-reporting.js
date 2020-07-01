@@ -20,7 +20,8 @@ experiment('./lib/repo/kpi-reporting', () => {
   "    date_part('year', created_at) = date_part('year', CURRENT_DATE) AS current_year\n" +
   '    FROM\n' +
   "       (SELECT distinct entity_id, created_at FROM crm.entity_roles where role <> 'primary_user') AS tbl\n" +
-  '       GROUP BY month, current_year, year;';
+  '       GROUP BY month, current_year, year\n' +
+  '    ORDER BY year desc, month desc;';
 
   test('the correct params are used to call db pool query', async () => {
     await repos.getEntityRolesKPIdata();
