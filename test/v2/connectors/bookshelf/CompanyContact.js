@@ -68,18 +68,18 @@ experiment('v2/connectors/bookshelf/CompanyContact', () => {
     });
   });
 
-  experiment('the .roles() relation', () => {
+  experiment('the .role() relation', () => {
     beforeEach(async () => {
-      instance.roles();
+      instance.role();
     });
 
     test('is a function', async () => {
-      expect(instance.roles).to.be.a.function();
+      expect(instance.role).to.be.a.function();
     });
 
     test('calls .hasOne with correct params', async () => {
       const [model, foreignKey, foreignKeyTarget] = instance.hasOne.lastCall.args;
-      expect(model).to.equal('Roles');
+      expect(model).to.equal('Role');
       expect(foreignKey).to.equal('role_id');
       expect(foreignKeyTarget).to.equal('role_id');
     });
