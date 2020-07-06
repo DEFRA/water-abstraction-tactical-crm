@@ -94,11 +94,9 @@ experiment('v2/connectors/repository/company-contacts', () => {
       )).to.be.true();
     });
 
-    test('.fetch() is callled with related contacts', async () => {
+    test('.fetch() is callled with related contact and role', async () => {
       expect(stub.fetch.calledWith({
-        withRelated: [
-          'contact'
-        ]
+        withRelated: ['contact', 'role']
       })).to.be.true();
     });
 
