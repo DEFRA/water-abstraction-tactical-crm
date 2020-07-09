@@ -41,10 +41,9 @@ exports.postContact = {
     description: 'Creates a new contact',
     validate: {
       payload: {
-        contactType: validators.CONTACT_TYPE,
-        salutation: validators.OPTIONAL_STRING,
+        type: validators.CONTACT_TYPE,
+        title: validators.OPTIONAL_STRING,
         firstName: validators.OPTIONAL_STRING,
-        initials: validators.OPTIONAL_STRING,
         lastName: validators.OPTIONAL_STRING,
         middleInitials: validators.OPTIONAL_STRING,
         department: validators.OPTIONAL_STRING,

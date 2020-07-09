@@ -72,22 +72,24 @@ experiment('services/companies', () => {
 
   experiment('.createOrganisation', () => {
     test('can create a test record', async () => {
-      await companiesService.createOrganisation('test-name', 'test-number', true);
+      await companiesService.createOrganisation('test-name', 'test-number', 'test-organisation-type', true);
 
       const [organisation] = repos.companies.create.lastCall.args;
       expect(organisation.name).to.equal('test-name');
       expect(organisation.companyNumber).to.equal('test-number');
       expect(organisation.type).to.equal('organisation');
+      expect(organisation.organisationType).to.equal('test-organisation-type');
       expect(organisation.isTest).to.equal(true);
     });
 
     test('creates a non test record by default', async () => {
-      await companiesService.createOrganisation('test-name', 'test-number');
+      await companiesService.createOrganisation('test-name', 'test-number', 'test-organisation-type');
 
       const [organisation] = repos.companies.create.lastCall.args;
       expect(organisation.name).to.equal('test-name');
       expect(organisation.type).to.equal('organisation');
       expect(organisation.companyNumber).to.equal('test-number');
+      expect(organisation.organisationType).to.equal('test-organisation-type');
       expect(organisation.isTest).to.equal(false);
     });
 
@@ -98,6 +100,17 @@ experiment('services/companies', () => {
       expect(organisation.name).to.equal('test-name');
       expect(organisation.type).to.equal('organisation');
       expect(organisation.companyNumber).to.equal(null);
+      expect(organisation.isTest).to.equal(false);
+    });
+
+    test('creates a null organisation type by default', async () => {
+      await companiesService.createOrganisation('test-name', 'test-number');
+
+      const [organisation] = repos.companies.create.lastCall.args;
+      expect(organisation.name).to.equal('test-name');
+      expect(organisation.type).to.equal('organisation');
+      expect(organisation.companyNumber).to.equal('test-number');
+      expect(organisation.organisationType).to.equal(null);
       expect(organisation.isTest).to.equal(false);
     });
 

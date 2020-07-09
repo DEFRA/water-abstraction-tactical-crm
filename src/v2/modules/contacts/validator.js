@@ -2,8 +2,10 @@
 
 const Joi = require('@hapi/joi');
 const validators = require('../../lib/validators');
+const contactTypes = require('../../lib/contact-types');
 
 const personSchema = Joi.object({
+  title: validators.OPTIONAL_STRING,
   salutation: validators.OPTIONAL_STRING,
   firstName: validators.REQUIRED_STRING,
   middleInitials: validators.OPTIONAL_STRING,
@@ -12,7 +14,7 @@ const personSchema = Joi.object({
   department: validators.OPTIONAL_STRING,
   isTest: validators.TEST_FLAG,
   dataSource: validators.DATA_SOURCE
-});
+}).rename('title', 'salutation');
 
 const departmentSchema = Joi.object({
   department: validators.REQUIRED_STRING,
@@ -25,10 +27,14 @@ const schemas = {
   department: departmentSchema
 };
 
+const typeSchema = Joi.string().valid(Object.values(contactTypes)).required();
+
 /**
  * Validates that an object conforms to the requirements of a contact.
  */
 exports.validate = contact => {
-  const { contactType, ...rest } = contact;
-  return schemas[contactType].validate(rest, { abortEarly: false });
+  const { type, ...rest } = contact;
+  const { error } = typeSchema.validate(type);
+  if (error) return { error };
+  return schemas[type].validate(rest, { abortEarly: false });
 };

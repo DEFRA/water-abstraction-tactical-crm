@@ -3,6 +3,7 @@
 const Joi = require('@hapi/joi');
 
 const companyTypes = require('../../lib/company-types');
+const organisationTypes = require('../../lib/organisation-types');
 const controller = require('./controller');
 const validators = require('../../lib/validators');
 
@@ -19,6 +20,10 @@ exports.createCompany = {
         companyNumber: Joi.forbidden().when('type', {
           is: companyTypes.ORGANISATION,
           then: Joi.string().allow('').optional()
+        }),
+        organisationType: Joi.forbidden().when('type', {
+          is: companyTypes.ORGANISATION,
+          then: Joi.string().valid(Object.values(organisationTypes)).optional()
         }),
         isTest: validators.TEST_FLAG
       }
@@ -52,7 +57,7 @@ exports.postCompanyAddress = {
       },
       payload: {
         addressId: validators.GUID,
-        roleId: validators.GUID,
+        roleName: validators.ROLE_NAMES,
         isDefault: validators.DEFAULT_FLAG,
         startDate: validators.START_DATE,
         endDate: validators.END_DATE,
@@ -74,7 +79,7 @@ exports.postCompanyContact = {
       },
       payload: {
         contactId: validators.GUID,
-        roleId: validators.GUID,
+        roleName: validators.ROLE_NAMES,
         isDefault: validators.DEFAULT_FLAG,
         emailAddress: validators.EMAIL,
         startDate: validators.START_DATE,

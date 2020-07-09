@@ -13,6 +13,7 @@ const uuid = require('uuid/v4');
 
 const controller = require('../../../../src/v2/modules/companies/controller');
 const companiesService = require('../../../../src/v2/services/companies');
+const rolesRepo = require('../../../../src/v2/connectors/repository/roles');
 const errors = require('../../../../src/v2/lib/errors');
 
 experiment('modules/companies/controller', () => {
@@ -32,6 +33,7 @@ experiment('modules/companies/controller', () => {
     sandbox.stub(companiesService, 'addContact');
     sandbox.stub(companiesService, 'getAddresses');
     sandbox.stub(companiesService, 'getContacts');
+    sandbox.stub(rolesRepo, 'findOneByName').resolves({ roleId: 'test-role-id' });
   });
 
   afterEach(async () => {
@@ -122,15 +124,17 @@ experiment('modules/companies/controller', () => {
             type: 'organisation',
             name: 'test-name',
             companyNumber: '123abc',
+            organisationType: 'partnership',
             isTest: true
           }
         }, h);
       });
 
       test('calls the expected service function', async () => {
-        const [name, companyNumber, isTest] = companiesService.createOrganisation.lastCall.args;
+        const [name, companyNumber, organisationType, isTest] = companiesService.createOrganisation.lastCall.args;
         expect(name).to.equal('test-name');
         expect(companyNumber).to.equal('123abc');
+        expect(organisationType).to.equal('partnership');
         expect(isTest).to.equal(true);
       });
 
@@ -157,7 +161,7 @@ experiment('modules/companies/controller', () => {
       },
       payload: {
         addressId: 'test-address-id',
-        roleId: 'test-role-id',
+        roleName: 'test-role-name',
         startDate: '2020-01-01',
         isTest: true
       }
@@ -172,6 +176,12 @@ experiment('modules/companies/controller', () => {
     experiment('when there are no errors', () => {
       beforeEach(async () => {
         await controller.postCompanyAddress(request, h);
+      });
+
+      test('calls the rolesRepo with the roleName to get the roleId', () => {
+        expect(rolesRepo.findOneByName.calledWith(
+          'test-role-name'
+        )).to.be.true();
       });
 
       test('the service is called with the right params', async () => {
@@ -233,7 +243,7 @@ experiment('modules/companies/controller', () => {
       },
       payload: {
         contactId: 'test-contact-id',
-        roleId: 'test-role-id',
+        roleName: 'test-role-name',
         startDate: '2020-01-01',
         isTest: true
       }
@@ -248,6 +258,12 @@ experiment('modules/companies/controller', () => {
     experiment('when there are no errors', () => {
       beforeEach(async () => {
         await controller.postCompanyContact(request, h);
+      });
+
+      test('calls the rolesRepo with the roleName to get the roleId', () => {
+        expect(rolesRepo.findOneByName.calledWith(
+          'test-role-name'
+        )).to.be.true();
       });
 
       test('the service is called with the right params', async () => {

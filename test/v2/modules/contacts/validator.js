@@ -158,11 +158,89 @@ experiment('modules/contacts/validator', () => {
       });
     };
 
+    const testContactType = () => {
+      test('is valid when it is "person"', () => {
+        contact = {
+          type: 'person',
+          firstName: 'First',
+          lastName: 'Last'
+        };
+
+        const { error } = contactValidator.validate(contact);
+        expect(error).to.equal(null);
+      });
+
+      test('is valid when it is "department"', () => {
+        contact = {
+          type: 'department',
+          department: 'some department'
+        };
+
+        const { error } = contactValidator.validate(contact);
+        expect(error).to.equal(null);
+      });
+
+      test('cannot be an unexpected value', () => {
+        contact = {
+          type: 'individual',
+          firstName: 'First',
+          lastName: 'Last'
+        };
+
+        const { error } = contactValidator.validate(contact);
+        expect(error).to.not.equal(null);
+      });
+    };
+
+    const testTitle = () => {
+      test('is optional', async () => {
+        delete contact.title;
+
+        const { error } = contactValidator.validate(contact);
+        expect(error).to.equal(null);
+      });
+
+      test('empty string is considered null', async () => {
+        contact.title = '';
+
+        const { error, value } = contactValidator.validate(contact);
+        expect(error).to.equal(null);
+        expect(value.salutation).to.equal(null);
+      });
+
+      test('whitespace is considered null', async () => {
+        contact.title = '     ';
+
+        const { error, value } = contactValidator.validate(contact);
+        expect(error).to.equal(null);
+        expect(value.salutation).to.equal(null);
+      });
+
+      test('is renamed to salutation', async () => {
+        const { error, value } = contactValidator.validate(contact);
+        expect(error).to.equal(null);
+        expect(value.salutation).to.equal(contact.title);
+      });
+
+      test('is trimmed', async () => {
+        contact.title = '  Test   ';
+
+        const { error, value } = contactValidator.validate(contact);
+
+        expect(error).to.equal(null);
+        expect(value.salutation).to.equal('Test');
+      });
+    };
+
+    experiment('type', () => {
+      testContactType();
+    });
+
     experiment('when the contact type is a person', () => {
       beforeEach(async () => {
         contact = {
-          contactType: 'person',
-          salutation: 'Dr',
+          type: 'person',
+          title: 'Dr',
           firstName: 'First',
           middleInitials: 'M',
           lastName: 'Last',
@@ -173,8 +251,8 @@ experiment('modules/contacts/validator', () => {
         };
       });
 
-      experiment('salutation', () => {
-        testOptionalColumn('salutation');
+      experiment('title', () => {
+        testTitle();
       });
 
       experiment('firstName', () => {
@@ -182,11 +260,11 @@ experiment('modules/contacts/validator', () => {
       });
 
       experiment('middleInitials', () => {
-        testOptionalColumn('salutation');
+        testOptionalColumn('middleInitials');
       });
 
       experiment('lastName', () => {
-        testRequiredColumn('firstName');
+        testRequiredColumn('lastName');
       });
 
       experiment('isTest', () => {
@@ -194,34 +272,34 @@ experiment('modules/contacts/validator', () => {
       });
 
       experiment('suffix', () => {
-        testOptionalColumn('salutation');
+        testOptionalColumn('suffix');
       });
 
       experiment('dataSource', () => {
         testDataSourceColumn();
       });
+    });
 
-      experiment('when the contact type is a department', () => {
-        beforeEach(async () => {
-          contact = {
-            contactType: 'department',
-            department: 'Accounts department',
-            isTest: true,
-            dataSource: 'wrls'
-          };
-        });
+    experiment('when the contact type is a department', () => {
+      beforeEach(async () => {
+        contact = {
+          type: 'department',
+          department: 'Accounts department',
+          isTest: true,
+          dataSource: 'wrls'
+        };
+      });
 
-        experiment('department', () => {
-          testRequiredColumn('department');
-        });
+      experiment('department', () => {
+        testRequiredColumn('department');
+      });
 
-        experiment('isTest', () => {
-          testIsTestFlag();
-        });
+      experiment('isTest', () => {
+        testIsTestFlag();
+      });
 
-        experiment('dataSource', () => {
-          testDataSourceColumn();
-        });
+      experiment('dataSource', () => {
+        testDataSourceColumn();
       });
     });
   });

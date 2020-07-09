@@ -11,8 +11,8 @@ const createPerson = async (name, isTest = false) => {
   return result;
 };
 
-const createOrganisation = async (name, companyNumber = null, isTest = false) => {
-  const company = { name, companyNumber, type: companyTypes.ORGANISATION, isTest };
+const createOrganisation = async (name, companyNumber = null, organisationType = null, isTest = false) => {
+  const company = { name, companyNumber, type: companyTypes.ORGANISATION, organisationType, isTest };
   const result = await repos.companies.create(company);
   return result;
 };

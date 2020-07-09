@@ -103,6 +103,18 @@ experiment('modules/companies/routes', () => {
 
         expect(response.statusCode).to.equal(400);
       });
+
+      test('cannot have an organisation type', async () => {
+        const request = getRequest({
+          name: 'Name',
+          type: 'person',
+          organisationType: 'individual'
+        });
+
+        const response = await server.inject(request);
+
+        expect(response.statusCode).to.equal(400);
+      });
     });
 
     experiment('when an organisation is being created', () => {
@@ -163,6 +175,18 @@ experiment('modules/companies/routes', () => {
         expect(response.statusCode).to.equal(200);
       });
 
+      test('can have an organisation type', async () => {
+        const request = getRequest({
+          name: 'Cash Inc',
+          type: 'organisation',
+          organisationType: 'partnership'
+        });
+
+        const response = await server.inject(request);
+
+        expect(response.statusCode).to.equal(200);
+      });
+
       test('isTest defaults to false', async () => {
         const request = getRequest({
           name: 'Cash Inc',
@@ -193,7 +217,7 @@ experiment('modules/companies/routes', () => {
     test('returns a 400 if the company id is not a uuid', async () => {
       const request = getRequest(123, {
         addressId: uuid(),
-        roleId: uuid(),
+        roleName: 'licenceHolder',
         startDate: '2020-01-01'
       });
       const response = await server.inject(request);
@@ -203,7 +227,7 @@ experiment('modules/companies/routes', () => {
     test('returns a 400 if the address id is not a uuid', async () => {
       const request = getRequest(uuid(), {
         addressId: 123,
-        roleId: uuid(),
+        roleName: 'licenceHolder',
         startDate: '2020-01-01'
       });
       const response = await server.inject(request);
@@ -212,24 +236,44 @@ experiment('modules/companies/routes', () => {
 
     test('returns a 400 if the address id is omitted', async () => {
       const request = getRequest(uuid(), {
-        roleId: uuid(),
+        roleName: 'licenceHolder',
         startDate: '2020-01-01'
       });
       const response = await server.inject(request);
       expect(response.statusCode).to.equal(400);
     });
 
-    test('returns a 400 if the role id is not a uuid', async () => {
+    test('role name can be set to "licenceHolder"', async () => {
       const request = getRequest(uuid(), {
         addressId: uuid(),
-        roleId: 123,
+        roleName: 'licenceHolder',
+        startDate: '2020-01-01'
+      });
+      const response = await server.inject(request);
+      expect(response.statusCode).to.equal(200);
+    });
+
+    test('role name can be set to "billing"', async () => {
+      const request = getRequest(uuid(), {
+        addressId: uuid(),
+        roleName: 'billing',
+        startDate: '2020-01-01'
+      });
+      const response = await server.inject(request);
+      expect(response.statusCode).to.equal(200);
+    });
+
+    test('returns a 400 if the role name is an unexpected value', async () => {
+      const request = getRequest(uuid(), {
+        addressId: uuid(),
+        roleName: 'abstractor',
         startDate: '2020-01-01'
       });
       const response = await server.inject(request);
       expect(response.statusCode).to.equal(400);
     });
 
-    test('returns a 400 if the role id is omitted', async () => {
+    test('returns a 400 if the role name is omitted', async () => {
       const request = getRequest(uuid(), {
         addressId: uuid(),
         startDate: '2020-01-01'
@@ -241,7 +285,7 @@ experiment('modules/companies/routes', () => {
     test('returns a 400 if the start date is not valid', async () => {
       const request = getRequest(uuid(), {
         addressId: 123,
-        roleId: uuid(),
+        roleName: 'licenceHolder',
         startDate: '2020-01-45'
       });
       const response = await server.inject(request);
@@ -251,7 +295,7 @@ experiment('modules/companies/routes', () => {
     test('returns a 400 if the start date is omitted', async () => {
       const request = getRequest(uuid(), {
         addressId: uuid(),
-        roleId: uuid()
+        roleName: 'licenceHolder'
       });
       const response = await server.inject(request);
       expect(response.statusCode).to.equal(400);
@@ -260,7 +304,7 @@ experiment('modules/companies/routes', () => {
     test('end date defaults to null if not provided', async () => {
       const request = getRequest(uuid(), {
         addressId: uuid(),
-        roleId: uuid(),
+        roleName: 'licenceHolder',
         startDate: '2020-01-01'
       });
       const response = await server.inject(request);
@@ -270,7 +314,7 @@ experiment('modules/companies/routes', () => {
     test('end date can be set to null', async () => {
       const request = getRequest(uuid(), {
         addressId: uuid(),
-        roleId: uuid(),
+        roleName: 'licenceHolder',
         startDate: '2020-01-01',
         endDate: null
       });
@@ -281,7 +325,7 @@ experiment('modules/companies/routes', () => {
     test('end date can be set to a valid date', async () => {
       const request = getRequest(uuid(), {
         addressId: uuid(),
-        roleId: uuid(),
+        roleName: 'licenceHolder',
         startDate: '2020-01-01',
         endDate: '2020-03-01'
       });
@@ -292,7 +336,7 @@ experiment('modules/companies/routes', () => {
     test('returns a 400 if end date is before start date', async () => {
       const request = getRequest(uuid(), {
         addressId: uuid(),
-        roleId: uuid(),
+        roleName: 'licenceHolder',
         startDate: '2020-01-01',
         endDate: '2019-12-31'
       });
@@ -303,7 +347,7 @@ experiment('modules/companies/routes', () => {
     test('returns a 400 if end date is invalid date', async () => {
       const request = getRequest(uuid(), {
         addressId: uuid(),
-        roleId: uuid(),
+        roleName: 'licenceHolder',
         startDate: '2020-01-01',
         endDate: '2020-02-30'
       });
@@ -314,7 +358,7 @@ experiment('modules/companies/routes', () => {
     test('isDefault defaults to false', async () => {
       const request = getRequest(uuid(), {
         addressId: uuid(),
-        roleId: uuid(),
+        roleName: 'licenceHolder',
         startDate: '2020-01-01'
       });
       const response = await server.inject(request);
@@ -324,7 +368,7 @@ experiment('modules/companies/routes', () => {
     test('isDefault can be set to a boolean', async () => {
       const request = getRequest(uuid(), {
         addressId: uuid(),
-        roleId: uuid(),
+        roleName: 'licenceHolder',
         startDate: '2020-01-01',
         isDefault: true
       });
@@ -335,7 +379,7 @@ experiment('modules/companies/routes', () => {
     test('returns a 400 if isDefault is not a boolean', async () => {
       const request = getRequest(uuid(), {
         addressId: uuid(),
-        roleId: uuid(),
+        roleName: 'licenceHolder',
         startDate: '2020-01-01',
         isDefault: 'oops'
       });
@@ -346,7 +390,7 @@ experiment('modules/companies/routes', () => {
     test('isTest defaults to false', async () => {
       const request = getRequest(uuid(), {
         addressId: uuid(),
-        roleId: uuid(),
+        roleName: 'licenceHolder',
         startDate: '2020-01-01'
       });
       const response = await server.inject(request);
@@ -356,7 +400,7 @@ experiment('modules/companies/routes', () => {
     test('isTest can be set to a boolean', async () => {
       const request = getRequest(uuid(), {
         addressId: uuid(),
-        roleId: uuid(),
+        roleName: 'licenceHolder',
         startDate: '2020-01-01',
         isTest: true
       });
@@ -367,7 +411,7 @@ experiment('modules/companies/routes', () => {
     test('returns a 400 if isTest is not a boolean', async () => {
       const request = getRequest(uuid(), {
         addressId: uuid(),
-        roleId: uuid(),
+        roleName: 'licenceHolder',
         startDate: '2020-01-01',
         isTest: 'oops'
       });
@@ -392,7 +436,7 @@ experiment('modules/companies/routes', () => {
     test('returns a 400 if the company id is not a uuid', async () => {
       const request = getRequest(123, {
         contactId: uuid(),
-        roleId: uuid(),
+        roleName: 'licenceHolder',
         startDate: '2020-01-01'
       });
       const response = await server.inject(request);
@@ -402,7 +446,7 @@ experiment('modules/companies/routes', () => {
     test('returns a 400 if the contact id is not a uuid', async () => {
       const request = getRequest(uuid(), {
         contactId: 123,
-        roleId: uuid(),
+        roleName: 'licenceHolder',
         startDate: '2020-01-01'
       });
       const response = await server.inject(request);
@@ -411,24 +455,44 @@ experiment('modules/companies/routes', () => {
 
     test('returns a 400 if the contactId id is omitted', async () => {
       const request = getRequest(uuid(), {
-        roleId: uuid(),
+        roleName: 'licenceHolder',
         startDate: '2020-01-01'
       });
       const response = await server.inject(request);
       expect(response.statusCode).to.equal(400);
     });
 
-    test('returns a 400 if the role id is not a uuid', async () => {
+    test('role name can be set to "licenceHolder"', async () => {
       const request = getRequest(uuid(), {
         contactId: uuid(),
-        roleId: 123,
+        roleName: 'licenceHolder',
+        startDate: '2020-01-01'
+      });
+      const response = await server.inject(request);
+      expect(response.statusCode).to.equal(200);
+    });
+
+    test('role name can be set to "billing"', async () => {
+      const request = getRequest(uuid(), {
+        contactId: uuid(),
+        roleName: 'billing',
+        startDate: '2020-01-01'
+      });
+      const response = await server.inject(request);
+      expect(response.statusCode).to.equal(200);
+    });
+
+    test('returns a 400 if the role name is an unexpected value', async () => {
+      const request = getRequest(uuid(), {
+        contactId: uuid(),
+        roleName: 'abstractor',
         startDate: '2020-01-01'
       });
       const response = await server.inject(request);
       expect(response.statusCode).to.equal(400);
     });
 
-    test('returns a 400 if the role id is omitted', async () => {
+    test('returns a 400 if the role name is omitted', async () => {
       const request = getRequest(uuid(), {
         contactId: uuid(),
         startDate: '2020-01-01'
@@ -440,7 +504,7 @@ experiment('modules/companies/routes', () => {
     test('returns a 400 if the start date is not valid', async () => {
       const request = getRequest(uuid(), {
         contactId: 123,
-        roleId: uuid(),
+        roleName: 'licenceHolder',
         startDate: '2020-01-45'
       });
       const response = await server.inject(request);
@@ -459,7 +523,7 @@ experiment('modules/companies/routes', () => {
     test('end date defaults to null if not provided', async () => {
       const request = getRequest(uuid(), {
         contactId: uuid(),
-        roleId: uuid(),
+        roleName: 'licenceHolder',
         startDate: '2020-01-01'
       });
       const response = await server.inject(request);
@@ -469,7 +533,7 @@ experiment('modules/companies/routes', () => {
     test('end date can be set to null', async () => {
       const request = getRequest(uuid(), {
         contactId: uuid(),
-        roleId: uuid(),
+        roleName: 'licenceHolder',
         startDate: '2020-01-01',
         endDate: null
       });
@@ -480,7 +544,7 @@ experiment('modules/companies/routes', () => {
     test('end date can be set to a valid date', async () => {
       const request = getRequest(uuid(), {
         contactId: uuid(),
-        roleId: uuid(),
+        roleName: 'licenceHolder',
         startDate: '2020-01-01',
         endDate: '2020-03-01'
       });
@@ -491,7 +555,7 @@ experiment('modules/companies/routes', () => {
     test('returns a 400 if end date is before start date', async () => {
       const request = getRequest(uuid(), {
         contactId: uuid(),
-        roleId: uuid(),
+        roleName: 'licenceHolder',
         startDate: '2020-01-01',
         endDate: '2019-12-31'
       });
@@ -502,7 +566,7 @@ experiment('modules/companies/routes', () => {
     test('returns a 400 if end date is invalid date', async () => {
       const request = getRequest(uuid(), {
         contactId: uuid(),
-        roleId: uuid(),
+        roleName: 'licenceHolder',
         startDate: '2020-01-01',
         endDate: '2020-02-30'
       });
@@ -513,7 +577,7 @@ experiment('modules/companies/routes', () => {
     test('isDefault defaults to false', async () => {
       const request = getRequest(uuid(), {
         contactId: uuid(),
-        roleId: uuid(),
+        roleName: 'licenceHolder',
         startDate: '2020-01-01'
       });
       const response = await server.inject(request);
@@ -523,7 +587,7 @@ experiment('modules/companies/routes', () => {
     test('isDefault can be set to a boolean', async () => {
       const request = getRequest(uuid(), {
         contactId: uuid(),
-        roleId: uuid(),
+        roleName: 'licenceHolder',
         startDate: '2020-01-01',
         isDefault: true
       });
@@ -534,7 +598,7 @@ experiment('modules/companies/routes', () => {
     test('returns a 400 if isDefault is not a boolean', async () => {
       const request = getRequest(uuid(), {
         contactId: uuid(),
-        roleId: uuid(),
+        roleName: 'licenceHolder',
         startDate: '2020-01-01',
         isDefault: 'oops'
       });
@@ -545,7 +609,7 @@ experiment('modules/companies/routes', () => {
     test('isTest defaults to false', async () => {
       const request = getRequest(uuid(), {
         contactId: uuid(),
-        roleId: uuid(),
+        roleName: 'licenceHolder',
         startDate: '2020-01-01'
       });
       const response = await server.inject(request);
@@ -555,7 +619,7 @@ experiment('modules/companies/routes', () => {
     test('isTest can be set to a boolean', async () => {
       const request = getRequest(uuid(), {
         contactId: uuid(),
-        roleId: uuid(),
+        roleName: 'licenceHolder',
         startDate: '2020-01-01',
         isTest: true
       });
@@ -566,7 +630,7 @@ experiment('modules/companies/routes', () => {
     test('returns a 400 if isTest is not a boolean', async () => {
       const request = getRequest(uuid(), {
         contactId: uuid(),
-        roleId: uuid(),
+        roleName: 'licenceHolder',
         startDate: '2020-01-01',
         isTest: 'oops'
       });
@@ -577,7 +641,7 @@ experiment('modules/companies/routes', () => {
     test('returns a 400 if email is not a valid email address', async () => {
       const request = getRequest(uuid(), {
         contactId: uuid(),
-        roleId: uuid(),
+        roleName: 'licenceHolder',
         startDate: '2020-01-01',
         emailAddress: 'invalidEmail'
       });
