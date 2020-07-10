@@ -42,7 +42,7 @@ exports.postContact = {
     validate: {
       payload: {
         type: validators.CONTACT_TYPE,
-        title: validators.OPTIONAL_STRING,
+        salutation: validators.OPTIONAL_STRING,
         firstName: validators.OPTIONAL_STRING,
         lastName: validators.OPTIONAL_STRING,
         middleInitials: validators.OPTIONAL_STRING,

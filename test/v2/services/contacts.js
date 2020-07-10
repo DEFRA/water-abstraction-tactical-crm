@@ -63,7 +63,7 @@ experiment('services/contacts', () => {
       beforeEach(async () => {
         contact = {
           type: 'person',
-          title: 'Mr',
+          salutation: 'Mr',
           lastName: 'Invalid'
         };
       });

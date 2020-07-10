@@ -5,7 +5,6 @@ const validators = require('../../lib/validators');
 const contactTypes = require('../../lib/contact-types');
 
 const personSchema = Joi.object({
-  title: validators.OPTIONAL_STRING,
   salutation: validators.OPTIONAL_STRING,
   firstName: validators.REQUIRED_STRING,
   middleInitials: validators.OPTIONAL_STRING,
@@ -14,7 +13,7 @@ const personSchema = Joi.object({
   department: validators.OPTIONAL_STRING,
   isTest: validators.TEST_FLAG,
   dataSource: validators.DATA_SOURCE
-}).rename('title', 'salutation');
+});
 
 const departmentSchema = Joi.object({
   department: validators.REQUIRED_STRING,

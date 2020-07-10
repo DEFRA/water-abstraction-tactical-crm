@@ -192,46 +192,6 @@ experiment('modules/contacts/validator', () => {
       });
     };
 
-    const testTitle = () => {
-      test('is optional', async () => {
-        delete contact.title;
-
-        const { error } = contactValidator.validate(contact);
-        expect(error).to.equal(null);
-      });
-
-      test('empty string is considered null', async () => {
-        contact.title = '';
-
-        const { error, value } = contactValidator.validate(contact);
-        expect(error).to.equal(null);
-        expect(value.salutation).to.equal(null);
-      });
-
-      test('whitespace is considered null', async () => {
-        contact.title = '     ';
-
-        const { error, value } = contactValidator.validate(contact);
-        expect(error).to.equal(null);
-        expect(value.salutation).to.equal(null);
-      });
-
-      test('is renamed to salutation', async () => {
-        const { error, value } = contactValidator.validate(contact);
-        expect(error).to.equal(null);
-        expect(value.salutation).to.equal(contact.title);
-      });
-
-      test('is trimmed', async () => {
-        contact.title = '  Test   ';
-
-        const { error, value } = contactValidator.validate(contact);
-
-        expect(error).to.equal(null);
-        expect(value.salutation).to.equal('Test');
-      });
-    };
-
     experiment('type', () => {
       testContactType();
     });
@@ -240,7 +200,7 @@ experiment('modules/contacts/validator', () => {
       beforeEach(async () => {
         contact = {
           type: 'person',
-          title: 'Dr',
+          salutation: 'Dr',
           firstName: 'First',
           middleInitials: 'M',
           lastName: 'Last',
@@ -251,8 +211,8 @@ experiment('modules/contacts/validator', () => {
         };
       });
 
-      experiment('title', () => {
-        testTitle();
+      experiment('salutation', () => {
+        testOptionalColumn('salutation');
       });
 
       experiment('firstName', () => {

@@ -103,7 +103,7 @@ experiment('modules/contacts/routes', () => {
     beforeEach(async () => {
       fullPayload = {
         type: 'person',
-        title: 'Dr',
+        salutation: 'Dr',
         firstName: 'Firsty',
         middleInitials: 'A',
         lastName: 'Lasty',
@@ -163,23 +163,23 @@ experiment('modules/contacts/routes', () => {
         expect(response.statusCode).to.equal(400);
       });
 
-      test('the title is optional', async () => {
-        delete fullPayload.title;
+      test('the salutation is optional', async () => {
+        delete fullPayload.salutation;
         const request = getRequest(fullPayload);
         const response = await server.inject(request);
 
         expect(response.statusCode).to.equal(200);
       });
 
-      test('the title accepts a string', async () => {
+      test('the salutation accepts a string', async () => {
         const request = getRequest(fullPayload);
         const response = await server.inject(request);
 
         expect(response.statusCode).to.equal(200);
       });
 
-      test('the title rejects a number', async () => {
-        fullPayload.title = 1234;
+      test('the salutation rejects a number', async () => {
+        fullPayload.salutation = 1234;
         const request = getRequest(fullPayload);
         const response = await server.inject(request);
 
