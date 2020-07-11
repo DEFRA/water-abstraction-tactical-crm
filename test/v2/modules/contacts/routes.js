@@ -105,7 +105,6 @@ experiment('modules/contacts/routes', () => {
         contactType: 'person',
         salutation: 'Dr',
         firstName: 'Firsty',
-        initials: 'F A',
         middleInitials: 'A',
         lastName: 'Lasty',
         isTest: true,
