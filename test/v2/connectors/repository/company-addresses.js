@@ -97,7 +97,8 @@ experiment('v2/connectors/repository/company-addresses', () => {
     test('.fetch() is callled with related addresses', async () => {
       expect(stub.fetch.calledWith({
         withRelated: [
-          'address'
+          'address',
+          'role'
         ]
       })).to.be.true();
     });

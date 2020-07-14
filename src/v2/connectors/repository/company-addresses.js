@@ -27,7 +27,8 @@ const findManyByCompanyId = async companyId => {
     .where('company_id', companyId)
     .fetch({
       withRelated: [
-        'address'
+        'address',
+        'role'
       ]
     });
   return collection.toJSON();

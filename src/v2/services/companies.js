@@ -5,6 +5,12 @@ const repos = require('../connectors/repository');
 const handleRepoError = require('./lib/error-handler');
 const errors = require('../lib/errors');
 
+const getRoleId = async roleName => {
+  const role = await repos.roles.findOneByName(roleName);
+  if (role) return role.roleId;
+  throw new errors.EntityValidationError(`Role with name: ${roleName} not found`);
+};
+
 const createPerson = async (name, isTest = false) => {
   const person = { name, type: companyTypes.PERSON, isTest };
   const result = await repos.companies.create(person);
@@ -34,14 +40,15 @@ const getCompany = async companyId => {
  * @param {Boolean} isTest
  * @return {Promise<Object>} new record in company_addresses
 */
-const addAddress = async (companyId, addressId, data = {}, isTest = false) => {
-  const companyAddress = {
-    companyId,
-    addressId,
-    ...data,
-    isTest
-  };
+const addAddress = async (companyId, addressId, roleName, data = {}, isTest = false) => {
   try {
+    const companyAddress = {
+      companyId,
+      addressId,
+      roleId: await getRoleId(roleName),
+      ...data,
+      isTest
+    };
     const result = await repos.companyAddresses.create(companyAddress);
     return result;
   } catch (err) {
@@ -61,14 +68,15 @@ const addAddress = async (companyId, addressId, data = {}, isTest = false) => {
  * @param {Boolean} isTest
  * @return {Promise<Object>} new record in company_contacts
 */
-const addContact = async (companyId, contactId, data = {}, isTest = false) => {
-  const companyContact = {
-    companyId,
-    contactId,
-    ...data,
-    isTest
-  };
+const addContact = async (companyId, contactId, roleName, data = {}, isTest = false) => {
   try {
+    const companyContact = {
+      companyId,
+      contactId,
+      ...data,
+      roleId: await getRoleId(roleName),
+      isTest
+    };
     const result = await repos.companyContacts.create(companyContact);
     return result;
   } catch (err) {
@@ -111,6 +119,7 @@ const getContacts = async companyId => {
   return repos.companyContacts.findManyByCompanyId(companyId);
 };
 
+exports.getRoleId = getRoleId;
 exports.createPerson = createPerson;
 exports.createOrganisation = createOrganisation;
 exports.getCompany = getCompany;

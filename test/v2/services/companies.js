@@ -39,10 +39,31 @@ experiment('services/companies', () => {
     sandbox.stub(repos.companyContacts, 'findManyByCompanyId').resolves([{
       companyContactId: 'test-company-contact-id'
     }]);
+
+    sandbox.stub(repos.roles, 'findOneByName').resolves({
+      roleId: 'test-role-id'
+    });
   });
 
   afterEach(async () => {
     sandbox.restore();
+  });
+
+  experiment('.getRoleId', () => {
+    test('returns the role id', async () => {
+      const result = await companiesService.getRoleId('test-role-name');
+      expect(result).to.equal('test-role-id');
+    });
+
+    test('throws an error if no role is found', async () => {
+      repos.roles.findOneByName.resolves();
+      try {
+        await companiesService.getRoleId('test-role-name');
+      } catch (err) {
+        expect(err).to.be.instanceOf(errors.EntityValidationError);
+        expect(err.message).to.equal('Role with name: test-role-name not found');
+      }
+    });
   });
 
   experiment('.createPerson', () => {
@@ -139,12 +160,20 @@ experiment('services/companies', () => {
   });
 
   experiment('.addAddress', async () => {
-    test('can create a test record', async () => {
-      await companiesService.addAddress('test-company-id', 'test-address-id', {
-        roleId: 'test-role-id',
-        startDate: '2020-01-01'
-      }, true);
+    beforeEach(async () => {
+      await companiesService.addAddress('test-company-id', 'test-address-id', 'test-role-name',
+        {
+          startDate: '2020-01-01'
+        }, true);
+    });
 
+    test('gets the role id from the roles repo', () => {
+      expect(repos.roles.findOneByName.calledWith(
+        'test-role-name'
+      )).to.be.true();
+    });
+
+    test('can create a test record', async () => {
       const [companyAddress] = repos.companyAddresses.create.lastCall.args;
       expect(companyAddress.companyId).to.equal('test-company-id');
       expect(companyAddress.addressId).to.equal('test-address-id');
@@ -153,11 +182,10 @@ experiment('services/companies', () => {
     });
 
     test('creates a non-test record by default', async () => {
-      await companiesService.addAddress('test-company-id', 'test-address-id', {
-        roleId: 'test-role-id',
-        startDate: '2020-01-01'
-      });
-
+      await companiesService.addAddress('test-company-id', 'test-address-id', 'test-role-name',
+        {
+          startDate: '2020-01-01'
+        });
       const [companyAddress] = repos.companyAddresses.create.lastCall.args;
       expect(companyAddress.companyId).to.equal('test-company-id');
       expect(companyAddress.addressId).to.equal('test-address-id');
@@ -200,12 +228,20 @@ experiment('services/companies', () => {
   });
 
   experiment('.addContact', async () => {
-    test('can create a test record', async () => {
-      await companiesService.addContact('test-company-id', 'test-contact-id', {
-        roleId: 'test-role-id',
-        startDate: '2020-01-01'
-      }, true);
+    beforeEach(async () => {
+      await companiesService.addContact('test-company-id', 'test-contact-id', 'test-role-name',
+        {
+          startDate: '2020-01-01'
+        }, true);
+    });
 
+    test('gets the role id from the roles repo', () => {
+      expect(repos.roles.findOneByName.calledWith(
+        'test-role-name'
+      )).to.be.true();
+    });
+
+    test('can create a test record', async () => {
       const [companyContact] = repos.companyContacts.create.lastCall.args;
       expect(companyContact.companyId).to.equal('test-company-id');
       expect(companyContact.contactId).to.equal('test-contact-id');
@@ -214,10 +250,10 @@ experiment('services/companies', () => {
     });
 
     test('creates a non-test record by default', async () => {
-      await companiesService.addContact('test-company-id', 'test-contact-id', {
-        roleId: 'test-role-id',
-        startDate: '2020-01-01'
-      });
+      await companiesService.addContact('test-company-id', 'test-contact-id', 'test-role-name',
+        {
+          startDate: '2020-01-01'
+        });
 
       const [companyContact] = repos.companyContacts.create.lastCall.args;
       expect(companyContact.companyId).to.equal('test-company-id');

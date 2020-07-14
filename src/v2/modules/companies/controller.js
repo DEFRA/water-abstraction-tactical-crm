@@ -2,14 +2,8 @@
 
 const companiesService = require('../../services/companies');
 const companyTypes = require('../../lib/company-types');
-const rolesRepo = require('../../connectors/repository/roles');
 const { mapErrorResponse } = require('../../lib/map-error-response');
 const { wrapServiceCall } = require('../../lib/wrap-service-call');
-
-const getRoleId = async roleName => {
-  const { roleId } = await rolesRepo.findOneByName(roleName);
-  return roleId;
-};
 
 const postCompany = async (request, h) => {
   const { type, name, companyNumber = null, organisationType = null, isTest = false } = request.payload;
@@ -32,8 +26,7 @@ const postCompanyAddress = async (request, h) => {
   const { companyId } = request.params;
   const { addressId, isTest, roleName, ...data } = request.payload;
   try {
-    const roleId = await getRoleId(roleName);
-    const createdEntity = await companiesService.addAddress(companyId, addressId, { ...data, roleId }, isTest);
+    const createdEntity = await companiesService.addAddress(companyId, addressId, roleName, data, isTest);
     return h.response(createdEntity)
       .created(`/crm/2.0/companies/${companyId}/addresses/${createdEntity.companyAddressId}`);
   } catch (err) {
@@ -45,8 +38,7 @@ const postCompanyContact = async (request, h) => {
   const { contactId, isTest, roleName, ...data } = request.payload;
   const { companyId } = request.params;
   try {
-    const roleId = await getRoleId(roleName);
-    const createdEntity = await companiesService.addContact(companyId, contactId, { ...data, roleId }, isTest);
+    const createdEntity = await companiesService.addContact(companyId, contactId, roleName, data, isTest);
     return h.response(createdEntity)
       .created(`/crm/2.0/companies/${companyId}/contacts/${createdEntity.companyContactId}`);
   } catch (err) {

@@ -67,4 +67,21 @@ experiment('v2/connectors/bookshelf/CompanyAddress', () => {
       expect(foreignKeyTarget).to.equal('address_id');
     });
   });
+
+  experiment('the .role() relation', () => {
+    beforeEach(async () => {
+      instance.role();
+    });
+
+    test('is a function', async () => {
+      expect(instance.role).to.be.a.function();
+    });
+
+    test('calls .belongsTo with correct params', async () => {
+      const [model, foreignKey, foreignKeyTarget] = instance.hasOne.lastCall.args;
+      expect(model).to.equal('Role');
+      expect(foreignKey).to.equal('role_id');
+      expect(foreignKeyTarget).to.equal('role_id');
+    });
+  });
 });

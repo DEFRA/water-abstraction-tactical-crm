@@ -13,7 +13,6 @@ const uuid = require('uuid/v4');
 
 const controller = require('../../../../src/v2/modules/companies/controller');
 const companiesService = require('../../../../src/v2/services/companies');
-const rolesRepo = require('../../../../src/v2/connectors/repository/roles');
 const errors = require('../../../../src/v2/lib/errors');
 
 experiment('modules/companies/controller', () => {
@@ -33,7 +32,6 @@ experiment('modules/companies/controller', () => {
     sandbox.stub(companiesService, 'addContact');
     sandbox.stub(companiesService, 'getAddresses');
     sandbox.stub(companiesService, 'getContacts');
-    sandbox.stub(rolesRepo, 'findOneByName').resolves({ roleId: 'test-role-id' });
   });
 
   afterEach(async () => {
@@ -178,18 +176,12 @@ experiment('modules/companies/controller', () => {
         await controller.postCompanyAddress(request, h);
       });
 
-      test('calls the rolesRepo with the roleName to get the roleId', () => {
-        expect(rolesRepo.findOneByName.calledWith(
-          'test-role-name'
-        )).to.be.true();
-      });
-
       test('the service is called with the right params', async () => {
         expect(companiesService.addAddress.calledWith(
           'test-company-id',
           'test-address-id',
+          'test-role-name',
           {
-            roleId: 'test-role-id',
             startDate: '2020-01-01'
           },
           true
@@ -260,18 +252,12 @@ experiment('modules/companies/controller', () => {
         await controller.postCompanyContact(request, h);
       });
 
-      test('calls the rolesRepo with the roleName to get the roleId', () => {
-        expect(rolesRepo.findOneByName.calledWith(
-          'test-role-name'
-        )).to.be.true();
-      });
-
       test('the service is called with the right params', async () => {
         expect(companiesService.addContact.calledWith(
           'test-company-id',
           'test-contact-id',
+          'test-role-name',
           {
-            roleId: 'test-role-id',
             startDate: '2020-01-01'
           },
           true
