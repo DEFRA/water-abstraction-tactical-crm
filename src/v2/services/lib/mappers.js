@@ -29,7 +29,7 @@ const mapCompany = row => {
   return mapEntity(row, ['company_id', 'name', 'company_number']);
 };
 
-const ADDRESS_KEYS = ['address_id', 'address_1', 'address_2', 'address_3', 'address_4', 'town', 'county', 'postcode', 'country'];
+const ADDRESS_KEYS = ['address_id', 'address_1', 'address_2', 'address_3', 'address_4', 'town', 'county', 'postcode', 'country', 'uprn'];
 const INVOICE_ACCOUNT_ADDRESS_KEYS = [
   'invoice_account_address_id',
   'invoice_account_address_1',
@@ -39,7 +39,8 @@ const INVOICE_ACCOUNT_ADDRESS_KEYS = [
   'invoice_account_town',
   'invoice_account_county',
   'invoice_account_postcode',
-  'invoice_account_country'
+  'invoice_account_country',
+  'invoice_account_uprn'
 ];
 
 const mapAddress = row => {
@@ -51,7 +52,7 @@ const mapAddress = row => {
 const mapDocumentRole = row => ({
   ...mapEntity(row, ['document_role_id', 'role_id', 'role_name', 'start_date', 'end_date']),
   company: mapCompany(row),
-  contact: mapEntity(row, ['contact_id', 'salutation', 'first_name', 'last_name', 'middle_names', 'initials']),
+  contact: mapEntity(row, ['contact_id', 'contact_type', 'salutation', 'first_name', 'last_name', 'initials', 'middle_initials', 'suffix', 'department']),
   address: mapAddress(row),
   invoiceAccount: mapEntity(row, ['invoice_account_id', 'invoice_account_number'])
 });

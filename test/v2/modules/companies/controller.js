@@ -30,6 +30,8 @@ experiment('modules/companies/controller', () => {
     sandbox.stub(companiesService, 'createOrganisation');
     sandbox.stub(companiesService, 'addAddress');
     sandbox.stub(companiesService, 'addContact');
+    sandbox.stub(companiesService, 'getAddresses');
+    sandbox.stub(companiesService, 'getContacts');
   });
 
   afterEach(async () => {
@@ -316,6 +318,86 @@ experiment('modules/companies/controller', () => {
       test('an error is thrown', async () => {
         const func = () => controller.postCompanyContact(request, h);
         expect(func()).to.reject();
+      });
+    });
+  });
+
+  experiment('.getCompanyAddresses', () => {
+    let result;
+    const request = {
+      params: {
+        companyId: 'test-company-id'
+      }
+    };
+
+    experiment('when there are no errors', () => {
+      beforeEach(async () => {
+        companiesService.getAddresses.resolves([{
+          companyAddressId: 'test-company-address-1'
+        }]);
+        result = await controller.getCompanyAddresses(request);
+      });
+
+      test('the service method .getAddresses is called with the correct ID', async () => {
+        expect(companiesService.getAddresses.calledWith(
+          request.params.companyId
+        )).to.be.true();
+      });
+
+      test('the company addresses are returned with no envelope', async () => {
+        expect(result[0].companyAddressId).to.equal('test-company-address-1');
+      });
+    });
+
+    experiment('when the company is not found', () => {
+      beforeEach(async () => {
+        companiesService.getAddresses.rejects(new errors.NotFoundError('Company not found'));
+        result = await controller.getCompanyAddresses(request);
+      });
+
+      test('the controller resolves with a Boom 404', async () => {
+        expect(result.isBoom).to.be.true();
+        expect(result.output.statusCode).to.equal(404);
+      });
+    });
+  });
+
+  experiment('.getCompanyContacts', () => {
+    let result;
+    const request = {
+      params: {
+        companyId: 'test-company-id'
+      }
+    };
+
+    experiment('when there are no errors', () => {
+      beforeEach(async () => {
+        companiesService.getContacts.resolves([{
+          companyContactId: 'test-company-contact-1'
+        }]);
+        result = await controller.getCompanyContacts(request);
+      });
+
+      test('the service method .getContacts is called with the correct ID', async () => {
+        expect(companiesService.getContacts.calledWith(
+          request.params.companyId
+        )).to.be.true();
+      });
+
+      test('the company contacts are returned with no envelope', async () => {
+        expect(result[0].companyContactId).to.equal('test-company-contact-1');
+      });
+    });
+
+    experiment('when the company is not found', () => {
+      beforeEach(async () => {
+        companiesService.getContacts.rejects(new errors.NotFoundError('Company not found'));
+        result = await controller.getCompanyContacts(request);
+      });
+
+      test('the controller resolves with a Boom 404', async () => {
+        expect(result.isBoom).to.be.true();
+        expect(result.output.statusCode).to.equal(404);
       });
     });
   });
