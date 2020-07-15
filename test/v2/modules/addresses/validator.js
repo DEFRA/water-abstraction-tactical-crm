@@ -22,42 +22,14 @@ experiment('modules/addresses/validator', () => {
       town: 'test-town',
       county: 'test-county',
       country: 'test-country',
-      postcode: 'E20 3EL'
+      postcode: 'E20 3EL',
+      uprn: 1234
     };
   });
 
   experiment('.validate', () => {
-    experiment('address1', () => {
-      test('is required', async () => {
-        delete fullAddress.address1;
-
-        const { error } = addressValidator.validate(fullAddress);
-        expect(error).to.not.equal(null);
-      });
-
-      test('cannot equal an empty string', async () => {
-        fullAddress.address1 = '';
-
-        const { error } = addressValidator.validate(fullAddress);
-        expect(error).to.not.equal(null);
-      });
-
-      test('cannot equal white space', async () => {
-        fullAddress.address1 = '    ';
-
-        const { error } = addressValidator.validate(fullAddress);
-        expect(error).to.not.equal(null);
-      });
-
-      test('is valid when present', async () => {
-        const { error, value } = addressValidator.validate(fullAddress);
-        expect(error).to.equal(null);
-        expect(value.address1).to.equal(fullAddress.address1);
-      });
-    });
-
-    experiment('address2, address3 and address4', () => {
-      const keys = ['address2', 'address3', 'address4'];
+    experiment('address1, address2, address3, address4, town, county', () => {
+      const keys = ['address1', 'address2', 'address3', 'address4', 'town', 'county'];
 
       keys.forEach(key => {
         test(`${key}: is optional`, async () => {
@@ -92,23 +64,37 @@ experiment('modules/addresses/validator', () => {
       });
     });
 
-    experiment('town', () => {
+    test('at least 1 of address2 and address3 are required', async () => {
+      fullAddress.address2 = '';
+      fullAddress.address3 = '';
+      const { error } = addressValidator.validate(fullAddress);
+      expect(error.details[0].message).to.equal('"address3" is not allowed to be empty');
+    });
+
+    test('at least 1 of address4 and town are required', async () => {
+      fullAddress.address4 = '';
+      fullAddress.town = '';
+      const { error } = addressValidator.validate(fullAddress);
+      expect(error.details[0].message).to.equal('"town" is not allowed to be empty');
+    });
+
+    experiment('country', () => {
       test('is required', async () => {
-        delete fullAddress.town;
+        delete fullAddress.country;
 
         const { error } = addressValidator.validate(fullAddress);
         expect(error).to.not.equal(null);
       });
 
       test('cannot equal an empty string', async () => {
-        fullAddress.town = '';
+        fullAddress.country = '';
 
         const { error } = addressValidator.validate(fullAddress);
         expect(error).to.not.equal(null);
       });
 
       test('cannot equal white space', async () => {
-        fullAddress.town = '    ';
+        fullAddress.country = '    ';
 
         const { error } = addressValidator.validate(fullAddress);
         expect(error).to.not.equal(null);
@@ -117,206 +103,163 @@ experiment('modules/addresses/validator', () => {
       test('is valid when present', async () => {
         const { error, value } = addressValidator.validate(fullAddress);
         expect(error).to.equal(null);
-        expect(value.town).to.equal(fullAddress.town);
+        expect(value.country).to.equal(fullAddress.country);
       });
 
       test('is trimmed and valid when present with extra whitespace', async () => {
-        fullAddress.town = '   new town   ';
+        fullAddress.country = '   new country   ';
         const { error, value } = addressValidator.validate(fullAddress);
         expect(error).to.equal(null);
-        expect(value.town).to.equal('new town');
-      });
-    });
-  });
-
-  experiment('county', () => {
-    test('is required', async () => {
-      delete fullAddress.county;
-
-      const { error } = addressValidator.validate(fullAddress);
-      expect(error).to.not.equal(null);
-    });
-
-    test('cannot equal an empty string', async () => {
-      fullAddress.county = '';
-
-      const { error } = addressValidator.validate(fullAddress);
-      expect(error).to.not.equal(null);
-    });
-
-    test('cannot equal white space', async () => {
-      fullAddress.county = '    ';
-
-      const { error } = addressValidator.validate(fullAddress);
-      expect(error).to.not.equal(null);
-    });
-
-    test('is valid when present', async () => {
-      const { error, value } = addressValidator.validate(fullAddress);
-      expect(error).to.equal(null);
-      expect(value.county).to.equal(fullAddress.county);
-    });
-
-    test('is trimmed and valid when present with extra whitespace', async () => {
-      fullAddress.county = '   new county   ';
-      const { error, value } = addressValidator.validate(fullAddress);
-      expect(error).to.equal(null);
-      expect(value.county).to.equal('new county');
-    });
-  });
-
-  experiment('country', () => {
-    test('is required', async () => {
-      delete fullAddress.country;
-
-      const { error } = addressValidator.validate(fullAddress);
-      expect(error).to.not.equal(null);
-    });
-
-    test('cannot equal an empty string', async () => {
-      fullAddress.country = '';
-
-      const { error } = addressValidator.validate(fullAddress);
-      expect(error).to.not.equal(null);
-    });
-
-    test('cannot equal white space', async () => {
-      fullAddress.country = '    ';
-
-      const { error } = addressValidator.validate(fullAddress);
-      expect(error).to.not.equal(null);
-    });
-
-    test('is valid when present', async () => {
-      const { error, value } = addressValidator.validate(fullAddress);
-      expect(error).to.equal(null);
-      expect(value.country).to.equal(fullAddress.country);
-    });
-
-    test('is trimmed and valid when present with extra whitespace', async () => {
-      fullAddress.country = '   new country   ';
-      const { error, value } = addressValidator.validate(fullAddress);
-      expect(error).to.equal(null);
-      expect(value.country).to.equal('new country');
-    });
-
-    test('removes full stops', async () => {
-      fullAddress.country = 'U.K.';
-      const { error, value } = addressValidator.validate(fullAddress);
-      expect(error).to.equal(null);
-      expect(value.country).to.equal('UK');
-    });
-  });
-
-  experiment('postcode', () => {
-    experiment('when the country is not part of the UK', () => {
-      beforeEach(async () => {
-        fullAddress.country = 'France';
+        expect(value.country).to.equal('new country');
       });
 
-      test('the postcode can be omitted', async () => {
-        delete fullAddress.postcode;
+      test('removes full stops', async () => {
+        fullAddress.country = 'U.K.';
         const { error, value } = addressValidator.validate(fullAddress);
         expect(error).to.equal(null);
-        expect(value.postcode).to.equal(null);
-      });
-
-      test('a postcode can be supplied', async () => {
-        fullAddress.postcode = 'TEST';
-        const { error, value } = addressValidator.validate(fullAddress);
-        expect(error).to.equal(null);
-        expect(value.postcode).to.equal('TEST');
-      });
-
-      test('an empty postcode resolves to null', async () => {
-        fullAddress.postcode = '';
-        const { error, value } = addressValidator.validate(fullAddress);
-        expect(error).to.equal(null);
-        expect(value.postcode).to.equal(null);
-      });
-
-      test('a whitespace postcode resolves to null', async () => {
-        fullAddress.postcode = '    ';
-        const { error, value } = addressValidator.validate(fullAddress);
-        expect(error).to.equal(null);
-        expect(value.postcode).to.equal(null);
+        expect(value.country).to.equal('UK');
       });
     });
 
-    const countries = [
-      'United Kingdom',
-      'ENGLAND',
-      'wales',
-      'Scotland',
-      'Northern IRELAND',
-      'UK',
-      'U.K',
-      'u.k.'
-    ];
+    experiment('uprn', () => {
+      test('is optional', async () => {
+        delete fullAddress.uprn;
 
-    countries.forEach(country => {
-      experiment(`when the country is ${country}`, async () => {
+        const { error } = addressValidator.validate(fullAddress);
+        expect(error).to.equal(null);
+      });
+
+      test('cannot be a string', async () => {
+        fullAddress.uprn = 'abc';
+
+        const { error } = addressValidator.validate(fullAddress);
+        expect(error).to.not.equal(null);
+      });
+
+      test('cannot equal white space', async () => {
+        fullAddress.uprn = '    ';
+
+        const { error } = addressValidator.validate(fullAddress);
+        expect(error).to.not.equal(null);
+      });
+
+      test('is valid when present', async () => {
+        const { error, value } = addressValidator.validate(fullAddress);
+        expect(error).to.equal(null);
+        expect(value.uprn).to.equal(fullAddress.uprn);
+      });
+    });
+
+    experiment('postcode', () => {
+      experiment('when the country is not part of the UK', () => {
         beforeEach(async () => {
-          fullAddress.country = country;
+          fullAddress.country = 'France';
         });
-        test('the postcode is mandatory', async () => {
+
+        test('the postcode can be omitted', async () => {
           delete fullAddress.postcode;
-          const { error } = addressValidator.validate(fullAddress);
-          expect(error).to.not.equal(null);
-        });
-
-        test('an invalid postcode is rejected', async () => {
-          fullAddress.postcode = 'nope';
-          const { error } = addressValidator.validate(fullAddress);
-          expect(error).to.not.equal(null);
-        });
-
-        test('a valid postcode is trimmed', async () => {
-          fullAddress.postcode = 'BS98 1TL';
           const { error, value } = addressValidator.validate(fullAddress);
           expect(error).to.equal(null);
-          expect(value.postcode).to.equal('BS98 1TL');
+          expect(value.postcode).to.equal(null);
         });
 
-        test('a postcode can be without spaces', async () => {
-          fullAddress.postcode = 'BS981TL';
+        test('a postcode can be supplied', async () => {
+          fullAddress.postcode = 'TEST';
           const { error, value } = addressValidator.validate(fullAddress);
           expect(error).to.equal(null);
-          expect(value.postcode).to.equal('BS98 1TL');
+          expect(value.postcode).to.equal('TEST');
         });
 
-        test('a postcode will be uppercased', async () => {
-          fullAddress.postcode = 'bs98 1TL';
+        test('an empty postcode resolves to null', async () => {
+          fullAddress.postcode = '';
           const { error, value } = addressValidator.validate(fullAddress);
           expect(error).to.equal(null);
-          expect(value.postcode).to.equal('BS98 1TL');
+          expect(value.postcode).to.equal(null);
+        });
+
+        test('a whitespace postcode resolves to null', async () => {
+          fullAddress.postcode = '    ';
+          const { error, value } = addressValidator.validate(fullAddress);
+          expect(error).to.equal(null);
+          expect(value.postcode).to.equal(null);
+        });
+      });
+
+      const countries = [
+        'United Kingdom',
+        'ENGLAND',
+        'wales',
+        'Scotland',
+        'Northern IRELAND',
+        'UK',
+        'U.K',
+        'u.k.'
+      ];
+
+      countries.forEach(country => {
+        experiment(`when the country is ${country}`, async () => {
+          beforeEach(async () => {
+            fullAddress.country = country;
+          });
+          test('the postcode is mandatory', async () => {
+            delete fullAddress.postcode;
+            const { error } = addressValidator.validate(fullAddress);
+            expect(error).to.not.equal(null);
+          });
+
+          test('an invalid postcode is rejected', async () => {
+            fullAddress.postcode = 'nope';
+            const { error } = addressValidator.validate(fullAddress);
+            expect(error).to.not.equal(null);
+          });
+
+          test('a valid postcode is trimmed', async () => {
+            fullAddress.postcode = 'BS98 1TL';
+            const { error, value } = addressValidator.validate(fullAddress);
+            expect(error).to.equal(null);
+            expect(value.postcode).to.equal('BS98 1TL');
+          });
+
+          test('a postcode can be without spaces', async () => {
+            fullAddress.postcode = 'BS981TL';
+            const { error, value } = addressValidator.validate(fullAddress);
+            expect(error).to.equal(null);
+            expect(value.postcode).to.equal('BS98 1TL');
+          });
+
+          test('a postcode will be uppercased', async () => {
+            fullAddress.postcode = 'bs98 1TL';
+            const { error, value } = addressValidator.validate(fullAddress);
+            expect(error).to.equal(null);
+            expect(value.postcode).to.equal('BS98 1TL');
+          });
         });
       });
     });
-  });
 
-  experiment('isTest', () => {
-    test('can be omitted', async () => {
-      const { error } = addressValidator.validate(fullAddress);
-      expect(error).to.equal(null);
-    });
+    experiment('isTest', () => {
+      test('can be omitted', async () => {
+        const { error } = addressValidator.validate(fullAddress);
+        expect(error).to.equal(null);
+      });
 
-    test('defaults to false', async () => {
-      const { value } = addressValidator.validate(fullAddress);
-      expect(value.isTest).to.equal(false);
-    });
+      test('defaults to false', async () => {
+        const { value } = addressValidator.validate(fullAddress);
+        expect(value.isTest).to.equal(false);
+      });
 
-    test('can be set', async () => {
-      fullAddress.isTest = true;
-      const { error, value } = addressValidator.validate(fullAddress);
-      expect(error).to.equal(null);
-      expect(value.isTest).to.equal(true);
-    });
+      test('can be set', async () => {
+        fullAddress.isTest = true;
+        const { error, value } = addressValidator.validate(fullAddress);
+        expect(error).to.equal(null);
+        expect(value.isTest).to.equal(true);
+      });
 
-    test('cannt be a string', async () => {
-      fullAddress.isTest = 'yep';
-      const { error } = addressValidator.validate(fullAddress);
-      expect(error).to.not.equal(null);
+      test('cannt be a string', async () => {
+        fullAddress.isTest = 'yep';
+        const { error } = addressValidator.validate(fullAddress);
+        expect(error).to.not.equal(null);
+      });
     });
   });
 });
