@@ -6,11 +6,13 @@ const months = ['January', 'February', 'March', 'April', 'May', 'June',
   'July', 'August', 'September', 'October', 'November', 'December'];
 
 const percentageChage = (index, data, row) => {
-  if (index < (data.length - 1)) {
-    return (row.total - data[(index + 1)].total) / (data[(index + 1)].total < 1 ? 1 : data[(index + 1)].total) * 100;
-  } else {
+  const numerator = row.total - data[(index + 1)].total;
+  const denominator = data[(index + 1)].total;
+  if (numerator === 0 && denominator === 0) {
     return 0;
   }
+  const result = numerator / denominator;
+  return isNaN(result) ? '∞' : result * 100;
 };
 
 const mapKPIAccessRequestData = (data) => {
