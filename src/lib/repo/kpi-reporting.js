@@ -2,8 +2,8 @@
 const { pool } = require('../connectors/db');
 
 /**
- * returns the number of delegated access granted by month for the current year including the % change by month
- * with the totals for the year to date and overall total
+ * returns the total number of delegated access
+ * granted by month and year with a current year flag
  */
 const getEntityRolesKPIdata = async () => {
   const query = `SELECT date_part('month', created_at)::integer AS month,
