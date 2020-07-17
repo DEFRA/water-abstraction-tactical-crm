@@ -62,7 +62,7 @@
     "jsonwebtoken": "^8.5.1",
     "kind-of": "^6.0.3",
     "knex": "^0.20.15",
-    "lodash": "^4.17.15",
+    "lodash": "^4.17.19",
     "moment": "^2.24.0",
     "moment-range": "^4.0.2",
     "path": "^0.12.7",
