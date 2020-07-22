@@ -649,4 +649,103 @@ experiment('modules/companies/routes', () => {
       expect(response.statusCode).to.equal(400);
     });
   });
+
+  experiment('deleteCompany', () => {
+    let server;
+
+    const getRequest = companyId => ({
+      method: 'DELETE',
+      url: `/crm/2.0/companies/${companyId}`
+    });
+
+    beforeEach(async () => {
+      server = createServerForRoute(routes.deleteCompany);
+    });
+
+    test('returns a 400 if the company id is not a uuid', async () => {
+      const request = getRequest(123);
+      const response = await server.inject(request);
+      expect(response.statusCode).to.equal(400);
+    });
+
+    test('returns a 200 if the company id is a uuid', async () => {
+      const request = getRequest(uuid());
+      const response = await server.inject(request);
+      expect(response.statusCode).to.equal(200);
+    });
+  });
+
+  experiment('deleteCompanyAddress', () => {
+    let server;
+
+    const getRequest = (companyId, companyAddressId) => ({
+      method: 'DELETE',
+      url: `/crm/2.0/companies/${companyId}/addresses/${companyAddressId}`
+    });
+
+    beforeEach(async () => {
+      server = createServerForRoute(routes.deleteCompanyAddress);
+    });
+
+    test('returns a 400 if the company id is not a uuid', async () => {
+      const request = getRequest(123, uuid());
+      const response = await server.inject(request);
+      expect(response.statusCode).to.equal(400);
+    });
+
+    test('returns a 200 if the company id is a uuid', async () => {
+      const request = getRequest(uuid(), uuid());
+      const response = await server.inject(request);
+      expect(response.statusCode).to.equal(200);
+    });
+
+    test('returns a 400 if the company address id is not a uuid', async () => {
+      const request = getRequest(uuid(), 123);
+      const response = await server.inject(request);
+      expect(response.statusCode).to.equal(400);
+    });
+
+    test('returns a 200 if the company address id is a uuid', async () => {
+      const request = getRequest(uuid(), uuid());
+      const response = await server.inject(request);
+      expect(response.statusCode).to.equal(200);
+    });
+  });
+
+  experiment('deleteCompanyContact', () => {
+    let server;
+
+    const getRequest = (companyId, companyContactId) => ({
+      method: 'DELETE',
+      url: `/crm/2.0/companies/${companyId}/contacts/${companyContactId}`
+    });
+
+    beforeEach(async () => {
+      server = createServerForRoute(routes.deleteCompanyContact);
+    });
+
+    test('returns a 400 if the company id is not a uuid', async () => {
+      const request = getRequest(123, uuid());
+      const response = await server.inject(request);
+      expect(response.statusCode).to.equal(400);
+    });
+
+    test('returns a 200 if the company id is a uuid', async () => {
+      const request = getRequest(uuid(), uuid());
+      const response = await server.inject(request);
+      expect(response.statusCode).to.equal(200);
+    });
+
+    test('returns a 400 if the company contact id is not a uuid', async () => {
+      const request = getRequest(uuid(), 123);
+      const response = await server.inject(request);
+      expect(response.statusCode).to.equal(400);
+    });
+
+    test('returns a 200 if the company contact id is a uuid', async () => {
+      const request = getRequest(uuid(), uuid());
+      const response = await server.inject(request);
+      expect(response.statusCode).to.equal(200);
+    });
+  });
 });

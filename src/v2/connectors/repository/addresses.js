@@ -18,6 +18,8 @@ const findOne = async id => helpers.findOne(Address, 'addressId', id);
  */
 const create = async address => helpers.create(Address, address);
 
+const deleteOne = async id => helpers.deleteOne(Address, 'addressId', id);
+
 const deleteTestData = async () => helpers.deleteTestData(Address);
 
 /**
@@ -32,5 +34,6 @@ const findOneWithCompanies = async id =>
 
 exports.findOne = findOne;
 exports.create = create;
+exports.deleteOne = deleteOne;
 exports.deleteTestData = deleteTestData;
 exports.findOneWithCompanies = findOneWithCompanies;

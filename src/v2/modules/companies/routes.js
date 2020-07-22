@@ -5,6 +5,7 @@ const Joi = require('@hapi/joi');
 const companyTypes = require('../../lib/company-types');
 const organisationTypes = require('../../lib/organisation-types');
 const controller = require('./controller');
+const entityHandlers = require('../../lib/entity-handlers');
 const validators = require('../../lib/validators');
 
 exports.createCompany = {
@@ -113,6 +114,50 @@ exports.getCompanyContacts = {
     validate: {
       params: {
         companyId: validators.GUID
+      }
+    }
+  }
+};
+
+exports.deleteCompany = {
+  method: 'DELETE',
+  path: '/crm/2.0/companies/{companyId}',
+  handler: (request, h) => entityHandlers.deleteEntity(request, h, 'company'),
+  options: {
+    description: 'Delete a company entity by id',
+    validate: {
+      params: {
+        companyId: validators.GUID
+      }
+    }
+  }
+};
+
+exports.deleteCompanyAddress = {
+  method: 'DELETE',
+  path: '/crm/2.0/companies/{companyId}/addresses/{companyAddressId}',
+  handler: (request, h) => entityHandlers.deleteEntity(request, h, 'companyAddress'),
+  options: {
+    description: 'Delete a company address entity by id',
+    validate: {
+      params: {
+        companyId: validators.GUID,
+        companyAddressId: validators.GUID
+      }
+    }
+  }
+};
+
+exports.deleteCompanyContact = {
+  method: 'DELETE',
+  path: '/crm/2.0/companies/{companyId}/contacts/{companyContactId}',
+  handler: (request, h) => entityHandlers.deleteEntity(request, h, 'companyContact'),
+  options: {
+    description: 'Delete a company contact entity by id',
+    validate: {
+      params: {
+        companyId: validators.GUID,
+        companyContactId: validators.GUID
       }
     }
   }

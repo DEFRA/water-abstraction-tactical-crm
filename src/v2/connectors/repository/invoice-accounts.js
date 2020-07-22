@@ -59,6 +59,8 @@ const findWithCurrentAddress = async ids => {
  */
 const create = async invoiceAccount => helpers.create(InvoiceAccount, invoiceAccount);
 
+const deleteOne = async id => helpers.deleteOne(InvoiceAccount, 'invoiceAccountId', id);
+
 const deleteTestData = async () => helpers.deleteTestData(InvoiceAccount);
 
 /**
@@ -72,6 +74,7 @@ const findOneByGreatestAccountNumber = async regionCode => {
 };
 
 exports.create = create;
+exports.deleteOne = deleteOne;
 exports.deleteTestData = deleteTestData;
 exports.findOne = findOne;
 exports.findWithCurrentAddress = findWithCurrentAddress;

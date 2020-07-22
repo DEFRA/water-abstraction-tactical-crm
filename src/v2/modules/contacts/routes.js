@@ -54,3 +54,17 @@ exports.postContact = {
     }
   }
 };
+
+exports.deleteContact = {
+  method: 'DELETE',
+  path: '/crm/2.0/contacts/{contactId}',
+  handler: (request, h) => entityHandlers.deleteEntity(request, h, 'contact'),
+  options: {
+    description: 'Delete a contact entity by id',
+    validate: {
+      params: {
+        contactId: validators.GUID
+      }
+    }
+  }
+};

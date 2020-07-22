@@ -20,6 +20,7 @@ experiment('services/contacts', () => {
     sandbox.stub(contactsRepo, 'findOne');
     sandbox.stub(contactsRepo, 'findManyByIds');
     sandbox.stub(contactsRepo, 'create');
+    sandbox.stub(contactsRepo, 'deleteOne');
   });
 
   afterEach(async () => {
@@ -107,6 +108,13 @@ experiment('services/contacts', () => {
       test('the saved contact is returned', async () => {
         expect(result.contactId).to.equal('test-id');
       });
+    });
+  });
+
+  experiment('.deleteContact', () => {
+    test('calls the deleteOne repo method', async () => {
+      await contactsService.deleteContact('test-contact-id');
+      expect(contactsRepo.deleteOne.calledWith('test-contact-id')).to.be.true();
     });
   });
 });

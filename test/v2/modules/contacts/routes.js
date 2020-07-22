@@ -303,4 +303,42 @@ experiment('modules/contacts/routes', () => {
       });
     });
   });
+
+  experiment('deleteContact', () => {
+    let server;
+
+    const createGetContactRequest = contactId => ({
+      method: 'DELETE',
+      url: `/crm/2.0/contacts/${contactId}`
+    });
+
+    beforeEach(async () => {
+      sandbox.stub(entityHandler, 'deleteEntity');
+      server = createServerForRoute(routes.deleteContact);
+    });
+
+    test('the handler is delegated to the entity handler', async () => {
+      const request = Symbol('request');
+      const toolkit = Symbol('h');
+
+      await routes.deleteContact.handler(request, toolkit);
+
+      const createArgs = entityHandler.deleteEntity.lastCall.args;
+      expect(createArgs[0]).to.equal(request);
+      expect(createArgs[1]).to.equal(toolkit);
+      expect(createArgs[2]).to.equal('contact');
+    });
+
+    test('returns a 400 if contactId is not a uuid', async () => {
+      const request = createGetContactRequest(123);
+      const response = await server.inject(request);
+      expect(response.statusCode).to.equal(400);
+    });
+
+    test('returns a 200 if contactId is a uuid', async () => {
+      const request = createGetContactRequest(uuid());
+      const response = await server.inject(request);
+      expect(response.statusCode).to.equal(200);
+    });
+  });
 });

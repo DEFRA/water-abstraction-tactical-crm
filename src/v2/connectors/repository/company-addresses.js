@@ -14,6 +14,8 @@ const create = async companyAddress => {
   return model.toJSON();
 };
 
+const deleteOne = async id => helpers.deleteOne(CompanyAddress, 'companyAddressId', id);
+
 const deleteTestData = async () => helpers.deleteTestData(CompanyAddress);
 
 /**
@@ -35,5 +37,6 @@ const findManyByCompanyId = async companyId => {
 };
 
 exports.create = create;
+exports.deleteOne = deleteOne;
 exports.deleteTestData = deleteTestData;
 exports.findManyByCompanyId = findManyByCompanyId;

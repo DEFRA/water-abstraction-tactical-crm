@@ -61,8 +61,10 @@ experiment('v2/services/invoice-accounts', () => {
     sandbox.stub(invoiceAccountsRepo, 'create');
     sandbox.stub(invoiceAccountsRepo, 'findOne');
     sandbox.stub(invoiceAccountsRepo, 'findWithCurrentAddress');
+    sandbox.stub(invoiceAccountsRepo, 'deleteOne');
     sandbox.stub(invoiceAccountAddressesRepo, 'findAll').resolves([{ startDate: '2018-05-03', endDate: '2020-03-31' }]);
     sandbox.stub(invoiceAccountAddressesRepo, 'create');
+    sandbox.stub(invoiceAccountAddressesRepo, 'deleteOne');
     sandbox.stub(contactsRepo, 'findOneWithCompanies').resolves({
       companyContacts: [{
         companyId
@@ -565,6 +567,20 @@ experiment('v2/services/invoice-accounts', () => {
           expect(result.invoiceAccountAddressId).to.equal('test-id');
         });
       });
+    });
+  });
+
+  experiment('.deleteInvoiceAccount', () => {
+    test('calls the deleteOne repo method', async () => {
+      await invoiceAccountsService.deleteInvoiceAccount('test-invoice-account-id');
+      expect(invoiceAccountsRepo.deleteOne.calledWith('test-invoice-account-id')).to.be.true();
+    });
+  });
+
+  experiment('.deleteInvoiceAccountAddress', () => {
+    test('calls the deleteOne repo method', async () => {
+      await invoiceAccountsService.deleteInvoiceAccountAddress('test-invoice-account-address-id');
+      expect(invoiceAccountAddressesRepo.deleteOne.calledWith('test-invoice-account-address-id')).to.be.true();
     });
   });
 });

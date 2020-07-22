@@ -24,21 +24,27 @@ experiment('services/companies', () => {
       companyId: 'test-company-id'
     });
 
+    sandbox.stub(repos.companies, 'deleteOne').resolves();
+
     sandbox.stub(repos.companyAddresses, 'create').resolves({
       companyAddressId: 'test-company-address-id'
-    });
-
-    sandbox.stub(repos.companyContacts, 'create').resolves({
-      companyContactId: 'test-company-contact-id'
     });
 
     sandbox.stub(repos.companyAddresses, 'findManyByCompanyId').resolves([{
       companyAddressId: 'test-company-address-id'
     }]);
 
+    sandbox.stub(repos.companyAddresses, 'deleteOne').resolves();
+
+    sandbox.stub(repos.companyContacts, 'create').resolves({
+      companyContactId: 'test-company-contact-id'
+    });
+
     sandbox.stub(repos.companyContacts, 'findManyByCompanyId').resolves([{
       companyContactId: 'test-company-contact-id'
     }]);
+
+    sandbox.stub(repos.companyContacts, 'deleteOne').resolves();
 
     sandbox.stub(repos.roles, 'findOneByName').resolves({
       roleId: 'test-role-id'
@@ -386,6 +392,27 @@ experiment('services/companies', () => {
         expect(err instanceof errors.NotFoundError).to.be.true();
         expect(err.message).to.equal('Company not found test-company-id');
       });
+    });
+  });
+
+  experiment('.deleteCompany', () => {
+    test('calls the deleteOne repo method', async () => {
+      await companiesService.deleteCompany('test-company-id');
+      expect(repos.companies.deleteOne.calledWith('test-company-id')).to.be.true();
+    });
+  });
+
+  experiment('.deleteCompanyAddress', () => {
+    test('calls the deleteOne repo method', async () => {
+      await companiesService.deleteCompanyAddress('test-company-address-id');
+      expect(repos.companyAddresses.deleteOne.calledWith('test-company-address-id')).to.be.true();
+    });
+  });
+
+  experiment('.deleteCompanyContact', () => {
+    test('calls the deleteOne repo method', async () => {
+      await companiesService.deleteCompanyContact('test-company-contact-id');
+      expect(repos.companyContacts.deleteOne.calledWith('test-company-contact-id')).to.be.true();
     });
   });
 });
