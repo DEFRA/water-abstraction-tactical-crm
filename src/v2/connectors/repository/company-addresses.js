@@ -14,6 +14,8 @@ const create = async companyAddress => {
   return model.toJSON();
 };
 
+const deleteOne = async id => helpers.deleteOne(CompanyAddress, 'companyAddressId', id);
+
 const deleteTestData = async () => helpers.deleteTestData(CompanyAddress);
 
 /**
@@ -27,12 +29,14 @@ const findManyByCompanyId = async companyId => {
     .where('company_id', companyId)
     .fetch({
       withRelated: [
-        'address'
+        'address',
+        'role'
       ]
     });
   return collection.toJSON();
 };
 
 exports.create = create;
+exports.deleteOne = deleteOne;
 exports.deleteTestData = deleteTestData;
 exports.findManyByCompanyId = findManyByCompanyId;

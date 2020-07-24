@@ -152,4 +152,42 @@ experiment('modules/addresses/routes', () => {
       expect(response.statusCode).to.equal(200);
     });
   });
+
+  experiment('deleteAddress', () => {
+    let server;
+
+    const createDeleteAddressRequest = addressId => ({
+      method: 'DELETE',
+      url: `/crm/2.0/addresses/${addressId}`
+    });
+
+    beforeEach(async () => {
+      sandbox.stub(entityHandler, 'deleteEntity');
+      server = createServerForRoute(routes.deleteAddress);
+    });
+
+    test('the handler is delegated to the entity handler', async () => {
+      const request = Symbol('request');
+      const toolkit = Symbol('h');
+
+      await routes.deleteAddress.handler(request, toolkit);
+
+      const createArgs = entityHandler.deleteEntity.lastCall.args;
+      expect(createArgs[0]).to.equal(request);
+      expect(createArgs[1]).to.equal(toolkit);
+      expect(createArgs[2]).to.equal('address');
+    });
+
+    test('returns a 400 if addressId is not a uuid', async () => {
+      const request = createDeleteAddressRequest(123);
+      const response = await server.inject(request);
+      expect(response.statusCode).to.equal(400);
+    });
+
+    test('returns a 200 if addressId is a uuid', async () => {
+      const request = createDeleteAddressRequest(uuid());
+      const response = await server.inject(request);
+      expect(response.statusCode).to.equal(200);
+    });
+  });
 });

@@ -32,6 +32,7 @@ experiment('v2/connectors/repository/company-contacts', () => {
     sandbox.stub(CompanyContact, 'collection').returns(stub);
 
     sandbox.stub(repoHelpers, 'deleteTestData');
+    sandbox.stub(repoHelpers, 'deleteOne');
   });
 
   afterEach(async () => {
@@ -68,8 +69,19 @@ experiment('v2/connectors/repository/company-contacts', () => {
     });
   });
 
+  experiment('.deleteOne', () => {
+    test('uses the repository helpers deleteOne function', async () => {
+      await companyContactsRepo.deleteOne('test-company-contact-id');
+
+      const [model, idKey, id] = repoHelpers.deleteOne.lastCall.args;
+      expect(model).to.equal(CompanyContact);
+      expect(idKey).to.equal('companyContactId');
+      expect(id).to.equal('test-company-contact-id');
+    });
+  });
+
   experiment('.deleteTestData', () => {
-    test('is created using the helpers', async () => {
+    test('is deleted using the helpers', async () => {
       await companyContactsRepo.deleteTestData();
 
       const [model] = repoHelpers.deleteTestData.lastCall.args;

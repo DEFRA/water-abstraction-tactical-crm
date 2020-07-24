@@ -10,6 +10,7 @@ const addressService = require('../services/address');
 const documentService = require('../services/documents');
 const invoiceAccountsService = require('../services/invoice-accounts');
 const documentsService = require('../services/documents');
+const companiesService = require('../services/companies');
 
 const services = {
   contact: contactsService,
@@ -17,7 +18,10 @@ const services = {
   document: documentService,
   invoiceAccount: invoiceAccountsService,
   invoiceAccountAddress: invoiceAccountsService,
-  documentRole: documentsService
+  documentRole: documentsService,
+  company: companiesService,
+  companyAddress: companiesService,
+  companyContact: companiesService
 };
 
 const validateKey = key => {
@@ -83,5 +87,30 @@ const getEntity = async (request, key) => {
   return entity || Boom.notFound(`No ${lowerCase(key)} found for ${id}`);
 };
 
+/**
+ * Helper function to abstract the basic case of fetching
+ * an entity via a route handler.
+ *
+ * @param {Object} request HAPI request object
+ * @param {String} key The entity type being fetched (e.g. address)
+ */
+const deleteEntity = async (request, h, key) => {
+  validateKey(key);
+
+  // get the entity id from the request e.g. request.params.contactId
+  const id = request.params[`${key}Id`];
+
+  // create the name of the function to call on the service
+  // e.g. deleteContact
+  const getFn = getFunctionName('delete', key);
+
+  // delete the entity through the service
+  // e.g. contactsService.deleteContact(id)
+  await services[key][getFn](id);
+
+  return h.response().code(204);
+};
+
 exports.createEntity = createEntity;
 exports.getEntity = getEntity;
+exports.deleteEntity = deleteEntity;

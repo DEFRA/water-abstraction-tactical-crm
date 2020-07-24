@@ -19,6 +19,9 @@ const getContact = contactId => contactsRepo.findOne(contactId);
 
 const getContactsByIds = ids => contactsRepo.findManyByIds(ids);
 
+const deleteContact = contactId => contactsRepo.deleteOne(contactId);
+
 exports.createContact = createContact;
 exports.getContact = getContact;
 exports.getContactsByIds = getContactsByIds;
+exports.deleteContact = deleteContact;
