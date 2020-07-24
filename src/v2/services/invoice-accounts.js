@@ -74,6 +74,8 @@ const createInvoiceAccount = async payload => {
 
 const getInvoiceAccount = invoiceAccountId => invoiceAccountsRepo.findOne(invoiceAccountId);
 
+const deleteInvoiceAccount = invoiceAccountId => invoiceAccountsRepo.deleteOne(invoiceAccountId);
+
 const getInvoiceAccountsByIds = async ids => {
   const results = await invoiceAccountsRepo.findWithCurrentAddress(ids);
   return results.map(mappers.invoiceAccount.mostRecentAddressOnly);
@@ -152,8 +154,12 @@ const createInvoiceAccountAddress = async invoiceAccountAddress => {
   return invoiceAccountAddressesRepo.create(validatedInvoiceAccountAddress);
 };
 
+const deleteInvoiceAccountAddress = invoiceAccountAddressId => invoiceAccountAddressesRepo.deleteOne(invoiceAccountAddressId);
+
 exports.createInvoiceAccount = createInvoiceAccount;
+exports.deleteInvoiceAccount = deleteInvoiceAccount;
 exports.getInvoiceAccount = getInvoiceAccount;
 exports.getInvoiceAccountsByIds = getInvoiceAccountsByIds;
 
 exports.createInvoiceAccountAddress = createInvoiceAccountAddress;
+exports.deleteInvoiceAccountAddress = deleteInvoiceAccountAddress;

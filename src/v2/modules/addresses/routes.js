@@ -1,6 +1,5 @@
 'use strict';
 
-const Joi = require('@hapi/joi');
 const entityHandlers = require('../../lib/entity-handlers');
 const validators = require('../../lib/validators');
 
@@ -36,7 +35,21 @@ exports.getAddress = {
     description: 'Get an address entity',
     validate: {
       params: {
-        addressId: Joi.string().uuid().required()
+        addressId: validators.GUID
+      }
+    }
+  }
+};
+
+exports.deleteAddress = {
+  method: 'DELETE',
+  path: '/crm/2.0/addresses/{addressId}',
+  handler: (request, h) => entityHandlers.deleteEntity(request, h, 'address'),
+  options: {
+    description: 'Delete an address entity by id',
+    validate: {
+      params: {
+        addressId: validators.GUID
       }
     }
   }

@@ -19,8 +19,11 @@ const create = async invoiceAccountAddress => helpers.create(InvoiceAccountAddre
  */
 const findAll = async invoiceAccountId => helpers.findAll(InvoiceAccountAddress, 'invoiceAccountId', invoiceAccountId);
 
+const deleteOne = async id => helpers.deleteOne(InvoiceAccountAddress, 'invoiceAccountAddressId', id);
+
 const deleteTestData = async () => helpers.deleteTestData(InvoiceAccountAddress);
 
 exports.create = create;
+exports.deleteOne = deleteOne;
 exports.deleteTestData = deleteTestData;
 exports.findAll = findAll;

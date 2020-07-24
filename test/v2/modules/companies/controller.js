@@ -122,15 +122,17 @@ experiment('modules/companies/controller', () => {
             type: 'organisation',
             name: 'test-name',
             companyNumber: '123abc',
+            organisationType: 'partnership',
             isTest: true
           }
         }, h);
       });
 
       test('calls the expected service function', async () => {
-        const [name, companyNumber, isTest] = companiesService.createOrganisation.lastCall.args;
+        const [name, companyNumber, organisationType, isTest] = companiesService.createOrganisation.lastCall.args;
         expect(name).to.equal('test-name');
         expect(companyNumber).to.equal('123abc');
+        expect(organisationType).to.equal('partnership');
         expect(isTest).to.equal(true);
       });
 
@@ -157,7 +159,7 @@ experiment('modules/companies/controller', () => {
       },
       payload: {
         addressId: 'test-address-id',
-        roleId: 'test-role-id',
+        roleName: 'test-role-name',
         startDate: '2020-01-01',
         isTest: true
       }
@@ -178,8 +180,8 @@ experiment('modules/companies/controller', () => {
         expect(companiesService.addAddress.calledWith(
           'test-company-id',
           'test-address-id',
+          'test-role-name',
           {
-            roleId: 'test-role-id',
             startDate: '2020-01-01'
           },
           true
@@ -233,7 +235,7 @@ experiment('modules/companies/controller', () => {
       },
       payload: {
         contactId: 'test-contact-id',
-        roleId: 'test-role-id',
+        roleName: 'test-role-name',
         startDate: '2020-01-01',
         isTest: true
       }
@@ -254,8 +256,8 @@ experiment('modules/companies/controller', () => {
         expect(companiesService.addContact.calledWith(
           'test-company-id',
           'test-contact-id',
+          'test-role-name',
           {
-            roleId: 'test-role-id',
             startDate: '2020-01-01'
           },
           true

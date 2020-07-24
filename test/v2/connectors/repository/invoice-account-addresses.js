@@ -19,6 +19,7 @@ experiment('v2/connectors/repository/invoice-account-addresses', () => {
     sandbox.stub(repoHelpers, 'create').resolves('create-response');
     sandbox.stub(repoHelpers, 'findAll').resolves('find-all-response');
     sandbox.stub(repoHelpers, 'deleteTestData');
+    sandbox.stub(repoHelpers, 'deleteOne');
   });
 
   afterEach(async () => {
@@ -66,8 +67,19 @@ experiment('v2/connectors/repository/invoice-account-addresses', () => {
     });
   });
 
+  experiment('.deleteOne', () => {
+    test('uses the repository helpers deleteOne function', async () => {
+      await invoiceAccountAddressRepo.deleteOne('test-invoice-account-address-id');
+
+      const [model, idKey, id] = repoHelpers.deleteOne.lastCall.args;
+      expect(model).to.equal(InvoiceAccountAddress);
+      expect(idKey).to.equal('invoiceAccountAddressId');
+      expect(id).to.equal('test-invoice-account-address-id');
+    });
+  });
+
   experiment('.deleteTestData', () => {
-    test('is created using the helpers', async () => {
+    test('is deleted using the helpers', async () => {
       await invoiceAccountAddressRepo.deleteTestData();
 
       const [model] = repoHelpers.deleteTestData.lastCall.args;
