@@ -7,6 +7,7 @@ const Joi = require('@hapi/joi');
 
 const documentsRoutes = Object.values(require('./documents'));
 const acceptanceTestRoutes = require('../routes/acceptance-tests');
+const KPIReportingRoutes = require('../modules/kpi-reporting/routes');
 
 const EntityApi = require('../controllers/entities.js');
 const VerificationApi = require('../controllers/verifications.js');
@@ -185,7 +186,7 @@ module.exports = [
     handler: getVerificationsByDocumentID
   },
   KpiApi.findManyRoute(),
-
+  ...Object.values(KPIReportingRoutes),
   ...Object.values(documentsRoutes),
   ...Object.values(acceptanceTestRoutes)
 ];
