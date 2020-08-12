@@ -505,4 +505,66 @@ experiment('v2/modules/invoice-account/routes', () => {
       });
     });
   });
+
+  experiment('.deleteInvoiceAccount', () => {
+    let server;
+
+    const getRequest = invoiceAccountId => ({
+      method: 'DELETE',
+      url: `/crm/2.0/invoice-accounts/${invoiceAccountId}`
+    });
+
+    beforeEach(() => {
+      server = createServer(routes.deleteInvoiceAccount);
+    });
+
+    test('returns a 400 if the invoice account id is not a guid', async () => {
+      const request = getRequest(123);
+      const response = await server.inject(request);
+      expect(response.statusCode).to.equal(400);
+    });
+
+    test('returns a 200 if the invoice account id is a guid', async () => {
+      const request = getRequest(uuid());
+      const response = await server.inject(request);
+      expect(response.statusCode).to.equal(200);
+    });
+  });
+
+  experiment('.deleteInvoiceAccountAddress', () => {
+    let server;
+
+    const getRequest = (invoiceAccountId, invoiceAccountAddressId) => ({
+      method: 'DELETE',
+      url: `/crm/2.0/invoice-accounts/${invoiceAccountId}/addresses/${invoiceAccountAddressId}`
+    });
+
+    beforeEach(() => {
+      server = createServer(routes.deleteInvoiceAccountAddress);
+    });
+
+    test('returns a 400 if the invoice account id is not a guid', async () => {
+      const request = getRequest(123, uuid());
+      const response = await server.inject(request);
+      expect(response.statusCode).to.equal(400);
+    });
+
+    test('returns a 200 if the invoice account id is a guid', async () => {
+      const request = getRequest(uuid(), uuid());
+      const response = await server.inject(request);
+      expect(response.statusCode).to.equal(200);
+    });
+
+    test('returns a 400 if the invoice account address id is not a guid', async () => {
+      const request = getRequest(uuid(), 123);
+      const response = await server.inject(request);
+      expect(response.statusCode).to.equal(400);
+    });
+
+    test('returns a 200 if the invoice account address id is a guid', async () => {
+      const request = getRequest(uuid(), uuid());
+      const response = await server.inject(request);
+      expect(response.statusCode).to.equal(200);
+    });
+  });
 });
