@@ -17,6 +17,7 @@ experiment('v2/services/address', () => {
   beforeEach(async () => {
     sandbox.stub(addressRepo, 'create').resolves();
     sandbox.stub(addressRepo, 'findOne').resolves();
+    sandbox.stub(addressRepo, 'deleteOne').resolves();
   });
 
   afterEach(async () => {
@@ -74,6 +75,13 @@ experiment('v2/services/address', () => {
     test('calls the findOne repo method', async () => {
       await addressService.getAddress('test-address-id');
       expect(addressRepo.findOne.calledWith('test-address-id')).to.be.true();
+    });
+  });
+
+  experiment('.deleteAddress', () => {
+    test('calls the deleteOne repo method', async () => {
+      await addressService.deleteAddress('test-address-id');
+      expect(addressRepo.deleteOne.calledWith('test-address-id')).to.be.true();
     });
   });
 });

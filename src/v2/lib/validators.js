@@ -19,6 +19,7 @@ const DATA_SOURCE = Joi.string().valid('wrls', 'nald').default('wrls');
 const UPRN = Joi.number().integer().min(0).default(null).allow(null);
 const OPTIONAL_STRING = Joi.string().allow('', null).trim().empty('').default(null);
 const CONTACT_TYPE = Joi.string().required().valid('person', 'department');
+const ROLE_NAMES = Joi.string().required().valid('licenceHolder', 'billing');
 
 exports.DATE = DATE;
 exports.GUID = GUID;
@@ -38,3 +39,4 @@ exports.DATA_SOURCE = DATA_SOURCE;
 exports.UPRN = UPRN;
 exports.OPTIONAL_STRING = OPTIONAL_STRING;
 exports.CONTACT_TYPE = CONTACT_TYPE;
+exports.ROLE_NAMES = ROLE_NAMES;

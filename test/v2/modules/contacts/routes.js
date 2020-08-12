@@ -102,7 +102,7 @@ experiment('modules/contacts/routes', () => {
 
     beforeEach(async () => {
       fullPayload = {
-        contactType: 'person',
+        type: 'person',
         salutation: 'Dr',
         firstName: 'Firsty',
         middleInitials: 'A',
@@ -129,8 +129,8 @@ experiment('modules/contacts/routes', () => {
     });
 
     experiment('when a contact is being created', () => {
-      test('contactType is required', async () => {
-        delete fullPayload.contactType;
+      test('type is required', async () => {
+        delete fullPayload.type;
         const request = getRequest(fullPayload);
         const response = await server.inject(request);
 
@@ -203,29 +203,6 @@ experiment('modules/contacts/routes', () => {
 
       test('the firstName rejects a number', async () => {
         fullPayload.firstName = 1234;
-        const request = getRequest(fullPayload);
-        const response = await server.inject(request);
-
-        expect(response.statusCode).to.equal(400);
-      });
-
-      test('the initials is optional', async () => {
-        delete fullPayload.initials;
-        const request = getRequest(fullPayload);
-        const response = await server.inject(request);
-
-        expect(response.statusCode).to.equal(200);
-      });
-
-      test('the initials accepts a string', async () => {
-        const request = getRequest(fullPayload);
-        const response = await server.inject(request);
-
-        expect(response.statusCode).to.equal(200);
-      });
-
-      test('the initials rejects a number', async () => {
-        fullPayload.initials = 1234;
         const request = getRequest(fullPayload);
         const response = await server.inject(request);
 
@@ -324,6 +301,44 @@ experiment('modules/contacts/routes', () => {
 
         expect(response.statusCode).to.equal(400);
       });
+    });
+  });
+
+  experiment('deleteContact', () => {
+    let server;
+
+    const createGetContactRequest = contactId => ({
+      method: 'DELETE',
+      url: `/crm/2.0/contacts/${contactId}`
+    });
+
+    beforeEach(async () => {
+      sandbox.stub(entityHandler, 'deleteEntity');
+      server = createServerForRoute(routes.deleteContact);
+    });
+
+    test('the handler is delegated to the entity handler', async () => {
+      const request = Symbol('request');
+      const toolkit = Symbol('h');
+
+      await routes.deleteContact.handler(request, toolkit);
+
+      const createArgs = entityHandler.deleteEntity.lastCall.args;
+      expect(createArgs[0]).to.equal(request);
+      expect(createArgs[1]).to.equal(toolkit);
+      expect(createArgs[2]).to.equal('contact');
+    });
+
+    test('returns a 400 if contactId is not a uuid', async () => {
+      const request = createGetContactRequest(123);
+      const response = await server.inject(request);
+      expect(response.statusCode).to.equal(400);
+    });
+
+    test('returns a 200 if contactId is a uuid', async () => {
+      const request = createGetContactRequest(uuid());
+      const response = await server.inject(request);
+      expect(response.statusCode).to.equal(200);
     });
   });
 });

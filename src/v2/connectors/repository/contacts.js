@@ -27,6 +27,8 @@ const findManyByIds = async ids => {
   return Contact.forge().where('contact_id', 'in', ids).fetchAll();
 };
 
+const deleteOne = async id => helpers.deleteOne(Contact, 'contactId', id);
+
 const deleteTestData = async () => helpers.deleteTestData(Contact);
 
 /**
@@ -40,6 +42,7 @@ const findOneWithCompanies = async id =>
   ]);
 
 exports.create = create;
+exports.deleteOne = deleteOne;
 exports.deleteTestData = deleteTestData;
 exports.findManyByIds = findManyByIds;
 exports.findOne = findOne;

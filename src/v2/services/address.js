@@ -17,5 +17,8 @@ const createAddress = async address => {
 
 const getAddress = addressId => addressRepo.findOne(addressId);
 
+const deleteAddress = addressId => addressRepo.deleteOne(addressId);
+
 exports.createAddress = createAddress;
 exports.getAddress = getAddress;
+exports.deleteAddress = deleteAddress;
