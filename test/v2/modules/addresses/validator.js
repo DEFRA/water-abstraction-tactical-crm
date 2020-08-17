@@ -261,5 +261,27 @@ experiment('modules/addresses/validator', () => {
         expect(error).to.not.equal(null);
       });
     });
+
+
+    experiment('data_source', () => {
+      test('can be omitted', async () => {
+        const { error } = addressValidator.validate(fullAddress);
+        expect(error).to.equal(null);
+      });
+
+      test('defaults to wrls', async () => {
+        const { value } = addressValidator.validate(fullAddress);
+        expect(value.dataSource).to.equal('wrls');
+      });
+
+      test('can be set', async () => {
+        fullAddress.dataSource = 'nald';
+        const { error, value } = addressValidator.validate(fullAddress);
+        expect(error).to.equal(null);
+        expect(value.dataSource).to.equal('nald');
+      });
+    });
+
+
   });
 });
