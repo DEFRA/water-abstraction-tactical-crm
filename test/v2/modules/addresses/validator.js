@@ -262,7 +262,6 @@ experiment('modules/addresses/validator', () => {
       });
     });
 
-
     experiment('data_source', () => {
       test('can be omitted', async () => {
         const { error } = addressValidator.validate(fullAddress);
@@ -281,7 +280,5 @@ experiment('modules/addresses/validator', () => {
         expect(value.dataSource).to.equal('nald');
       });
     });
-
-
   });
 });
