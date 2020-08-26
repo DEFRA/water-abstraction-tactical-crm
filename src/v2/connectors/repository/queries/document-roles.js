@@ -4,7 +4,7 @@ select
   r2.name AS role_name,
   c.company_number, c.name, c.type AS company_type,
   a.address_1, a.address_2, a.address_3, a.address_4, a.town, a.county, a.postcode, a.country,
-  c2.salutation, c2.first_name, c2.middle_names, c2.last_name, c2.initials,
+  c2.contact_type, c2.salutation, c2.first_name, c2.last_name, c2.initials, c2.middle_initials, c2.suffix, c2.department, 
   i.invoice_account_number,
   ic.company_number as invoice_number,
   ic.company_id AS invoice_company_id,
@@ -18,7 +18,8 @@ select
   iaa.town AS invoice_account_town,
   iaa.county AS invoice_account_county,
   iaa.country AS invoice_account_country,
-  iaa.postcode AS invoice_account_postcode
+  iaa.postcode AS invoice_account_postcode,
+  iaa.uprn AS invoice_account_uprn
 
 from crm_v2.document_roles r
 join crm_v2.roles r2 ON r.role_id=r2.role_id

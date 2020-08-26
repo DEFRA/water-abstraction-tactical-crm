@@ -1,14 +1,15 @@
-const { find, omit, get } = require('lodash');
+const moment = require('moment');
+const { sortBy } = require('lodash');
 
-const currentAddressOnly = invoiceAccount => {
-  const invoiceAccountAddress = find(invoiceAccount.invoiceAccountAddresses,
-    invoiceAccountAddress => invoiceAccountAddress.endDate === null
-  );
-  const address = get(invoiceAccountAddress, 'address', null);
+const getStartDateTimestamp = invoiceAccountAddress => moment(invoiceAccountAddress.startDate).unix();
+
+const mostRecentAddressOnly = invoiceAccount => {
+  const sortedAddresses = sortBy(invoiceAccount.invoiceAccountAddresses, getStartDateTimestamp);
+
   return {
-    ...omit(invoiceAccount, 'invoiceAccountAddresses'),
-    address
+    ...invoiceAccount,
+    invoiceAccountAddresses: sortedAddresses.slice(-1)
   };
 };
 
-exports.currentAddressOnly = currentAddressOnly;
+exports.mostRecentAddressOnly = mostRecentAddressOnly;

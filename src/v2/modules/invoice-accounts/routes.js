@@ -39,13 +39,14 @@ exports.createInvoiceAccount = {
   options: {
     description: 'Creates an invoice account',
     validate: {
-      payload: {
+      payload: Joi.object({
         companyId: validators.GUID,
-        invoiceAccountNumber: Joi.string().regex(/^[ABENSTWY][0-9]{8}A$/).required(),
+        invoiceAccountNumber: validators.INVOICE_ACCOUNT_NUMBER,
+        regionCode: validators.REGION_CODE,
         startDate: validators.START_DATE,
         endDate: validators.END_DATE,
         isTest: validators.TEST_FLAG
-      }
+      }).xor('invoiceAccountNumber', 'regionCode')
     }
   }
 };
@@ -64,7 +65,38 @@ exports.postInvoiceAccountAddress = {
         addressId: validators.GUID,
         startDate: validators.START_DATE,
         endDate: validators.END_DATE,
+        agentCompanyId: validators.GUID.allow(null).default(null),
+        contactId: validators.GUID.allow(null).default(null),
         isTest: validators.TEST_FLAG
+      }
+    }
+  }
+};
+
+exports.deleteInvoiceAccount = {
+  method: 'DELETE',
+  path: '/crm/2.0/invoice-accounts/{invoiceAccountId}',
+  handler: (request, h) => entityHandlers.deleteEntity(request, h, 'invoiceAccount'),
+  options: {
+    description: 'Delete an invoice account entity by id',
+    validate: {
+      params: {
+        invoiceAccountId: validators.GUID
+      }
+    }
+  }
+};
+
+exports.deleteInvoiceAccountAddress = {
+  method: 'DELETE',
+  path: '/crm/2.0/invoice-accounts/{invoiceAccountId}/addresses/{invoiceAccountAddressId}',
+  handler: (request, h) => entityHandlers.deleteEntity(request, h, 'invoiceAccountAddress'),
+  options: {
+    description: 'Delete an invoice account address entity by id',
+    validate: {
+      params: {
+        invoiceAccountId: validators.GUID,
+        invoiceAccountAddressId: validators.GUID
       }
     }
   }

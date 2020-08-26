@@ -16,6 +16,8 @@ const addressService = require('../../../src/v2/services/address');
 experiment('v2/services/address', () => {
   beforeEach(async () => {
     sandbox.stub(addressRepo, 'create').resolves();
+    sandbox.stub(addressRepo, 'findOne').resolves();
+    sandbox.stub(addressRepo, 'deleteOne').resolves();
   });
 
   afterEach(async () => {
@@ -40,7 +42,10 @@ experiment('v2/services/address', () => {
 
       test('throws an error containing the validation messages', async () => {
         expect(err.message).to.equal('Address not valid');
-        expect(err.validationDetails).to.include('"address1" is required');
+        expect(err.validationDetails).to.include('"address3" is required');
+        expect(err.validationDetails).to.include('"town" is required');
+        expect(err.validationDetails).to.include('"postcode" is required');
+        expect(err.validationDetails).to.include('"country" is required');
       });
     });
 
@@ -53,7 +58,7 @@ experiment('v2/services/address', () => {
         });
 
         result = await addressService.createAddress({
-          address1: 'one',
+          address2: 'one',
           town: 'town',
           county: 'county',
           country: 'france'
@@ -63,6 +68,20 @@ experiment('v2/services/address', () => {
       test('includes the saved address in the response', async () => {
         expect(result.addressId).to.equal('test-address-id');
       });
+    });
+  });
+
+  experiment('.getAddress', () => {
+    test('calls the findOne repo method', async () => {
+      await addressService.getAddress('test-address-id');
+      expect(addressRepo.findOne.calledWith('test-address-id')).to.be.true();
+    });
+  });
+
+  experiment('.deleteAddress', () => {
+    test('calls the deleteOne repo method', async () => {
+      await addressService.deleteAddress('test-address-id');
+      expect(addressRepo.deleteOne.calledWith('test-address-id')).to.be.true();
     });
   });
 });

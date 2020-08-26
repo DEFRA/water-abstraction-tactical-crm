@@ -31,6 +31,7 @@ experiment('v2/connectors/repository/contacts', () => {
     sandbox.stub(repoHelpers, 'findOne');
     sandbox.stub(repoHelpers, 'create');
     sandbox.stub(repoHelpers, 'deleteTestData');
+    sandbox.stub(repoHelpers, 'deleteOne');
   });
 
   afterEach(async () => {
@@ -84,12 +85,35 @@ experiment('v2/connectors/repository/contacts', () => {
     });
   });
 
+  experiment('.deleteOne', () => {
+    test('uses the repository helpers deleteOne function', async () => {
+      await contactsRepo.deleteOne('test-contact-id');
+
+      const [model, idKey, id] = repoHelpers.deleteOne.lastCall.args;
+      expect(model).to.equal(Contact);
+      expect(idKey).to.equal('contactId');
+      expect(id).to.equal('test-contact-id');
+    });
+  });
+
   experiment('.deleteTestData', () => {
     test('is created using the helpers', async () => {
       await contactsRepo.deleteTestData();
 
       const [model] = repoHelpers.deleteTestData.lastCall.args;
       expect(model).to.equal(Contact);
+    });
+  });
+
+  experiment('.findOneWithCompanies', () => {
+    test('is created using the helpers', async () => {
+      await contactsRepo.findOneWithCompanies('test-id');
+
+      const [model, field, id, related] = repoHelpers.findOne.lastCall.args;
+      expect(model).to.equal(Contact);
+      expect(field).to.equal('contactId');
+      expect(id).to.equal('test-id');
+      expect(related).to.equal(['companyContacts']);
     });
   });
 });

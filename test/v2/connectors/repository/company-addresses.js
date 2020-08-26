@@ -24,11 +24,15 @@ experiment('v2/connectors/repository/company-addresses', () => {
 
     stub = {
       save: sandbox.stub().resolves(model),
-      fetch: sandbox.stub().resolves(model)
+      fetch: sandbox.stub().resolves(model),
+      where: sandbox.stub().returnsThis()
     };
 
     sandbox.stub(CompanyAddress, 'forge').returns(stub);
+    sandbox.stub(CompanyAddress, 'collection').returns(stub);
+
     sandbox.stub(repoHelpers, 'deleteTestData');
+    sandbox.stub(repoHelpers, 'deleteOne');
   });
 
   afterEach(async () => {
@@ -65,12 +69,54 @@ experiment('v2/connectors/repository/company-addresses', () => {
     });
   });
 
+  experiment('.deleteOne', () => {
+    test('uses the repository helpers deleteOne function', async () => {
+      await companyAddressesRepo.deleteOne('test-company-address-id');
+
+      const [model, idKey, id] = repoHelpers.deleteOne.lastCall.args;
+      expect(model).to.equal(CompanyAddress);
+      expect(idKey).to.equal('companyAddressId');
+      expect(id).to.equal('test-company-address-id');
+    });
+  });
+
   experiment('.deleteTestData', () => {
-    test('is created using the helpers', async () => {
+    test('is deleted using the helpers', async () => {
       await companyAddressesRepo.deleteTestData();
 
       const [model] = repoHelpers.deleteTestData.lastCall.args;
       expect(model).to.equal(CompanyAddress);
+    });
+  });
+
+  experiment('.findManyByCompanyId', () => {
+    const companyId = 'company-id';
+
+    beforeEach(async () => {
+      await companyAddressesRepo.findManyByCompanyId(companyId);
+    });
+
+    test('.collection() is called on the model', async () => {
+      expect(CompanyAddress.collection.called).to.be.true();
+    });
+
+    test('.where() is called to get company addresses by company ID', async () => {
+      expect(stub.where.calledWith(
+        'company_id', companyId
+      )).to.be.true();
+    });
+
+    test('.fetch() is callled with related addresses', async () => {
+      expect(stub.fetch.calledWith({
+        withRelated: [
+          'address',
+          'role'
+        ]
+      })).to.be.true();
+    });
+
+    test('the JSON representation is returned', async () => {
+      expect(model.toJSON.called).to.be.true();
     });
   });
 });

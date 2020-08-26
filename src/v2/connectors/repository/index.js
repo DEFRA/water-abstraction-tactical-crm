@@ -9,3 +9,4 @@ exports.companyContacts = require('./company-contacts');
 exports.invoiceAccounts = require('./invoice-accounts');
 exports.invoiceAccountAddresses = require('./invoice-account-addresses');
 exports.documents = require('./documents');
+exports.roles = require('./roles');

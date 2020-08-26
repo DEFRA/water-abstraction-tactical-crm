@@ -1,6 +1,8 @@
 'use strict';
 
 const { InvoiceAccount } = require('../bookshelf');
+const queries = require('./queries/invoice-accounts');
+const raw = require('./lib/raw');
 const helpers = require('./helpers');
 
 /**
@@ -15,10 +17,13 @@ const findOne = async id => {
       withRelated: [
         'company',
         'invoiceAccountAddresses',
-        'invoiceAccountAddresses.address'
+        'invoiceAccountAddresses.address',
+        'invoiceAccountAddresses.agentCompany',
+        'invoiceAccountAddresses.contact'
       ],
       require: false
     });
+
   return result ? result.toJSON() : null;
 };
 
@@ -38,7 +43,9 @@ const findWithCurrentAddress = async ids => {
           invoiceAccountAddresses: qb => qb
             .where('end_date', null)
         },
-        'invoiceAccountAddresses.address'
+        'invoiceAccountAddresses.address',
+        'invoiceAccountAddresses.agentCompany',
+        'invoiceAccountAddresses.contact'
       ]
     });
   return result.toJSON();
@@ -52,9 +59,23 @@ const findWithCurrentAddress = async ids => {
  */
 const create = async invoiceAccount => helpers.create(InvoiceAccount, invoiceAccount);
 
+const deleteOne = async id => helpers.deleteOne(InvoiceAccount, 'invoiceAccountId', id);
+
 const deleteTestData = async () => helpers.deleteTestData(InvoiceAccount);
 
+/**
+ * Finds the invoice account with the largest numeric account number in a particular region
+ * @param {String} regionCode
+ * @return {Promise<Object|null>}
+ */
+const findOneByGreatestAccountNumber = async regionCode => {
+  const query = `${regionCode}%`;
+  return raw.singleRow(queries.findOneByGreatestAccountNumber, { query });
+};
+
 exports.create = create;
+exports.deleteOne = deleteOne;
 exports.deleteTestData = deleteTestData;
 exports.findOne = findOne;
 exports.findWithCurrentAddress = findWithCurrentAddress;
+exports.findOneByGreatestAccountNumber = findOneByGreatestAccountNumber;
