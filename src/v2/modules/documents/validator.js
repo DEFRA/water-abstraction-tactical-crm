@@ -22,6 +22,13 @@ const requiredUuidUnlessRoleIs = role => {
   });
 };
 
+const optionalUuidUnlessRoleIs = role => {
+  return Joi.string().uuid().optional().allow(null).when('role', {
+    is: role,
+    then: Joi.any().optional().valid(null)
+  });
+};
+
 const documentRoleSchema = Joi.object({
   documentId: validators.GUID,
   role: Joi.string().valid('billing', 'licenceHolder').required(),
@@ -30,7 +37,7 @@ const documentRoleSchema = Joi.object({
   endDate: validators.END_DATE,
   invoiceAccountId: requiredUuidUnlessRoleIs('licenceHolder'),
   companyId: requiredUuidUnlessRoleIs('billing'),
-  contactId: requiredUuidUnlessRoleIs('billing'),
+  contactId: optionalUuidUnlessRoleIs('billing'),
   addressId: requiredUuidUnlessRoleIs('billing'),
   isTest: validators.TEST_FLAG
 });

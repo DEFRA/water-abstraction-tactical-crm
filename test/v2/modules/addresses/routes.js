@@ -60,10 +60,10 @@ experiment('modules/addresses/routes', () => {
       expect(createArgs[2]).to.equal('address');
     });
 
-    test('requires address1', async () => {
+    test('address1 is optional', async () => {
       delete fullPayload.address1;
       const response = await server.inject(createAddressRequest(fullPayload));
-      expect(response.statusCode).to.equal(400);
+      expect(response.statusCode).to.equal(200);
     });
 
     test('address2 is optional', async () => {
@@ -84,16 +84,16 @@ experiment('modules/addresses/routes', () => {
       expect(response.statusCode).to.equal(200);
     });
 
-    test('requires town', async () => {
+    test('town is optional', async () => {
       delete fullPayload.town;
       const response = await server.inject(createAddressRequest(fullPayload));
-      expect(response.statusCode).to.equal(400);
+      expect(response.statusCode).to.equal(200);
     });
 
-    test('requires county', async () => {
+    test('county is optional', async () => {
       delete fullPayload.county;
       const response = await server.inject(createAddressRequest(fullPayload));
-      expect(response.statusCode).to.equal(400);
+      expect(response.statusCode).to.equal(200);
     });
 
     test('requires country', async () => {
@@ -148,6 +148,44 @@ experiment('modules/addresses/routes', () => {
 
     test('returns a 200 if addressId is a uuid', async () => {
       const request = createGetAddressRequest(uuid());
+      const response = await server.inject(request);
+      expect(response.statusCode).to.equal(200);
+    });
+  });
+
+  experiment('deleteAddress', () => {
+    let server;
+
+    const createDeleteAddressRequest = addressId => ({
+      method: 'DELETE',
+      url: `/crm/2.0/addresses/${addressId}`
+    });
+
+    beforeEach(async () => {
+      sandbox.stub(entityHandler, 'deleteEntity');
+      server = createServerForRoute(routes.deleteAddress);
+    });
+
+    test('the handler is delegated to the entity handler', async () => {
+      const request = Symbol('request');
+      const toolkit = Symbol('h');
+
+      await routes.deleteAddress.handler(request, toolkit);
+
+      const createArgs = entityHandler.deleteEntity.lastCall.args;
+      expect(createArgs[0]).to.equal(request);
+      expect(createArgs[1]).to.equal(toolkit);
+      expect(createArgs[2]).to.equal('address');
+    });
+
+    test('returns a 400 if addressId is not a uuid', async () => {
+      const request = createDeleteAddressRequest(123);
+      const response = await server.inject(request);
+      expect(response.statusCode).to.equal(400);
+    });
+
+    test('returns a 200 if addressId is a uuid', async () => {
+      const request = createDeleteAddressRequest(uuid());
       const response = await server.inject(request);
       expect(response.statusCode).to.equal(200);
     });

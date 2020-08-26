@@ -18,8 +18,11 @@ const create = async personOrCompany => helpers.create(Company, personOrCompany)
  */
 const findOne = async id => helpers.findOne(Company, 'companyId', id);
 
+const deleteOne = async id => helpers.deleteOne(Company, 'companyId', id);
+
 const deleteTestData = async () => helpers.deleteTestData(Company);
 
 exports.create = create;
 exports.deleteTestData = deleteTestData;
 exports.findOne = findOne;
+exports.deleteOne = deleteOne;

@@ -11,273 +11,255 @@ const { expect } = require('@hapi/code');
 const contactValidator = require('../../../../src/v2/modules/contacts/validator');
 
 experiment('modules/contacts/validator', () => {
-  let fullContact;
-
-  beforeEach(async () => {
-    fullContact = {
-      salutation: 'Dr',
-      firstName: 'First',
-      initials: 'I',
-      lastName: 'Last',
-      middleName: 'Mid',
-      isTest: true
-    };
-  });
-
   experiment('.validate', () => {
-    experiment('salutation', () => {
+    let contact;
+
+    const testOptionalColumn = key => {
       test('is optional', async () => {
-        delete fullContact.salutation;
+        delete contact[key];
 
-        const { error } = contactValidator.validate(fullContact);
+        const { error } = contactValidator.validate(contact);
         expect(error).to.equal(null);
       });
 
-      test('empty string is considered undefined', async () => {
-        fullContact.salutation = '';
+      test('empty string is considered null', async () => {
+        contact[key] = '';
 
-        const { error, value } = contactValidator.validate(fullContact);
+        const { error, value } = contactValidator.validate(contact);
         expect(error).to.equal(null);
-        expect(value.salutation).to.equal(undefined);
+        expect(value[key]).to.equal(null);
       });
 
-      test('whitespace is considered undefined', async () => {
-        fullContact.salutation = '     ';
+      test('whitespace is considered null', async () => {
+        contact[key] = '     ';
 
-        const { error, value } = contactValidator.validate(fullContact);
+        const { error, value } = contactValidator.validate(contact);
         expect(error).to.equal(null);
-        expect(value.salutation).to.equal(undefined);
+        expect(value[key]).to.equal(null);
       });
 
       test('is valid when present', async () => {
-        const { error, value } = contactValidator.validate(fullContact);
+        const { error, value } = contactValidator.validate(contact);
         expect(error).to.equal(null);
-        expect(value.salutation).to.equal(fullContact.salutation);
+        expect(value[key]).to.equal(contact[key]);
       });
 
       test('is trimmed', async () => {
-        fullContact.salutation = '  Mrs   ';
+        contact[key] = '  Test   ';
 
-        const { error, value } = contactValidator.validate(fullContact);
-
-        expect(error).to.equal(null);
-        expect(value.salutation).to.equal('Mrs');
-      });
-    });
-
-    experiment('firstName', () => {
-      test('is optional if the intitals are present', async () => {
-        delete fullContact.firstName;
-
-        const { error } = contactValidator.validate(fullContact);
-        expect(error).to.equal(null);
-      });
-
-      test('is required if the intitals are empty', async () => {
-        delete fullContact.initials;
-        delete fullContact.firstName;
-
-        const { error } = contactValidator.validate(fullContact);
-        expect(error).to.not.equal(null);
-        expect(error.details.map(detail => detail.message))
-          .to
-          .include('"value" must contain at least one of [firstName, initials]');
-      });
-
-      test('empty string is considered undefined', async () => {
-        fullContact.firstName = '';
-
-        const { error, value } = contactValidator.validate(fullContact);
-        expect(error).to.equal(null);
-        expect(value.firstName).to.be.undefined();
-      });
-
-      test('white space is considered undefined', async () => {
-        fullContact.firstName = '    ';
-
-        const { error, value } = contactValidator.validate(fullContact);
-        expect(error).to.equal(null);
-        expect(value.firstName).to.be.undefined();
-      });
-
-      test('is valid when present', async () => {
-        const { error, value } = contactValidator.validate(fullContact);
-        expect(error).to.equal(null);
-        expect(value.firstName).to.equal(fullContact.firstName);
-      });
-
-      test('is trimmed', async () => {
-        fullContact.firstName = '  First   ';
-
-        const { error, value } = contactValidator.validate(fullContact);
+        const { error, value } = contactValidator.validate(contact);
 
         expect(error).to.equal(null);
-        expect(value.firstName).to.equal('First');
+        expect(value[key]).to.equal('Test');
       });
-    });
+    };
 
-    experiment('initials', () => {
-      test('is optional if the firstName is present', async () => {
-        delete fullContact.initials;
-
-        const { error } = contactValidator.validate(fullContact);
-        expect(error).to.equal(null);
-      });
-
-      test('is required if the firstName is undefined', async () => {
-        delete fullContact.initials;
-        delete fullContact.firstName;
-
-        const { error } = contactValidator.validate(fullContact);
-        expect(error.details.map(detail => detail.message))
-          .to
-          .include('"value" must contain at least one of [firstName, initials]');
-      });
-
-      test('is required if the firstName is empty text', async () => {
-        delete fullContact.initials;
-        fullContact.firstName = '  ';
-
-        const { error } = contactValidator.validate(fullContact);
-        expect(error.details.map(detail => detail.message))
-          .to
-          .include('"value" must contain at least one of [firstName, initials]');
-      });
-
-      test('empty string is considered to be undefined', async () => {
-        fullContact.initials = '';
-
-        const { error, value } = contactValidator.validate(fullContact);
-        expect(error).to.equal(null);
-        expect(value.initials).to.be.undefined();
-      });
-
-      test('white space is considered to be undefined', async () => {
-        fullContact.initials = '      ';
-
-        const { error, value } = contactValidator.validate(fullContact);
-        expect(error).to.equal(null);
-        expect(value.initials).to.be.undefined();
-      });
-
-      test('is valid when present', async () => {
-        const { error, value } = contactValidator.validate(fullContact);
-        expect(error).to.equal(null);
-        expect(value.initials).to.equal(fullContact.initials);
-      });
-
-      test('is trimmed', async () => {
-        fullContact.initials = '  I   ';
-
-        const { error, value } = contactValidator.validate(fullContact);
-
-        expect(error).to.equal(null);
-        expect(value.initials).to.equal('I');
-      });
-    });
-
-    experiment('lastName', () => {
+    const testRequiredColumn = key => {
       test('is required', async () => {
-        delete fullContact.lastName;
+        delete contact[key];
 
-        const { error } = contactValidator.validate(fullContact);
+        const { error } = contactValidator.validate(contact);
+
         expect(error).to.not.equal(null);
+        expect(error.details.map(detail => detail.message))
+          .to
+          .include(`"${key}" is required`);
       });
 
-      test('cannot be empty string', async () => {
-        fullContact.lastName = '';
+      test('empty string is considered null', async () => {
+        contact[key] = '';
 
-        const { error } = contactValidator.validate(fullContact);
+        const { error } = contactValidator.validate(contact);
+
         expect(error).to.not.equal(null);
+        expect(error.details.map(detail => detail.message))
+          .to
+          .include(`"${key}" is not allowed to be empty`);
       });
 
-      test('cannot be white space', async () => {
-        fullContact.lastName = '    ';
+      test('white space is considered null', async () => {
+        contact[key] = '    ';
 
-        const { error } = contactValidator.validate(fullContact);
+        const { error } = contactValidator.validate(contact);
+
         expect(error).to.not.equal(null);
+        expect(error.details.map(detail => detail.message))
+          .to
+          .include(`"${key}" is not allowed to be empty`);
       });
 
       test('is valid when present', async () => {
-        const { error, value } = contactValidator.validate(fullContact);
+        const { error, value } = contactValidator.validate(contact);
         expect(error).to.equal(null);
-        expect(value.lastName).to.equal(fullContact.lastName);
+        expect(value[key]).to.equal(contact[key]);
       });
 
       test('is trimmed', async () => {
-        fullContact.lastName = '  Last   ';
+        contact[key] = '  Test   ';
 
-        const { error, value } = contactValidator.validate(fullContact);
-
-        expect(error).to.equal(null);
-        expect(value.lastName).to.equal('Last');
-      });
-    });
-
-    experiment('middleName', () => {
-      test('is optional', async () => {
-        delete fullContact.middleName;
-
-        const { error } = contactValidator.validate(fullContact);
-        expect(error).to.equal(null);
-      });
-
-      test('empty string is considered undefined', async () => {
-        fullContact.middleName = '';
-
-        const { error, value } = contactValidator.validate(fullContact);
-        expect(error).to.equal(null);
-        expect(value.middleName).to.be.undefined();
-      });
-
-      test('white space is considered undefined', async () => {
-        fullContact.middleName = '     ';
-
-        const { error, value } = contactValidator.validate(fullContact);
-        expect(error).to.equal(null);
-        expect(value.middleName).to.be.undefined();
-      });
-
-      test('is valid when present', async () => {
-        const { error, value } = contactValidator.validate(fullContact);
-        expect(error).to.equal(null);
-        expect(value.middleName).to.equal(fullContact.middleName);
-      });
-
-      test('is trimmed', async () => {
-        fullContact.middleName = '  Mid   ';
-
-        const { error, value } = contactValidator.validate(fullContact);
+        const { error, value } = contactValidator.validate(contact);
 
         expect(error).to.equal(null);
-        expect(value.middleName).to.equal('Mid');
+        expect(value[key]).to.equal('Test');
       });
-    });
+    };
 
-    experiment('isTest', () => {
+    const testIsTestFlag = () => {
       test('can be omitted', async () => {
-        delete fullContact.isTest;
-        const { error } = contactValidator.validate(fullContact);
+        delete contact.isTest;
+        const { error } = contactValidator.validate(contact);
         expect(error).to.equal(null);
       });
 
       test('defaults to false', async () => {
-        delete fullContact.isTest;
-        const { value } = contactValidator.validate(fullContact);
+        delete contact.isTest;
+        const { value } = contactValidator.validate(contact);
         expect(value.isTest).to.equal(false);
       });
 
       test('can be set', async () => {
-        fullContact.isTest = true;
-        const { error, value } = contactValidator.validate(fullContact);
+        contact.isTest = true;
+        const { error, value } = contactValidator.validate(contact);
         expect(error).to.equal(null);
         expect(value.isTest).to.equal(true);
       });
 
       test('cannot be a string', async () => {
-        fullContact.isTest = 'yep';
-        const { error } = contactValidator.validate(fullContact);
+        contact.isTest = 'yep';
+        const { error } = contactValidator.validate(contact);
         expect(error).to.not.equal(null);
+      });
+    };
+
+    const testDataSourceColumn = () => {
+      test('can be omitted', async () => {
+        delete contact.dataSource;
+        const { error } = contactValidator.validate(contact);
+        expect(error).to.equal(null);
+      });
+
+      test('defaults to wrls', async () => {
+        delete contact.dataSource;
+        const { value } = contactValidator.validate(contact);
+        expect(value.dataSource).to.equal('wrls');
+      });
+
+      test('can be set to a valid value', async () => {
+        contact.dataSource = 'nald';
+        const { error, value } = contactValidator.validate(contact);
+        expect(error).to.equal(null);
+        expect(value.dataSource).to.equal('nald');
+      });
+
+      test('cannot be set to a non-valid value', async () => {
+        contact.dataSource = 'not-a-data-source';
+        const { error } = contactValidator.validate(contact);
+        expect(error).to.not.equal(null);
+      });
+    };
+
+    const testContactType = () => {
+      test('is valid when it is "person"', () => {
+        contact = {
+          type: 'person',
+          firstName: 'First',
+          lastName: 'Last'
+        };
+
+        const { error } = contactValidator.validate(contact);
+        expect(error).to.equal(null);
+      });
+
+      test('is valid when it is "department"', () => {
+        contact = {
+          type: 'department',
+          department: 'some department'
+        };
+
+        const { error } = contactValidator.validate(contact);
+        expect(error).to.equal(null);
+      });
+
+      test('cannot be an unexpected value', () => {
+        contact = {
+          type: 'individual',
+          firstName: 'First',
+          lastName: 'Last'
+        };
+
+        const { error } = contactValidator.validate(contact);
+        expect(error).to.not.equal(null);
+      });
+    };
+
+    experiment('type', () => {
+      testContactType();
+    });
+
+    experiment('when the contact type is a person', () => {
+      beforeEach(async () => {
+        contact = {
+          type: 'person',
+          salutation: 'Dr',
+          firstName: 'First',
+          middleInitials: 'M',
+          lastName: 'Last',
+          suffix: 'MP',
+          department: 'Water resources',
+          isTest: true,
+          dataSource: 'wrls'
+        };
+      });
+
+      experiment('salutation', () => {
+        testOptionalColumn('salutation');
+      });
+
+      experiment('firstName', () => {
+        testRequiredColumn('firstName');
+      });
+
+      experiment('middleInitials', () => {
+        testOptionalColumn('middleInitials');
+      });
+
+      experiment('lastName', () => {
+        testRequiredColumn('lastName');
+      });
+
+      experiment('isTest', () => {
+        testIsTestFlag();
+      });
+
+      experiment('suffix', () => {
+        testOptionalColumn('suffix');
+      });
+
+      experiment('dataSource', () => {
+        testDataSourceColumn();
+      });
+    });
+
+    experiment('when the contact type is a department', () => {
+      beforeEach(async () => {
+        contact = {
+          type: 'department',
+          department: 'Accounts department',
+          isTest: true,
+          dataSource: 'wrls'
+        };
+      });
+
+      experiment('department', () => {
+        testRequiredColumn('department');
+      });
+
+      experiment('isTest', () => {
+        testIsTestFlag();
+      });
+
+      experiment('dataSource', () => {
+        testDataSourceColumn();
       });
     });
   });

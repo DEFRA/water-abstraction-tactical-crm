@@ -30,6 +30,8 @@ experiment('modules/companies/controller', () => {
     sandbox.stub(companiesService, 'createOrganisation');
     sandbox.stub(companiesService, 'addAddress');
     sandbox.stub(companiesService, 'addContact');
+    sandbox.stub(companiesService, 'getAddresses');
+    sandbox.stub(companiesService, 'getContacts');
   });
 
   afterEach(async () => {
@@ -120,15 +122,17 @@ experiment('modules/companies/controller', () => {
             type: 'organisation',
             name: 'test-name',
             companyNumber: '123abc',
+            organisationType: 'partnership',
             isTest: true
           }
         }, h);
       });
 
       test('calls the expected service function', async () => {
-        const [name, companyNumber, isTest] = companiesService.createOrganisation.lastCall.args;
+        const [name, companyNumber, organisationType, isTest] = companiesService.createOrganisation.lastCall.args;
         expect(name).to.equal('test-name');
         expect(companyNumber).to.equal('123abc');
+        expect(organisationType).to.equal('partnership');
         expect(isTest).to.equal(true);
       });
 
@@ -155,7 +159,7 @@ experiment('modules/companies/controller', () => {
       },
       payload: {
         addressId: 'test-address-id',
-        roleId: 'test-role-id',
+        roleName: 'test-role-name',
         startDate: '2020-01-01',
         isTest: true
       }
@@ -176,8 +180,8 @@ experiment('modules/companies/controller', () => {
         expect(companiesService.addAddress.calledWith(
           'test-company-id',
           'test-address-id',
+          'test-role-name',
           {
-            roleId: 'test-role-id',
             startDate: '2020-01-01'
           },
           true
@@ -231,7 +235,7 @@ experiment('modules/companies/controller', () => {
       },
       payload: {
         contactId: 'test-contact-id',
-        roleId: 'test-role-id',
+        roleName: 'test-role-name',
         startDate: '2020-01-01',
         isTest: true
       }
@@ -252,8 +256,8 @@ experiment('modules/companies/controller', () => {
         expect(companiesService.addContact.calledWith(
           'test-company-id',
           'test-contact-id',
+          'test-role-name',
           {
-            roleId: 'test-role-id',
             startDate: '2020-01-01'
           },
           true
@@ -316,6 +320,86 @@ experiment('modules/companies/controller', () => {
       test('an error is thrown', async () => {
         const func = () => controller.postCompanyContact(request, h);
         expect(func()).to.reject();
+      });
+    });
+  });
+
+  experiment('.getCompanyAddresses', () => {
+    let result;
+    const request = {
+      params: {
+        companyId: 'test-company-id'
+      }
+    };
+
+    experiment('when there are no errors', () => {
+      beforeEach(async () => {
+        companiesService.getAddresses.resolves([{
+          companyAddressId: 'test-company-address-1'
+        }]);
+        result = await controller.getCompanyAddresses(request);
+      });
+
+      test('the service method .getAddresses is called with the correct ID', async () => {
+        expect(companiesService.getAddresses.calledWith(
+          request.params.companyId
+        )).to.be.true();
+      });
+
+      test('the company addresses are returned with no envelope', async () => {
+        expect(result[0].companyAddressId).to.equal('test-company-address-1');
+      });
+    });
+
+    experiment('when the company is not found', () => {
+      beforeEach(async () => {
+        companiesService.getAddresses.rejects(new errors.NotFoundError('Company not found'));
+        result = await controller.getCompanyAddresses(request);
+      });
+
+      test('the controller resolves with a Boom 404', async () => {
+        expect(result.isBoom).to.be.true();
+        expect(result.output.statusCode).to.equal(404);
+      });
+    });
+  });
+
+  experiment('.getCompanyContacts', () => {
+    let result;
+    const request = {
+      params: {
+        companyId: 'test-company-id'
+      }
+    };
+
+    experiment('when there are no errors', () => {
+      beforeEach(async () => {
+        companiesService.getContacts.resolves([{
+          companyContactId: 'test-company-contact-1'
+        }]);
+        result = await controller.getCompanyContacts(request);
+      });
+
+      test('the service method .getContacts is called with the correct ID', async () => {
+        expect(companiesService.getContacts.calledWith(
+          request.params.companyId
+        )).to.be.true();
+      });
+
+      test('the company contacts are returned with no envelope', async () => {
+        expect(result[0].companyContactId).to.equal('test-company-contact-1');
+      });
+    });
+
+    experiment('when the company is not found', () => {
+      beforeEach(async () => {
+        companiesService.getContacts.rejects(new errors.NotFoundError('Company not found'));
+        result = await controller.getCompanyContacts(request);
+      });
+
+      test('the controller resolves with a Boom 404', async () => {
+        expect(result.isBoom).to.be.true();
+        expect(result.output.statusCode).to.equal(404);
       });
     });
   });

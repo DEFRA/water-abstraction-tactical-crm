@@ -4,7 +4,10 @@ const sandbox = require('sinon').createSandbox();
 
 const { invoiceAccounts, invoiceAccountAddresses } = require('../../../../src/v2/connectors/repository');
 const { InvoiceAccount } = require('../../../../src/v2/connectors/bookshelf');
+const queries = require('../../../../src/v2/connectors/repository/queries/invoice-accounts');
+
 const repoHelpers = require('../../../../src/v2/connectors/repository/helpers');
+const raw = require('../../../../src/v2/connectors/repository/lib/raw');
 
 experiment('v2/connectors/repository/invoice-account', () => {
   let stub, model;
@@ -22,6 +25,8 @@ experiment('v2/connectors/repository/invoice-account', () => {
     sandbox.stub(InvoiceAccount, 'collection').returns(stub);
     sandbox.stub(invoiceAccountAddresses, 'create').resolves({ invoiceAccountAddressId: 'test-id' });
     sandbox.stub(repoHelpers, 'deleteTestData');
+    sandbox.stub(repoHelpers, 'deleteOne');
+    sandbox.stub(raw, 'singleRow');
   });
 
   afterEach(async () => {
@@ -151,12 +156,37 @@ experiment('v2/connectors/repository/invoice-account', () => {
     });
   });
 
+  experiment('.deleteOne', () => {
+    test('uses the repository helpers deleteOne function', async () => {
+      await invoiceAccounts.deleteOne('test-invoice-account-id');
+
+      const [model, idKey, id] = repoHelpers.deleteOne.lastCall.args;
+      expect(model).to.equal(InvoiceAccount);
+      expect(idKey).to.equal('invoiceAccountId');
+      expect(id).to.equal('test-invoice-account-id');
+    });
+  });
+
   experiment('.deleteTestData', () => {
-    test('is created using the helpers', async () => {
+    test('is deleted using the helpers', async () => {
       await invoiceAccounts.deleteTestData();
 
       const [model] = repoHelpers.deleteTestData.lastCall.args;
       expect(model).to.equal(InvoiceAccount);
+    });
+  });
+
+  experiment('.findOneByGreatestAccountNumber', () => {
+    beforeEach(async () => {
+      await invoiceAccounts.findOneByGreatestAccountNumber('A');
+    });
+
+    test('calls raw.singleRow with the correct query and params', async () => {
+      const [query, params] = raw.singleRow.lastCall.args;
+      expect(query).to.equal(queries.findOneByGreatestAccountNumber);
+      expect(params).to.equal({
+        query: 'A%'
+      });
     });
   });
 });

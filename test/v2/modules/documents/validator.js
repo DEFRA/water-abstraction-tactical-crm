@@ -625,16 +625,16 @@ experiment('modules/documents/validator', () => {
         });
 
         experiment('contactId', () => {
-          test('is required', async () => {
+          test('is optional', async () => {
             delete fullLicenceHolderDocumentRole.contactId;
             const { error } = documentValidator.validateDocumentRole(fullLicenceHolderDocumentRole);
-            expect(error).to.not.equal(null);
+            expect(error).to.equal(null);
           });
 
-          test('cannot be set to null', async () => {
+          test('can be set to null', async () => {
             fullLicenceHolderDocumentRole.contactId = null;
             const { error } = documentValidator.validateDocumentRole(fullLicenceHolderDocumentRole);
-            expect(error).to.not.equal(null);
+            expect(error).to.equal(null);
           });
 
           test('can be set to a uuid', async () => {

@@ -26,6 +26,12 @@ exports.create = async (bookShelfModel, data) => {
   return model.toJSON();
 };
 
+exports.deleteOne = async (bookShelfModel, idKey, id) => {
+  return bookShelfModel
+    .forge({ [idKey]: id })
+    .destroy();
+};
+
 exports.deleteTestData = async (bookShelfModel) => {
   return bookShelfModel.forge().where({ is_test: true }).destroy({
     require: false

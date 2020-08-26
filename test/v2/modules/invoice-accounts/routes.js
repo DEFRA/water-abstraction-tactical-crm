@@ -1,7 +1,7 @@
 'use strict';
 
 const Hapi = require('@hapi/hapi');
-const { cloneDeep } = require('lodash');
+const { cloneDeep, omit } = require('lodash');
 const uuid = require('uuid/v4');
 const qs = require('qs');
 
@@ -204,6 +204,33 @@ experiment('v2/modules/invoice-account/routes', () => {
           const response = await server.inject(request);
           expect(response.statusCode).to.equal(400);
         });
+
+        test('is valid but account number is also supplied', async () => {
+          const request = getRequest({
+            companyId: uuid(),
+            invoiceAccountNumber: 'A12345678A',
+            regionCode: 'A',
+            startDate: '2020-04-31',
+            isTest: 'yes'
+          });
+
+          const response = await server.inject(request);
+          expect(response.statusCode).to.equal(400);
+        });
+      });
+
+      experiment('if regionCode', () => {
+        test('is not valid', async () => {
+          const request = getRequest({
+            companyId: uuid(),
+            regionCode: 'X',
+            startDate: '2020-04-31',
+            isTest: 'yes'
+          });
+
+          const response = await server.inject(request);
+          expect(response.statusCode).to.equal(400);
+        });
       });
     });
 
@@ -275,10 +302,21 @@ experiment('v2/modules/invoice-account/routes', () => {
   experiment('.postInvoiceAccountAddress', () => {
     let server;
 
-    const getRequest = (invoiceAccountId, payload) => ({
+    const defaults = {
+      addressId: uuid(),
+      startDate: '2020-04-01',
+      endDate: '2020-12-25',
+      agentCompanyId: null,
+      contactId: null
+    };
+
+    const getRequest = (invoiceAccountId, payload = {}, omitKeys = []) => ({
       method: 'POST',
       url: `/crm/2.0/invoice-accounts/${invoiceAccountId}/addresses`,
-      payload
+      payload: omit({
+        ...defaults,
+        ...payload
+      }, omitKeys)
     });
 
     beforeEach(() => {
@@ -292,22 +330,17 @@ experiment('v2/modules/invoice-account/routes', () => {
         expect(response.statusCode).to.equal(400);
       });
 
-      experiment('if the addressId', async () => {
+      experiment('if the addressId', () => {
         test('is omitted', async () => {
-          const request = getRequest(uuid(), {
-            startDate: '2020-04-01'
-          });
-
+          const request = getRequest(uuid(), {}, 'addressId');
           const response = await server.inject(request);
           expect(response.statusCode).to.equal(400);
         });
 
         test('is not a guid', async () => {
           const request = getRequest(uuid(), {
-            addressId: '123abc',
-            startDate: '2020-04-01'
+            addressId: '123abc'
           });
-
           const response = await server.inject(request);
           expect(response.statusCode).to.equal(400);
         });
@@ -315,20 +348,15 @@ experiment('v2/modules/invoice-account/routes', () => {
 
       experiment('if the startDate', () => {
         test('is omitted', async () => {
-          const request = getRequest(uuid(), {
-            addressId: '123abc'
-          });
-
+          const request = getRequest(uuid(), {}, 'startDate');
           const response = await server.inject(request);
           expect(response.statusCode).to.equal(400);
         });
 
         test('is not valid', async () => {
           const request = getRequest(uuid(), {
-            addressId: '123abc',
             startDate: '2020-04-31'
           });
-
           const response = await server.inject(request);
           expect(response.statusCode).to.equal(400);
         });
@@ -337,22 +365,17 @@ experiment('v2/modules/invoice-account/routes', () => {
       experiment('if the endDate', () => {
         test('is not valid', async () => {
           const request = getRequest(uuid(), {
-            addressId: uuid(),
-            startDate: '2020-04-01',
             endDate: '2020-12-35'
           });
-
           const response = await server.inject(request);
           expect(response.statusCode).to.equal(400);
         });
 
         test('is before the startDate', async () => {
           const request = getRequest(uuid(), {
-            addressId: uuid(),
             startDate: '2020-04-01',
             endDate: '2020-01-01'
           });
-
           const response = await server.inject(request);
           expect(response.statusCode).to.equal(400);
         });
@@ -361,11 +384,40 @@ experiment('v2/modules/invoice-account/routes', () => {
       experiment('if isTest', () => {
         test('is not valid', async () => {
           const request = getRequest(uuid(), {
-            addressId: uuid(),
-            startDate: '2020-04-01',
             isTest: 'yes'
           });
+          const response = await server.inject(request);
+          expect(response.statusCode).to.equal(400);
+        });
+      });
 
+      experiment('if agentCompanyId', () => {
+        test('is not valid', async () => {
+          const request = getRequest(uuid(), {
+            agentCompanyId: 'not-a-guid'
+          });
+          const response = await server.inject(request);
+          expect(response.statusCode).to.equal(400);
+        });
+
+        test('is omitted', async () => {
+          const request = getRequest(uuid(), {}, 'agentCompanyId');
+          const response = await server.inject(request);
+          expect(response.statusCode).to.equal(400);
+        });
+      });
+
+      experiment('if contactId', () => {
+        test('is not valid', async () => {
+          const request = getRequest(uuid(), {
+            contactId: 'not-a-guid'
+          });
+          const response = await server.inject(request);
+          expect(response.statusCode).to.equal(400);
+        });
+
+        test('is omitted', async () => {
+          const request = getRequest(uuid(), {}, 'contactId');
           const response = await server.inject(request);
           expect(response.statusCode).to.equal(400);
         });
@@ -374,32 +426,22 @@ experiment('v2/modules/invoice-account/routes', () => {
     experiment('the endDate', () => {
       test('can be set to null', async () => {
         const request = getRequest(uuid(), {
-          addressId: uuid(),
-          startDate: '2020-04-01',
           endDate: null
         });
-
         const response = await server.inject(request);
         expect(response.statusCode).to.equal(200);
       });
 
       test('defaults to null if not provided', async () => {
-        const request = getRequest(uuid(), {
-          addressId: uuid(),
-          startDate: '2020-04-01'
-        });
-
+        const request = getRequest(uuid(), {}, 'endDate');
         const response = await server.inject(request);
         expect(response.request.payload.endDate).to.be.null();
       });
 
       test('can be set to a valid date', async () => {
         const request = getRequest(uuid(), {
-          addressId: uuid(),
-          startDate: '2020-04-01',
           endDate: '2020-12-31'
         });
-
         const response = await server.inject(request);
         expect(response.statusCode).to.equal(200);
       });
@@ -407,25 +449,122 @@ experiment('v2/modules/invoice-account/routes', () => {
 
     experiment('isTest', () => {
       test('defaults to false if not provided', async () => {
-        const request = getRequest(uuid(), {
-          addressId: uuid(),
-          startDate: '2020-04-01'
-        });
-
+        const request = getRequest(uuid(), {}, 'isTest');
         const response = await server.inject(request);
         expect(response.request.payload.isTest).to.be.false();
       });
 
       test('can be set to a boolean', async () => {
         const request = getRequest(uuid(), {
-          addressId: uuid(),
-          startDate: '2020-04-01',
           isTest: true
         });
 
         const response = await server.inject(request);
         expect(response.statusCode).to.equal(200);
+        expect(response.request.payload.isTest).to.be.true();
       });
+    });
+
+    experiment('agentCompanyId', () => {
+      test('can be set to a guid', async () => {
+        const request = getRequest(uuid(), {
+          agentCompanyId: uuid()
+        });
+        const response = await server.inject(request);
+        expect(response.statusCode).to.equal(200);
+        expect(response.request.payload.agentCompanyId).to.equal(request.payload.agentCompanyId);
+      });
+
+      test('can be set to null', async () => {
+        const request = getRequest(uuid(), {
+          agentCompanyId: null
+        });
+        const response = await server.inject(request);
+        expect(response.statusCode).to.equal(200);
+        expect(response.request.payload.agentCompanyId).to.equal(null);
+      });
+    });
+
+    experiment('contactId', () => {
+      test('can be set to a guid', async () => {
+        const request = getRequest(uuid(), {
+          contactId: uuid()
+        });
+        const response = await server.inject(request);
+        expect(response.statusCode).to.equal(200);
+        expect(response.request.payload.contactId).to.equal(request.payload.contactId);
+      });
+
+      test('can be set to null', async () => {
+        const request = getRequest(uuid(), {
+          contactId: null
+        });
+        const response = await server.inject(request);
+        expect(response.statusCode).to.equal(200);
+        expect(response.request.payload.contactId).to.equal(null);
+      });
+    });
+  });
+
+  experiment('.deleteInvoiceAccount', () => {
+    let server;
+
+    const getRequest = invoiceAccountId => ({
+      method: 'DELETE',
+      url: `/crm/2.0/invoice-accounts/${invoiceAccountId}`
+    });
+
+    beforeEach(() => {
+      server = createServer(routes.deleteInvoiceAccount);
+    });
+
+    test('returns a 400 if the invoice account id is not a guid', async () => {
+      const request = getRequest(123);
+      const response = await server.inject(request);
+      expect(response.statusCode).to.equal(400);
+    });
+
+    test('returns a 200 if the invoice account id is a guid', async () => {
+      const request = getRequest(uuid());
+      const response = await server.inject(request);
+      expect(response.statusCode).to.equal(200);
+    });
+  });
+
+  experiment('.deleteInvoiceAccountAddress', () => {
+    let server;
+
+    const getRequest = (invoiceAccountId, invoiceAccountAddressId) => ({
+      method: 'DELETE',
+      url: `/crm/2.0/invoice-accounts/${invoiceAccountId}/addresses/${invoiceAccountAddressId}`
+    });
+
+    beforeEach(() => {
+      server = createServer(routes.deleteInvoiceAccountAddress);
+    });
+
+    test('returns a 400 if the invoice account id is not a guid', async () => {
+      const request = getRequest(123, uuid());
+      const response = await server.inject(request);
+      expect(response.statusCode).to.equal(400);
+    });
+
+    test('returns a 200 if the invoice account id is a guid', async () => {
+      const request = getRequest(uuid(), uuid());
+      const response = await server.inject(request);
+      expect(response.statusCode).to.equal(200);
+    });
+
+    test('returns a 400 if the invoice account address id is not a guid', async () => {
+      const request = getRequest(uuid(), 123);
+      const response = await server.inject(request);
+      expect(response.statusCode).to.equal(400);
+    });
+
+    test('returns a 200 if the invoice account address id is a guid', async () => {
+      const request = getRequest(uuid(), uuid());
+      const response = await server.inject(request);
+      expect(response.statusCode).to.equal(200);
     });
   });
 });

@@ -1,6 +1,5 @@
 'use strict';
 
-const Joi = require('@hapi/joi');
 const entityHandlers = require('../../lib/entity-handlers');
 const validators = require('../../lib/validators');
 
@@ -12,15 +11,17 @@ exports.postAddress = {
     description: 'Creates a new address',
     validate: {
       payload: {
-        address1: Joi.string().required(),
-        address2: Joi.string().optional(),
-        address3: Joi.string().optional(),
-        address4: Joi.string().optional(),
-        town: Joi.string().required(),
-        county: Joi.string().required(),
-        country: Joi.string().required(),
-        postcode: Joi.string().optional(),
-        isTest: validators.TEST_FLAG
+        address1: validators.OPTIONAL_STRING,
+        address2: validators.OPTIONAL_STRING,
+        address3: validators.OPTIONAL_STRING,
+        address4: validators.OPTIONAL_STRING,
+        town: validators.OPTIONAL_STRING,
+        county: validators.OPTIONAL_STRING,
+        country: validators.REQUIRED_STRING,
+        postcode: validators.OPTIONAL_STRING,
+        isTest: validators.TEST_FLAG,
+        dataSource: validators.DATA_SOURCE,
+        uprn: validators.UPRN
       }
     }
   }
@@ -34,7 +35,21 @@ exports.getAddress = {
     description: 'Get an address entity',
     validate: {
       params: {
-        addressId: Joi.string().uuid().required()
+        addressId: validators.GUID
+      }
+    }
+  }
+};
+
+exports.deleteAddress = {
+  method: 'DELETE',
+  path: '/crm/2.0/addresses/{addressId}',
+  handler: (request, h) => entityHandlers.deleteEntity(request, h, 'address'),
+  options: {
+    description: 'Delete an address entity by id',
+    validate: {
+      params: {
+        addressId: validators.GUID
       }
     }
   }

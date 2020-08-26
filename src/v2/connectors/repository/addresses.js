@@ -18,8 +18,22 @@ const findOne = async id => helpers.findOne(Address, 'addressId', id);
  */
 const create = async address => helpers.create(Address, address);
 
+const deleteOne = async id => helpers.deleteOne(Address, 'addressId', id);
+
 const deleteTestData = async () => helpers.deleteTestData(Address);
+
+/**
+ * Find single address by ID with related companies
+ * @param {String} id
+ * @return {Promise<Object>}
+ */
+const findOneWithCompanies = async id =>
+  helpers.findOne(Address, 'addressId', id, [
+    'companyAddresses'
+  ]);
 
 exports.findOne = findOne;
 exports.create = create;
+exports.deleteOne = deleteOne;
 exports.deleteTestData = deleteTestData;
+exports.findOneWithCompanies = findOneWithCompanies;
