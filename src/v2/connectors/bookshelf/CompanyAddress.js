@@ -12,5 +12,9 @@ module.exports = bookshelf.model('CompanyAddress', {
 
   address () {
     return this.hasOne('Address', 'address_id', 'address_id');
+  },
+
+  role () {
+    return this.hasOne('Role', 'role_id', 'role_id');
   }
 });

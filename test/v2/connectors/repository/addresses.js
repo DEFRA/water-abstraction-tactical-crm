@@ -29,6 +29,7 @@ experiment('v2/connectors/repository/addresses', () => {
 
     sandbox.stub(Address, 'forge').returns(stub);
     sandbox.stub(repoHelpers, 'deleteTestData');
+    sandbox.stub(repoHelpers, 'deleteOne');
   });
 
   afterEach(async () => {
@@ -103,8 +104,19 @@ experiment('v2/connectors/repository/addresses', () => {
     });
   });
 
+  experiment('.deleteOne', () => {
+    test('uses the repository helpers deleteOne function', async () => {
+      await addressesRepo.deleteOne('test-address-id');
+
+      const [model, idKey, id] = repoHelpers.deleteOne.lastCall.args;
+      expect(model).to.equal(Address);
+      expect(idKey).to.equal('addressId');
+      expect(id).to.equal('test-address-id');
+    });
+  });
+
   experiment('.deleteTestData', () => {
-    test('is created using the helpers', async () => {
+    test('is deleted using the helpers', async () => {
       await addressesRepo.deleteTestData();
 
       const [model] = repoHelpers.deleteTestData.lastCall.args;

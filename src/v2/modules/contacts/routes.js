@@ -41,7 +41,7 @@ exports.postContact = {
     description: 'Creates a new contact',
     validate: {
       payload: {
-        contactType: validators.CONTACT_TYPE,
+        type: validators.CONTACT_TYPE,
         salutation: validators.OPTIONAL_STRING,
         firstName: validators.OPTIONAL_STRING,
         lastName: validators.OPTIONAL_STRING,
@@ -50,6 +50,20 @@ exports.postContact = {
         suffix: validators.OPTIONAL_STRING,
         isTest: validators.TEST_FLAG,
         dataSource: validators.DATA_SOURCE
+      }
+    }
+  }
+};
+
+exports.deleteContact = {
+  method: 'DELETE',
+  path: '/crm/2.0/contacts/{contactId}',
+  handler: (request, h) => entityHandlers.deleteEntity(request, h, 'contact'),
+  options: {
+    description: 'Delete a contact entity by id',
+    validate: {
+      params: {
+        contactId: validators.GUID
       }
     }
   }
