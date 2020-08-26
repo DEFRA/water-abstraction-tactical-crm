@@ -158,10 +158,48 @@ experiment('modules/contacts/validator', () => {
       });
     };
 
+    const testContactType = () => {
+      test('is valid when it is "person"', () => {
+        contact = {
+          type: 'person',
+          firstName: 'First',
+          lastName: 'Last'
+        };
+
+        const { error } = contactValidator.validate(contact);
+        expect(error).to.equal(null);
+      });
+
+      test('is valid when it is "department"', () => {
+        contact = {
+          type: 'department',
+          department: 'some department'
+        };
+
+        const { error } = contactValidator.validate(contact);
+        expect(error).to.equal(null);
+      });
+
+      test('cannot be an unexpected value', () => {
+        contact = {
+          type: 'individual',
+          firstName: 'First',
+          lastName: 'Last'
+        };
+
+        const { error } = contactValidator.validate(contact);
+        expect(error).to.not.equal(null);
+      });
+    };
+
+    experiment('type', () => {
+      testContactType();
+    });
+
     experiment('when the contact type is a person', () => {
       beforeEach(async () => {
         contact = {
-          contactType: 'person',
+          type: 'person',
           salutation: 'Dr',
           firstName: 'First',
           middleInitials: 'M',
@@ -182,11 +220,11 @@ experiment('modules/contacts/validator', () => {
       });
 
       experiment('middleInitials', () => {
-        testOptionalColumn('salutation');
+        testOptionalColumn('middleInitials');
       });
 
       experiment('lastName', () => {
-        testRequiredColumn('firstName');
+        testRequiredColumn('lastName');
       });
 
       experiment('isTest', () => {
@@ -194,34 +232,34 @@ experiment('modules/contacts/validator', () => {
       });
 
       experiment('suffix', () => {
-        testOptionalColumn('salutation');
+        testOptionalColumn('suffix');
       });
 
       experiment('dataSource', () => {
         testDataSourceColumn();
       });
+    });
 
-      experiment('when the contact type is a department', () => {
-        beforeEach(async () => {
-          contact = {
-            contactType: 'department',
-            department: 'Accounts department',
-            isTest: true,
-            dataSource: 'wrls'
-          };
-        });
+    experiment('when the contact type is a department', () => {
+      beforeEach(async () => {
+        contact = {
+          type: 'department',
+          department: 'Accounts department',
+          isTest: true,
+          dataSource: 'wrls'
+        };
+      });
 
-        experiment('department', () => {
-          testRequiredColumn('department');
-        });
+      experiment('department', () => {
+        testRequiredColumn('department');
+      });
 
-        experiment('isTest', () => {
-          testIsTestFlag();
-        });
+      experiment('isTest', () => {
+        testIsTestFlag();
+      });
 
-        experiment('dataSource', () => {
-          testDataSourceColumn();
-        });
+      experiment('dataSource', () => {
+        testDataSourceColumn();
       });
     });
   });

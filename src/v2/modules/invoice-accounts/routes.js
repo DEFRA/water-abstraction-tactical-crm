@@ -72,3 +72,32 @@ exports.postInvoiceAccountAddress = {
     }
   }
 };
+
+exports.deleteInvoiceAccount = {
+  method: 'DELETE',
+  path: '/crm/2.0/invoice-accounts/{invoiceAccountId}',
+  handler: (request, h) => entityHandlers.deleteEntity(request, h, 'invoiceAccount'),
+  options: {
+    description: 'Delete an invoice account entity by id',
+    validate: {
+      params: {
+        invoiceAccountId: validators.GUID
+      }
+    }
+  }
+};
+
+exports.deleteInvoiceAccountAddress = {
+  method: 'DELETE',
+  path: '/crm/2.0/invoice-accounts/{invoiceAccountId}/addresses/{invoiceAccountAddressId}',
+  handler: (request, h) => entityHandlers.deleteEntity(request, h, 'invoiceAccountAddress'),
+  options: {
+    description: 'Delete an invoice account address entity by id',
+    validate: {
+      params: {
+        invoiceAccountId: validators.GUID,
+        invoiceAccountAddressId: validators.GUID
+      }
+    }
+  }
+};
