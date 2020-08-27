@@ -347,6 +347,30 @@ experiment('services/documents', () => {
     });
   });
 
+  experiment('.getDocumentByRefAndDate', () => {
+    let responseToValidRequest;
+    let responseToInvalidRequest;
+
+    beforeEach(async () => {
+      const regime = 'water';
+      const documentType = 'abstraction_licence';
+      const documentRef = '01/115';
+      const date = '2000-01-01';
+
+      responseToValidRequest = await documentsService.getDocumentByRefAndDate(regime, documentType, documentRef, date);
+      responseToInvalidRequest = await documentsService.getDocumentByRefAndDate(regime, documentType, 'zz/01/nope', date);
+
+    });
+
+    test('responds with a null if no matching licence is found', async () => {
+      expect(responseToInvalidRequest).to.equal(null);
+    });
+
+    test('responds with a single row', async () => {
+      expect(typeof responseToValidRequest).to.equal('object');
+    });
+  });
+
   experiment('.createDocument', () => {
     experiment('when the document data is invalid', () => {
       let document;
