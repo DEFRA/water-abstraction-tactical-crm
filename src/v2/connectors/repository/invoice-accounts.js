@@ -33,7 +33,8 @@ const findOne = async id => {
  */
 const findAllByCompanyId = async companyId => {
   const result = await InvoiceAccount
-    .forge({ company_id: companyId })
+    .collection()
+    .where({ company_id: companyId })
     .fetch({
       withRelated: [
         'invoiceAccountAddresses',
