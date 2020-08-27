@@ -139,8 +139,22 @@ const createDocumentRole = async documentRole => {
 
 const getDocumentRole = documentRoleId => documentRoleRepo.findOne(documentRoleId);
 
+/**
+ * Gets a single document where the regime, type, date and reference matches.
+ * @param {*} regime
+ * @param {*} documentType
+ * @param {*} documentRef
+ * @param {*} date
+ * @returns A single document objects
+ */
+const getDocumentByRefAndDate = async (regime, documentType, documentRef, date) => {
+  const data = await repo.documents.findDocumentByRefAndDate(regime, documentType, documentRef, date);
+  return data;
+};
+
 exports.createDocumentRole = createDocumentRole;
 exports.getDocumentRole = getDocumentRole;
 exports.createDocument = createDocument;
 exports.getDocument = getDocument;
 exports.getDocumentsByRef = getDocumentsByRef;
+exports.getDocumentByRefAndDate = getDocumentByRefAndDate;
