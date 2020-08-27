@@ -125,6 +125,15 @@ const deleteCompanyAddress = companyAddressId => repos.companyAddresses.deleteOn
 
 const deleteCompanyContact = companyContactId => repos.companyContacts.deleteOne(companyContactId);
 
+/**
+ * Returns company invoice accounts
+ * @param {String} companyId
+*/
+const getCompanyInvoiceAccounts = async companyId => {
+  await assertCompanyExists(companyId);
+  return repos.invoiceAccounts.findAllByCompanyId(companyId);
+}
+
 exports.getRoleId = getRoleId;
 exports.createPerson = createPerson;
 exports.createOrganisation = createOrganisation;
@@ -136,3 +145,4 @@ exports.getContacts = getContacts;
 exports.deleteCompany = deleteCompany;
 exports.deleteCompanyAddress = deleteCompanyAddress;
 exports.deleteCompanyContact = deleteCompanyContact;
+exports.getCompanyInvoiceAccounts = getCompanyInvoiceAccounts;
