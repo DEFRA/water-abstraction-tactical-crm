@@ -132,7 +132,7 @@ const deleteCompanyContact = companyContactId => repos.companyContacts.deleteOne
 const getCompanyInvoiceAccounts = async companyId => {
   await assertCompanyExists(companyId);
   return repos.invoiceAccounts.findAllByCompanyId(companyId);
-}
+};
 
 exports.getRoleId = getRoleId;
 exports.createPerson = createPerson;

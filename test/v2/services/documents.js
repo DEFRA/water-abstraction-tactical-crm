@@ -359,7 +359,6 @@ experiment('services/documents', () => {
 
       responseToValidRequest = await documentsService.getDocumentByRefAndDate(regime, documentType, documentRef, date);
       responseToInvalidRequest = await documentsService.getDocumentByRefAndDate(regime, documentType, 'zz/01/nope', date);
-
     });
 
     test('responds with a null if no matching licence is found', async () => {
