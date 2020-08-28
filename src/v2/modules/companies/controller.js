@@ -54,7 +54,7 @@ const getCompanyInvoiceAccounts = async (request) => {
   const { companyId } = request.params;
   const invoiceAccounts = await companiesService.getCompanyInvoiceAccounts(companyId);
   return invoiceAccounts;
-}
+};
 
 exports.getCompany = getCompany;
 exports.postCompany = postCompany;

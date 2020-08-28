@@ -10,12 +10,14 @@ exports.findByDocumentRef = `
 `;
 
 exports.findDocumentByRefAndDate = `
-  SELECT * FROM crm_v2.documents
+  SELECT docs.*, docRoles.company_id, roles.role_id, roles.name FROM crm_v2.documents docs
+  LEFT JOIN crm_v2.document_roles docRoles ON docRoles.document_id=docs.document_id AND company_id IS NOT NULL
+  JOIN crm_v2.roles roles ON roles.role_id = docRoles.role_id
   WHERE regime=:regime
   AND document_type=:documentType
   AND document_ref=:documentRef
-  AND start_date<=:date
-  AND (end_date>=:date OR end_date IS NULL)
-  ORDER BY start_date, version_number, end_date
+  AND docs.start_date<=:date
+  AND (docs.end_date>=:date OR docs.end_date IS NULL)
+  ORDER BY docs.start_date, version_number, docs.end_date
   LIMIT 1;
-`
+`;

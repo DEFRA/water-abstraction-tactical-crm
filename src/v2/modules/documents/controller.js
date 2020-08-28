@@ -1,4 +1,3 @@
-
 const docService = require('../../services/documents');
 
 const getDocuments = async (request) => {
