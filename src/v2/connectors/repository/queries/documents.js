@@ -10,9 +10,9 @@ exports.findByDocumentRef = `
 `;
 
 exports.findDocumentByRefAndDate = `
-  SELECT docs.*, docRoles.company_id, roles.role_id, roles.name FROM crm_v2.documents docs
+  SELECT docs.*, docRoles.company_id, roles.role_id, roles.name AS role_name FROM crm_v2.documents docs
   LEFT JOIN crm_v2.document_roles docRoles ON docRoles.document_id=docs.document_id AND company_id IS NOT NULL
-  JOIN crm_v2.roles roles ON roles.role_id = docRoles.role_id
+  JOIN crm_v2.roles roles ON roles.role_id = docRoles.role_id AND roles.name = 'licenceHolder' 
   WHERE regime=:regime
   AND document_type=:documentType
   AND document_ref=:documentRef

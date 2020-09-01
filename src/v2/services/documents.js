@@ -149,7 +149,12 @@ const getDocumentRole = documentRoleId => documentRoleRepo.findOne(documentRoleI
  */
 const getDocumentByRefAndDate = async (regime, documentType, documentRef, date) => {
   const data = await repo.documents.findDocumentByRefAndDate(regime, documentType, documentRef, date);
-  return data;
+  if (!data) {
+    throw Boom.notFound(`Document for licence ${documentRef} dated ${date} could not be found`);
+  }
+  else{
+    return data;
+  }
 };
 
 exports.createDocumentRole = createDocumentRole;
