@@ -311,61 +311,61 @@ experiment('services/documents', () => {
         expect(response.documentRoles).to.be.an.array();
       });
     });
-  });
 
-  experiment('.getDocumentsByRef', () => {
-    let result;
+    experiment('.getDocumentsByRef', () => {
+      let result;
 
-    beforeEach(async () => {
+      beforeEach(async () => {
+        const regime = 'water';
+        const documentType = 'water_abstraction';
+        const documentRef = '01/115';
+
+        await documentRepo.findByDocumentRef.resolves([{
+          documentId: 'doc_1'
+        }, {
+          documentId: 'doc_2'
+        }]);
+
+        result = await documentsService.getDocumentsByRef(regime, documentType, documentRef);
+      });
+
+      test('calls repository method with correct arguments', async () => {
+        expect(documentRepo.findByDocumentRef.calledWith(
+          'water',
+          'water_abstraction',
+          '01/115'
+        )).to.be.true();
+      });
+
+      test('resolves with mapped response', async () => {
+        expect(result).to.equal([{
+          documentId: 'doc_1'
+        }, {
+          documentId: 'doc_2'
+        }]);
+      });
+    });
+
+    experiment('.getDocumentByRefAndDate', () => {
+      let responseToValidRequest;
       const regime = 'water';
-      const documentType = 'water_abstraction';
+      const documentType = 'abstraction_licence';
       const documentRef = '01/115';
+      const date = '2000-01-01';
 
-      await documentRepo.findByDocumentRef.resolves([{
-        documentId: 'doc_1'
-      }, {
-        documentId: 'doc_2'
-      }]);
+      beforeEach(async () => {
+        responseToValidRequest = await documentsService.getDocumentByRefAndDate(regime, documentType, documentRef, date);
+      });
 
-      result = await documentsService.getDocumentsByRef(regime, documentType, documentRef);
-    });
+      test('responds with a 404 if no matching licence is found', async () => {
+        const error = await expect(documentsService.getDocumentByRefAndDate(regime, documentType, 'zz/01/nope', date)).to.reject();
+        expect(error.isBoom).to.equal(true);
+        expect(error.output.payload.statusCode).to.equal(404);
+      });
 
-    test('calls repository method with correct arguments', async () => {
-      expect(documentRepo.findByDocumentRef.calledWith(
-        'water',
-        'water_abstraction',
-        '01/115'
-      )).to.be.true();
-    });
-
-    test('resolves with mapped response', async () => {
-      expect(result).to.equal([{
-        documentId: 'doc_1'
-      }, {
-        documentId: 'doc_2'
-      }]);
-    });
-  });
-
-  experiment('.getDocumentByRefAndDate', () => {
-    let responseToValidRequest;
-    const regime = 'water';
-    const documentType = 'abstraction_licence';
-    const documentRef = '01/115';
-    const date = '2000-01-01';
-
-    beforeEach(async () => {
-      responseToValidRequest = await documentsService.getDocumentByRefAndDate(regime, documentType, documentRef, date);
-    });
-
-    test('responds with a 404 if no matching licence is found', async () => {
-      const error = await expect(documentsService.getDocumentByRefAndDate(regime, documentType, 'zz/01/nope', date)).to.reject();
-      expect(error.isBoom).to.equal(true);
-      expect(error.output.payload.statusCode).to.equal(404);
-    });
-
-    test('responds with a single row', async () => {
-      expect(typeof responseToValidRequest).to.equal('object');
+      test('responds with a single row', async () => {
+        expect(typeof responseToValidRequest).to.equal('object');
+      });
     });
   });
 
