@@ -151,8 +151,7 @@ const getDocumentByRefAndDate = async (regime, documentType, documentRef, date) 
   const data = await repo.documents.findDocumentByRefAndDate(regime, documentType, documentRef, date);
   if (!data) {
     throw Boom.notFound(`Document for licence ${documentRef} dated ${date} could not be found`);
-  }
-  else{
+  } else {
     return data;
   }
 };
