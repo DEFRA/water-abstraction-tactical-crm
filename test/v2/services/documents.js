@@ -348,24 +348,27 @@ experiment('services/documents', () => {
   });
 
   experiment('.getDocumentByRefAndDate', () => {
-    let responseToValidRequest;
+    let response;
     const regime = 'water';
     const documentType = 'abstraction_licence';
-    const documentRef = '01/115';
     const date = '2000-01-01';
 
-    beforeEach(async () => {
-      responseToValidRequest = await documentsService.getDocumentByRefAndDate(regime, documentType, documentRef, date);
+    experiment('when the document exists', () => {
+      const documentRef = '01/115';
+      beforeEach(async () => {
+        response = await documentsService.getDocumentByRefAndDate(regime, documentType, documentRef, date);
+      });
+      test('responds with a single row', async () => {
+        expect(typeof response).to.equal('object');
+      });
     });
 
-    test('responds with a 404 if no matching licence is found', async () => {
-      const error = await expect(documentsService.getDocumentByRefAndDate(regime, documentType, 'zz/01/nope', date)).to.reject();
-      expect(error.isBoom).to.equal(true);
-      expect(error.output.payload.statusCode).to.equal(404);
-    });
+    experiment('when the document doesn\'t exist', () => {
+      const documentRef = 'zz/01/nope';
 
-    test('responds with a single row', async () => {
-      expect(typeof responseToValidRequest).to.equal('object');
+      test('responds with a 404 if no matching licence is found', async () => {
+        response = await expect(documentsService.getDocumentByRefAndDate(regime, documentType, documentRef, date)).to.reject();
+      });
     });
   });
 
