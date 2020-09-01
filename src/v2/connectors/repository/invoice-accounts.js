@@ -35,15 +35,7 @@ const findAllByCompanyId = async companyId => {
   const result = await InvoiceAccount
     .collection()
     .where({ company_id: companyId })
-    .fetch({
-      withRelated: [
-        'invoiceAccountAddresses',
-        'invoiceAccountAddresses.address',
-        'invoiceAccountAddresses.agentCompany',
-        'invoiceAccountAddresses.contact'
-      ],
-      require: false
-    });
+    .fetch();
 
   return result ? result.toJSON() : null;
 };
