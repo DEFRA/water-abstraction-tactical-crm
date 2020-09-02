@@ -348,26 +348,31 @@ experiment('services/documents', () => {
   });
 
   experiment('.getDocumentByRefAndDate', () => {
-    let response;
     const regime = 'water';
     const documentType = 'abstraction_licence';
     const date = '2000-01-01';
+    const UUIDRegExp = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
     experiment('when the document exists', () => {
       const documentRef = '01/115';
+      let response;
       beforeEach(async () => {
+        await sandbox.stub(documentsService, 'getDocumentByRefAndDate').resolves({
+          documentId: uuid(),
+          documentRef: documentRef,
+          companyId: uuid()
+        });
+
         response = await documentsService.getDocumentByRefAndDate(regime, documentType, documentRef, date);
       });
+
       test('responds with a single row', async () => {
         expect(typeof response).to.equal('object');
       });
-    });
 
-    experiment('when the document doesn\'t exist', () => {
-      const documentRef = 'zz/01/nope';
-
-      test('responds with a 404 if no matching licence is found', async () => {
-        response = await expect(documentsService.getDocumentByRefAndDate(regime, documentType, documentRef, date)).to.reject();
+      test('responds with a company GUID', async () => {
+        expect(typeof response.companyId).to.equal('string');
+        expect(response.companyId).to.match(UUIDRegExp);
       });
     });
   });
