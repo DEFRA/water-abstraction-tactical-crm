@@ -39,7 +39,7 @@ const searchCompaniesByName = async (name, soft) => {
     const results = await repos.companies.findAllByName(name, soft);
     return results;
   } catch (err) {
-    handleRepoError(err)
+    handleRepoError(err);
   };
 };
 
