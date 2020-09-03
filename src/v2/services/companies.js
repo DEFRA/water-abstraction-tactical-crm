@@ -29,6 +29,17 @@ const getCompany = async companyId => {
 };
 
 /**
+ * Search for companies by name.
+ * @param {*} name
+ * @param {*} soft  Whether soft search applies. Defaults to true. If set to false, only exact matches will be returned.
+ */
+
+const searchCompaniesByName = async (name, soft) => {
+  const results = await repos.companies.findAllByName(name, soft);
+  return results;
+};
+
+/**
  * Adds an address to a company
  * @param {String} companyId
  * @param {String} addressId
@@ -129,6 +140,7 @@ exports.getRoleId = getRoleId;
 exports.createPerson = createPerson;
 exports.createOrganisation = createOrganisation;
 exports.getCompany = getCompany;
+exports.searchCompaniesByName = searchCompaniesByName;
 exports.addAddress = addAddress;
 exports.addContact = addContact;
 exports.getAddresses = getAddresses;
