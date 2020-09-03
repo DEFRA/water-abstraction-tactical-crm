@@ -32,6 +32,21 @@ exports.createCompany = {
   }
 };
 
+exports.getCompanyByName = {
+  method: 'GET',
+  path: '/crm/2.0/companies/search',
+  handler: controller.searchCompaniesByName,
+  options: {
+    description: 'Soft-search companies by name',
+    validate: {
+      query: {
+        name: Joi.string().required().default('no name'),
+        soft: Joi.boolean().optional().default(true)
+      }
+    }
+  }
+};
+
 exports.getCompany = {
   method: 'GET',
   path: '/crm/2.0/companies/{companyId}',
