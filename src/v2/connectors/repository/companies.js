@@ -25,9 +25,7 @@ const findOne = async id => helpers.findOne(Company, 'companyId', id);
  * @param {String} name
  * @param {Boolean} soft
  */
-const findAllByName = async (name, soft) => {
-  return raw.multiRow(queries.findByCompanyNameWithSoftSearch, { name: name, soft: soft });
-};
+const findAllByName = async (name, soft) => raw.multiRow(queries.findByCompanyNameWithSoftSearch, { name: name, soft: soft });
 
 const deleteOne = async id => helpers.deleteOne(Company, 'companyId', id);
 

@@ -35,8 +35,12 @@ const getCompany = async companyId => {
  */
 
 const searchCompaniesByName = async (name, soft) => {
-  const results = await repos.companies.findAllByName(name, soft);
-  return results;
+  try {
+    const results = await repos.companies.findAllByName(name, soft);
+    return results;
+  } catch (err) {
+    handleRepoError(err)
+  };
 };
 
 /**
