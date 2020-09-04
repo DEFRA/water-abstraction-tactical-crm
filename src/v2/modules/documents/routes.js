@@ -35,7 +35,7 @@ exports.getDocuments = {
 
 exports.getDocumentByRefAndDate = {
   method: 'GET',
-  path: '/crm/2.0/document/search',
+  path: '/crm/2.0/documents/search',
   handler: controller.getDocumentByRefAndDate,
   options: {
     description: 'Get single document for a licence number on a particular date with roles',
