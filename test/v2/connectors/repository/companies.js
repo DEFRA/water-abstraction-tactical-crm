@@ -104,6 +104,26 @@ experiment('v2/connectors/repository/companies', () => {
     });
   });
 
+  experiment('.findAllByName', () => {
+    let result, tempCompany;
+
+    experiment('when the id matches a company', () => {
+      beforeEach(async () => {
+        tempCompany = new Company({
+          name: 'Test Limited'
+        });
+
+        sandbox.stub(companiesRepo, 'findAllByName').resolves([tempCompany]);
+
+        result = await companiesRepo.findAllByName('test', true);
+      });
+
+      test('returns an array', async () => {
+        expect(result).to.equal([tempCompany]);
+      });
+    });
+  });
+
   experiment('.deleteOne', () => {
     test('uses the repository helpers deleteOne function', async () => {
       await companiesRepo.deleteOne('test-company-id');
