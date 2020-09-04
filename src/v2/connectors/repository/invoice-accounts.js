@@ -37,6 +37,7 @@ const findAllByCompanyId = async companyId => {
     .where({ company_id: companyId })
     .fetch({
       withRelated: [
+        'company',
         'invoiceAccountAddresses',
         'invoiceAccountAddresses.address',
         'invoiceAccountAddresses.agentCompany',
