@@ -86,7 +86,7 @@ experiment('modules/companies/controller', () => {
 
       tempCompany = new Company({
         name: request.query.name
-      })
+      });
 
       companiesService.searchCompaniesByName.resolves([tempCompany]);
 
