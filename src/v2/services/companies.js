@@ -34,7 +34,7 @@ const getCompany = async companyId => {
  * @param {*} soft  Whether soft search applies. Defaults to true. If set to false, only exact matches will be returned.
  */
 
-const searchCompaniesByName = async (name, soft) => {
+const searchCompaniesByName = async (name, soft = true) => {
   try {
     const results = await repos.companies.findAllByName(name, soft);
     return results;
