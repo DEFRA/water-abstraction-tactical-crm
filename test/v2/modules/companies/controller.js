@@ -405,7 +405,6 @@ experiment('modules/companies/controller', () => {
     });
   });
 
-
   experiment('getCompanyInvoiceAccounts', () => {
     let result;
     const request = {
@@ -414,7 +413,7 @@ experiment('modules/companies/controller', () => {
       }
     };
 
-    let invoiceAccountsExampleResponse = {
+    const invoiceAccountsExampleResponse = {
       id: uuid(),
       accountNumber: 'X000000X',
       company: {
@@ -438,8 +437,5 @@ experiment('modules/companies/controller', () => {
         expect(result[0].company.id).to.equal('test-company-id');
       });
     });
-
-
-  })
-
+  });
 });
