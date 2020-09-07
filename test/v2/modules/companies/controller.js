@@ -14,6 +14,7 @@ const uuid = require('uuid/v4');
 const controller = require('../../../../src/v2/modules/companies/controller');
 const companiesService = require('../../../../src/v2/services/companies');
 const errors = require('../../../../src/v2/lib/errors');
+const Company = require('../../../../src/v2/connectors/bookshelf/Company');
 
 experiment('modules/companies/controller', () => {
   let h;
@@ -32,6 +33,7 @@ experiment('modules/companies/controller', () => {
     sandbox.stub(companiesService, 'addContact');
     sandbox.stub(companiesService, 'getAddresses');
     sandbox.stub(companiesService, 'getContacts');
+    sandbox.stub(companiesService, 'searchCompaniesByName');
   });
 
   afterEach(async () => {
@@ -67,6 +69,37 @@ experiment('modules/companies/controller', () => {
         companyId: request.params.companyId,
         name: 'test-company'
       });
+    });
+  });
+
+  experiment('.searchCompaniesByName', () => {
+    let response;
+    let request;
+    let tempCompany;
+
+    beforeEach(async () => {
+      request = {
+        query: {
+          name: 'test'
+        }
+      };
+
+      tempCompany = new Company({
+        name: request.query.name
+      });
+
+      companiesService.searchCompaniesByName.resolves([tempCompany]);
+
+      response = await controller.searchCompaniesByName(request);
+    });
+
+    test('calls through to the service with the company id', async () => {
+      const [name] = companiesService.searchCompaniesByName.lastCall.args;
+      expect(name).to.equal('test');
+    });
+
+    test('return the found data', async () => {
+      expect(response).to.equal([tempCompany]);
     });
   });
 

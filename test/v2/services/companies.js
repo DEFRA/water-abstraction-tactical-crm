@@ -147,6 +147,15 @@ experiment('services/companies', () => {
     });
   });
 
+  experiment('.searchCompaniesByName', async () => {
+    experiment('when given a valid string to search', async () => {
+      test('returns an array', async () => {
+        const response = await companiesService.searchCompaniesByName('test');
+        expect(Array.isArray(response)).to.equal(true);
+      });
+    });
+  });
+
   experiment('.getCompany', async () => {
     test('returns the data from the repository', async () => {
       repos.companies.findOne.resolves({
