@@ -3,6 +3,7 @@ const { expect } = require('@hapi/code');
 const sandbox = require('sinon').createSandbox();
 const controller = require('../../../../src/v2/modules/documents/controller');
 const repos = require('../../../../src/v2/connectors/repository');
+const uuid = require('uuid/v4');
 
 experiment('v2/modules/documents/controller', () => {
   beforeEach(async () => {
@@ -45,6 +46,44 @@ experiment('v2/modules/documents/controller', () => {
       }, {
         documentId: 'doc_2'
       }]);
+    });
+  });
+
+  experiment('getDocumentByRefAndDate', () => {
+    let request, documentId, documentRef, expectedResponse;
+
+    beforeEach(async () => {
+      documentId = uuid();
+      documentRef = 'xxyyzz';
+
+      request = {
+        query: {
+          regime: 'water',
+          documentType: 'water_abstraction',
+          documentRef: '01/115',
+          date: '2007-10-10'
+        }
+      };
+
+      expectedResponse = {
+        documentId,
+        documentRef,
+        regime: 'water',
+        documentType: 'abstraction_licence'
+      };
+
+      sandbox.stub(repos.documents, 'findDocumentByRefAndDate').resolves(expectedResponse);
+
+      await controller.getDocumentByRefAndDate(request);
+    });
+
+    test('calls repository method with correct arguments', async () => {
+      expect(repos.documents.findDocumentByRefAndDate.calledWith(
+        request.query.regime,
+        request.query.documentType,
+        request.query.documentRef,
+        request.query.date
+      )).to.be.true();
     });
   });
 });
