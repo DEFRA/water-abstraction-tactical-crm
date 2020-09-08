@@ -22,6 +22,12 @@ const getCompany = async request => {
   return company;
 };
 
+const searchCompaniesByName = async request => {
+  const { name, soft } = request.query;
+  const companies = await companiesService.searchCompaniesByName(name, soft);
+  return companies;
+};
+
 const postCompanyAddress = async (request, h) => {
   const { companyId } = request.params;
   const { addressId, isTest, roleName, ...data } = request.payload;
@@ -57,6 +63,7 @@ const getCompanyInvoiceAccounts = async (request) => {
 };
 
 exports.getCompany = getCompany;
+exports.searchCompaniesByName = searchCompaniesByName;
 exports.postCompany = postCompany;
 exports.postCompanyAddress = postCompanyAddress;
 exports.postCompanyContact = postCompanyContact;
