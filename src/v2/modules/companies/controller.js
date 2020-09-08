@@ -56,6 +56,12 @@ const getCompanyAddresses = wrapServiceCall(companiesService, 'getAddresses', re
 
 const getCompanyContacts = wrapServiceCall(companiesService, 'getContacts', request => [request.params.companyId]);
 
+const getCompanyInvoiceAccounts = async (request) => {
+  const { companyId } = request.params;
+  const invoiceAccounts = await companiesService.getCompanyInvoiceAccounts(companyId);
+  return invoiceAccounts;
+};
+
 exports.getCompany = getCompany;
 exports.searchCompaniesByName = searchCompaniesByName;
 exports.postCompany = postCompany;
@@ -63,3 +69,4 @@ exports.postCompanyAddress = postCompanyAddress;
 exports.postCompanyContact = postCompanyContact;
 exports.getCompanyAddresses = getCompanyAddresses;
 exports.getCompanyContacts = getCompanyContacts;
+exports.getCompanyInvoiceAccounts = getCompanyInvoiceAccounts;

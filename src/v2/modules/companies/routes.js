@@ -177,3 +177,17 @@ exports.deleteCompanyContact = {
     }
   }
 };
+
+exports.getCompanyInvoiceAccounts = {
+  method: 'GET',
+  path: '/crm/2.0/companies/{companyId}/invoice-accounts',
+  handler: controller.getCompanyInvoiceAccounts,
+  options: {
+    description: 'Returns the contacts that belong to a company',
+    validate: {
+      params: {
+        companyId: validators.GUID
+      }
+    }
+  }
+};

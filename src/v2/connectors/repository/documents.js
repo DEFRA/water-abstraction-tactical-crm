@@ -31,7 +31,18 @@ const create = async document => helpers.create(Document, document);
 
 const deleteTestData = async () => helpers.deleteTestData(Document);
 
+/**
+   * Get a document with a document reference and a date
+   * @param {String} regime - the regime, e.g. 'water'
+   * @param {String} documentType - the type of document, e.g. abstraction_licence
+   * @param {String} documentRef - licence/permit number
+   * @param {Date} date - licence/permit number
+   */
+const findDocumentByRefAndDate = (regime, documentType, documentRef, date) =>
+  raw.singleRow(queries.findDocumentByRefAndDate, { regime, documentType, documentRef, date });
+
 exports.findByDocumentRef = findByDocumentRef;
 exports.findOne = findOne;
 exports.create = create;
 exports.deleteTestData = deleteTestData;
+exports.findDocumentByRefAndDate = findDocumentByRefAndDate;

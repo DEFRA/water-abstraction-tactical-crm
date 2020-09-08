@@ -33,6 +33,23 @@ exports.getDocuments = {
   }
 };
 
+exports.getDocumentByRefAndDate = {
+  method: 'GET',
+  path: '/crm/2.0/documents/search',
+  handler: controller.getDocumentByRefAndDate,
+  options: {
+    description: 'Get single document for a licence number on a particular date with roles',
+    validate: {
+      query: {
+        regime: Joi.string().default('water'),
+        documentType: Joi.string().default('abstraction_licence'),
+        documentRef: Joi.string().required(),
+        date: validators.DATE
+      }
+    }
+  }
+};
+
 exports.postDocument = {
   method: 'POST',
   path: '/crm/2.0/documents',

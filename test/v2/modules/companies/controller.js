@@ -33,6 +33,7 @@ experiment('modules/companies/controller', () => {
     sandbox.stub(companiesService, 'addContact');
     sandbox.stub(companiesService, 'getAddresses');
     sandbox.stub(companiesService, 'getContacts');
+    sandbox.stub(companiesService, 'getCompanyInvoiceAccounts');
     sandbox.stub(companiesService, 'searchCompaniesByName');
   });
 
@@ -433,6 +434,40 @@ experiment('modules/companies/controller', () => {
       test('the controller resolves with a Boom 404', async () => {
         expect(result.isBoom).to.be.true();
         expect(result.output.statusCode).to.equal(404);
+      });
+    });
+  });
+
+  experiment('getCompanyInvoiceAccounts', () => {
+    let result;
+    const request = {
+      params: {
+        companyId: 'test-company-id'
+      }
+    };
+
+    const invoiceAccountsExampleResponse = {
+      id: uuid(),
+      accountNumber: 'X000000X',
+      company: {
+        id: request.params.companyId
+      }
+    };
+
+    experiment('when there are no errors', () => {
+      beforeEach(async () => {
+        companiesService.getCompanyInvoiceAccounts.resolves([invoiceAccountsExampleResponse]);
+        result = await controller.getCompanyInvoiceAccounts(request);
+      });
+
+      test('the service method .getCompanyInvoiceAccounts is called with the correct ID', async () => {
+        expect(companiesService.getCompanyInvoiceAccounts.calledWith(
+          request.params.companyId
+        )).to.be.true();
+      });
+
+      test('the returned array of objects belong to that company', async () => {
+        expect(result[0].company.id).to.equal('test-company-id');
       });
     });
   });

@@ -28,6 +28,28 @@ const findOne = async id => {
 };
 
 /**
+ * Find all invoice accounts that belong to a company
+ * @param {String} companyId
+ */
+const findAllByCompanyId = async companyId => {
+  const result = await InvoiceAccount
+    .collection()
+    .where({ company_id: companyId })
+    .fetch({
+      withRelated: [
+        'company',
+        'invoiceAccountAddresses',
+        'invoiceAccountAddresses.address',
+        'invoiceAccountAddresses.agentCompany',
+        'invoiceAccountAddresses.contact'
+      ],
+      require: false
+    });
+
+  return result ? result.toJSON() : null;
+};
+
+/**
  * Find many InvoiceAccounts with relations by IDs
  * @param {Array<String>} ids
  * @return {Promise<Array>}
@@ -79,3 +101,4 @@ exports.deleteTestData = deleteTestData;
 exports.findOne = findOne;
 exports.findWithCurrentAddress = findWithCurrentAddress;
 exports.findOneByGreatestAccountNumber = findOneByGreatestAccountNumber;
+exports.findAllByCompanyId = findAllByCompanyId;
