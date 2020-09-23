@@ -29,6 +29,21 @@ const getCompany = async companyId => {
 };
 
 /**
+ * Search for companies by name.
+ * @param {*} name
+ * @param {*} soft  Whether soft search applies. Defaults to true. If set to false, only exact matches will be returned.
+ */
+
+const searchCompaniesByName = async (name, soft = true) => {
+  try {
+    const results = await repos.companies.findAllByName(name, soft);
+    return results;
+  } catch (err) {
+    handleRepoError(err);
+  };
+};
+
+/**
  * Adds an address to a company
  * @param {String} companyId
  * @param {String} addressId
@@ -125,10 +140,20 @@ const deleteCompanyAddress = companyAddressId => repos.companyAddresses.deleteOn
 
 const deleteCompanyContact = companyContactId => repos.companyContacts.deleteOne(companyContactId);
 
+/**
+ * Returns company invoice accounts
+ * @param {String} companyId
+*/
+const getCompanyInvoiceAccounts = async companyId => {
+  await assertCompanyExists(companyId);
+  return repos.invoiceAccounts.findAllByCompanyId(companyId);
+};
+
 exports.getRoleId = getRoleId;
 exports.createPerson = createPerson;
 exports.createOrganisation = createOrganisation;
 exports.getCompany = getCompany;
+exports.searchCompaniesByName = searchCompaniesByName;
 exports.addAddress = addAddress;
 exports.addContact = addContact;
 exports.getAddresses = getAddresses;
@@ -136,3 +161,4 @@ exports.getContacts = getContacts;
 exports.deleteCompany = deleteCompany;
 exports.deleteCompanyAddress = deleteCompanyAddress;
 exports.deleteCompanyContact = deleteCompanyContact;
+exports.getCompanyInvoiceAccounts = getCompanyInvoiceAccounts;

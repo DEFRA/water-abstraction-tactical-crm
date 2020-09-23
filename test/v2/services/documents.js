@@ -6,7 +6,7 @@ const {
   beforeEach,
   afterEach
 } = exports.lab = require('@hapi/lab').script();
-
+const Boom = require('@hapi/boom');
 const uuid = require('uuid/v4');
 const { expect, fail } = require('@hapi/code');
 const sandbox = require('sinon').createSandbox();
@@ -344,6 +344,52 @@ experiment('services/documents', () => {
       }, {
         documentId: 'doc_2'
       }]);
+    });
+  });
+
+  experiment('.getDocumentByRefAndDate', () => {
+    const regime = 'water';
+    const documentType = 'abstraction_licence';
+    const date = '2000-01-01';
+    const UUIDRegExp = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+    experiment('when no matches are found', () => {
+      const documentRef = '01/115/xzxz';
+      beforeEach(async () => {
+        await sandbox.stub(documentsService, 'getDocumentByRefAndDate').rejects(Boom.notFound(`Document for licence ${documentRef} dated ${date} could not be found`));
+      });
+      test('responds with Boom error', async () => {
+        try {
+          await documentsService.getDocumentByRefAndDate(regime, documentType, documentRef, date);
+          fail();
+        } catch (err) {
+          expect(err.isBoom).to.be.true();
+          expect(err.output.statusCode).to.equal(404);
+        }
+      });
+    });
+
+    experiment('when the document exists', () => {
+      const documentRef = '01/115';
+      let response;
+      beforeEach(async () => {
+        await sandbox.stub(documentsService, 'getDocumentByRefAndDate').resolves({
+          documentId: uuid(),
+          documentRef: documentRef,
+          companyId: uuid()
+        });
+
+        response = await documentsService.getDocumentByRefAndDate(regime, documentType, documentRef, date);
+      });
+
+      test('responds with a single row', async () => {
+        expect(typeof response).to.equal('object');
+      });
+
+      test('responds with a company GUID', async () => {
+        expect(typeof response.companyId).to.equal('string');
+        expect(response.companyId).to.match(UUIDRegExp);
+      });
     });
   });
 

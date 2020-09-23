@@ -9,13 +9,19 @@ const {
 
 const { expect } = require('@hapi/code');
 const sandbox = require('sinon').createSandbox();
+const uuid = require('uuid/v4');
 
 const companiesService = require('../../../src/v2/services/companies');
 const repos = require('../../../src/v2/connectors/repository');
 const errors = require('../../../src/v2/lib/errors');
+const InvoiceAccount = require('../../../src/v2/connectors/bookshelf/InvoiceAccount');
 
 experiment('services/companies', () => {
+  let tempInvoiceAccount;
+
   beforeEach(async () => {
+    tempInvoiceAccount = new InvoiceAccount({});
+
     sandbox.stub(repos.companies, 'create').resolves({
       companyId: 'test-company-id'
     });
@@ -49,6 +55,8 @@ experiment('services/companies', () => {
     sandbox.stub(repos.roles, 'findOneByName').resolves({
       roleId: 'test-role-id'
     });
+
+    sandbox.stub(repos.invoiceAccounts, 'findAllByCompanyId').resolves([tempInvoiceAccount]);
   });
 
   afterEach(async () => {
@@ -144,6 +152,15 @@ experiment('services/companies', () => {
     test('returns the result from the datbase', async () => {
       const result = await companiesService.createOrganisation('test-name');
       expect(result.companyId).to.equal('test-company-id');
+    });
+  });
+
+  experiment('.searchCompaniesByName', async () => {
+    experiment('when given a valid string to search', async () => {
+      test('returns an array', async () => {
+        const response = await companiesService.searchCompaniesByName('test');
+        expect(Array.isArray(response)).to.equal(true);
+      });
     });
   });
 
@@ -413,6 +430,19 @@ experiment('services/companies', () => {
     test('calls the deleteOne repo method', async () => {
       await companiesService.deleteCompanyContact('test-company-contact-id');
       expect(repos.companyContacts.deleteOne.calledWith('test-company-contact-id')).to.be.true();
+    });
+  });
+
+  experiment('.getCompanyInvoiceAccounts', () => {
+    const companyId = uuid();
+    test('calls the findAllByCompanyId repo method', async () => {
+      await companiesService.getCompanyInvoiceAccounts(companyId);
+      expect(repos.invoiceAccounts.findAllByCompanyId.calledWith(companyId)).to.be.true();
+    });
+
+    test('responds with an array of invoice accounts', async () => {
+      const result = await companiesService.getCompanyInvoiceAccounts(companyId);
+      expect(result).to.equal([tempInvoiceAccount]);
     });
   });
 });
