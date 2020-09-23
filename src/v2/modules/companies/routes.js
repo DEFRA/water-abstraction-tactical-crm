@@ -32,6 +32,21 @@ exports.createCompany = {
   }
 };
 
+exports.getCompanyByName = {
+  method: 'GET',
+  path: '/crm/2.0/companies/search',
+  handler: controller.searchCompaniesByName,
+  options: {
+    description: 'Soft-search companies by name',
+    validate: {
+      query: {
+        name: Joi.string().required().min(2),
+        soft: Joi.boolean().optional().default(true)
+      }
+    }
+  }
+};
+
 exports.getCompany = {
   method: 'GET',
   path: '/crm/2.0/companies/{companyId}',
@@ -158,6 +173,20 @@ exports.deleteCompanyContact = {
       params: {
         companyId: validators.GUID,
         companyContactId: validators.GUID
+      }
+    }
+  }
+};
+
+exports.getCompanyInvoiceAccounts = {
+  method: 'GET',
+  path: '/crm/2.0/companies/{companyId}/invoice-accounts',
+  handler: controller.getCompanyInvoiceAccounts,
+  options: {
+    description: 'Returns the contacts that belong to a company',
+    validate: {
+      params: {
+        companyId: validators.GUID
       }
     }
   }

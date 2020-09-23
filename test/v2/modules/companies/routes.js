@@ -7,7 +7,7 @@ const {
   test,
   beforeEach
 } = exports.lab = require('@hapi/lab').script();
-
+const querystring = require('querystring');
 const { expect } = require('@hapi/code');
 const routes = require('../../../../src/v2/modules/companies/routes');
 const { createServerForRoute } = require('../../../helpers');
@@ -29,6 +29,34 @@ experiment('modules/companies/routes', () => {
       const request = getRequest(123);
       const response = await server.inject(request);
       expect(response.statusCode).to.equal(400);
+    });
+  });
+
+  experiment('searchCompaniesByName', () => {
+    let server;
+
+    const getRequest = (name, soft = false) => ({
+      method: 'GET',
+      url: `/crm/2.0/companies/search?${querystring.stringify({
+        name: name,
+        soft: soft
+      })}`
+    });
+
+    beforeEach(async () => {
+      server = createServerForRoute(routes.getCompanyByName);
+    });
+
+    test('returns a 400 if a search string is not provided', async () => {
+      const request = getRequest();
+      const response = await server.inject(request);
+      expect(response.statusCode).to.equal(400);
+    });
+
+    test('returns a 200 if a search string is valid', async () => {
+      const request = getRequest('hen');
+      const response = await server.inject(request);
+      expect(response.statusCode).to.equal(200);
     });
   });
 
@@ -744,6 +772,37 @@ experiment('modules/companies/routes', () => {
 
     test('returns a 200 if the company contact id is a uuid', async () => {
       const request = getRequest(uuid(), uuid());
+      const response = await server.inject(request);
+      expect(response.statusCode).to.equal(200);
+    });
+  });
+
+  experiment('getCompanyInvoiceAccounts', () => {
+    let server;
+
+    const getRequest = (companyId) => ({
+      method: 'GET',
+      url: `/crm/2.0/companies/${companyId}/invoice-accounts`
+    });
+
+    beforeEach(async () => {
+      server = createServerForRoute(routes.getCompanyInvoiceAccounts);
+    });
+
+    test('returns a 400 if the company id is not a uuid', async () => {
+      const request = getRequest(123);
+      const response = await server.inject(request);
+      expect(response.statusCode).to.equal(400);
+    });
+
+    test('returns a 200 if the company id is a uuid', async () => {
+      const request = getRequest(uuid());
+      const response = await server.inject(request);
+      expect(response.statusCode).to.equal(200);
+    });
+
+    test('returns invoice accounts', async () => {
+      const request = getRequest(uuid());
       const response = await server.inject(request);
       expect(response.statusCode).to.equal(200);
     });
