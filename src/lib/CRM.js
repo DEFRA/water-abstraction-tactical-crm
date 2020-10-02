@@ -10,7 +10,7 @@ const { logger } = require('../logger');
 
 function setDocumentOwner (request, h) {
   const guid = uuidv4();
-  const query = `update crm.document_header set company_entity_id=$1 where document_id=$2`;
+  const query = 'update crm.document_header set company_entity_id=$1 where document_id=$2';
 
   const queryParams = [
     request.payload.entity_id,
@@ -39,26 +39,26 @@ function getColleagues (request, h) {
   **/
 
   let query = `select
-	distinct grantee_role.entity_role_id,
-	grantee_role.entity_id as individual_entity_id,
-	entity.entity_nm,
-	grantee_role.role,
-	grantee_role.regime_entity_id,
-	grantee_role.company_entity_id,
-	grantee_role.created_at,
-	grantee_role.created_by
+distinct grantee_role.entity_role_id,
+grantee_role.entity_id as individual_entity_id,
+entity.entity_nm,
+grantee_role.role,
+grantee_role.regime_entity_id,
+grantee_role.company_entity_id,
+grantee_role.created_at,
+grantee_role.created_by
 from
-	crm.entity_roles grantee_role
+crm.entity_roles grantee_role
 join crm.entity_roles granter_role on
-	( ( granter_role.regime_entity_id = grantee_role.regime_entity_id
-	and granter_role.company_entity_id is null )
-	or ( granter_role.company_entity_id = grantee_role.company_entity_id ) )
+( ( granter_role.regime_entity_id = grantee_role.regime_entity_id
+and granter_role.company_entity_id is null )
+or ( granter_role.company_entity_id = grantee_role.company_entity_id ) )
 join crm.entity entity on
-	( grantee_role.entity_id = entity.entity_id )
+( grantee_role.entity_id = entity.entity_id )
 where
-	granter_role.role = 'primary_user'
-	and grantee_role.entity_id != $1
-	and granter_role.entity_id = $1;`;
+granter_role.role = 'primary_user'
+and grantee_role.entity_id != $1
+and granter_role.entity_id = $1;`;
 
   const queryParams = [entityId];
   if (request.query.direction === 1) {
