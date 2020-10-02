@@ -23,7 +23,7 @@ const schema = Joi.object({
   town: Joi.when('address4', { is: null, then: validators.REQUIRED_STRING, otherwise: validators.OPTIONAL_STRING }),
   county: validators.OPTIONAL_STRING,
   country: Joi.string().trim().replace(/\./g, '').required(),
-  postcode: Joi.string().trim().empty('').default(null).optional().when('country', {
+  postcode: Joi.string().trim().empty('').allow(null).default(null).optional().when('country', {
     is: Joi.string().lowercase().replace(/\./g, '').valid(mandatoryPostcodeCountries),
     then: Joi.string().required()
       // uppercase and remove any spaces (BS1 1SB -> BS11SB)
