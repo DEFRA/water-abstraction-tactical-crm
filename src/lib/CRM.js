@@ -10,10 +10,7 @@ const { logger } = require('../logger');
 
 function setDocumentOwner (request, h) {
   const guid = uuidv4();
-  const query = `
-    update crm.document_header
-    set company_entity_id=$1
-    where document_id=$2`;
+  const query = `update crm.document_header set company_entity_id=$1 where document_id=$2`;
 
   const queryParams = [
     request.payload.entity_id,
@@ -41,38 +38,27 @@ function getColleagues (request, h) {
     i.e. users with a different entity id who have role that have the same company
   **/
 
-  let query = `  select
-  distinct
-  grantee_role.entity_role_id,
-  grantee_role.entity_id as individual_entity_id,
-  entity.entity_nm,
-  grantee_role.role,
-  grantee_role.regime_entity_id,
-  grantee_role.company_entity_id,
-  grantee_role.created_at,
-  grantee_role.created_by
-  from crm.entity_roles grantee_role
-  join crm.entity_roles granter_role on (
-  (
-   granter_role.regime_entity_id = grantee_role.regime_entity_id and
-   granter_role.company_entity_id is null
-  )
-  or
-  (
-   granter_role.company_entity_id = grantee_role.company_entity_id
-  )
-  )
-  join crm.entity entity on (
-   grantee_role.entity_id = entity.entity_id
-  )
-
+  let query = `select
+	distinct grantee_role.entity_role_id,
+	grantee_role.entity_id as individual_entity_id,
+	entity.entity_nm,
+	grantee_role.role,
+	grantee_role.regime_entity_id,
+	grantee_role.company_entity_id,
+	grantee_role.created_at,
+	grantee_role.created_by
+from
+	crm.entity_roles grantee_role
+join crm.entity_roles granter_role on
+	( ( granter_role.regime_entity_id = grantee_role.regime_entity_id
+	and granter_role.company_entity_id is null )
+	or ( granter_role.company_entity_id = grantee_role.company_entity_id ) )
+join crm.entity entity on
+	( grantee_role.entity_id = entity.entity_id )
 where
- granter_role.role='primary_user'
-and
-  grantee_role.entity_id !=$1
-  and
-  granter_role.entity_id = $1
-    `;
+	granter_role.role = 'primary_user'
+	and grantee_role.entity_id != $1
+	and granter_role.entity_id = $1;`;
 
   const queryParams = [entityId];
   if (request.query.direction === 1) {
@@ -104,7 +90,7 @@ WHERE r.entity_role_id=$1
 AND r.company_entity_id=r2.company_entity_id
 AND (r.regime_entity_id=r2.regime_entity_id OR (r.regime_entity_id IS NULL AND r2.regime_entity_id IS NULL))
 AND r2.entity_id=$2 AND r2.role='primary_user'
-RETURNING r.*`;
+RETURNING r.*;`;
 
   const params = [roleId, entityId];
 
@@ -167,16 +153,13 @@ async function createColleague (request, h) {
   const { regime_entity_id: userRegimeID, company_entity_id: userCompanyID } = primaryUserRole;
   const entityRoleID = uuidv4();
 
-  const query = `
-    insert into crm.entity_roles(
+  const query = `insert into crm.entity_roles(
       entity_role_id, entity_id, role, regime_entity_id,
       company_entity_id, created_at, created_by
     )
-    values ($1, $2, $3, $4, $5, CURRENT_TIMESTAMP, $6)
-    on conflict (entity_id, coalesce(regime_entity_id, '00000000-0000-0000-0000-000000000000'), company_entity_id, role)
+    values ($1, $2, $3, $4, $5, CURRENT_TIMESTAMP, $6) on conflict (entity_id, coalesce(regime_entity_id, '00000000-0000-0000-0000-000000000000'), company_entity_id, role)
     do nothing
-    returning *
-    ;`;
+    returning *;`;
 
   const params = [entityRoleID, colleagueEntityID, role, userRegimeID, userCompanyID, entityID];
 
