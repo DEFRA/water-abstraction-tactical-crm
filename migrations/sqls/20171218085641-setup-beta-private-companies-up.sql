@@ -9,40 +9,32 @@ ALTER TABLE "crm"."entity_roles"
 
 -- create water-abstraction regime
 insert into crm.entity (entity_id,entity_nm,entity_type)
-values (uuid_in(md5(random()::text || now()::text)::cstring),'water-abstraction','regime')
-on conflict (entity_nm,entity_type) DO NOTHING;
+values (uuid_in(md5(random()::text || now()::text)::cstring),'water-abstraction','regime') on conflict (entity_nm,entity_type) DO NOTHING;
 
 -- create companies for initial licences
 insert into crm.entity (entity_id,entity_nm,entity_type)
-values (uuid_in(md5(random()::text || now()::text)::cstring),'company-1','company')
-on conflict (entity_nm,entity_type) DO NOTHING;
+values (uuid_in(md5(random()::text || now()::text)::cstring),'company-1','company') on conflict (entity_nm,entity_type) DO NOTHING;
 insert into crm.entity (entity_id,entity_nm,entity_type)
-values (uuid_in(md5(random()::text || now()::text)::cstring),'company-2','company')
-on conflict (entity_nm,entity_type) DO NOTHING;
+values (uuid_in(md5(random()::text || now()::text)::cstring),'company-2','company') on conflict (entity_nm,entity_type) DO NOTHING;
 insert into crm.entity (entity_id,entity_nm,entity_type)
-values (uuid_in(md5(random()::text || now()::text)::cstring),'company-3','company')
-on conflict (entity_nm,entity_type) DO NOTHING;
+values (uuid_in(md5(random()::text || now()::text)::cstring),'company-3','company') on conflict (entity_nm,entity_type) DO NOTHING;
 insert into crm.entity (entity_id,entity_nm,entity_type)
-values (uuid_in(md5(random()::text || now()::text)::cstring),'company-4','company')
-on conflict (entity_nm,entity_type) DO NOTHING;
+values (uuid_in(md5(random()::text || now()::text)::cstring),'company-4','company') on conflict (entity_nm,entity_type) DO NOTHING;
 insert into crm.entity (entity_id,entity_nm,entity_type)
-values (uuid_in(md5(random()::text || now()::text)::cstring),'company-5','company')
-on conflict (entity_nm,entity_type) DO NOTHING;
+values (uuid_in(md5(random()::text || now()::text)::cstring),'company-5','company') on conflict (entity_nm,entity_type) DO NOTHING;
 
 -- create admin roles for env agency users
 insert into crm.entity_roles(entity_role_id,entity_id,role,regime_entity_id,company_entity_id,is_primary)
 select uuid_in(md5(random()::text || now()::text)::cstring), i.entity_id, 'admin', r.entity_id, null,1
 from entity i
   join entity r on r.entity_nm = 'water-abstraction'
-where i.entity_nm= 'test-ea-1-user@example.com'
-on conflict (entity_id,regime_entity_id,company_entity_id) do update set role = 'admin';
+where i.entity_nm= 'test-ea-1-user@example.com' on conflict (entity_id,regime_entity_id,company_entity_id) do update set role = 'admin';
 
 insert into crm.entity_roles(entity_role_id,entity_id,role,regime_entity_id,company_entity_id,is_primary)
 select uuid_in(md5(random()::text || now()::text)::cstring), i.entity_id, 'admin', r.entity_id, null,1
 from entity i
   join entity r on r.entity_nm = 'water-abstraction'
-  where i.entity_nm= 'test-ea-2-user@example.com'
-  on conflict(entity_id,regime_entity_id,company_entity_id) do update set role = 'admin';
+  where i.entity_nm= 'test-ea-2-user@example.com' on conflict(entity_id,regime_entity_id,company_entity_id) do update set role = 'admin';
 
 
 -- delete roles for users from private beta and reload and set company_id for documents
