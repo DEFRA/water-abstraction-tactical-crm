@@ -259,6 +259,7 @@ function getCompanySqlQuery (filter) {
 async function getContacts (request, h) {
   try {
     const filter = JSON.parse(request.query.filter || '{}');
+    filter.date_deleted = null;
 
     // Do initial query to find documents and entities linked via roles
     const query = getMongoSqlQuery(filter);
@@ -303,7 +304,9 @@ const getDocumentsForContact = async (request, h) => {
     from crm.document_header dh
     inner join crm.document_entity de
     on dh.document_id = de.document_id
-    where de.entity_id = $1;`;
+    where de.entity_id = $1
+    and dh.date_deleted is null;
+  `;
 
   try {
     const { rows: documents } = await pool.query(sql, [entityId]);
@@ -314,7 +317,5 @@ const getDocumentsForContact = async (request, h) => {
   }
 };
 
-module.exports = {
-  getContacts,
-  getDocumentsForContact
-};
+exports.getContacts = getContacts;
+exports.getDocumentsForContact = getDocumentsForContact;
