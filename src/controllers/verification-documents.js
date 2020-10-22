@@ -77,6 +77,7 @@ const getUserVerificationsQuery = `
       inner join crm.document_header dh
           on vd.document_id = dh.document_id
   where v.entity_id = $1
+  and dh.date_deleted is null
   and v.date_verified is null
   order by v.date_created;`;
 
