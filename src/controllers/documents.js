@@ -9,6 +9,7 @@ const getDocumentUsersQuery = `
     inner join crm.entity_roles er on dh.company_entity_id = er.company_entity_id
     inner join crm.entity e on er.entity_id = e.entity_id
   where dh.document_id = $1
+  and dh.date_deleted is null
   and e.entity_type = 'individual';
 `;
 
@@ -42,6 +43,4 @@ const getDocumentUsers = async (request, h) => {
   }
 };
 
-module.exports = {
-  getDocumentUsers
-};
+exports.getDocumentUsers = getDocumentUsers;
