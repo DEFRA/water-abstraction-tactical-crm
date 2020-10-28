@@ -54,7 +54,7 @@ join crm.entity entity on
 where
 granter_role.role = 'primary_user'
 and grantee_role.entity_id != $1
-and granter_role.entity_id = $1;`;
+and granter_role.entity_id = $1 `;
 
   const queryParams = [entityId];
   if (request.query.direction === 1) {
