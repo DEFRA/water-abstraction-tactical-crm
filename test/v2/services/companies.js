@@ -32,6 +32,8 @@ experiment('services/companies', () => {
 
     sandbox.stub(repos.companies, 'deleteOne').resolves();
 
+    sandbox.stub(repos.companies, 'findAllByName').resolves();
+
     sandbox.stub(repos.companyAddresses, 'create').resolves({
       companyAddressId: 'test-company-address-id'
     });
@@ -157,9 +159,14 @@ experiment('services/companies', () => {
 
   experiment('.searchCompaniesByName', async () => {
     experiment('when given a valid string to search', async () => {
-      test('returns an array', async () => {
-        const response = await companiesService.searchCompaniesByName('test');
-        expect(Array.isArray(response)).to.equal(true);
+      test('calls the repo with seach string and soft search=true', async () => {
+        await companiesService.searchCompaniesByName('test');
+        expect(repos.companies.findAllByName.calledWith('test', true)).to.be.true();
+      });
+
+      test('calls the repo with search string and the soft search provided as a second argument', async () => {
+        await companiesService.searchCompaniesByName('test', false);
+        expect(repos.companies.findAllByName.calledWith('test', false)).to.be.true();
       });
     });
   });

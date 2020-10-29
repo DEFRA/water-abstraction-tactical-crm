@@ -28,7 +28,6 @@ experiment('services/documents', () => {
     sandbox.stub(documentRepo, 'findOne').resolves();
     sandbox.stub(documentRepo, 'findByDocumentRef').resolves();
     sandbox.stub(documentRepo, 'create').resolves();
-    sandbox.stub(oldDocRolesRepo, 'findByDocumentId').resolves();
   });
 
   afterEach(async () => {
@@ -290,12 +289,21 @@ experiment('services/documents', () => {
       beforeEach(async () => {
         documentId = 'doc_1';
         documentRepo.findOne.resolves({
-          documentId: 'doc_1'
+          documentId: 'doc_1',
+          role: {
+            name: 'licenceHolder'
+          }
         });
         oldDocRolesRepo.findByDocumentId.resolves([{
-          document_id: 'doc_1'
+          document_id: 'doc_1',
+          role: {
+            name: 'licenceHolder'
+          }
         }, {
-          document_id: 'doc_2'
+          document_id: 'doc_2',
+          role: {
+            name: 'licenceHolder'
+          }
         }]);
 
         response = await documentsService.getDocument(documentId);
