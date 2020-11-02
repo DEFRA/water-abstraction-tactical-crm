@@ -22,8 +22,22 @@ exports.findAll = async (bookshelfModel, idKey, id) => {
 };
 
 exports.create = async (bookShelfModel, data) => {
-  const model = await bookShelfModel.forge(data).save();
-  return model.toJSON();
+  try {
+    const model = await bookShelfModel.forge(data).save();
+    return model.toJSON();
+  } catch (err) {
+    if (parseInt(err.code) === 23505) {
+      // In the event of a Unique constraint breach, return the original row
+      const params = err.detail.match(/\(([^)]+)\)/g);
+      const column = params[0].slice(1, -1);
+      const value = params[1].slice(1, -1);
+
+      const model = await bookShelfModel.forge({ [column]: value })
+        .fetch();
+      return model.toJSON();
+    }
+    throw err;
+  };
 };
 
 exports.deleteOne = async (bookShelfModel, idKey, id) => {
