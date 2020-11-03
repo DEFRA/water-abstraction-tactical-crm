@@ -67,30 +67,58 @@ experiment('v2/connectors/repository/helpers', () => {
   experiment('.create', () => {
     let result;
     let model;
+    experiment('when there is a unique constraint breach', () => {
+      beforeEach(async () => {
+        result = {
+          toJSON: sandbox.spy()
+        };
+        model = {
+          forge: sandbox.stub().returnsThis(),
+          fetch: sandbox.stub().resolves(result),
+          save: sandbox.stub().throws({ code: '23505', detail: '(day)(Friday)' })
+        };
 
-    beforeEach(async () => {
-      result = {
-        toJSON: sandbox.spy()
-      };
-      model = {
-        forge: sandbox.stub().returnsThis(),
-        save: sandbox.stub().resolves(result)
-      };
+        await helpers.create(model, {
+          day: 'Friday'
+        });
+      });
 
-      await helpers.create(model, {
-        day: 'Friday'
+      test('calls forge on the model with the data', async () => {
+        const [data] = model.forge.lastCall.args;
+        expect(data).to.equal({
+          day: 'Friday'
+        });
+      });
+
+      test('returns the entity as JSON when found', async () => {
+        expect(result.toJSON.called).to.equal(true);
       });
     });
+    experiment('when the request is valid', () => {
+      beforeEach(async () => {
+        result = {
+          toJSON: sandbox.spy()
+        };
+        model = {
+          forge: sandbox.stub().returnsThis(),
+          save: sandbox.stub().resolves(result)
+        };
 
-    test('calls forge on the model with the data', async () => {
-      const [data] = model.forge.lastCall.args;
-      expect(data).to.equal({
-        day: 'Friday'
+        await helpers.create(model, {
+          day: 'Friday'
+        });
       });
-    });
 
-    test('returns the entity as JSON', async () => {
-      expect(result.toJSON.called).to.equal(true);
+      test('calls forge on the model with the data', async () => {
+        const [data] = model.forge.lastCall.args;
+        expect(data).to.equal({
+          day: 'Friday'
+        });
+      });
+
+      test('returns the entity as JSON', async () => {
+        expect(result.toJSON.called).to.equal(true);
+      });
     });
   });
 
