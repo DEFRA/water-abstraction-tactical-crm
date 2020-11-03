@@ -92,13 +92,13 @@ experiment('v2/connectors/repository/document-roles', () => {
       });
     });
 
-    test('adds the role to the response', async () => {
+    test('adds the related models to the query', async () => {
       const documentId = uuid();
       await documentRolesRepo.findByDocumentId(documentId);
 
       const [options] = stub.fetch.lastCall.args;
 
-      expect(options.withRelated).to.equal(['role']);
+      expect(options.withRelated).to.equal(['role', 'company', 'contact', 'address', 'invoiceAccount']);
     });
   });
 

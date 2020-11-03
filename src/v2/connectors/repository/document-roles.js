@@ -28,9 +28,8 @@ const findByDocumentId = async documentId => {
     .collection()
     .where({ document_id: documentId })
     .fetch({
-      withRelated: ['role']
+      withRelated: ['role', 'company', 'contact', 'address', 'invoiceAccount']
     });
-
   return documentRoles.toJSON();
 };
 
