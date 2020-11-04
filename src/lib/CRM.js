@@ -18,9 +18,6 @@ function setDocumentOwner (request, h) {
     guid
   ];
 
-  request.log('info', query);
-  request.log('info', queryParams);
-
   return pool.query(query, queryParams)
     .then((res) => {
       return {
@@ -31,7 +28,6 @@ function setDocumentOwner (request, h) {
 }
 
 function getColleagues (request, h) {
-  request.log('info', request.query);
   const entityId = request.params.entity_id;
   /**
   identify user roles who the supplied user can admin
@@ -58,7 +54,7 @@ join crm.entity entity on
 where
 granter_role.role = 'primary_user'
 and grantee_role.entity_id != $1
-and granter_role.entity_id = $1;`;
+and granter_role.entity_id = $1 `;
 
   const queryParams = [entityId];
   if (request.query.direction === 1) {
@@ -147,7 +143,7 @@ async function createColleague (request, h) {
   const { rows: [primaryUserRole] } = await entityRoleApi.repo.find({ entity_id: entityID, role: 'primary_user' });
 
   if (!primaryUserRole) {
-    throw Boom.unauthorized('Only a primary user can grant access', '', { role, colleagueEntityID });
+    throw Boom.unauthorized('Only a primary user can grant access');
   }
 
   const { regime_entity_id: userRegimeID, company_entity_id: userCompanyID } = primaryUserRole;
@@ -168,9 +164,7 @@ async function createColleague (request, h) {
   return h.response({ data, error }).code(error ? 500 : 201);
 }
 
-module.exports = {
-  setDocumentOwner,
-  getColleagues,
-  deleteColleague,
-  createColleague
-};
+exports.setDocumentOwner = setDocumentOwner;
+exports.getColleagues = getColleagues;
+exports.deleteColleague = deleteColleague;
+exports.createColleague = createColleague;

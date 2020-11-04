@@ -69,7 +69,10 @@ experiment('v2/connectors/repository/documents', () => {
 
       test('.forge() is called on the model with the data', async () => {
         const [data] = Document.forge.lastCall.args;
-        expect(data).to.equal({ documentId: 'test-id' });
+        expect(data).to.equal({
+          documentId: 'test-id',
+          dateDeleted: null
+        });
       });
 
       test('.fetch() is called after the forge', async () => {
@@ -90,7 +93,7 @@ experiment('v2/connectors/repository/documents', () => {
 
       test('.forge() is called on the model with the data', async () => {
         const [data] = Document.forge.lastCall.args;
-        expect(data).to.equal({ documentId: 'test-id' });
+        expect(data).to.equal({ documentId: 'test-id', dateDeleted: null });
       });
 
       test('.fetch() is called after the forge', async () => {

@@ -22,10 +22,7 @@ exports.createCompany = {
           is: companyTypes.ORGANISATION,
           then: Joi.string().allow('').optional()
         }),
-        organisationType: Joi.forbidden().when('type', {
-          is: companyTypes.ORGANISATION,
-          then: Joi.string().valid(Object.values(organisationTypes)).optional()
-        }),
+        organisationType: Joi.string().valid(Object.values(organisationTypes)).optional(),
         isTest: validators.TEST_FLAG
       }
     }

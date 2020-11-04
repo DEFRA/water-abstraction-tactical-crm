@@ -7,10 +7,18 @@ const raw = require('./lib/raw');
 
 /**
  * Find single Document by ID
- * @param {String} id
+ * @param {String} documentId
  * @return {Promise<Object>}
  */
-const findOne = async id => helpers.findOne(Document, 'documentId', id);
+const findOne = async documentId => {
+  const result = await Document
+    .forge({ documentId, dateDeleted: null })
+    .fetch({
+      require: false
+    });
+
+  return result && result.toJSON();
+};
 
 /**
    * Get all documents with a particular document reference in date/version order
