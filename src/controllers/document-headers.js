@@ -90,6 +90,9 @@ async function getEntityFilter (mode, value, roles = null) {
 const getPreQueryFilter = async (result) => {
   const { string, email, roles, entity_id: entityId, includeExpired = false, ...filter } = result.filter;
 
+  // don't include soft deleted records
+  filter.date_deleted = null;
+
   // Only display current licences
   if (!includeExpired) {
     filter['metadata->>IsCurrent'] = { $ne: 'false' };

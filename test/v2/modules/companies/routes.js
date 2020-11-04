@@ -131,18 +131,6 @@ experiment('modules/companies/routes', () => {
 
         expect(response.statusCode).to.equal(400);
       });
-
-      test('cannot have an organisation type', async () => {
-        const request = getRequest({
-          name: 'Name',
-          type: 'person',
-          organisationType: 'individual'
-        });
-
-        const response = await server.inject(request);
-
-        expect(response.statusCode).to.equal(400);
-      });
     });
 
     experiment('when an organisation is being created', () => {
