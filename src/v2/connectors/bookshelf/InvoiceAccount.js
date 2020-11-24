@@ -1,7 +1,7 @@
 const { bookshelf } = require('./bookshelf.js');
 
 module.exports = bookshelf.model('InvoiceAccount', {
-  tableName: 'invoice_accounts',
+  tableName: 'crm_v2.invoice_accounts',
   idAttribute: 'invoice_account_id',
   hasTimestamps: ['date_created', 'date_updated'],
   company () {

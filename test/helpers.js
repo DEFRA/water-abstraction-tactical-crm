@@ -1,6 +1,5 @@
 'use strict';
 
-const server = require('../index');
 const uuidv4 = require('uuid/v4');
 const Hapi = require('@hapi/hapi');
 const { cloneDeep } = require('lodash');
@@ -8,8 +7,8 @@ const { cloneDeep } = require('lodash');
 /**
  * Create a document header for testing purposes
  */
-const createDocumentHeader = async (regimeEntityId, companyEntityId = null, isCurrent = true) => {
-  const request = {
+const createDocumentHeader = (regimeEntityId, companyEntityId = null, isCurrent = true) => {
+  return {
     method: 'POST',
     url: '/crm/1.0/documentHeader',
     headers: {
@@ -24,14 +23,6 @@ const createDocumentHeader = async (regimeEntityId, companyEntityId = null, isCu
       metadata: `{"Name":"TEST LICENCE", "IsCurrent" : ${isCurrent}}`
     }
   };
-  const res = await server.inject(request);
-  const { error, data } = JSON.parse(res.payload);
-
-  if (error) {
-    console.error(error);
-    throw error;
-  }
-  return data;
 };
 
 /**
@@ -40,8 +31,8 @@ const createDocumentHeader = async (regimeEntityId, companyEntityId = null, isCu
  * @param {String} entityType - individual|company|regime
  * @return {Promise} resolves with entity data
  */
-const createEntity = async (entityType, overrides) => {
-  const request = {
+const createEntity = (entityType, overrides) => {
+  return {
     method: 'POST',
     url: '/crm/1.0/entity',
     headers: {
@@ -53,48 +44,37 @@ const createEntity = async (entityType, overrides) => {
       entity_definition: '{}'
     }, overrides)
   };
-  const res = await server.inject(request);
-  const { error, data } = JSON.parse(res.payload);
-  if (error) {
-    console.error(error);
-    throw error;
-  }
-  return data;
 };
 
 /**
  * Delete entity
  * @param {String} entityGuid - the entity to delete
  */
-const deleteEntity = async (entityGuid) => {
-  const request = {
+const deleteEntity = (entityGuid) => {
+  return {
     method: 'DELETE',
     url: `/crm/1.0/entity/${entityGuid}`,
     headers: {
       Authorization: process.env.JWT_TOKEN
     }
   };
-  const res = await server.inject(request);
-  return res;
 };
 
 /**
  * Delete document
  * @param {String} documentId - the document to delete
  */
-const deleteDocumentHeader = async (documentId) => {
-  const request = {
+const deleteDocumentHeader = (documentId) => {
+  return {
     method: 'DELETE',
     url: `/crm/1.0/documentHeader/${documentId}`,
     headers: {
       Authorization: process.env.JWT_TOKEN
     }
   };
-  const res = await server.inject(request);
-  return res;
 };
 
-const createEntityRole = async (regimeId, companyEntityId, entityId, role = 'test_role') => {
+const createEntityRole = (regimeId, companyEntityId, entityId, role = 'test_role') => {
   const payload = {
     regime_entity_id: regimeId,
     company_entity_id: companyEntityId,
@@ -108,20 +88,14 @@ const createEntityRole = async (regimeId, companyEntityId, entityId, role = 'tes
     },
     payload
   };
-  const res = await server.inject(request);
-  const { error, data } = JSON.parse(res.payload);
-  if (error) {
-    console.error(error);
-    throw error;
-  }
-  return data;
+  return request;
 };
 
 /**
  * Delete entity role
  * @param {String} documentId - the document to delete
  */
-const deleteEntityRole = async (entityId, entityRoleId) => {
+const deleteEntityRole = (entityId, entityRoleId) => {
   const request = {
     method: 'DELETE',
     url: `/crm/1.0/entity/${entityId}/roles/${entityRoleId}`,
@@ -129,11 +103,10 @@ const deleteEntityRole = async (entityId, entityRoleId) => {
       Authorization: process.env.JWT_TOKEN
     }
   };
-  const res = await server.inject(request);
-  return res;
+  return request;
 };
 
-const createVerification = async (entityId, companyEntityId, verificationCode = 'aBcD1') => {
+const createVerification = (entityId, companyEntityId, verificationCode = 'aBcD1') => {
   const request = {
     method: 'POST',
     url: '/crm/1.0/verification',
@@ -149,17 +122,10 @@ const createVerification = async (entityId, companyEntityId, verificationCode = 
     }
   };
 
-  const res = await server.inject(request);
-  const { error, data } = JSON.parse(res.payload);
-
-  if (error) {
-    console.error(error);
-    throw error;
-  }
-  return data;
+  return request;
 };
 
-const deleteVerification = async (verificationId) => {
+const deleteVerification = (verificationId) => {
   const request = {
     method: 'DELETE',
     url: `/crm/1.0/verification/${verificationId}`,
@@ -168,11 +134,10 @@ const deleteVerification = async (verificationId) => {
     }
   };
 
-  const res = await server.inject(request);
-  return res;
+  return request;
 };
 
-const createVerificationDocument = async (verificationId, documentId) => {
+const createVerificationDocument = (verificationId, documentId) => {
   const request = {
     method: 'POST',
     url: `/crm/1.0/verification/${verificationId}/documents`,
@@ -184,17 +149,10 @@ const createVerificationDocument = async (verificationId, documentId) => {
     }
   };
 
-  const res = await server.inject(request);
-  const { error, data } = JSON.parse(res.payload);
-
-  if (error) {
-    console.error(error);
-    throw error;
-  }
-  return data;
+  return request;
 };
 
-const deleteVerificationDocument = async verificationId => {
+const deleteVerificationDocument = verificationId => {
   const request = {
     method: 'DELETE',
     url: `/crm/1.0/verification/${verificationId}/documents`,
@@ -203,12 +161,7 @@ const deleteVerificationDocument = async verificationId => {
     }
   };
 
-  const { error } = await server.inject(request);
-
-  if (error) {
-    console.error(error);
-    throw error;
-  }
+  return request;
 };
 
 /**
@@ -229,6 +182,14 @@ const createServerForRoute = route => {
   return server;
 };
 
+const parseResponsePayload = res => res.payload && JSON.parse(res.payload);
+
+const makeRequest = async (server, func, ...args) => {
+  const request = func(...args);
+  const res = await server.inject(request);
+  return parseResponsePayload(res).data;
+};
+
 exports.createServerForRoute = createServerForRoute;
 
 exports.createVerificationDocument = createVerificationDocument;
@@ -245,3 +206,6 @@ exports.deleteEntity = deleteEntity;
 
 exports.createEntityRole = createEntityRole;
 exports.deleteEntityRole = deleteEntityRole;
+
+exports.parseResponsePayload = parseResponsePayload;
+exports.makeRequest = makeRequest;

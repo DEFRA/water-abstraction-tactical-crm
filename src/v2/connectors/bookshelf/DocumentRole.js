@@ -3,7 +3,7 @@
 const { bookshelf } = require('./bookshelf.js');
 
 module.exports = bookshelf.model('DocumentRole', {
-  tableName: 'document_roles',
+  tableName: 'crm_v2.document_roles',
   idAttribute: 'document_role_id',
   hasTimestamps: ['date_created', 'date_updated'],
 

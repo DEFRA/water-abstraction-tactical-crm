@@ -60,23 +60,27 @@ const configureJwtStrategy = () => {
   server.auth.default('jwt');
 };
 
-async function init () {
-  await initGood();
-  await initBlipp();
+async function start () {
+  try {
+    await initGood();
+    await initBlipp();
 
-  await server.register({ plugin: serverPlugins.hapiAuthJwt2 });
+    await server.register({ plugin: serverPlugins.hapiAuthJwt2 });
 
-  configureJwtStrategy();
+    configureJwtStrategy();
 
-  // load routes
-  server.route(require('./src/routes/crm'));
-  server.route(require('./src/v2/routes'));
+    // load routes
+    server.route(require('./src/routes/crm'));
+    server.route(require('./src/v2/routes'));
 
-  if (!module.parent) {
-    await server.start();
-    const name = process.env.SERVICE_NAME;
-    const uri = server.info.uri;
-    server.log('info', `Service ${name} running at: ${uri}`);
+    if (!module.parent) {
+      await server.start();
+      const name = process.env.SERVICE_NAME;
+      const uri = server.info.uri;
+      server.log('info', `Service ${name} running at: ${uri}`);
+    }
+  } catch (err) {
+    logger.error('Failed to start server', err);
   }
 }
 
@@ -100,6 +104,9 @@ process
     return process.exit(0);
   });
 
-init();
+if (!module.parent) {
+  start();
+}
 
 module.exports = server;
+module.exports._start = start;

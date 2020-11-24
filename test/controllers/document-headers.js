@@ -17,7 +17,8 @@ const {
   deleteEntity,
   deleteDocumentHeader,
   createEntityRole,
-  deleteEntityRole
+  deleteEntityRole,
+  makeRequest
 } = require('../helpers');
 
 const { getSearchFilter } = require('../../src/controllers/document-headers');
@@ -46,29 +47,31 @@ const createDocumentRequest = (filter = {}) => {
 
 experiment('Test document filter', () => {
   before(async () => {
+    await server._start();
+
     // Create entities
     {
-      const { entity_id: entityId } = await createEntity('regime');
+      const { entity_id: entityId } = await makeRequest(server, createEntity, 'regime');
       regimeEntityId = entityId;
     }
     {
-      const { entity_id: entityId } = await createEntity('company');
+      const { entity_id: entityId } = await makeRequest(server, createEntity, 'company');
       companyEntityId = entityId;
     }
     {
-      const { entity_id: entityId } = await createEntity('individual');
+      const { entity_id: entityId } = await makeRequest(server, createEntity, 'individual');
       individualEntityId = entityId;
     }
     {
-      const { document_id: documentId } = await createDocumentHeader(regimeEntityId);
+      const { document_id: documentId } = await makeRequest(server, createDocumentHeader, regimeEntityId);
       unclaimedDocumentId = documentId;
     }
     {
-      const { document_id: documentId } = await createDocumentHeader(regimeEntityId, companyEntityId);
+      const { document_id: documentId } = await makeRequest(server, createDocumentHeader, regimeEntityId, companyEntityId);
       claimedDocumentId = documentId;
     }
-    expiredDocument = await createDocumentHeader(regimeEntityId, companyEntityId, false);
-    const entityRole = await createEntityRole(regimeEntityId, companyEntityId, individualEntityId);
+    expiredDocument = await makeRequest(server, createDocumentHeader, regimeEntityId, companyEntityId, false);
+    const entityRole = await makeRequest(server, createEntityRole, regimeEntityId, companyEntityId, individualEntityId);
     entityRoleId = entityRole.entity_role_id;
   });
 
