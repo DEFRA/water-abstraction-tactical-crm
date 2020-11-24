@@ -29,6 +29,10 @@ const deleteEntityRoles = async () => {
 };
 
 lab.experiment('entity-roles controller', () => {
+  lab.before(async () => {
+    await server._start();
+  });
+
   lab.afterEach(deleteEntityRoles);
 
   lab.test('The API should create an entity role', async () => {
