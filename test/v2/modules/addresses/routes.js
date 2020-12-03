@@ -42,7 +42,9 @@ experiment('modules/addresses/routes', () => {
         county: 'test-county',
         country: 'test-country',
         postcode: 'test-postcode',
-        isTest: true
+        isTest: true,
+        dataSource: 'nald',
+        uprn: 123456
       };
 
       server = createServerForRoute(routes.postAddress);
@@ -107,6 +109,22 @@ experiment('modules/addresses/routes', () => {
 
       expect(response.statusCode).to.equal(200);
       expect(response.request.payload.isTest).to.equal(false);
+    });
+
+    test('dataSource is optional (but will default to "wrls")', async () => {
+      delete fullPayload.dataSource;
+      const response = await server.inject(createAddressRequest(fullPayload));
+
+      expect(response.statusCode).to.equal(200);
+      expect(response.request.payload.dataSource).to.equal('wrls');
+    });
+
+    test('uprn is optional (will default to null)', async () => {
+      delete fullPayload.uprn;
+      const response = await server.inject(createAddressRequest(fullPayload));
+
+      expect(response.statusCode).to.equal(200);
+      expect(response.request.payload.uprn).to.equal(null);
     });
   });
 
