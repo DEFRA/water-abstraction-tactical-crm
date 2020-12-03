@@ -21,6 +21,15 @@ exports.findAll = async (bookshelfModel, idKey, id) => {
   return result.toJSON();
 };
 
+exports.findMany = async (bookShelfModel, conditions = {}, withRelated = []) => {
+  const result = await bookShelfModel
+    .forge()
+    .where(conditions)
+    .fetchAll({ require: false, withRelated });
+
+  return result.toJSON();
+};
+
 exports.create = async (bookShelfModel, data) => {
   const model = await bookShelfModel.forge(data).save();
   return model.toJSON();

@@ -10,6 +10,7 @@ const sandbox = require('sinon').createSandbox();
 const uuid = require('uuid/v4');
 
 const entityHandler = require('../../../../src/v2/lib/entity-handlers');
+const controller = require('../../../../src/v2/modules/addresses/controller');
 
 const { expect } = require('@hapi/code');
 
@@ -44,20 +45,12 @@ experiment('modules/addresses/routes', () => {
         isTest: true
       };
 
-      sandbox.stub(entityHandler, 'createEntity');
       server = createServerForRoute(routes.postAddress);
     });
 
-    test('the handler is delegated to the entity handler', async () => {
-      const request = Symbol('request');
-      const toolkit = Symbol('h');
-
-      await routes.postAddress.handler(request, toolkit);
-
-      const createArgs = entityHandler.createEntity.lastCall.args;
-      expect(createArgs[0]).to.equal(request);
-      expect(createArgs[1]).to.equal(toolkit);
-      expect(createArgs[2]).to.equal('address');
+    test('the correct handler is specified', async () => {
+      expect(routes.postAddress.handler)
+        .to.equal(controller.postAddress);
     });
 
     test('address1 is optional', async () => {
