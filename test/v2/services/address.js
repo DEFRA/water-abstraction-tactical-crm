@@ -101,7 +101,7 @@ experiment('v2/services/address', () => {
     });
 
     experiment('when an unexpected error occurs', () => {
-      let result, error;
+      let error;
 
       beforeEach(async () => {
         error = new Error('oops!');
