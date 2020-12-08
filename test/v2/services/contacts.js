@@ -101,6 +101,11 @@ experiment('services/contacts', () => {
         result = await contactsService.createContact(contact);
       });
 
+      test('the contact "type" is mapped to "contactType"', async () => {
+        const [contactData] = contactsRepo.create.lastCall.args;
+        expect(contactData.contactType).to.equal(contact.type);
+      });
+
       test('the contact is saved via the repository', async () => {
         expect(contactsRepo.create.called).to.equal(true);
       });
