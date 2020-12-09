@@ -21,7 +21,7 @@ exports.postAddress = {
         country: validators.REQUIRED_STRING,
         postcode: validators.OPTIONAL_STRING,
         isTest: validators.TEST_FLAG,
-        dataSource: validators.DATA_SOURCE,
+        dataSource: validators.ADDRESS_DATA_SOURCE,
         uprn: validators.UPRN
       }
     }
