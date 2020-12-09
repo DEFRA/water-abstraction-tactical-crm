@@ -12,7 +12,7 @@ const createContact = async contact => {
     throw new errors.EntityValidationError('Contact not valid', mapValidationErrorDetails(error));
   }
 
-  return contactsRepo.create(validatedContact);
+  return contactsRepo.create({ ...validatedContact, contactType: contact.type });
 };
 
 const getContact = contactId => contactsRepo.findOne(contactId);
