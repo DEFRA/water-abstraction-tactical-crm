@@ -24,7 +24,9 @@ experiment('v2/connectors/repository/addresses', () => {
 
     stub = {
       save: sandbox.stub().resolves(model),
-      fetch: sandbox.stub().resolves(model)
+      where: sandbox.stub().returnsThis(),
+      fetch: sandbox.stub().resolves(model),
+      fetchAll: sandbox.stub().resolves(model)
     };
 
     sandbox.stub(Address, 'forge').returns(stub);
@@ -137,6 +139,32 @@ experiment('v2/connectors/repository/addresses', () => {
       expect(field).to.equal('addressId');
       expect(id).to.equal('test-id');
       expect(related).to.equal(['companyAddresses']);
+    });
+  });
+
+  experiment('.findByUprn', () => {
+    let result;
+
+    beforeEach(async () => {
+      result = await addressesRepo.findByUprn(123456);
+    });
+
+    test('.forge() is called on the model with the data', async () => {
+      expect(Address.forge.called).to.be.true();
+    });
+
+    test('.where() is called with the expected conditions', async () => {
+      const [conditions] = stub.where.lastCall.args;
+      expect(conditions).to.equal({ uprn: 123456 });
+    });
+
+    test('.fetchAll() is called after the forge', async () => {
+      expect(stub.fetchAll.called).to.be.true();
+    });
+
+    test('the JSON representation is returned', async () => {
+      expect(model.toJSON.called).to.be.true();
+      expect(result.id).to.equal('test-id');
     });
   });
 });

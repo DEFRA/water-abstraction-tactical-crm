@@ -70,7 +70,59 @@ experiment('v2/services/address', () => {
       });
 
       test('includes the saved address in the response', async () => {
-        expect(result.addressId).to.equal('test-address-id');
+        expect(result.address.addressId).to.equal('test-address-id');
+      });
+    });
+
+    experiment('when address with same uprn already exists', () => {
+      let result, error;
+
+      beforeEach(async () => {
+        error = new Error('oops!');
+        error.code = '23505';
+        error.detail = 'unique constraint violation on uprn';
+        addressRepo.create.throws(error);
+
+        result = await addressService.createAddress({
+          address1: null,
+          address2: 'one',
+          address3: null,
+          address4: null,
+          town: 'town',
+          county: 'county',
+          country: 'france',
+          postcode: null
+        });
+      });
+
+      test('returns the error', async () => {
+        expect(result.error).to.equal(error);
+      });
+    });
+
+    experiment('when an unexpected error occurs', () => {
+      let error;
+
+      beforeEach(async () => {
+        error = new Error('oops!');
+        addressRepo.create.throws(error);
+      });
+
+      test('returns the error', async () => {
+        try {
+          await addressService.createAddress({
+            address1: null,
+            address2: 'one',
+            address3: null,
+            address4: null,
+            town: 'town',
+            county: 'county',
+            country: 'france',
+            postcode: null
+          });
+        } catch (err) {
+          expect(err).to.equal(error);
+        }
       });
     });
   });
