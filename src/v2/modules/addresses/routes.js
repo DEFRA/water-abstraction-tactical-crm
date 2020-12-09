@@ -2,11 +2,12 @@
 
 const entityHandlers = require('../../lib/entity-handlers');
 const validators = require('../../lib/validators');
+const controller = require('./controller');
 
 exports.postAddress = {
   method: 'POST',
   path: '/crm/2.0/addresses',
-  handler: (request, h) => entityHandlers.createEntity(request, h, 'address'),
+  handler: controller.postAddress,
   options: {
     description: 'Creates a new address',
     validate: {
