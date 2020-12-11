@@ -20,4 +20,13 @@ if (config.isAcceptanceTestTarget) {
       description: 'Deletes any entity data setup for acceptance test execution'
     }
   };
+
+  exports.acceptanceTestTearDownCRMV2Entities = {
+    method: 'DELETE',
+    path: '/crm/2.0/acceptance-tests/companies',
+    handler: controller.deleteAcceptanceTestCompanies,
+    options: {
+      description: 'Deletes any company data setup for acceptance test execution'
+    }
+  };
 }
