@@ -13,7 +13,7 @@
       },
       "env_production": {
         "watch": false,
-        "instances" : "max",
+        "instances" : 2,
         "exec_mode" : "cluster"
       }
     }
