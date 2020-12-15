@@ -2,15 +2,6 @@ const { pool } = require('../lib/connectors/db');
 const ACCEPTANCE_TEST_SOURCE = 'acceptance-test-setup';
 const config = require('../../config');
 
-const deleteLicences = () => {
-  return pool.query(`
-    delete from
-    water.licences
-    where licence_ref IN (SELECT system_external_id FROM crm.document_header
-    where metadata->>'dataType' = '${ACCEPTANCE_TEST_SOURCE}');
-    `);
-};
-
 const deleteV2Documents = () => {
   return pool.query(`
    delete from
@@ -44,7 +35,6 @@ const deleteCompanies = () => pool.query(`
 `);
 
 const deleteAcceptanceTestDataDocuments = async (request, h) => {
-  await deleteLicences();
   await deleteV2Documents();
   await deleteDocuments();
   return h.response().code(204);
