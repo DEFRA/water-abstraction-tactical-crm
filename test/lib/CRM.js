@@ -15,7 +15,7 @@ const server = require('../../index');
 
 const uuidv4 = require('uuid/v4');
 
-const { createEntity, deleteEntity, createEntityRole, deleteEntityRole } = require('../helpers');
+const { createEntity, deleteEntity, createEntityRole, deleteEntityRole, makeRequest } = require('../helpers');
 
 let regimeEntityId = null;
 let individualEntityId = null;
@@ -27,25 +27,27 @@ let granteeRoleId = null;
 lab.experiment('Test grant/delete colleague roles', () => {
   // Create regime
   lab.before(async () => {
+    await server._start();
+
     {
-      const { entity_id: entityId } = await createEntity('regime');
+      const { entity_id: entityId } = await makeRequest(server, createEntity, 'regime');
       regimeEntityId = entityId;
     }
     {
-      const { entity_id: entityId } = await createEntity('company');
+      const { entity_id: entityId } = await makeRequest(server, createEntity, 'company');
       companyEntityId = entityId;
     }
     {
-      const { entity_id: entityId } = await createEntity('individual');
+      const { entity_id: entityId } = await makeRequest(server, createEntity, 'individual');
       individualEntityId = entityId;
     }
     {
-      const { entity_id: entityId } = await createEntity('individual');
+      const { entity_id: entityId } = await makeRequest(server, createEntity, 'individual');
       granteeEntityId = entityId;
     }
 
     // Grant primary user role for company
-    const { entity_role_id: entityRoleId } = await createEntityRole(regimeEntityId, companyEntityId, individualEntityId, 'primary_user');
+    const { entity_role_id: entityRoleId } = await makeRequest(server, createEntityRole, regimeEntityId, companyEntityId, individualEntityId, 'primary_user');
     roleId = entityRoleId;
   });
 
@@ -54,8 +56,8 @@ lab.experiment('Test grant/delete colleague roles', () => {
     const entityIds = [regimeEntityId, individualEntityId, companyEntityId, granteeEntityId];
     const tasks = entityIds.map(entityId => deleteEntity(entityId));
     await Promise.all(tasks);
-    await deleteEntityRole(individualEntityId, roleId);
-    await deleteEntityRole(granteeEntityId, granteeRoleId);
+    await makeRequest(server, deleteEntityRole, individualEntityId, roleId);
+    await makeRequest(server, deleteEntityRole, granteeEntityId, granteeRoleId);
   });
 
   lab.test('The API should grant access to a user when valid request supplied', async () => {

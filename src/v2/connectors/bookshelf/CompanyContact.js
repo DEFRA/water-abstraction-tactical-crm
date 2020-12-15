@@ -1,7 +1,7 @@
 const { bookshelf } = require('./bookshelf.js');
 
 module.exports = bookshelf.model('CompanyContact', {
-  tableName: 'company_contacts',
+  tableName: 'crm_v2.company_contacts',
   idAttribute: 'company_contact_id',
   hasTimestamps: ['date_created', 'date_updated'],
   company () {

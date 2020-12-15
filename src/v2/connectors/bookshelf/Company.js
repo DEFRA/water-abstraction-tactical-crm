@@ -2,7 +2,7 @@ const { bookshelf } = require('./bookshelf.js');
 
 module.exports = bookshelf.model('Company', {
 
-  tableName: 'companies',
+  tableName: 'crm_v2.companies',
 
   idAttribute: 'company_id',
 

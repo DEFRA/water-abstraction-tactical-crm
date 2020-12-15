@@ -14,7 +14,7 @@ const moment = require('moment');
 const Code = require('@hapi/code');
 const server = require('../index');
 
-const { createDocumentHeader, createEntity, deleteEntity, deleteDocumentHeader } = require('./helpers');
+const { createDocumentHeader, createEntity, deleteEntity, deleteDocumentHeader, makeRequest } = require('./helpers');
 
 console.log(`Node version ${process.version}`);
 
@@ -28,38 +28,40 @@ let verificationCode = null;
 lab.experiment('Check verification', () => {
   // Create regime
   lab.before(async () => {
-    const { entity_id: entityId } = await createEntity('regime');
+    await server._start();
+
+    const { entity_id: entityId } = await makeRequest(server, createEntity, 'regime');
     regimeEntityId = entityId;
   });
 
   // Create company
   lab.before(async () => {
-    const { entity_id: entityId } = await createEntity('company');
+    const { entity_id: entityId } = await makeRequest(server, createEntity, 'company');
     companyEntityId = entityId;
   });
 
   // Create individual
   lab.before(async () => {
-    const { entity_id: entityId } = await createEntity('individual');
+    const { entity_id: entityId } = await makeRequest(server, createEntity, 'individual');
     individualEntityId = entityId;
   });
 
   // Create doc
   lab.before(async () => {
-    const { document_id: documentId } = await createDocumentHeader(regimeEntityId);
+    const { document_id: documentId } = await makeRequest(server, createDocumentHeader, regimeEntityId);
     documentHeaderId = documentId;
   });
 
   lab.after(async () => {
     // Delete all temporary entities
     const entityIds = [regimeEntityId, individualEntityId, companyEntityId];
-    const tasks = entityIds.map(entityId => deleteEntity(entityId));
+    const tasks = entityIds.map(entityId => makeRequest(server, deleteEntity, entityId));
     await Promise.all(tasks);
   });
 
   lab.after(async () => {
     // Delete all temporary docs
-    await deleteDocumentHeader(documentHeaderId);
+    await makeRequest(server, deleteDocumentHeader, documentHeaderId);
   });
 
   // * @param {String} request.payload.entity_id - the GUID of the current individual's entity
