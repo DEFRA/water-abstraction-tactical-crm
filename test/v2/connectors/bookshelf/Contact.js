@@ -15,7 +15,7 @@ experiment('v2/connectors/bookshelf/Contact', () => {
   });
 
   test('uses the contacts table', async () => {
-    expect(instance.tableName).to.equal('contacts');
+    expect(instance.tableName).to.equal('crm_v2.contacts');
   });
 
   test('uses the correct ID attribute', async () => {

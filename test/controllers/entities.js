@@ -1,7 +1,7 @@
 'use strict';
-
+const server = require('../../index');
 const Lab = require('@hapi/lab');
-const { experiment, beforeEach, afterEach, test } = exports.lab = Lab.script();
+const { experiment, beforeEach, afterEach, test, before } = exports.lab = Lab.script();
 const { expect } = require('@hapi/code');
 const helpers = require('../helpers');
 
@@ -10,26 +10,30 @@ const controller = require('../../src/controllers/entities');
 experiment('create', () => {
   const createdEntities = [];
 
+  before(async () => {
+    await server._start();
+  });
+
   afterEach(async () => {
     for (const entity of createdEntities) {
-      await helpers.deleteEntity(entity.entity_id);
+      await helpers.makeRequest(server, helpers.deleteEntity, entity.entity_id);
     }
   });
 
   test('a company can be saved with upper case name', async () => {
-    const created = await helpers.createEntity('COMPANY');
+    const created = await helpers.makeRequest(server, helpers.createEntity, 'COMPANY');
     createdEntities.push(created);
     expect(created.entity_nm).to.equal('COMPANY@example.com');
   });
 
   test('an individual entity name is lower cased', async () => {
-    const created = await helpers.createEntity('INDIVIDUAL');
+    const created = await helpers.makeRequest(server, helpers.createEntity, 'INDIVIDUAL');
     createdEntities.push(created);
     expect(created.entity_nm).to.equal('individual@example.com');
   });
 
   test('created_at timestamp is added', async () => {
-    const created = await helpers.createEntity('created test');
+    const created = await helpers.makeRequest(server, helpers.createEntity, 'created test');
     createdEntities.push(created);
     expect(created.created_at).to.exist();
   });
@@ -44,25 +48,25 @@ experiment('getEntityCompanies', () => {
   const roles = [];
 
   beforeEach(async () => {
-    regime = await helpers.createEntity('regime');
-    companyOne = await helpers.createEntity('company');
-    companyTwo = await helpers.createEntity('company');
-    userEntity = await helpers.createEntity('individual');
-    roles.push(await helpers.createEntityRole(
+    regime = await helpers.makeRequest(server, helpers.createEntity, 'regime');
+    companyOne = await helpers.makeRequest(server, helpers.createEntity, 'company');
+    companyTwo = await helpers.makeRequest(server, helpers.createEntity, 'company');
+    userEntity = await helpers.makeRequest(server, helpers.createEntity, 'individual');
+    roles.push(await helpers.makeRequest(server, helpers.createEntityRole,
       regime.entity_id,
       companyOne.entity_id,
       userEntity.entity_id,
       'role-a'
     ));
 
-    roles.push(await helpers.createEntityRole(
+    roles.push(await helpers.makeRequest(server, helpers.createEntityRole,
       regime.entity_id,
       companyOne.entity_id,
       userEntity.entity_id,
       'role-b'
     ));
 
-    roles.push(await helpers.createEntityRole(
+    roles.push(await helpers.makeRequest(server, helpers.createEntityRole,
       regime.entity_id,
       companyTwo.entity_id,
       userEntity.entity_id,
@@ -78,7 +82,7 @@ experiment('getEntityCompanies', () => {
 
   afterEach(async () => {
     for (const role of roles) {
-      await helpers.deleteEntityRole(userEntity.entity_id, role.entity_role_id);
+      await helpers.makeRequest(server, helpers.deleteEntityRole, userEntity.entity_id, role.entity_role_id);
     }
 
     const entityIds = [
@@ -89,7 +93,7 @@ experiment('getEntityCompanies', () => {
     ];
 
     for (const entityId of entityIds) {
-      await helpers.deleteEntity(entityId);
+      await helpers.makeRequest(server, helpers.deleteEntity, entityId);
     }
   });
 

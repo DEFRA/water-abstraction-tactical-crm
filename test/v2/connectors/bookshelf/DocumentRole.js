@@ -17,7 +17,7 @@ experiment('v2/connectors/bookshelf/DocumentRole', () => {
   });
 
   test('uses the document_roles table', async () => {
-    expect(instance.tableName).to.equal('document_roles');
+    expect(instance.tableName).to.equal('crm_v2.document_roles');
   });
 
   test('uses the correct ID attribute', async () => {
