@@ -21,6 +21,10 @@ if (config.isAcceptanceTestTarget) {
     }
   };
 
+  /* TODO this is a V2 action. Ideally this should live in the /v2 folder
+  * It is currently here to keep this endpoint in the same place as the
+  * other endpoints that are being called in order to tear down regression
+  * test data */
   exports.acceptanceTestTearDownCRMV2Entities = {
     method: 'DELETE',
     path: '/crm/2.0/acceptance-tests/companies',
