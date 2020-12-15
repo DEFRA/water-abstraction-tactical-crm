@@ -1,5 +1,5 @@
 const testMode = parseInt(process.env.TEST_MODE) === 1;
-const isAcceptanceTestTarget = ['local', 'dev', 'development', 'test', 'preprod'].includes(process.env.NODE_ENV);
+const isAcceptanceTestTarget = ['local', 'dev', 'development', 'test', 'qa', 'preprod'].includes(process.env.NODE_ENV);
 
 module.exports = {
   version: '1.0',
