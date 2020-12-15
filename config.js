@@ -1,5 +1,5 @@
 const testMode = parseInt(process.env.TEST_MODE) === 1;
-const isAcceptanceTestTarget = ['local', 'dev', 'development', 'test', 'preprod'].includes(process.env.NODE_ENV);
+const isAcceptanceTestTarget = ['local', 'dev', 'development', 'test', 'qa', 'preprod'].includes(process.env.NODE_ENV);
 
 module.exports = {
   version: '1.0',
@@ -52,7 +52,7 @@ module.exports = {
   //
   pg: {
     connectionString: process.env.DATABASE_URL,
-    max: process.env.NODE_ENV === 'local' ? 20 : 5,
+    max: process.env.NODE_ENV === 'local' ? 20 : 7,
     idleTimeoutMillis: 10000,
     connectionTimeoutMillis: 5000
   },
