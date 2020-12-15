@@ -27,7 +27,7 @@ module.exports = {
   blipp: {
     showAuth: true
   },
-  
+
   pg: {
     connectionString: process.env.DATABASE_URL,
     max: process.env.NODE_ENV === 'local' ? 20 : 7,
