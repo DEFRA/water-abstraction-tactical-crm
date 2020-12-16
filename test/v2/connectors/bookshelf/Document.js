@@ -15,7 +15,7 @@ experiment('v2/connectors/bookshelf/Document', () => {
   });
 
   test('uses the documents table', async () => {
-    expect(instance.tableName).to.equal('documents');
+    expect(instance.tableName).to.equal('crm_v2.documents');
   });
 
   test('uses the correct ID attribute', async () => {

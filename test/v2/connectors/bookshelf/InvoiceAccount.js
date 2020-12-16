@@ -23,7 +23,7 @@ experiment('v2/connectors/bookshelf/InvoiceAccount', () => {
   });
 
   test('uses the address table', async () => {
-    expect(instance.tableName).to.equal('invoice_accounts');
+    expect(instance.tableName).to.equal('crm_v2.invoice_accounts');
   });
 
   test('uses the correct ID attribute', async () => {

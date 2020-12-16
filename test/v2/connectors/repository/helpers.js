@@ -12,19 +12,24 @@ const sandbox = require('sinon').createSandbox();
 const helpers = require('../../../../src/v2/connectors/repository/helpers');
 
 experiment('v2/connectors/repository/helpers', () => {
+  let result;
+  let model;
+  beforeEach(() => {
+    result = {
+      toJSON: sandbox.spy()
+    };
+    model = {
+      forge: sandbox.stub().returnsThis(),
+      where: sandbox.stub().returnsThis(),
+      fetch: sandbox.stub().resolves(result),
+      save: sandbox.stub().resolves(result),
+      fetchAll: sandbox.stub().resolves(result),
+      destroy: sandbox.stub().resolves()
+    };
+  });
+
   experiment('.findOne', () => {
-    let result;
-    let model;
-
     beforeEach(async () => {
-      result = {
-        toJSON: sandbox.spy()
-      };
-      model = {
-        forge: sandbox.stub().returnsThis(),
-        fetch: sandbox.stub().resolves(result)
-      };
-
       await helpers.findOne(model, 'testKey', 'test-id');
     });
 
@@ -65,21 +70,8 @@ experiment('v2/connectors/repository/helpers', () => {
   });
 
   experiment('.create', () => {
-    let result;
-    let model;
-
     beforeEach(async () => {
-      result = {
-        toJSON: sandbox.spy()
-      };
-      model = {
-        forge: sandbox.stub().returnsThis(),
-        save: sandbox.stub().resolves(result)
-      };
-
-      await helpers.create(model, {
-        day: 'Friday'
-      });
+      await helpers.create(model, { day: 'Friday' });
     });
 
     test('calls forge on the model with the data', async () => {
@@ -95,19 +87,7 @@ experiment('v2/connectors/repository/helpers', () => {
   });
 
   experiment('.findAll', () => {
-    let result;
-    let model;
-
     beforeEach(async () => {
-      result = {
-        toJSON: sandbox.spy()
-      };
-      model = {
-        forge: sandbox.stub().returnsThis(),
-        where: sandbox.stub().returnsThis(),
-        fetchAll: sandbox.stub().resolves(result)
-      };
-
       await helpers.findAll(model, 'testKey', 'test-id');
     });
 
@@ -132,16 +112,39 @@ experiment('v2/connectors/repository/helpers', () => {
     });
   });
 
-  experiment('.deleteTestData', () => {
-    let model;
-
+  experiment('.findMany', () => {
     beforeEach(async () => {
-      model = {
-        forge: sandbox.stub().returnsThis(),
-        where: sandbox.stub().returnsThis(),
-        destroy: sandbox.stub().resolves()
-      };
+      await helpers.findMany(model, { test_key: 'testValue' }, ['test-model']);
+    });
 
+    test('filters the result', async () => {
+      const [filter] = model.where.lastCall.args;
+      expect(filter).to.equal({
+        test_key: 'testValue'
+      });
+    });
+
+    test('fetches all relevant data', async () => {
+      expect(model.fetchAll.called).to.be.true();
+    });
+
+    test('fetches related models when provided', async () => {
+      const [{ withRelated }] = model.fetchAll.lastCall.args;
+      expect(withRelated).to.equal(['test-model']);
+    });
+
+    test('will not throw if no entity found', async () => {
+      const [options] = model.fetchAll.lastCall.args;
+      expect(options.require).to.equal(false);
+    });
+
+    test('returns the entity as JSON', async () => {
+      expect(result.toJSON.called).to.equal(true);
+    });
+  });
+
+  experiment('.deleteTestData', () => {
+    beforeEach(async () => {
       await helpers.deleteTestData(model);
     });
 

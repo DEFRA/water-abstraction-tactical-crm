@@ -41,7 +41,7 @@ const getFunctionName = (action, entityKey) => {
  * @param {Object} request HAPI request object
  * @param {Object} h HAPI response toolkit
  * @param {String} key The entity type being created (e.g. contact)
- * @param {Function} locationCallback Optional callback that will recieve the
+ * @param {Function} locationCallback Optional callback that will receive the
  *  created entity for greater control when forming the location URL
  */
 const createEntity = async (request, h, key, locationCallback) => {
