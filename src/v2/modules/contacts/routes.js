@@ -42,12 +42,12 @@ exports.postContact = {
     validate: {
       payload: {
         type: validators.CONTACT_TYPE,
-        salutation: validators.OPTIONAL_STRING,
-        firstName: validators.OPTIONAL_STRING,
-        lastName: validators.OPTIONAL_STRING,
-        middleInitials: validators.OPTIONAL_STRING,
-        department: validators.OPTIONAL_STRING,
-        suffix: validators.OPTIONAL_STRING,
+        salutation: validators.OPTIONAL_STRING_NO_DEFAULT_VALUE,
+        firstName: validators.OPTIONAL_STRING_NO_DEFAULT_VALUE,
+        lastName: validators.OPTIONAL_STRING_NO_DEFAULT_VALUE,
+        middleInitials: validators.OPTIONAL_STRING_NO_DEFAULT_VALUE,
+        department: validators.OPTIONAL_STRING_NO_DEFAULT_VALUE,
+        suffix: validators.OPTIONAL_STRING_NO_DEFAULT_VALUE,
         isTest: validators.TEST_FLAG,
         dataSource: validators.DATA_SOURCE
       }

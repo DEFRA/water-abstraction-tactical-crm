@@ -19,6 +19,7 @@ const DATA_SOURCE = Joi.string().valid('wrls', 'nald').default('wrls');
 const ADDRESS_DATA_SOURCE = Joi.string().valid('wrls', 'nald', 'ea-address-facade', 'companies-house').default('wrls');
 const UPRN = Joi.number().integer().min(0).default(null).allow(null);
 const OPTIONAL_STRING = Joi.string().allow('', null).trim().empty('').default(null);
+const OPTIONAL_STRING_NO_DEFAULT_VALUE = Joi.string().allow('', null).trim().empty('');
 const CONTACT_TYPE = Joi.string().required().valid('person', 'department');
 const ROLE_NAMES = Joi.string().required().valid('licenceHolder', 'billing');
 
@@ -40,5 +41,6 @@ exports.DATA_SOURCE = DATA_SOURCE;
 exports.ADDRESS_DATA_SOURCE = ADDRESS_DATA_SOURCE;
 exports.UPRN = UPRN;
 exports.OPTIONAL_STRING = OPTIONAL_STRING;
+exports.OPTIONAL_STRING_NO_DEFAULT_VALUE = OPTIONAL_STRING_NO_DEFAULT_VALUE;
 exports.CONTACT_TYPE = CONTACT_TYPE;
 exports.ROLE_NAMES = ROLE_NAMES;
