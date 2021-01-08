@@ -31,8 +31,17 @@ const deleteOne = async id => helpers.deleteOne(Company, 'companyId', id);
 
 const deleteTestData = async () => helpers.deleteTestData(Company);
 
+/**
+ * Find a single company by company number
+ *
+ * @param {String} companyNumber number name
+ * @return {Promise<Object>}
+ */
+const findOneByCompanyNumber = async companyNumber => helpers.findOne(Company, 'companyNumber', companyNumber);
+
 exports.create = create;
 exports.deleteTestData = deleteTestData;
 exports.findOne = findOne;
 exports.deleteOne = deleteOne;
 exports.findAllByName = findAllByName;
+exports.findOneByCompanyNumber = findOneByCompanyNumber;

@@ -8,12 +8,16 @@ const { wrapServiceCall } = require('../../lib/wrap-service-call');
 const postCompany = async (request, h) => {
   const { type, name, companyNumber = null, organisationType = null, isTest = false } = request.payload;
 
-  const createdEntity = type === companyTypes.PERSON
-    ? await companiesService.createPerson(name, isTest)
-    : await companiesService.createOrganisation(name, companyNumber, organisationType, isTest);
+  try {
+    const createdEntity = type === companyTypes.PERSON
+      ? await companiesService.createPerson(name, isTest)
+      : await companiesService.createOrganisation(name, companyNumber, organisationType, isTest);
 
-  return h.response(createdEntity)
-    .created(`/crm/2.0/companies/${createdEntity.companyId}`);
+    return h.response(createdEntity)
+      .created(`/crm/2.0/companies/${createdEntity.companyId}`);
+  } catch (err) {
+    return mapErrorResponse(err);
+  }
 };
 
 const getCompany = async request => {
