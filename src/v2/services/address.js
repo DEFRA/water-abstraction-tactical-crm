@@ -33,7 +33,7 @@ const createAddress = async address => {
 
   try {
     const createdAddress = await addressRepo.create(mapValidatedAddress(validatedAddress));
-    return { address: createdAddress };
+    return createdAddress;
   } catch (err) {
     // unique violation
     if (isConstraintViolationError(err, 'unique_address_uprn')) {

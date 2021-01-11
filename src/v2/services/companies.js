@@ -27,7 +27,7 @@ const createOrganisation = async (name, companyNumber = null, organisationType =
     // unique violation
     if (isConstraintViolationError(err, 'company_number')) {
       const existingEntity = await repos.companies.findOneByCompanyNumber(companyNumber);
-      throw new errors.UniqueConstraintViolation(`An company with number ${companyNumber} already exists`, existingEntity);
+      throw new errors.UniqueConstraintViolation(`A company with number ${companyNumber} already exists`, existingEntity);
     }
     throw err;
   }
