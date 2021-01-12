@@ -1,5 +1,6 @@
+const server = require('../../index');
 const { expect } = require('@hapi/code');
-const { beforeEach, afterEach, experiment, test } = exports.lab = require('@hapi/lab').script();
+const { beforeEach, afterEach, experiment, test, before } = exports.lab = require('@hapi/lab').script();
 const helpers = require('../helpers');
 const { pool } = require('../../src/lib/connectors/db');
 const { logger } = require('../../src/logger');
@@ -17,17 +18,21 @@ experiment('getDocumentUsers', () => {
   let documentHeader;
   let response;
 
+  before(async () => {
+    await server._start();
+  });
+
   beforeEach(async () => {
-    regimeEntity = await helpers.createEntity('regime');
-    companyEntity = await helpers.createEntity('company');
-    userEntity = await helpers.createEntity('user', { entity_type: 'individual' });
-    userRoleEntity1 = await helpers.createEntityRole(
+    regimeEntity = await helpers.makeRequest(server, helpers.createEntity, 'regime');
+    companyEntity = await helpers.makeRequest(server, helpers.createEntity, 'company');
+    userEntity = await helpers.makeRequest(server, helpers.createEntity, 'user', { entity_type: 'individual' });
+    userRoleEntity1 = await helpers.makeRequest(server, helpers.createEntityRole,
       regimeEntity.entity_id,
       companyEntity.entity_id,
       userEntity.entity_id,
       'primary_user'
     );
-    userRoleEntity2 = await helpers.createEntityRole(
+    userRoleEntity2 = await helpers.makeRequest(server, helpers.createEntityRole,
       regimeEntity.entity_id,
       companyEntity.entity_id,
       userEntity.entity_id,
@@ -36,19 +41,20 @@ experiment('getDocumentUsers', () => {
 
     sandbox.stub(logger, 'error');
 
-    documentHeader = await helpers.createDocumentHeader(regimeEntity.entity_id, companyEntity.entity_id);
+    documentHeader = await helpers.makeRequest(server, helpers.createDocumentHeader, regimeEntity.entity_id, companyEntity.entity_id);
 
     response = await controller.getDocumentUsers({ params: { documentId: documentHeader.document_id } });
   });
 
   afterEach(async () => {
     sandbox.restore();
-    await helpers.deleteDocumentHeader(documentHeader.document_id);
-    await helpers.deleteEntityRole(userEntity.entity_id, userRoleEntity2.entity_role_id);
-    await helpers.deleteEntityRole(userEntity.entity_id, userRoleEntity1.entity_role_id);
-    await helpers.deleteEntity(userEntity.entity_id);
-    await helpers.deleteEntity(companyEntity.entity_id);
-    await helpers.deleteEntity(regimeEntity.entity_id);
+
+    await helpers.makeRequest(server, helpers.deleteDocumentHeader, documentHeader.document_id);
+    await helpers.makeRequest(server, helpers.deleteEntityRole, userEntity.entity_id, userRoleEntity2.entity_role_id);
+    await helpers.makeRequest(server, helpers.deleteEntityRole, userEntity.entity_id, userRoleEntity1.entity_role_id);
+    await helpers.makeRequest(server, helpers.deleteEntity, userEntity.entity_id);
+    await helpers.makeRequest(server, helpers.deleteEntity, companyEntity.entity_id);
+    await helpers.makeRequest(server, helpers.deleteEntity, regimeEntity.entity_id);
   });
 
   test('returns a 404 for an incorrect document id', async () => {
