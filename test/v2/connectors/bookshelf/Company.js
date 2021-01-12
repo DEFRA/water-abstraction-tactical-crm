@@ -22,7 +22,7 @@ experiment('v2/connectors/bookshelf/Company', () => {
   });
 
   test('uses the companies table', async () => {
-    expect(instance.tableName).to.equal('companies');
+    expect(instance.tableName).to.equal('crm_v2.companies');
   });
 
   test('uses the correct ID attribute', async () => {

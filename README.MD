@@ -1,4 +1,9 @@
-[![Build Status](https://travis-ci.org/DEFRA/water-abstraction-tactical-crm.svg?branch=master)](https://travis-ci.org/DEFRA/water-abstraction-tactical-crm)
+
+|               |              |  
+|---------------|--------------|
+| Build         |  ![CI](https://github.com/DEFRA/water-abstraction-tactical-crm/workflows/CI/badge.svg) |
+| Test coverage |[![Test Coverage](https://api.codeclimate.com/v1/badges/eeadf60a5df1e504f286/test_coverage)](https://codeclimate.com/github/DEFRA/water-abstraction-tactical-crm/test_coverage)  |
+| Quality check |  [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=DEFRA_water-abstraction-tactical-crm&metric=alert_status)](https://sonarcloud.io/dashboard?id=DEFRA_water-abstraction-tactical-crm) |
 
 # Introduction
 This component is one of 3 that combine to give you the ability to store a document or details of a permit or pass, to link those documents to users that can view and be able to have different access for internal and external users. With a front end it will enable most processes to capture, share and view details of permits and or licence style information
