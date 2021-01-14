@@ -16,6 +16,10 @@ const repos = require('../../../src/v2/connectors/repository');
 const errors = require('../../../src/v2/lib/errors');
 const InvoiceAccount = require('../../../src/v2/connectors/bookshelf/InvoiceAccount');
 
+const EXISTING_COMPANY = {
+  companyId: uuid()
+};
+
 experiment('services/companies', () => {
   let tempInvoiceAccount;
 
@@ -29,6 +33,8 @@ experiment('services/companies', () => {
     sandbox.stub(repos.companies, 'findOne').resolves({
       companyId: 'test-company-id'
     });
+
+    sandbox.stub(repos.companies, 'findOneByCompanyNumber').resolves(EXISTING_COMPANY);
 
     sandbox.stub(repos.companies, 'deleteOne').resolves();
 
@@ -154,6 +160,37 @@ experiment('services/companies', () => {
     test('returns the result from the datbase', async () => {
       const result = await companiesService.createOrganisation('test-name');
       expect(result.companyId).to.equal('test-company-id');
+    });
+
+    experiment('when there is a unique constraint violation on company number', () => {
+      beforeEach(async () => {
+        const err = new Error();
+        err.code = '23505';
+        err.constraint = 'company_number';
+
+        repos.companies.create.rejects(err);
+      });
+
+      test('a UniqueConstraintViolation error is thrown', async () => {
+        const func = () => companiesService.createOrganisation('test-name');
+        const err = await expect(func()).to.reject();
+        expect(err instanceof errors.UniqueConstraintViolation).to.be.true();
+        expect(err.existingEntity).to.equal(EXISTING_COMPANY);
+      });
+    });
+
+    experiment('when there is an unexpected error', () => {
+      const ERROR = new Error('oops');
+
+      beforeEach(async () => {
+        repos.companies.create.rejects(ERROR);
+      });
+
+      test('a UniqueConstraintViolation error is thrown', async () => {
+        const func = () => companiesService.createOrganisation('test-name');
+        const err = await expect(func()).to.reject();
+        expect(err).to.equal(ERROR);
+      });
     });
   });
 
