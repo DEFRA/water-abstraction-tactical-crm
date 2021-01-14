@@ -184,6 +184,27 @@ experiment('modules/companies/controller', () => {
         expect(url).to.equal('/crm/2.0/companies/test-company-id');
       });
     });
+
+    experiment('when there is an error', () => {
+      let response;
+      const ERROR = new errors.EntityValidationError('oops!');
+
+      beforeEach(async () => {
+        companiesService.createPerson.rejects(ERROR);
+        response = await controller.postCompany({
+          payload: {
+            type: 'person',
+            name: 'test-name',
+            isTest: true
+          }
+        }, h);
+      });
+
+      test('the error is mapped', async () => {
+        expect(response.isBoom).to.be.true();
+        expect(response.output.statusCode).to.equal(422);
+      });
+    });
   });
 
   experiment('.postCompanyAddress', () => {
