@@ -37,7 +37,7 @@ const createAddress = async address => {
   } catch (err) {
     // unique violation
     if (isConstraintViolationError(err, 'unique_address_uprn')) {
-      const existingEntity = await getAddressByUprn(address.uprn);
+      const existingEntity = await addressRepo.findByUprn(address.uprn);
       throw new UniqueConstraintViolation(`An address with UPRN ${address.uprn} already exists`, existingEntity);
     }
     throw err;
@@ -48,12 +48,6 @@ const getAddress = addressId => addressRepo.findOne(addressId);
 
 const deleteAddress = addressId => addressRepo.deleteOne(addressId);
 
-const getAddressByUprn = async uprn => {
-  const [address] = await addressRepo.findByUprn(uprn);
-  return address;
-};
-
 exports.createAddress = createAddress;
 exports.getAddress = getAddress;
 exports.deleteAddress = deleteAddress;
-exports.getAddressByUprn = getAddressByUprn;

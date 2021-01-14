@@ -361,6 +361,7 @@ experiment('modules/companies/controller', () => {
   experiment('.getCompanyAddresses', () => {
     let result;
     const request = {
+      method: 'get',
       params: {
         companyId: 'test-company-id'
       }
@@ -401,6 +402,7 @@ experiment('modules/companies/controller', () => {
   experiment('.getCompanyContacts', () => {
     let result;
     const request = {
+      method: 'get',
       params: {
         companyId: 'test-company-id'
       }

@@ -12,12 +12,14 @@ const sandbox = require('sinon').createSandbox();
 
 const addressRepo = require('../../../src/v2/connectors/repository/addresses');
 const addressService = require('../../../src/v2/services/address');
+const { UniqueConstraintViolation } = require('../../../src/v2/lib/errors');
 
 experiment('v2/services/address', () => {
   beforeEach(async () => {
     sandbox.stub(addressRepo, 'create').resolves();
     sandbox.stub(addressRepo, 'findOne').resolves();
     sandbox.stub(addressRepo, 'deleteOne').resolves();
+    sandbox.stub(addressRepo, 'findByUprn').resolves();
   });
 
   afterEach(async () => {
@@ -70,7 +72,7 @@ experiment('v2/services/address', () => {
       });
 
       test('includes the saved address in the response', async () => {
-        expect(result.address.addressId).to.equal('test-address-id');
+        expect(result.addressId).to.equal('test-address-id');
       });
     });
 
@@ -80,10 +82,16 @@ experiment('v2/services/address', () => {
       beforeEach(async () => {
         error = new Error('oops!');
         error.code = '23505';
+        error.constraint = 'unique_address_uprn';
         error.detail = 'unique constraint violation on uprn';
         addressRepo.create.throws(error);
+        addressRepo.findByUprn.resolves({
+          addressId: 'test-address-id'
+        });
+      });
 
-        result = await addressService.createAddress({
+      test('throws a UniqueConstraintValidation error', async () => {
+        const func = () => addressService.createAddress({
           address1: null,
           address2: 'one',
           address3: null,
@@ -93,10 +101,11 @@ experiment('v2/services/address', () => {
           country: 'france',
           postcode: null
         });
-      });
 
-      test('returns the error', async () => {
-        expect(result.error).to.equal(error);
+        result = await expect(func()).to.reject();
+        console.log(result);
+        expect(result instanceof UniqueConstraintViolation).to.be.true();
+        expect(result.existingEntity).to.be.an.object();
       });
     });
 
