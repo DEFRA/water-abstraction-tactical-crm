@@ -50,6 +50,10 @@ experiment('services/companies', () => {
 
     sandbox.stub(repos.companyAddresses, 'deleteOne').resolves();
 
+    sandbox.stub(repos.companyAddresses, 'findOneByCompanyAddressAndRoleId').resolves({
+      companyAddressId: 'test-company-address-id'
+    });
+
     sandbox.stub(repos.companyContacts, 'create').resolves({
       companyContactId: 'test-company-contact-id'
     });
@@ -261,19 +265,37 @@ experiment('services/companies', () => {
     });
 
     experiment('when there is a unique constraint violation error', async () => {
+      let result;
+      const companyId = 'test-company-id';
+      const addressId = 'test-region-id';
+      const roleId = 'test-role-id';
+      const roleName = 'test-role-name';
+
       beforeEach(async () => {
         const err = new Error();
         err.code = '23505';
+        err.constraint = 'company_role_address';
         repos.companyAddresses.create.rejects(err);
+
+        const func = () => companiesService.addAddress(companyId, addressId, roleName, {
+          roleId,
+          startDate: '2020-01-01'
+        });
+        result = await expect(func()).to.reject();
+      });
+
+      test('the existing entity is fetched', async () => {
+        expect(repos.companyAddresses.findOneByCompanyAddressAndRoleId.calledWith(
+          companyId, addressId, roleId
+        )).to.be.true();
       });
 
       test('a UniqueConstraintViolation error is thrown', async () => {
-        const func = () => companiesService.addAddress('test-company-id', 'test-address-id', {
-          roleId: 'test-role-id',
-          startDate: '2020-01-01'
-        });
-        const err = await expect(func()).to.reject();
-        expect(err instanceof errors.UniqueConstraintViolation);
+        expect(result instanceof errors.UniqueConstraintViolation);
+      });
+
+      test('the error includes the existingEntity object', async () => {
+        expect(result.existingEntity).to.be.an.object();
       });
     });
 

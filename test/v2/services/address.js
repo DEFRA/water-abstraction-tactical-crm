@@ -19,7 +19,7 @@ experiment('v2/services/address', () => {
     sandbox.stub(addressRepo, 'create').resolves();
     sandbox.stub(addressRepo, 'findOne').resolves();
     sandbox.stub(addressRepo, 'deleteOne').resolves();
-    sandbox.stub(addressRepo, 'findByUprn').resolves();
+    sandbox.stub(addressRepo, 'findOneByUprn').resolves();
   });
 
   afterEach(async () => {
@@ -85,7 +85,7 @@ experiment('v2/services/address', () => {
         error.constraint = 'unique_address_uprn';
         error.detail = 'unique constraint violation on uprn';
         addressRepo.create.throws(error);
-        addressRepo.findByUprn.resolves({
+        addressRepo.findOneByUprn.resolves({
           addressId: 'test-address-id'
         });
       });

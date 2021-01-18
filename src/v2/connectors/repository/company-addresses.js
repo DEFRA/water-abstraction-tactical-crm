@@ -36,7 +36,15 @@ const findManyByCompanyId = async companyId => {
   return collection.toJSON();
 };
 
+const findOneByCompanyAddressAndRoleId = (companyId, addressId, roleId) =>
+  helpers.findOneBy(CompanyAddress, {
+    companyId,
+    addressId,
+    roleId
+  });
+
 exports.create = create;
 exports.deleteOne = deleteOne;
 exports.deleteTestData = deleteTestData;
 exports.findManyByCompanyId = findManyByCompanyId;
+exports.findOneByCompanyAddressAndRoleId = findOneByCompanyAddressAndRoleId;
