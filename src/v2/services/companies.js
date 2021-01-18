@@ -66,17 +66,25 @@ const searchCompaniesByName = async (name, soft = true) => {
  * @return {Promise<Object>} new record in company_addresses
 */
 const addAddress = async (companyId, addressId, roleName, data = {}, isTest = false) => {
+  const roleId = await getRoleId(roleName);
   try {
     const companyAddress = {
       companyId,
       addressId,
-      roleId: await getRoleId(roleName),
+      roleId,
       ...data,
       isTest
     };
     const result = await repos.companyAddresses.create(companyAddress);
     return result;
   } catch (err) {
+    // unique violation
+    if (isConstraintViolationError(err, 'company_role_address')) {
+      const existingEntity = await repos.companyAddresses.findOneByCompanyAddressAndRoleId(
+        companyId, addressId, roleId
+      );
+      throw new errors.UniqueConstraintViolation(`A company address already exists for company ${companyId}`, existingEntity);
+    }
     handleRepoError(err);
   }
 };

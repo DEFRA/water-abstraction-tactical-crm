@@ -109,9 +109,9 @@ experiment('v2/connectors/repository/addresses', () => {
     });
   });
 
-  experiment('.findByUprn', () => {
+  experiment('.findOneByUprn', () => {
     beforeEach(async () => {
-      await addressesRepo.findByUprn(123456);
+      await addressesRepo.findOneByUprn(123456);
     });
 
     test('uses the .findOne helper', async () => {
