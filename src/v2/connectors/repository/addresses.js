@@ -37,11 +37,11 @@ const findOneWithCompanies = async id =>
 * @param {String} uprn
 * @return {Promise<Object>}
 */
-const findByUprn = async uprn => helpers.findMany(Address, { uprn });
+const findOneByUprn = uprn => helpers.findOne(Address, 'uprn', uprn);
 
 exports.findOne = findOne;
 exports.create = create;
 exports.deleteOne = deleteOne;
 exports.deleteTestData = deleteTestData;
 exports.findOneWithCompanies = findOneWithCompanies;
-exports.findByUprn = findByUprn;
+exports.findOneByUprn = findOneByUprn;

@@ -4,6 +4,7 @@ const companyTypes = require('../lib/company-types');
 const repos = require('../connectors/repository');
 const handleRepoError = require('./lib/error-handler');
 const errors = require('../lib/errors');
+const { isConstraintViolationError } = require('../lib/pg-error');
 
 const getRoleId = async roleName => {
   const role = await repos.roles.findOneByName(roleName);
@@ -19,8 +20,17 @@ const createPerson = async (name, isTest = false) => {
 
 const createOrganisation = async (name, companyNumber = null, organisationType = null, isTest = false) => {
   const company = { name, companyNumber, type: companyTypes.ORGANISATION, organisationType, isTest };
-  const result = await repos.companies.create(company);
-  return result;
+  try {
+    const result = await repos.companies.create(company);
+    return result;
+  } catch (err) {
+    // unique violation
+    if (isConstraintViolationError(err, 'company_number')) {
+      const existingEntity = await repos.companies.findOneByCompanyNumber(companyNumber);
+      throw new errors.UniqueConstraintViolation(`A company with number ${companyNumber} already exists`, existingEntity);
+    }
+    throw err;
+  }
 };
 
 const getCompany = async companyId => {
@@ -56,17 +66,25 @@ const searchCompaniesByName = async (name, soft = true) => {
  * @return {Promise<Object>} new record in company_addresses
 */
 const addAddress = async (companyId, addressId, roleName, data = {}, isTest = false) => {
+  const roleId = await getRoleId(roleName);
   try {
     const companyAddress = {
       companyId,
       addressId,
-      roleId: await getRoleId(roleName),
+      roleId,
       ...data,
       isTest
     };
     const result = await repos.companyAddresses.create(companyAddress);
     return result;
   } catch (err) {
+    // unique violation
+    if (isConstraintViolationError(err, 'company_role_address')) {
+      const existingEntity = await repos.companyAddresses.findOneByCompanyAddressAndRoleId(
+        companyId, addressId, roleId
+      );
+      throw new errors.UniqueConstraintViolation(`A company address already exists for company ${companyId}`, existingEntity);
+    }
     handleRepoError(err);
   }
 };

@@ -30,6 +30,7 @@ experiment('v2/connectors/repository/companies', () => {
     sandbox.stub(Company, 'forge').returns(stub);
     sandbox.stub(repoHelpers, 'deleteTestData');
     sandbox.stub(repoHelpers, 'deleteOne');
+    sandbox.stub(repoHelpers, 'findOne');
   });
 
   afterEach(async () => {
@@ -61,46 +62,15 @@ experiment('v2/connectors/repository/companies', () => {
   });
 
   experiment('.findOne', () => {
-    let result;
-
-    experiment('when the id matches a company', () => {
-      beforeEach(async () => {
-        result = await companiesRepo.findOne('test-id');
-      });
-
-      test('.forge() is called on the model with the data', async () => {
-        const [data] = Company.forge.lastCall.args;
-        expect(data).to.equal({ companyId: 'test-id' });
-      });
-
-      test('.fetch() is called after the forge', async () => {
-        expect(stub.fetch.called).to.equal(true);
-      });
-
-      test('the JSON representation is returned', async () => {
-        expect(model.toJSON.called).to.be.true();
-        expect(result.id).to.equal('test-id');
-      });
+    const ID = 'test-id';
+    beforeEach(async () => {
+      await companiesRepo.findOne(ID);
     });
 
-    experiment('when the id does not find a company', () => {
-      beforeEach(async () => {
-        stub.fetch.resolves(null);
-        result = await companiesRepo.findOne('test-id');
-      });
-
-      test('.forge() is called on the model with the data', async () => {
-        const [data] = Company.forge.lastCall.args;
-        expect(data).to.equal({ companyId: 'test-id' });
-      });
-
-      test('.fetch() is called after the forge', async () => {
-        expect(stub.fetch.called).to.equal(true);
-      });
-
-      test('null is returned', async () => {
-        expect(result).to.equal(null);
-      });
+    test('uses the .findOne repo helper', async () => {
+      expect(repoHelpers.findOne.calledWith(
+        Company, 'companyId', ID
+      )).to.be.true();
     });
   });
 
@@ -141,6 +111,20 @@ experiment('v2/connectors/repository/companies', () => {
 
       const [model] = repoHelpers.deleteTestData.lastCall.args;
       expect(model).to.equal(Company);
+    });
+  });
+
+  experiment('.findOneByCompanyNumber', () => {
+    const COMPANY_NUMBER = 'test-company-number';
+
+    beforeEach(async () => {
+      await companiesRepo.findOneByCompanyNumber(COMPANY_NUMBER);
+    });
+
+    test('uses the .findOne repo helper', async () => {
+      expect(repoHelpers.findOne.calledWith(
+        Company, 'companyNumber', COMPANY_NUMBER)
+      ).to.be.true();
     });
   });
 });
