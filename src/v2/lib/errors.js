@@ -8,9 +8,10 @@ class DBError extends Error {
 }
 
 class UniqueConstraintViolation extends DBError {
-  constructor (message) {
+  constructor (message, existingEntity) {
     super(message);
     this.name = 'UniqueConstraintViolation';
+    this.existingEntity = existingEntity;
   }
 }
 

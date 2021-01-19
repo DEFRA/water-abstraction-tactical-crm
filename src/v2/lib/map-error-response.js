@@ -8,7 +8,12 @@ const transformEntityValidationError = error => {
   return boomError;
 };
 
-const transformConflict = error => Boom.conflict(error.message);
+const transformConflict = error => {
+  const boomError = Boom.conflict(error.message);
+  boomError.output.payload.existingEntity = error.existingEntity;
+  return boomError;
+};
+
 const transformNotFound = error => Boom.notFound(error.message);
 
 const commandMap = new Map();

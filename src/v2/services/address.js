@@ -2,7 +2,8 @@
 
 const addressValidator = require('../modules/addresses/validator');
 const addressRepo = require('../connectors/repository/addresses');
-const { EntityValidationError } = require('../lib/errors');
+const { EntityValidationError, UniqueConstraintViolation } = require('../lib/errors');
+const { isConstraintViolationError } = require('../lib/pg-error');
 
 const mapValidatedAddress = address => {
   const { addressLine1, addressLine2, addressLine3, addressLine4, ...rest } = address;
@@ -31,12 +32,12 @@ const createAddress = async address => {
   }
 
   try {
-    const createdAddress = await addressRepo.create(mapValidatedAddress(validatedAddress));
-    return { address: createdAddress };
+    return await addressRepo.create(mapValidatedAddress(validatedAddress));
   } catch (err) {
     // unique violation
-    if (err.code === '23505' && err.detail.includes('uprn')) {
-      return { error: err };
+    if (isConstraintViolationError(err, 'unique_address_uprn')) {
+      const existingEntity = await addressRepo.findOneByUprn(address.uprn);
+      throw new UniqueConstraintViolation(`An address with UPRN ${address.uprn} already exists`, existingEntity);
     }
     throw err;
   }
@@ -46,12 +47,6 @@ const getAddress = addressId => addressRepo.findOne(addressId);
 
 const deleteAddress = addressId => addressRepo.deleteOne(addressId);
 
-const getAddressByUprn = async uprn => {
-  const [address] = await addressRepo.findByUprn(uprn);
-  return address;
-};
-
 exports.createAddress = createAddress;
 exports.getAddress = getAddress;
 exports.deleteAddress = deleteAddress;
-exports.getAddressByUprn = getAddressByUprn;
