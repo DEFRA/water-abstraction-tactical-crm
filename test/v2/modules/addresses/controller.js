@@ -13,7 +13,6 @@ const controller = require('../../../../src/v2/modules/addresses/controller');
 const addressService = require('../../../../src/v2/services/address');
 const { UniqueConstraintViolation } = require('../../../../src/v2/lib/errors');
 
-
 const addressData = {
   addressId: 'test-address-id',
   address1: 'Testing House',
