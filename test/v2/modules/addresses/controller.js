@@ -11,6 +11,7 @@ const { omit } = require('lodash');
 
 const controller = require('../../../../src/v2/modules/addresses/controller');
 const addressService = require('../../../../src/v2/services/address');
+const { UniqueConstraintViolation } = require('../../../../src/v2/lib/errors');
 
 const addressData = {
   addressId: 'test-address-id',
@@ -37,7 +38,6 @@ experiment('v2/modules/addresses/controller', () => {
     };
 
     sandbox.stub(addressService, 'createAddress');
-    sandbox.stub(addressService, 'getAddressByUprn').resolves(addressData);
   });
 
   afterEach(async () => {
@@ -49,9 +49,10 @@ experiment('v2/modules/addresses/controller', () => {
     experiment('when the address is created without issue', () => {
       beforeEach(async () => {
         payload = omit(addressData, 'addressId');
-        const request = { payload };
 
-        addressService.createAddress.resolves({ address: addressData });
+        const request = { payload, method: 'post' };
+
+        addressService.createAddress.resolves(addressData);
         await controller.postAddress(request, h);
       });
 
@@ -74,33 +75,31 @@ experiment('v2/modules/addresses/controller', () => {
     });
 
     experiment('when a record with that uprn already exists', () => {
+      const ERROR = new UniqueConstraintViolation('Message', addressData);
+      let result;
+
       beforeEach(async () => {
         payload = omit(addressData, 'id');
-        const request = { payload };
+        const request = { payload, method: 'post' };
 
-        addressService.createAddress.resolves({ error: 'oh no!' });
-        await controller.postAddress(request, h);
+        addressService.createAddress.rejects(ERROR);
+        result = await controller.postAddress(request, h);
       });
 
-      test('the existing entity is fetched', () => {
-        expect(addressService.getAddressByUprn.calledWith(
-          123456
-        )).to.be.true();
+      test('the response is a Boom error', async () => {
+        expect(result.isBoom).to.be.true();
       });
 
-      test('the response header contains the existing entity', async () => {
-        const [{ existingEntity }] = h.response.lastCall.args;
-        expect(existingEntity).to.equal(addressData);
+      test('the response contains the existing entity', async () => {
+        expect(result.output.payload.existingEntity).to.equal(addressData);
       });
 
       test('the response header contains the expected error message', async () => {
-        const [{ error }] = h.response.lastCall.args;
-        expect(error).to.equal('An address with UPRN of 123456 already exists');
+        expect(result.message).to.equal(ERROR.message);
       });
 
-      test('the 409 conflict code is returned', async () => {
-        const [code] = responseStub.code.lastCall.args;
-        expect(code).to.equal(409);
+      test('the Boom error has a 409 conflict status code', async () => {
+        expect(result.output.statusCode).to.equal(409);
       });
     });
   });
