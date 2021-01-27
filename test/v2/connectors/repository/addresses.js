@@ -32,6 +32,7 @@ experiment('v2/connectors/repository/addresses', () => {
     sandbox.stub(Address, 'forge').returns(stub);
     sandbox.stub(repoHelpers, 'deleteTestData');
     sandbox.stub(repoHelpers, 'deleteOne');
+    sandbox.stub(repoHelpers, 'findOne');
   });
 
   afterEach(async () => {
@@ -63,46 +64,14 @@ experiment('v2/connectors/repository/addresses', () => {
   });
 
   experiment('.findOne', () => {
-    let result;
-
-    experiment('when the id matches an address', () => {
-      beforeEach(async () => {
-        result = await addressesRepo.findOne('test-id');
-      });
-
-      test('.forge() is called on the model with the data', async () => {
-        const [data] = Address.forge.lastCall.args;
-        expect(data).to.equal({ addressId: 'test-id' });
-      });
-
-      test('.fetch() is called after the forge', async () => {
-        expect(stub.fetch.called).to.equal(true);
-      });
-
-      test('the JSON representation is returned', async () => {
-        expect(model.toJSON.called).to.be.true();
-        expect(result.id).to.equal('test-id');
-      });
+    beforeEach(async () => {
+      await addressesRepo.findOne('test-id');
     });
 
-    experiment('when the id does not find an address', () => {
-      beforeEach(async () => {
-        stub.fetch.resolves(null);
-        result = await addressesRepo.findOne('test-id');
-      });
-
-      test('.forge() is called on the model with the data', async () => {
-        const [data] = Address.forge.lastCall.args;
-        expect(data).to.equal({ addressId: 'test-id' });
-      });
-
-      test('.fetch() is called after the forge', async () => {
-        expect(stub.fetch.called).to.equal(true);
-      });
-
-      test('null is returned', async () => {
-        expect(result).to.equal(null);
-      });
+    test('uses the .findOne helper', async () => {
+      expect(repoHelpers.findOne.calledWith(
+        Address, 'addressId', 'test-id'
+      )).to.be.true();
     });
   });
 
@@ -128,12 +97,10 @@ experiment('v2/connectors/repository/addresses', () => {
 
   experiment('.findOneWithCompanies', () => {
     beforeEach(async () => {
-      sandbox.stub(repoHelpers, 'findOne');
+      await addressesRepo.findOneWithCompanies('test-id');
     });
 
     test('is created using the helpers', async () => {
-      await addressesRepo.findOneWithCompanies('test-id');
-
       const [model, field, id, related] = repoHelpers.findOne.lastCall.args;
       expect(model).to.equal(Address);
       expect(field).to.equal('addressId');
@@ -142,29 +109,15 @@ experiment('v2/connectors/repository/addresses', () => {
     });
   });
 
-  experiment('.findByUprn', () => {
-    let result;
-
+  experiment('.findOneByUprn', () => {
     beforeEach(async () => {
-      result = await addressesRepo.findByUprn(123456);
+      await addressesRepo.findOneByUprn(123456);
     });
 
-    test('.forge() is called on the model with the data', async () => {
-      expect(Address.forge.called).to.be.true();
-    });
-
-    test('.where() is called with the expected conditions', async () => {
-      const [conditions] = stub.where.lastCall.args;
-      expect(conditions).to.equal({ uprn: 123456 });
-    });
-
-    test('.fetchAll() is called after the forge', async () => {
-      expect(stub.fetchAll.called).to.be.true();
-    });
-
-    test('the JSON representation is returned', async () => {
-      expect(model.toJSON.called).to.be.true();
-      expect(result.id).to.equal('test-id');
+    test('uses the .findOne helper', async () => {
+      expect(repoHelpers.findOne.calledWith(
+        Address, 'uprn', 123456
+      )).to.be.true();
     });
   });
 });

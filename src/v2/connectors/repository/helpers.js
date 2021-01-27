@@ -1,9 +1,9 @@
 'use strict';
 const { snakeCase } = require('lodash');
 
-exports.findOne = async (bookshelfModel, idKey, id, withRelated = []) => {
+const findOneBy = async (bookshelfModel, query = {}, withRelated = []) => {
   const result = await bookshelfModel
-    .forge({ [idKey]: id })
+    .forge(query)
     .fetch({
       withRelated,
       require: false
@@ -11,6 +11,9 @@ exports.findOne = async (bookshelfModel, idKey, id, withRelated = []) => {
 
   return result && result.toJSON();
 };
+
+exports.findOne = async (bookshelfModel, idKey, id, withRelated = []) =>
+  findOneBy(bookshelfModel, { [idKey]: id }, withRelated);
 
 exports.findAll = async (bookshelfModel, idKey, id) => {
   const result = await bookshelfModel
@@ -46,3 +49,5 @@ exports.deleteTestData = async (bookShelfModel) => {
     require: false
   });
 };
+
+exports.findOneBy = findOneBy;
