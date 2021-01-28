@@ -50,4 +50,11 @@ exports.deleteTestData = async (bookShelfModel) => {
   });
 };
 
+exports.update = async (bookshelfModel, idKey, id, changes) => {
+  const result = await bookshelfModel
+    .forge({ [idKey]: id })
+    .save(changes);
+  return result.toJSON();
+};
+
 exports.findOneBy = findOneBy;
