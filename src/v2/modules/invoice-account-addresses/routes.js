@@ -1,16 +1,12 @@
 'use strict';
 
 const controller = require('./controller');
-
-const entityHandlers = require('../../lib/entity-handlers');
 const validators = require('../../lib/validators');
-
-const getLocation = entity => `/crm/2.0/invoice-account-addresses/${entity.invoiceAccountAddressId}`;
 
 exports.postInvoiceAccountAddress = {
   method: 'POST',
   path: '/crm/2.0/invoice-accounts/{invoiceAccountId}/addresses',
-  handler: (request, h) => entityHandlers.createEntity(request, h, 'invoiceAccountAddress', getLocation),
+  handler: controller.postInvoiceAccountAddress,
   options: {
     description: 'Adds an address to an invoice account entity',
     validate: {
@@ -32,7 +28,7 @@ exports.postInvoiceAccountAddress = {
 exports.deleteInvoiceAccountAddress = {
   method: 'DELETE',
   path: '/crm/2.0/invoice-account-addresses/{invoiceAccountAddressId}',
-  handler: (request, h) => entityHandlers.deleteEntity(request, h, 'invoiceAccountAddress'),
+  handler: controller.deleteInvoiceAccountAddress,
   options: {
     description: 'Delete an invoice account address entity by id',
     validate: {
