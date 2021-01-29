@@ -65,6 +65,9 @@ experiment('v2/services/invoice-accounts', () => {
     sandbox.stub(invoiceAccountAddressesRepo, 'findAll').resolves([{ startDate: '2018-05-03', endDate: '2020-03-31' }]);
     sandbox.stub(invoiceAccountAddressesRepo, 'create');
     sandbox.stub(invoiceAccountAddressesRepo, 'deleteOne');
+    sandbox.stub(invoiceAccountAddressesRepo, 'findOne');
+    sandbox.stub(invoiceAccountAddressesRepo, 'update');
+
     sandbox.stub(contactsRepo, 'findOneWithCompanies').resolves({
       companyContacts: [{
         companyId
@@ -391,5 +394,74 @@ experiment('v2/services/invoice-accounts', () => {
       await invoiceAccountsAddressService.deleteInvoiceAccountAddress('test-invoice-account-address-id');
       expect(invoiceAccountAddressesRepo.deleteOne.calledWith('test-invoice-account-address-id')).to.be.true();
     });
+  });
+
+  experiment('.updateInvoiceAccountAddress', () => {
+    const invoiceAccountAddressId = uuid();
+    const updates = {
+      startDate: '2020-01-01',
+      endDate: '2020-02-28'
+    };
+
+    experiment('when the invoice account address exists and starts before the end date', () => {
+      beforeEach(async () => {
+        invoiceAccountAddressesRepo.findOne.resolves({
+          startDate: '2020-01-01'
+        });
+        await invoiceAccountsAddressService.updateInvoiceAccountAddress(invoiceAccountAddressId, updates);
+      });
+
+      test('the record is fetched from the database', async () => {
+        expect(invoiceAccountAddressesRepo.findOne.calledWith(
+          invoiceAccountAddressId
+        )).to.be.true();
+      });
+    });
+
+    experiment('when the invoice account address does not exist', () => {
+      beforeEach(async () => {
+        invoiceAccountAddressesRepo.findOne.resolves(null);
+      });
+
+      test('a NotFoundError is thrown', async () => {
+        const func = () => invoiceAccountsAddressService.updateInvoiceAccountAddress(invoiceAccountAddressId, updates);
+        const err = await expect(func()).to.reject();
+        expect(err instanceof errors.NotFoundError).to.be.true();
+      });
+    });
+
+    experiment('when the end date is before the start date of the existing record', () => {
+      beforeEach(async () => {
+        invoiceAccountAddressesRepo.findOne.resolves({
+          startDate: '2020-03-01'
+        });
+      });
+
+      test('a ConflictingDataError is thrown', async () => {
+        const func = () => invoiceAccountsAddressService.updateInvoiceAccountAddress(invoiceAccountAddressId, updates);
+        const err = await expect(func()).to.reject();
+        expect(err instanceof errors.ConflictingDataError).to.be.true();
+      });
+    });
+
+    /*
+    experiment('when there are no errors', () => {
+      beforeEach(async () => {
+        await invoiceAccountsAddressService.updateInvoiceAccountAddress(invoiceAccountAddressId, updates);
+      });
+
+      test('the specified invoice account address is fetched from the database', async () => {
+        expect(invoiceAccountAddressesRepo.findOne.calledWith(
+          invoiceAccountAddressId
+        )).to.be.true();
+      });
+
+      test('only the end date property is updated', async () => {
+        expect(invoiceAccountAddressesRepo.update.calledWith(
+          invoiceAccountAddressId, { endDate: updates.endDate }
+        )).to.be.true();
+      });
+    });
+    */
   });
 });
