@@ -1,7 +1,6 @@
 'use strict';
 
 const moment = require('moment');
-const { pick } = require('lodash');
 
 const invoiceAccountAddressesRepo = require('../connectors/repository/invoice-account-addresses');
 const invoiceAccountsRepo = require('../connectors/repository/invoice-accounts');
