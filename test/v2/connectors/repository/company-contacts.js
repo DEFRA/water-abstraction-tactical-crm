@@ -33,6 +33,7 @@ experiment('v2/connectors/repository/company-contacts', () => {
 
     sandbox.stub(repoHelpers, 'deleteTestData');
     sandbox.stub(repoHelpers, 'deleteOne');
+    sandbox.stub(repoHelpers, 'findOneBy');
   });
 
   afterEach(async () => {
@@ -114,6 +115,29 @@ experiment('v2/connectors/repository/company-contacts', () => {
 
     test('the JSON representation is returned', async () => {
       expect(model.toJSON.called).to.be.true();
+    });
+  });
+
+  experiment('.findOneByCompanyRoleContact', () => {
+    const companyId = 'company-id';
+    const contactId = 'contact-id';
+    const roleId = 'role-id';
+    const startDate = '2021-01-01';
+
+    beforeEach(async () => {
+      await companyContactsRepo.findOneByCompanyRoleContact(companyId, contactId, roleId, startDate);
+    });
+
+    test('delegates to the helpers.findOneBy helper', async () => {
+      expect(repoHelpers.findOneBy.calledWith(
+        CompanyContact,
+        {
+          companyId,
+          contactId,
+          roleId,
+          startDate
+        }
+      )).to.be.true();
     });
   });
 });
