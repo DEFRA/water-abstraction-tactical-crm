@@ -29,27 +29,20 @@ experiment('services/companies', () => {
     sandbox.stub(repos.companies, 'create').resolves({
       companyId: 'test-company-id'
     });
-
     sandbox.stub(repos.companies, 'findOne').resolves({
       companyId: 'test-company-id'
     });
-
     sandbox.stub(repos.companies, 'findOneByCompanyNumber').resolves(EXISTING_COMPANY);
-
     sandbox.stub(repos.companies, 'deleteOne').resolves();
-
     sandbox.stub(repos.companies, 'findAllByName').resolves();
 
     sandbox.stub(repos.companyAddresses, 'create').resolves({
       companyAddressId: 'test-company-address-id'
     });
-
     sandbox.stub(repos.companyAddresses, 'findManyByCompanyId').resolves([{
       companyAddressId: 'test-company-address-id'
     }]);
-
     sandbox.stub(repos.companyAddresses, 'deleteOne').resolves();
-
     sandbox.stub(repos.companyAddresses, 'findOneByCompanyAddressAndRoleId').resolves({
       companyAddressId: 'test-company-address-id'
     });
@@ -57,12 +50,11 @@ experiment('services/companies', () => {
     sandbox.stub(repos.companyContacts, 'create').resolves({
       companyContactId: 'test-company-contact-id'
     });
-
     sandbox.stub(repos.companyContacts, 'findManyByCompanyId').resolves([{
       companyContactId: 'test-company-contact-id'
     }]);
-
     sandbox.stub(repos.companyContacts, 'deleteOne').resolves();
+    sandbox.stub(repos.companyContacts, 'findOneByCompanyRoleContact').resolves();
 
     sandbox.stub(repos.roles, 'findOneByName').resolves({
       roleId: 'test-role-id'
@@ -352,9 +344,16 @@ experiment('services/companies', () => {
     });
 
     experiment('when there is a unique constraint violation error', async () => {
+      const existingEntity = {
+        companyContactId: uuid()
+      };
+
       beforeEach(async () => {
+        repos.companyContacts.findOneByCompanyRoleContact.resolves(existingEntity);
+
         const err = new Error();
         err.code = '23505';
+        err.constraint = 'company_role_contact';
         repos.companyContacts.create.rejects(err);
       });
 
@@ -365,23 +364,7 @@ experiment('services/companies', () => {
         });
         const err = await expect(func()).to.reject();
         expect(err instanceof errors.UniqueConstraintViolation).to.be.true();
-      });
-    });
-
-    experiment('when there is a unique constraint violation error', async () => {
-      beforeEach(async () => {
-        const err = new Error();
-        err.code = '23503';
-        repos.companyContacts.create.rejects(err);
-      });
-
-      test('a ForeignKeyConstraintViolation error is thrown', async () => {
-        const func = () => companiesService.addContact('test-company-id', 'test-contact-id', {
-          roleId: 'test-role-id',
-          startDate: '2020-01-01'
-        });
-        const err = await expect(func()).to.reject();
-        expect(err instanceof errors.ForeignKeyConstraintViolation).to.be.true();
+        expect(err.existingEntity).to.equal(existingEntity);
       });
     });
 

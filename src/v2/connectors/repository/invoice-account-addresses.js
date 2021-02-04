@@ -23,7 +23,15 @@ const deleteOne = async id => helpers.deleteOne(InvoiceAccountAddress, 'invoiceA
 
 const deleteTestData = async () => helpers.deleteTestData(InvoiceAccountAddress);
 
+const update = (id, changes = {}) =>
+  helpers.update(InvoiceAccountAddress, 'invoiceAccountAddressId', id, changes);
+
+const findOne = id =>
+  helpers.findOne(InvoiceAccountAddress, 'invoiceAccountAddressId', id);
+
 exports.create = create;
 exports.deleteOne = deleteOne;
 exports.deleteTestData = deleteTestData;
 exports.findAll = findAll;
+exports.update = update;
+exports.findOne = findOne;
