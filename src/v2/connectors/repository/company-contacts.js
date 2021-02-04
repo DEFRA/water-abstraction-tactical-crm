@@ -34,7 +34,25 @@ const findManyByCompanyId = async companyId => {
   return collection.toJSON();
 };
 
+/**
+ * Finds one for the supplied company_role_contact constraint values
+ *
+ * @param {String} companyId - guid
+ * @param {String} contactId - guid
+ * @param {String} roleId - guid
+ * @param {String} startDate - YYYY-MM-DD
+ * @return {Promise<Object>}
+ */
+const findOneByCompanyRoleContact = (companyId, contactId, roleId, startDate) =>
+  helpers.findOneBy(CompanyContact, {
+    companyId,
+    contactId,
+    roleId,
+    startDate
+  });
+
 exports.create = create;
 exports.deleteOne = deleteOne;
 exports.deleteTestData = deleteTestData;
 exports.findManyByCompanyId = findManyByCompanyId;
+exports.findOneByCompanyRoleContact = findOneByCompanyRoleContact;

@@ -40,13 +40,6 @@ experiment('v2/connectors/repository/helpers', () => {
       });
     });
 
-    test('fetches the data', async () => {
-      const [idFilter] = model.forge.lastCall.args;
-      expect(idFilter).to.equal({
-        testKey: 'test-id'
-      });
-    });
-
     test('returns the entity as JSON when found', async () => {
       expect(result.toJSON.called).to.equal(true);
     });
@@ -160,6 +153,35 @@ experiment('v2/connectors/repository/helpers', () => {
     test('deletes the data but does not require a match', async () => {
       const [destroy] = model.destroy.lastCall.args;
       expect(destroy).to.equal({ require: false });
+    });
+  });
+
+  experiment('.update', () => {
+    const changes = { foo: 'bar' };
+
+    beforeEach(async () => {
+      await helpers.update(model, 'testKey', 'test-id', changes);
+    });
+
+    test('calls forge on the model with the id', async () => {
+      const [idFilter] = model.forge.lastCall.args;
+      expect(idFilter).to.equal({
+        testKey: 'test-id'
+      });
+    });
+
+    test('calls save on the model with the changes', async () => {
+      expect(model.save.calledWith(changes)).to.be.true();
+    });
+
+    test('returns the entity as JSON when found', async () => {
+      expect(result.toJSON.called).to.equal(true);
+    });
+
+    test('returns null if no data found', async () => {
+      model.fetch.resolves(null);
+      const data = await helpers.findOne(model, 'testKey', 'test-id');
+      expect(data).to.equal(null);
     });
   });
 });

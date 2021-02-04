@@ -78,7 +78,7 @@ const addAddress = async (companyId, addressId, roleName, data = {}, isTest = fa
     const result = await repos.companyAddresses.create(companyAddress);
     return result;
   } catch (err) {
-    // unique violation
+    // Handle unique violation
     if (isConstraintViolationError(err, 'company_role_address')) {
       const existingEntity = await repos.companyAddresses.findOneByCompanyAddressAndRoleId(
         companyId, addressId, roleId
@@ -102,17 +102,25 @@ const addAddress = async (companyId, addressId, roleName, data = {}, isTest = fa
  * @return {Promise<Object>} new record in company_contacts
 */
 const addContact = async (companyId, contactId, roleName, data = {}, isTest = false) => {
+  const roleId = await getRoleId(roleName);
   try {
     const companyContact = {
       companyId,
       contactId,
       ...data,
-      roleId: await getRoleId(roleName),
+      roleId,
       isTest
     };
     const result = await repos.companyContacts.create(companyContact);
     return result;
   } catch (err) {
+    // Handle unique violation
+    if (isConstraintViolationError(err, 'company_role_contact')) {
+      const existingEntity = await repos.companyContacts.findOneByCompanyRoleContact(
+        companyId, contactId, roleId, data.startDate
+      );
+      throw new errors.UniqueConstraintViolation(`A company contact already exists for company ${companyId}`, existingEntity);
+    }
     handleRepoError(err);
   }
 };
