@@ -443,25 +443,5 @@ experiment('v2/services/invoice-accounts', () => {
         expect(err instanceof errors.ConflictingDataError).to.be.true();
       });
     });
-
-    /*
-    experiment('when there are no errors', () => {
-      beforeEach(async () => {
-        await invoiceAccountsAddressService.updateInvoiceAccountAddress(invoiceAccountAddressId, updates);
-      });
-
-      test('the specified invoice account address is fetched from the database', async () => {
-        expect(invoiceAccountAddressesRepo.findOne.calledWith(
-          invoiceAccountAddressId
-        )).to.be.true();
-      });
-
-      test('only the end date property is updated', async () => {
-        expect(invoiceAccountAddressesRepo.update.calledWith(
-          invoiceAccountAddressId, { endDate: updates.endDate }
-        )).to.be.true();
-      });
-    });
-    */
   });
 });
