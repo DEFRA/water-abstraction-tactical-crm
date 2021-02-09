@@ -8,9 +8,9 @@ const {
 
 const { expect } = require('@hapi/code');
 const uuid = require('uuid/v4');
-const invoiceAccountValidator = require('../../../../src/v2/modules/invoice-accounts/validator');
+const invoiceAccountValidator = require('../../../../src/v2/services/lib/invoice-accounts-validator');
 
-experiment('v2/modules/invoice-accounts/validator', () => {
+experiment('v2/services/lib/invoice-accounts-validator', () => {
   experiment('.validateInvoiceAccount', () => {
     let invoiceAccountData, companyId;
 

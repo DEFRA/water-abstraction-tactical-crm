@@ -11,13 +11,14 @@ const documentService = require('../services/documents');
 const invoiceAccountsService = require('../services/invoice-accounts');
 const documentsService = require('../services/documents');
 const companiesService = require('../services/companies');
+const invoiceAccountAddressesService = require('../services/invoice-account-addresses');
 
 const services = {
   contact: contactsService,
   address: addressService,
   document: documentService,
   invoiceAccount: invoiceAccountsService,
-  invoiceAccountAddress: invoiceAccountsService,
+  invoiceAccountAddress: invoiceAccountAddressesService,
   documentRole: documentsService,
   company: companiesService,
   companyAddress: companiesService,

@@ -22,6 +22,7 @@ const OPTIONAL_STRING = Joi.string().allow('', null).trim().empty('').default(nu
 const OPTIONAL_STRING_NO_DEFAULT_VALUE = Joi.string().allow('', null).trim().empty('');
 const CONTACT_TYPE = Joi.string().required().valid('person', 'department');
 const ROLE_NAMES = Joi.string().required().valid('licenceHolder', 'billing');
+const NULLABLE_DATE = DATE.required().allow(null);
 
 exports.DATE = DATE;
 exports.GUID = GUID;
@@ -44,3 +45,4 @@ exports.OPTIONAL_STRING = OPTIONAL_STRING;
 exports.OPTIONAL_STRING_NO_DEFAULT_VALUE = OPTIONAL_STRING_NO_DEFAULT_VALUE;
 exports.CONTACT_TYPE = CONTACT_TYPE;
 exports.ROLE_NAMES = ROLE_NAMES;
+exports.NULLABLE_DATE = NULLABLE_DATE;

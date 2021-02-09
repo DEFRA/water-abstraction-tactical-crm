@@ -16,6 +16,7 @@ const entityHandlers = require('../../../src/v2/lib/entity-handlers');
 const addressService = require('../../../src/v2/services/address');
 const contactsService = require('../../../src/v2/services/contacts');
 const invoiceAccountsService = require('../../../src/v2/services/invoice-accounts');
+const invoiceAccountAddressesService = require('../../../src/v2/services/invoice-account-addresses');
 const documentsService = require('../../../src/v2/services/documents');
 const companiesService = require('../../../src/v2/services/companies');
 
@@ -45,8 +46,9 @@ experiment('v2/lib/entity-handlers', () => {
     sandbox.stub(invoiceAccountsService, 'getInvoiceAccount');
     sandbox.stub(invoiceAccountsService, 'createInvoiceAccount');
     sandbox.stub(invoiceAccountsService, 'deleteInvoiceAccount');
-    sandbox.stub(invoiceAccountsService, 'createInvoiceAccountAddress');
-    sandbox.stub(invoiceAccountsService, 'deleteInvoiceAccountAddress');
+    sandbox.stub(invoiceAccountAddressesService, 'createInvoiceAccountAddress');
+    sandbox.stub(invoiceAccountAddressesService, 'deleteInvoiceAccountAddress');
+    sandbox.stub(invoiceAccountAddressesService, 'updateInvoiceAccountAddress');
     sandbox.stub(documentsService, 'createDocumentRole');
     sandbox.stub(documentsService, 'getDocumentRole');
     sandbox.stub(companiesService, 'deleteCompany');
@@ -214,11 +216,6 @@ experiment('v2/lib/entity-handlers', () => {
           expect(entity.startDate).to.equal('2020-04-01');
         });
 
-        test('the location header points to the saved entity', async () => {
-          const [location] = responseStub.created.lastCall.args;
-          expect(location).to.equal('/crm/2.0/invoice-accounts/test-invoice-account-id');
-        });
-
         test('the saved entity is returned in the response body', async () => {
           const [entity] = h.response.lastCall.args;
           expect(entity.invoiceAccountId).to.equal('test-invoice-account-id');
@@ -271,26 +268,20 @@ experiment('v2/lib/entity-handlers', () => {
             }
           };
           invoiceAccountAddressId = 'test-invoice-account-address-id';
-          invoiceAccountsService.createInvoiceAccountAddress.resolves({ invoiceAccountAddressId });
+          invoiceAccountAddressesService.createInvoiceAccountAddress.resolves({ invoiceAccountAddressId });
 
           await entityHandlers.createEntity(request, h, 'invoiceAccountAddress');
         });
 
         test('the payload is passed to the service', async () => {
-          const [entity] = invoiceAccountsService.createInvoiceAccountAddress.lastCall.args;
+          const [entity] = invoiceAccountAddressesService.createInvoiceAccountAddress.lastCall.args;
           expect(entity.addressId).to.equal(addressId);
           expect(entity.startDate).to.equal('2020-04-01');
         });
 
         test('the params are passed to the service', async () => {
-          const [entity] = invoiceAccountsService.createInvoiceAccountAddress.lastCall.args;
+          const [entity] = invoiceAccountAddressesService.createInvoiceAccountAddress.lastCall.args;
           expect(entity.invoiceAccountId).to.equal(invoiceAccountId); ;
-        });
-
-        test('the location header points to the saved entity', async () => {
-          const expectedLocation = `/crm/2.0/invoice-accounts/${invoiceAccountId}/addresses/${invoiceAccountAddressId}`;
-          const [location] = responseStub.created.lastCall.args;
-          expect(location).to.equal(expectedLocation);
         });
 
         test('the saved entity is returned in the response body', async () => {
@@ -316,7 +307,7 @@ experiment('v2/lib/entity-handlers', () => {
             ['fail-1', 'fail-2']
           );
 
-          invoiceAccountsService.createInvoiceAccountAddress.rejects(validationError);
+          invoiceAccountAddressesService.createInvoiceAccountAddress.rejects(validationError);
 
           result = await entityHandlers.createEntity(request, h, 'invoiceAccountAddress');
         });
@@ -726,13 +717,13 @@ experiment('v2/lib/entity-handlers', () => {
           }
         };
 
-        invoiceAccountsService.deleteInvoiceAccountAddress.resolves();
+        invoiceAccountAddressesService.deleteInvoiceAccountAddress.resolves();
 
         await entityHandlers.deleteEntity(request, h, 'invoiceAccountAddress');
       });
 
       test('the id is passed to the service', async () => {
-        const [id] = invoiceAccountsService.deleteInvoiceAccountAddress.lastCall.args;
+        const [id] = invoiceAccountAddressesService.deleteInvoiceAccountAddress.lastCall.args;
         expect(id).to.equal('test-invoice-account-address-1');
       });
 

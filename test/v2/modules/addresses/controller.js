@@ -49,7 +49,10 @@ experiment('v2/modules/addresses/controller', () => {
     experiment('when the address is created without issue', () => {
       beforeEach(async () => {
         payload = omit(addressData, 'addressId');
+<<<<<<< HEAD
 
+=======
+>>>>>>> release/charging-sprint-40
         const request = { payload, method: 'post' };
 
         addressService.createAddress.resolves(addressData);
