@@ -186,6 +186,65 @@ experiment('v2/services/address', () => {
         }
       });
     });
+
+    experiment('when address with same uprn already exists', () => {
+      let result, error;
+
+      beforeEach(async () => {
+        error = new Error('oops!');
+        error.code = '23505';
+        error.constraint = 'unique_address_uprn';
+        error.detail = 'unique constraint violation on uprn';
+        addressRepo.create.throws(error);
+        addressRepo.findOneByUprn.resolves({
+          addressId: 'test-address-id'
+        });
+      });
+
+      test('throws a UniqueConstraintValidation error', async () => {
+        const func = () => addressService.createAddress({
+          address1: null,
+          address2: 'one',
+          address3: null,
+          address4: null,
+          town: 'town',
+          county: 'county',
+          country: 'france',
+          postcode: null
+        });
+
+        result = await expect(func()).to.reject();
+        console.log(result);
+        expect(result instanceof UniqueConstraintViolation).to.be.true();
+        expect(result.existingEntity).to.be.an.object();
+      });
+    });
+
+    experiment('when an unexpected error occurs', () => {
+      let error;
+
+      beforeEach(async () => {
+        error = new Error('oops!');
+        addressRepo.create.throws(error);
+      });
+
+      test('returns the error', async () => {
+        try {
+          await addressService.createAddress({
+            address1: null,
+            address2: 'one',
+            address3: null,
+            address4: null,
+            town: 'town',
+            county: 'county',
+            country: 'france',
+            postcode: null
+          });
+        } catch (err) {
+          expect(err).to.equal(error);
+        }
+      });
+    });
   });
 
   experiment('.getAddress', () => {
