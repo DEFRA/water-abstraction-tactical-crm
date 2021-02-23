@@ -1,6 +1,7 @@
 'use strict';
 
 const addressesRepo = require('../connectors/repository/addresses');
+const { pool } = require('../../lib/connectors/db');
 const companiesRepo = require('../connectors/repository/companies');
 const companyAddressesRepo = require('../connectors/repository/company-addresses');
 const companyContactsRepo = require('../connectors/repository/company-contacts');
@@ -17,6 +18,7 @@ const invoiceAccountsRepo = require('../connectors/repository/invoice-accounts')
 const deleteAllTestData = async () => {
   await documentRolesRepo.deleteTestData();
   await companyAddressesRepo.deleteTestData();
+  await pool.query('delete from crm.entity where entity_nm LIKE \'acceptance-test.%\' or entity_nm like \'%@example.com\' or entity_nm like \'regression.tests.%\'');
   await invoiceAccountAddressesRepo.deleteTestData();
   await companyContactsRepo.deleteTestData();
   await invoiceAccountsRepo.deleteTestData();
