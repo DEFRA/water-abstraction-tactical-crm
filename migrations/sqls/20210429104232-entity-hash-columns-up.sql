@@ -11,9 +11,9 @@ update crm_v2.addresses addresses set current_hash = md5(CAST((addresses.address
 alter table crm_v2.companies add column last_hash VARCHAR default null;
 alter table crm_v2.companies add column current_hash VARCHAR default null;
 
-/* Populate initial copmanies hash values */
-update crm_v2.companies companies set last_hash = md5(CAST((companies.name, companies.type, companies.company_number, companies.organisation_type) AS text));
-update crm_v2.companies companies set current_hash = md5(CAST((companies.name, companies.type, companies.company_number, companies.organisation_type) AS text));
+/* Populate initial companies hash values */
+update crm_v2.companies companies set last_hash = md5(CAST((companies.name, companies.type) AS text));
+update crm_v2.companies companies set current_hash = md5(CAST((companies.name, companies.type) AS text));
 
 
 /* Create hash columns for the crm_v2.contacts entity */
