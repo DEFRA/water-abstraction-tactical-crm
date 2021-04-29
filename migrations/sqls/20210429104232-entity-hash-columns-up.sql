@@ -21,5 +21,5 @@ alter table crm_v2.contacts add column last_hash VARCHAR default null;
 alter table crm_v2.contacts add column current_hash VARCHAR default null;
 
 /* Populate initial contacts hash values */
-update crm_v2.contacts contacts set last_hash = md5(CAST((contacts.salutation, contacts.first_name, contacts.last_name, contacts.department, contacts.suffix) AS text));
-update crm_v2.contacts contacts set current_hash = md5(CAST((contacts.salutation, contacts.first_name, contacts.last_name, contacts.department, contacts.suffix) AS text));
+update crm_v2.contacts contacts set last_hash = md5(CAST((contacts.salutation, contacts.first_name, contacts.last_name) AS text));
+update crm_v2.contacts contacts set current_hash = md5(CAST((contacts.salutation, contacts.first_name, contacts.last_name) AS text));
