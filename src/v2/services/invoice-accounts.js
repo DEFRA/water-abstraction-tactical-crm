@@ -77,7 +77,10 @@ const getInvoiceAccountsByIds = async ids => {
   return results.map(mappers.invoiceAccount.mostRecentAddressOnly);
 };
 
+const getInvoiceAccountsWithRecentlyUpdatedEntities = () => invoiceAccountsRepo.findAllWhereEntitiesHaveUnmatchingHashes;
+
 exports.createInvoiceAccount = createInvoiceAccount;
 exports.deleteInvoiceAccount = deleteInvoiceAccount;
 exports.getInvoiceAccount = getInvoiceAccount;
 exports.getInvoiceAccountsByIds = getInvoiceAccountsByIds;
+exports.getInvoiceAccountsWithRecentlyUpdatedEntities = getInvoiceAccountsWithRecentlyUpdatedEntities;
