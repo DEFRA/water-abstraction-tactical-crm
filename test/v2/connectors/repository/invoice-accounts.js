@@ -27,6 +27,7 @@ experiment('v2/connectors/repository/invoice-account', () => {
     sandbox.stub(repoHelpers, 'deleteTestData');
     sandbox.stub(repoHelpers, 'deleteOne');
     sandbox.stub(raw, 'singleRow');
+    sandbox.stub(raw, 'multiRow');
   });
 
   afterEach(async () => {
@@ -187,6 +188,17 @@ experiment('v2/connectors/repository/invoice-account', () => {
       expect(params).to.equal({
         query: 'A%'
       });
+    });
+  });
+
+  experiment('.findAllWhereEntitiesHaveUnmatchingHashes', () => {
+    beforeEach(async () => {
+      await invoiceAccounts.findAllWhereEntitiesHaveUnmatchingHashes();
+    });
+
+    test('calls raw.multiRow with the correct query and params', async () => {
+      const [query] = raw.multiRow.lastCall.args;
+      expect(query).to.equal(queries.findAllWhereEntitiesHaveUnmatchingHashes);
     });
   });
 });
