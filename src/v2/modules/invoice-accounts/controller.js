@@ -14,9 +14,9 @@ const getInvoiceAccounts = async request => {
   }
 };
 
-const getInvoiceAccountsWithRecentlyUpdatedEntities = () => {
+const getInvoiceAccountsWithRecentlyUpdatedEntities = async () => {
   try {
-    return invoiceAccountService.getInvoiceAccountsWithRecentlyUpdatedEntities;
+    return invoiceAccountService.getInvoiceAccountsWithRecentlyUpdatedEntities();
   } catch (err) {
     logger.error('Could not get recently updated invoice accounts', err);
     return Boom.boomify(err);
