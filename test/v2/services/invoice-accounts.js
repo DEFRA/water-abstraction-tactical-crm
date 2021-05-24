@@ -62,6 +62,7 @@ experiment('v2/services/invoice-accounts', () => {
     sandbox.stub(invoiceAccountsRepo, 'findOne');
     sandbox.stub(invoiceAccountsRepo, 'findWithCurrentAddress');
     sandbox.stub(invoiceAccountsRepo, 'deleteOne');
+    sandbox.stub(invoiceAccountsRepo, 'findAllWhereEntitiesHaveUnmatchingHashes').resolves([]);
     sandbox.stub(invoiceAccountAddressesRepo, 'findAll').resolves([{ startDate: '2018-05-03', endDate: '2020-03-31' }]);
     sandbox.stub(invoiceAccountAddressesRepo, 'create');
     sandbox.stub(invoiceAccountAddressesRepo, 'deleteOne');
@@ -271,6 +272,13 @@ experiment('v2/services/invoice-accounts', () => {
     test('calls the deleteOne repo method', async () => {
       await invoiceAccountsService.deleteInvoiceAccount('test-invoice-account-id');
       expect(invoiceAccountsRepo.deleteOne.calledWith('test-invoice-account-id')).to.be.true();
+    });
+  });
+
+  experiment('.getInvoiceAccountsWithRecentlyUpdatedEntities', () => {
+    test('calls the findAllWhereEntitiesHaveUnmatchingHashes repo method', async () => {
+      await invoiceAccountsService.getInvoiceAccountsWithRecentlyUpdatedEntities();
+      expect(invoiceAccountsRepo.findAllWhereEntitiesHaveUnmatchingHashes.called).to.be.true();
     });
   });
 });

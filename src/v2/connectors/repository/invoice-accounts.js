@@ -95,6 +95,8 @@ const findOneByGreatestAccountNumber = async regionCode => {
   return raw.singleRow(queries.findOneByGreatestAccountNumber, { query });
 };
 
+const findAllWhereEntitiesHaveUnmatchingHashes = () => raw.multiRow(queries.findAllWhereEntitiesHaveUnmatchingHashes);
+
 exports.create = create;
 exports.deleteOne = deleteOne;
 exports.deleteTestData = deleteTestData;
@@ -102,3 +104,4 @@ exports.findOne = findOne;
 exports.findWithCurrentAddress = findWithCurrentAddress;
 exports.findOneByGreatestAccountNumber = findOneByGreatestAccountNumber;
 exports.findAllByCompanyId = findAllByCompanyId;
+exports.findAllWhereEntitiesHaveUnmatchingHashes = findAllWhereEntitiesHaveUnmatchingHashes;
