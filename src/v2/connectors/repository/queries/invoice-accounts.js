@@ -8,7 +8,7 @@ select ia.invoice_account_number
 `;
 
 exports.findAllWhereEntitiesHaveUnmatchingHashes = `
-select distinct ia.invoice_account_id
+select distinct ia.invoice_account_id, ia.invoice_account_number, com.external_id as company_legacy_id
 from crm_v2.invoice_accounts ia
 left join crm_v2.invoice_account_addresses iaa on iaa.invoice_account_id = ia.invoice_account_id
 left join crm_v2.companies com on ia.company_id = com.company_id or iaa.agent_company_id = com.company_id
