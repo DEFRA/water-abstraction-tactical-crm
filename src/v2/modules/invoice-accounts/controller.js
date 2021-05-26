@@ -23,5 +23,15 @@ const getInvoiceAccountsWithRecentlyUpdatedEntities = async () => {
   }
 };
 
+const getInvoiceAccountByRef = async request => {
+  try {
+    const { ref } = request.query;
+    return invoiceAccountService.getInvoiceAccountByRef(ref);
+  } catch (err) {
+    logger.error('Could not get invoice account', err);
+    return Boom.boomify(err);
+  }
+};
 exports.getInvoiceAccounts = getInvoiceAccounts;
 exports.getInvoiceAccountsWithRecentlyUpdatedEntities = getInvoiceAccountsWithRecentlyUpdatedEntities;
+exports.getInvoiceAccountByRef = getInvoiceAccountByRef;

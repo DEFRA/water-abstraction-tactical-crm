@@ -18,6 +18,20 @@ exports.getInvoiceAccount = {
   }
 };
 
+exports.getInvoiceAccountByRef = {
+  method: 'GET',
+  path: '/crm/2.0/invoice-account',
+  handler: controller.getInvoiceAccountByRef,
+  options: {
+    description: 'Get an invoice account by ref',
+    validate: {
+      query: Joi.object({
+        ref: validators.REQUIRED_INVOICE_ACCOUNT_NUMBER
+      })
+    }
+  }
+};
+
 exports.getInvoiceAccounts = {
   method: 'GET',
   path: '/crm/2.0/invoice-accounts',

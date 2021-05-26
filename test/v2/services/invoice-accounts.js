@@ -60,6 +60,7 @@ experiment('v2/services/invoice-accounts', () => {
   beforeEach(() => {
     sandbox.stub(invoiceAccountsRepo, 'create');
     sandbox.stub(invoiceAccountsRepo, 'findOne');
+    sandbox.stub(invoiceAccountsRepo, 'findOneByAccountNumber');
     sandbox.stub(invoiceAccountsRepo, 'findWithCurrentAddress');
     sandbox.stub(invoiceAccountsRepo, 'deleteOne');
     sandbox.stub(invoiceAccountsRepo, 'findAllWhereEntitiesHaveUnmatchingHashes').resolves([]);
@@ -231,6 +232,19 @@ experiment('v2/services/invoice-accounts', () => {
       const result = await invoiceAccountsService.getInvoiceAccount(invoiceAccountId);
 
       expect(invoiceAccountsRepo.findOne.calledWith(invoiceAccountId)).to.equal(true);
+      expect(result).to.equal(invoiceAccount);
+    });
+  });
+
+  experiment('.getInvoiceAccountByRef', () => {
+    test('returns the result from the repo', async () => {
+      const invoiceAccountId = uuid();
+      const invoiceAccount = { invoiceAccountId };
+      invoiceAccountsRepo.findOneByAccountNumber.resolves(invoiceAccount);
+
+      const result = await invoiceAccountsService.getInvoiceAccountByRef('Y12312301A');
+
+      expect(invoiceAccountsRepo.findOneByAccountNumber.calledWith('Y12312301A')).to.equal(true);
       expect(result).to.equal(invoiceAccount);
     });
   });
