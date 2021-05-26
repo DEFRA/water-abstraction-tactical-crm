@@ -17,6 +17,7 @@ experiment('v2/modules/invoice-accounts/controller', () => {
   beforeEach(async () => {
     sandbox.stub(invoiceAccountsService, 'getInvoiceAccountsByIds').resolves([]);
     sandbox.stub(invoiceAccountsService, 'getInvoiceAccountsWithRecentlyUpdatedEntities').resolves([]);
+    sandbox.stub(invoiceAccountsService, 'getInvoiceAccountByRef').resolves();
   });
 
   afterEach(async () => {
@@ -71,6 +72,12 @@ experiment('v2/modules/invoice-accounts/controller', () => {
     test('calls the invoiceAccountsService', async () => {
       await controller.getInvoiceAccountsWithRecentlyUpdatedEntities();
       expect(invoiceAccountsService.getInvoiceAccountsWithRecentlyUpdatedEntities.called).to.be.true();
+    });
+  });
+  experiment('.getInvoiceAccountByRef', () => {
+    test('calls the invoiceAccountsService', async () => {
+      await controller.getInvoiceAccountByRef({ query: { ref: 'Y12312301A' } });
+      expect(invoiceAccountsService.getInvoiceAccountByRef.called).to.be.true();
     });
   });
 });
