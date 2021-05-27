@@ -82,6 +82,40 @@ experiment('v2/connectors/repository/invoice-account', () => {
     });
   });
 
+  experiment('.findOne', () => {
+    let result;
+    const ref = 'Y12312301A';
+
+    experiment('when a model is found', () => {
+      beforeEach(async () => {
+        stub.fetch.resolves(model);
+        result = await invoiceAccounts.findOneByAccountNumber(ref);
+      });
+
+      test('.forge() is called on the model with correct ID', async () => {
+        expect(InvoiceAccount.forge.calledWith({
+          invoiceAccountNumber: ref
+        }));
+      });
+
+      test('.toJSON() is called on the returned model', async () => {
+        expect(model.toJSON.called).to.be.true();
+        expect(result).to.equal({ invoiceAccountId: 'test-id' });
+      });
+    });
+
+    experiment('when a model is not found', () => {
+      beforeEach(async () => {
+        stub.fetch.resolves(null);
+        result = await invoiceAccounts.findOneByAccountNumber('crumpet');
+      });
+
+      test('null is returned', async () => {
+        expect(result).to.equal(null);
+      });
+    });
+  });
+
   experiment('.findWithCurrentAddress', () => {
     let result;
     const invoiceAccountIds = ['id-1', 'id-2'];
