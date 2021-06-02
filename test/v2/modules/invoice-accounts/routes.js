@@ -44,6 +44,40 @@ experiment('v2/modules/invoice-account/routes', () => {
     });
   });
 
+  experiment('.getInvoiceAccountByRef', (ref) => {
+    let server;
+
+    const getRequest = (ref) => {
+      const query = qs.stringify({ ref: ref });
+      return ({
+        method: 'GET',
+        url: `/crm/2.0/invoice-account?${query}`
+      });
+    };
+
+    beforeEach(() => {
+      server = createServer(routes.getInvoiceAccountByRef);
+    });
+
+    test('returns a 400 if the invoice account ref is undefined', async () => {
+      const request = getRequest(undefined);
+      const response = await server.inject(request);
+      expect(response.statusCode).to.equal(400);
+    });
+
+    test('returns a 400 if the invoice account ref is invalid', async () => {
+      const request = getRequest('Y010A');
+      const response = await server.inject(request);
+      expect(response.statusCode).to.equal(400);
+    });
+
+    test('returns a 200 if the invoice account ref is valid', async () => {
+      const request = getRequest('Y00000000A');
+      const response = await server.inject(request);
+      expect(response.statusCode).to.equal(200);
+    });
+  });
+
   experiment('.getInvoiceAccounts', () => {
     let server;
 

@@ -28,6 +28,19 @@ const findOne = async id => {
 };
 
 /**
+ * Find single InvoiceAccount by Ref
+ * @param {String} ref
+ * @return {Promise<Object>}
+ */
+const findOneByAccountNumber = async ref => {
+  const result = await InvoiceAccount
+    .forge({ invoiceAccountNumber: ref })
+    .fetch();
+
+  return result ? result.toJSON() : null;
+};
+
+/**
  * Find all invoice accounts that belong to a company
  * @param {String} companyId
  */
@@ -95,10 +108,14 @@ const findOneByGreatestAccountNumber = async regionCode => {
   return raw.singleRow(queries.findOneByGreatestAccountNumber, { query });
 };
 
+const findAllWhereEntitiesHaveUnmatchingHashes = () => raw.multiRow(queries.findAllWhereEntitiesHaveUnmatchingHashes);
+
 exports.create = create;
 exports.deleteOne = deleteOne;
 exports.deleteTestData = deleteTestData;
 exports.findOne = findOne;
+exports.findOneByAccountNumber = findOneByAccountNumber;
 exports.findWithCurrentAddress = findWithCurrentAddress;
 exports.findOneByGreatestAccountNumber = findOneByGreatestAccountNumber;
 exports.findAllByCompanyId = findAllByCompanyId;
+exports.findAllWhereEntitiesHaveUnmatchingHashes = findAllWhereEntitiesHaveUnmatchingHashes;

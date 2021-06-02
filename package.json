@@ -1,6 +1,6 @@
 {
   "name": "water-abstraction-tactical-crm",
-  "version": "1.74.0",
+  "version": "1.76.0",
   "description": "Tactical CRM implementation for water abstraction service",
   "main": "index.js",
   "repository": {
@@ -10,7 +10,7 @@
   "scripts": {
     "test": "lab",
     "test:bail": "lab --bail",
-    "test:travis": "lab -t 55 -m 0 --coverage-path ./src/ -r lcov -o coverage/lcov.info -r console -o stdout",
+    "test:ci": "lab -t 55 -m 0 --coverage-path ./src/ -r lcov -o coverage/lcov.info -r console -o stdout",
     "test-cov-html": "lab -r html -o coverage.html",
     "codecov": "codecov",
     "docs": "jsdoc -c conf.jsdoc.json && cd ./out && serve -o -p 3012",
