@@ -60,9 +60,7 @@ exports.postDocument = {
       payload: {
         regime: Joi.string().required(),
         documentType: Joi.string().required(),
-        versionNumber: Joi.number().integer().required(),
         documentRef: Joi.string().required(),
-        status: Joi.string().required(),
         startDate: validators.START_DATE,
         endDate: validators.END_DATE,
         isTest: validators.TEST_FLAG

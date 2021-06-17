@@ -7,9 +7,7 @@ const validators = require('../../lib/validators');
 const documentSchema = Joi.object({
   regime: Joi.string().required().valid('water'),
   documentType: Joi.string().required().valid('abstraction_licence'),
-  versionNumber: Joi.number().integer().required().min(0),
   documentRef: Joi.string().required(),
-  status: Joi.string().required().valid('current', 'draft', 'superseded'),
   startDate: validators.START_DATE,
   endDate: validators.END_DATE,
   isTest: validators.TEST_FLAG
