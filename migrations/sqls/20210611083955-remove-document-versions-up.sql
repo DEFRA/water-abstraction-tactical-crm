@@ -1,6 +1,6 @@
 -- Remove all previously imported document roles
 -- These will be re-imported
-delete from crm_v2.document_roles;
+truncate crm_v2.document_roles;
 
 -- Remove all except 1 document per licence
 delete from crm_v2.documents 
@@ -17,5 +17,11 @@ alter table crm_v2.documents
   drop column version_number,
   drop column status;
 
+alter table crm_v2.document_roles
+  drop column is_default;
+
 -- Drop unwanted enum type
 drop type "crm_v2"."document_status";
+
+-- Create unique index on licence number
+create unique index documents_document_ref on crm_v2.documents(regime, document_type, document_ref);
