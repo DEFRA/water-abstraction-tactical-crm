@@ -35,7 +35,9 @@ const findOne = async id => {
 const findOneByAccountNumber = async ref => {
   const result = await InvoiceAccount
     .forge({ invoiceAccountNumber: ref.toUpperCase() })
-    .fetch();
+    .fetch({
+      require: false
+    });
 
   return result ? result.toJSON() : null;
 };
