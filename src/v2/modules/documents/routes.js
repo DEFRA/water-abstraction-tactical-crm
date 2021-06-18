@@ -86,7 +86,6 @@ exports.postDocumentRole = {
       },
       payload: {
         role: Joi.string().valid('billing', 'licenceHolder').required(),
-        isDefault: Joi.boolean().optional().default(false),
         startDate: validators.START_DATE,
         endDate: validators.END_DATE,
         invoiceAccountId: Joi.string().uuid().allow(null),

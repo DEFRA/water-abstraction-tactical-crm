@@ -30,7 +30,6 @@ const optionalUuidUnlessRoleIs = role => {
 const documentRoleSchema = Joi.object({
   documentId: validators.GUID,
   role: Joi.string().valid('billing', 'licenceHolder').required(),
-  isDefault: Joi.boolean().optional().default(false),
   startDate: validators.START_DATE,
   endDate: validators.END_DATE,
   invoiceAccountId: requiredUuidUnlessRoleIs('licenceHolder'),

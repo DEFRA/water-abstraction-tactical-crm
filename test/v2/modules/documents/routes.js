@@ -161,7 +161,6 @@ experiment('modules/documents/routes', () => {
 
         fullPayload = {
           role: 'billing',
-          isDefault: true,
           startDate: '2020-01-02',
           endDate: '2020-02-02',
           invoiceAccountId: uuid(),
@@ -205,14 +204,6 @@ experiment('modules/documents/routes', () => {
         delete fullPayload.role;
         const response = await server.inject(createDocumentRoleRequest(fullPayload));
         expect(response.statusCode).to.equal(400);
-      });
-
-      test('isDefault is optional (but will default to false)', async () => {
-        delete fullPayload.isDefault;
-        const response = await server.inject(createDocumentRoleRequest(fullPayload));
-
-        expect(response.statusCode).to.equal(200);
-        expect(response.request.payload.isDefault).to.equal(false);
       });
 
       test('startDate is invalid if not in the format YYYY-MM-DD', async () => {
