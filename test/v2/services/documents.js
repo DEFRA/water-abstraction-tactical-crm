@@ -432,9 +432,7 @@ experiment('services/documents', () => {
         document = {
           regime: 'water',
           documentType: 'abstraction_licence',
-          versionNumber: 100,
           documentRef: 'doc-ref',
-          status: 'current',
           startDate: '2000-01-13',
           endDate: '2010-01-18',
           isTest: true
@@ -455,109 +453,6 @@ experiment('services/documents', () => {
 
       test('the saved document is returned', async () => {
         expect(result.documentId).to.equal('test-id');
-      });
-
-      experiment('and the dates do overlap', () => {
-        // the test data has a start and end date of
-        // startDate: '2000-01-13',
-        // endDate: '2010-01-18',
-        const overlapScenarios = [
-          // existing documents starts before the new document
-          { startDate: new Date(1999, 1, 1), endDate: new Date(2020, 1, 2) },
-          { startDate: new Date(1999, 1, 1), endDate: null },
-
-          // existing document starts after new document
-          { startDate: new Date(2001, 1, 20), endDate: new Date(2009, 1, 2) },
-          { startDate: new Date(2002, 1, 20), endDate: null },
-
-          // existing document starts after and ends before the new document
-          { startDate: new Date(2002, 1, 20), endDate: new Date(2003, 1, 25) }
-        ];
-
-        overlapScenarios.forEach(scenario => {
-          const { startDate, endDate } = scenario;
-          const testName = `throws for start ${startDate} and end ${endDate}`;
-          test(testName, async () => {
-            document = {
-              regime: 'water',
-              documentType: 'abstraction_licence',
-              versionNumber: 100,
-              documentRef: 'doc-ref',
-              status: 'current',
-              startDate: '2000-01-13',
-              endDate: '2010-01-18'
-            };
-
-            documentRepo.findByDocumentRef.resolves([
-              {
-                documentId: uuid(),
-                regime: 'water',
-                documentType: 'abstraction_licence',
-                versionNumber: 102,
-                documentRef: 'doc-ref',
-                status: 'current',
-                startDate,
-                endDate
-              }
-            ]);
-
-            const error = await expect(documentsService.createDocument(document)).reject();
-            console.log(error);
-            expect(error).to.be.instanceOf(errors.ConflictingDataError);
-            expect(error.message).to.equal('Overlapping start and end date for document');
-          });
-        });
-      });
-
-      experiment('and the dates do overlap where the new document endDate is null', () => {
-        // the new document to be created has a start and end date of
-        // startDate: '2000-01-13',
-        // endDate: null,
-        const overlapScenarios = [
-          // existing documents starts before the new document
-          { startDate: new Date(1999, 1, 1), endDate: new Date(2020, 1, 2) },
-          { startDate: new Date(1999, 1, 1), endDate: null },
-
-          // existing document starts after new document
-          { startDate: new Date(2001, 1, 20), endDate: new Date(2009, 1, 2) },
-          { startDate: new Date(2002, 1, 20), endDate: null },
-
-          // existing document starts after and ends before the new document
-          { startDate: new Date(2002, 1, 20), endDate: new Date(2003, 1, 25) }
-        ];
-
-        overlapScenarios.forEach(scenario => {
-          const { startDate, endDate } = scenario;
-          const testName = `throws for start ${startDate} and end ${endDate}`;
-          test(testName, async () => {
-            document = {
-              regime: 'water',
-              documentType: 'abstraction_licence',
-              versionNumber: 100,
-              documentRef: 'doc-ref',
-              status: 'current',
-              startDate: '2000-01-13',
-              endDate: null
-            };
-
-            documentRepo.findByDocumentRef.resolves([
-              {
-                documentId: uuid(),
-                regime: 'water',
-                documentType: 'abstraction_licence',
-                versionNumber: 102,
-                documentRef: 'doc-ref',
-                status: 'current',
-                startDate,
-                endDate
-              }
-            ]);
-
-            const error = await expect(documentsService.createDocument(document)).reject();
-            expect(error).to.be.instanceOf(errors.ConflictingDataError);
-            expect(error.message).to.equal('Overlapping start and end date for document');
-          });
-        });
       });
     });
   });
