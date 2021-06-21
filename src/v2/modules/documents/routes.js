@@ -60,9 +60,7 @@ exports.postDocument = {
       payload: {
         regime: Joi.string().required(),
         documentType: Joi.string().required(),
-        versionNumber: Joi.number().integer().required(),
         documentRef: Joi.string().required(),
-        status: Joi.string().required(),
         startDate: validators.START_DATE,
         endDate: validators.END_DATE,
         isTest: validators.TEST_FLAG
@@ -88,7 +86,6 @@ exports.postDocumentRole = {
       },
       payload: {
         role: Joi.string().valid('billing', 'licenceHolder').required(),
-        isDefault: Joi.boolean().optional().default(false),
         startDate: validators.START_DATE,
         endDate: validators.END_DATE,
         invoiceAccountId: Joi.string().uuid().allow(null),

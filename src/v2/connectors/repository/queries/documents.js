@@ -12,7 +12,7 @@ exports.findByDocumentRef = `
   and document_type = :documentType
   and document_ref = :documentRef
   and date_deleted is null
-  order by start_date, version_number, end_date;
+  order by start_date, end_date;
 `;
 
 exports.findDocumentByRefAndDate = `
@@ -28,6 +28,6 @@ exports.findDocumentByRefAndDate = `
   AND docs.start_date<=:date
   AND (docs.end_date>=:date OR docs.end_date IS NULL)
   AND docs.date_deleted is null
-  ORDER BY docs.start_date, version_number, docs.end_date
+  ORDER BY docs.start_date, docs.end_date
   LIMIT 1;
 `;

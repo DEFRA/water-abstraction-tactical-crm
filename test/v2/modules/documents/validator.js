@@ -20,9 +20,7 @@ experiment('modules/documents/validator', () => {
     document = {
       regime: 'water',
       documentType: 'abstraction_licence',
-      versionNumber: 100,
       documentRef: 'doc-ref',
-      status: 'current',
       startDate: '2001-01-18',
       endDate: '2010-01-17',
       isTest: true
@@ -82,32 +80,6 @@ experiment('modules/documents/validator', () => {
       });
     });
 
-    experiment('versionNumber', () => {
-      test('is required', async () => {
-        delete document.versionNumber;
-        const { error } = validator.validateDocument(document);
-        expect(error).to.not.equal(null);
-      });
-
-      test('cannot equal an empty string', async () => {
-        document.versionNumber = '';
-        const { error } = validator.validateDocument(document);
-        expect(error).to.not.equal(null);
-      });
-
-      test('cannot equal a string', async () => {
-        document.versionNumber = '100';
-        const { error } = validator.validateDocument(document);
-        expect(error).to.equal(null);
-      });
-
-      test('has to equal a number', async () => {
-        document.versionNumber = 100;
-        const { error } = validator.validateDocument(document);
-        expect(error).to.equal(null);
-      });
-    });
-
     experiment('documentRef', () => {
       test('is required', async () => {
         delete document.documentRef;
@@ -123,44 +95,6 @@ experiment('modules/documents/validator', () => {
 
       test('has to equal abstraction_licence', async () => {
         document.documentRef = 'doc-ref';
-        const { error } = validator.validateDocument(document);
-        expect(error).to.equal(null);
-      });
-    });
-
-    experiment('status', () => {
-      test('is required', async () => {
-        delete document.status;
-        const { error } = validator.validateDocument(document);
-        expect(error).to.not.equal(null);
-      });
-
-      test('cannot equal an empty string', async () => {
-        document.status = '';
-        const { error } = validator.validateDocument(document);
-        expect(error).to.not.equal(null);
-      });
-
-      test('has to equal a valid status', async () => {
-        document.status = 'nothing';
-        const { error } = validator.validateDocument(document);
-        expect(error).to.not.equal(null);
-      });
-
-      test('has to equal  a valid status', async () => {
-        document.status = 'current';
-        const { error } = validator.validateDocument(document);
-        expect(error).to.equal(null);
-      });
-
-      test('has to equal a valid status', async () => {
-        document.status = 'draft';
-        const { error } = validator.validateDocument(document);
-        expect(error).to.equal(null);
-      });
-
-      test('has to equal a valid status', async () => {
-        document.status = 'superseded';
         const { error } = validator.validateDocument(document);
         expect(error).to.equal(null);
       });
@@ -201,7 +135,6 @@ experiment('modules/documents/validator', () => {
       fullBillingDocumentRole = {
         documentId: uuid(),
         role: 'billing',
-        isDefault: true,
         startDate: '2020-01-01',
         endDate: '2021-01-01',
         invoiceAccountId: uuid(),
@@ -214,7 +147,6 @@ experiment('modules/documents/validator', () => {
         companyId: uuid(),
         contactId: uuid(),
         addressId: uuid(),
-        isDefault: true,
         startDate: '2020-01-01',
         endDate: '2021-01-01',
         isTest: true
@@ -250,28 +182,6 @@ experiment('modules/documents/validator', () => {
 
           test('is not valid for an empty string', async () => {
             fullBillingDocumentRole.documentId = '';
-            const { error } = documentValidator.validateDocumentRole(fullBillingDocumentRole);
-            expect(error).to.not.equal(null);
-          });
-        });
-
-        experiment('isDefault', () => {
-          test('is optional and defaults to false', async () => {
-            delete fullBillingDocumentRole.isDefault;
-            const { error, value } = documentValidator.validateDocumentRole(fullBillingDocumentRole);
-            expect(error).to.equal(null);
-            expect(value.isDefault).to.equal(false);
-          });
-
-          test('can be set to true', async () => {
-            fullBillingDocumentRole.isDefault = true;
-            const { error, value } = documentValidator.validateDocumentRole(fullBillingDocumentRole);
-            expect(error).to.equal(null);
-            expect(value.isDefault).to.equal(true);
-          });
-
-          test('rejects non boolean', async () => {
-            fullBillingDocumentRole.isDefault = 'carrots';
             const { error } = documentValidator.validateDocumentRole(fullBillingDocumentRole);
             expect(error).to.not.equal(null);
           });
@@ -510,28 +420,6 @@ experiment('modules/documents/validator', () => {
 
           test('is not valid for an empty string', async () => {
             fullLicenceHolderDocumentRole.documentId = '';
-            const { error } = documentValidator.validateDocumentRole(fullLicenceHolderDocumentRole);
-            expect(error).to.not.equal(null);
-          });
-        });
-
-        experiment('isDefault', () => {
-          test('is optional and defaults to false', async () => {
-            delete fullLicenceHolderDocumentRole.isDefault;
-            const { error, value } = documentValidator.validateDocumentRole(fullLicenceHolderDocumentRole);
-            expect(error).to.equal(null);
-            expect(value.isDefault).to.equal(false);
-          });
-
-          test('can be set to true', async () => {
-            fullLicenceHolderDocumentRole.isDefault = true;
-            const { error, value } = documentValidator.validateDocumentRole(fullLicenceHolderDocumentRole);
-            expect(error).to.equal(null);
-            expect(value.isDefault).to.equal(true);
-          });
-
-          test('rejects non boolean', async () => {
-            fullLicenceHolderDocumentRole.isDefault = 'carrots';
             const { error } = documentValidator.validateDocumentRole(fullLicenceHolderDocumentRole);
             expect(error).to.not.equal(null);
           });
