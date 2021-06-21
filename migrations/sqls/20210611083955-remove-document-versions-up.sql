@@ -21,7 +21,7 @@ alter table crm_v2.document_roles
   drop column is_default;
 
 -- Drop unwanted enum type
-drop type "crm_v2"."document_status";
+drop type crm_v2.document_status;
 
 -- Create unique index on licence number
 create unique index documents_document_ref on crm_v2.documents(regime, document_type, document_ref);
