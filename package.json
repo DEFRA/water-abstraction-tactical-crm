@@ -1,6 +1,6 @@
 {
   "name": "water-abstraction-tactical-crm",
-  "version": "2.0.0",
+  "version": "2.1.5",
   "description": "Tactical CRM implementation for water abstraction service",
   "main": "index.js",
   "repository": {
@@ -29,7 +29,6 @@
     "@hapi/code": "^5.2.4",
     "@hapi/lab": "^19.1.0",
     "auto-changelog": "^1.16.4",
-    "blipp": "^4.0.0",
     "codecov": "^3.6.1",
     "db-migrate": "^0.11.10",
     "db-migrate-pg": "^1.2.1",
@@ -45,6 +44,7 @@
   "dependencies": {
     "@envage/hapi-pg-rest-api": "^4.1.2",
     "@envage/water-abstraction-helpers": "^4.3.6",
+    "blipp": "^4.0.0",
     "@hapi/boom": "^7.4.2",
     "@hapi/good": "^8.2.4",
     "@hapi/hapi": "^18.4.0",
