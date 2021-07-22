@@ -30,7 +30,7 @@ experiment('modules/addresses/validator', () => {
   experiment('.validate', () => {
     test('validates a valid address', async () => {
       const { error } = addressValidator.validate(fullAddress);
-      expect(error).to.be.false();
+      expect(error).to.be.null();
     });
 
     test('errors for an invalid address', async () => {
