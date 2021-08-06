@@ -98,7 +98,11 @@ const create = async invoiceAccount => helpers.create(InvoiceAccount, invoiceAcc
 
 const deleteOne = async id => helpers.deleteOne(InvoiceAccount, 'invoiceAccountId', id);
 
-const deleteTestData = async () => helpers.deleteTestData(InvoiceAccount);
+const deleteTestData = async () => {
+  await helpers.deleteTestData(InvoiceAccount);
+  await raw.deleteRows(queries.deleteTestInvoiceAccountAddresses, {});
+  await raw.deleteRows(queries.deleteTestInvoiceAccounts, {});
+};
 
 /**
  * Finds the invoice account with the largest numeric account number in a particular region
