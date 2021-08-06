@@ -22,4 +22,4 @@ or add.last_hash <> add.current_hash
 `;
 
 exports.deleteTestInvoiceAccounts = `
-DELETE from crm_v2.invoice_accounts where company_id = (SELECT company_id from crm_v2.companies where is_test = true);`;
+DELETE from crm_v2.invoice_accounts where company_id IN (SELECT company_id from crm_v2.companies where is_test = true);`;
