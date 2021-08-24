@@ -1,6 +1,6 @@
 {
   "name": "water-abstraction-tactical-crm",
-  "version": "2.6.0",
+  "version": "2.7.0",
   "description": "Tactical CRM implementation for water abstraction service",
   "main": "index.js",
   "repository": {
