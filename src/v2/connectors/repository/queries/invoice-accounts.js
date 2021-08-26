@@ -20,3 +20,6 @@ where com.last_hash <> com.current_hash
 or con.last_hash <> con.current_hash
 or add.last_hash <> add.current_hash
 `;
+
+exports.deleteTestInvoiceAccounts = `
+DELETE from crm_v2.invoice_accounts where company_id IN (SELECT company_id from crm_v2.companies where is_test = true);`;
