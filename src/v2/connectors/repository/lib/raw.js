@@ -13,5 +13,10 @@ const singleRow = async (query, params) => {
   return result.length ? result[0] : null;
 };
 
+const deleteRows = (query, params) => {
+  return bookshelf.knex.raw(query, params);
+};
+
+exports.deleteRows = deleteRows;
 exports.multiRow = multiRow;
 exports.singleRow = singleRow;
