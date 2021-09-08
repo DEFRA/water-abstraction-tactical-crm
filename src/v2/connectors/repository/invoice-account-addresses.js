@@ -2,7 +2,8 @@
 
 const InvoiceAccountAddress = require('../bookshelf/InvoiceAccountAddress');
 const helpers = require('./helpers');
-
+const queries = require('./queries/invoice-account-addresses');
+const raw = require('./lib/raw');
 /**
  * Create a new invoice account address in crm_v2.invoice_account_addresses
  *
@@ -21,7 +22,10 @@ const findAll = async invoiceAccountId => helpers.findAll(InvoiceAccountAddress,
 
 const deleteOne = async id => helpers.deleteOne(InvoiceAccountAddress, 'invoiceAccountAddressId', id);
 
-const deleteTestData = async () => helpers.deleteTestData(InvoiceAccountAddress);
+const deleteTestData = async () => {
+  await raw.deleteRows(queries.deleteTestInvoiceAccountAddresses, {});
+  await helpers.deleteTestData(InvoiceAccountAddress);
+};
 
 const update = (id, changes = {}) =>
   helpers.update(InvoiceAccountAddress, 'invoiceAccountAddressId', id, changes);
