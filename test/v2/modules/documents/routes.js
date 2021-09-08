@@ -81,9 +81,7 @@ experiment('modules/documents/routes', () => {
       fullPayload = {
         regime: 'water',
         documentType: 'abstraction_licence',
-        versionNumber: 100,
         documentRef: 'doc-ref',
-        status: 'current',
         startDate: '2001-01-18',
         endDate: '2010-01-17',
         isTest: true
@@ -95,7 +93,7 @@ experiment('modules/documents/routes', () => {
 
     test('includes the expected payload ', async () => {
       expect(Object.keys(routes.postDocument.options.validate.payload))
-        .to.equal(['regime', 'documentType', 'versionNumber', 'documentRef', 'status', 'startDate', 'endDate', 'isTest']);
+        .to.equal(['regime', 'documentType', 'documentRef', 'startDate', 'endDate', 'isTest']);
     });
 
     test('the handler is delegated to the entity handler', async () => {
@@ -121,45 +119,10 @@ experiment('modules/documents/routes', () => {
       expect(response.statusCode).to.equal(400);
     });
 
-    test('requires versionNumber', async () => {
-      delete fullPayload.versionNumber;
-      const response = await server.inject(createDocumentRequest(fullPayload));
-      expect(response.statusCode).to.equal(400);
-    });
-
-    test('requires versionNumber to be a number', async () => {
-      fullPayload.versionNumber = 'NAN';
-      const response = await server.inject(createDocumentRequest(fullPayload));
-      expect(response.statusCode).to.equal(400);
-    });
-
     test('requires documentRef', async () => {
-      delete fullPayload.status;
+      delete fullPayload.documentRef;
       const response = await server.inject(createDocumentRequest(fullPayload));
       expect(response.statusCode).to.equal(400);
-    });
-
-    test('requires status', async () => {
-      delete fullPayload.status;
-      const response = await server.inject(createDocumentRequest(fullPayload));
-      expect(response.statusCode).to.equal(400);
-    });
-
-    test('requires status to be a valid status', async () => {
-      fullPayload.status = 'current';
-      const response = await server.inject(createDocumentRequest(fullPayload));
-      expect(response.statusCode).to.equal(200);
-    });
-    test('requires status to be a valid status', async () => {
-      fullPayload.status = 'draft';
-      const response = await server.inject(createDocumentRequest(fullPayload));
-      expect(response.statusCode).to.equal(200);
-    });
-
-    test('requires status to be a valid status', async () => {
-      fullPayload.status = 'superseded';
-      const response = await server.inject(createDocumentRequest(fullPayload));
-      expect(response.statusCode).to.equal(200);
     });
 
     test('expects the start date to be a valid date', async () => {
@@ -198,7 +161,6 @@ experiment('modules/documents/routes', () => {
 
         fullPayload = {
           role: 'billing',
-          isDefault: true,
           startDate: '2020-01-02',
           endDate: '2020-02-02',
           invoiceAccountId: uuid(),
@@ -242,14 +204,6 @@ experiment('modules/documents/routes', () => {
         delete fullPayload.role;
         const response = await server.inject(createDocumentRoleRequest(fullPayload));
         expect(response.statusCode).to.equal(400);
-      });
-
-      test('isDefault is optional (but will default to false)', async () => {
-        delete fullPayload.isDefault;
-        const response = await server.inject(createDocumentRoleRequest(fullPayload));
-
-        expect(response.statusCode).to.equal(200);
-        expect(response.request.payload.isDefault).to.equal(false);
       });
 
       test('startDate is invalid if not in the format YYYY-MM-DD', async () => {

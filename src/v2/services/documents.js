@@ -32,11 +32,6 @@ const createDocument = async document => {
     throw new errors.EntityValidationError('Document not valid', details);
   }
 
-  // get the existing documents for the document ref
-  const currentDocuments = await repo.documents.findByDocumentRef(document.regime, document.documentType, document.documentRef);
-  if (datesOverlap(currentDocuments, document)) {
-    throw new errors.ConflictingDataError('Overlapping start and end date for document');
-  }
   try {
     const doc = await repo.documents.create(validatedDocument);
     return doc;
