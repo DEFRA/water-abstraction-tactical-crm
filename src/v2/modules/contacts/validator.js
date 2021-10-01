@@ -1,10 +1,10 @@
 'use strict';
 
-const Joi = require('@hapi/joi');
-const validators = require('../../lib/validators');
+const Joi = require('joi');
+const validators = require('../../lib/validators-v2');
 const contactTypes = require('../../lib/contact-types');
 
-const personSchema = Joi.object({
+const personSchema = Joi.object().keys({
   salutation: validators.OPTIONAL_STRING,
   firstName: validators.REQUIRED_STRING,
   middleInitials: validators.OPTIONAL_STRING,
@@ -15,7 +15,7 @@ const personSchema = Joi.object({
   dataSource: validators.DATA_SOURCE
 });
 
-const departmentSchema = Joi.object({
+const departmentSchema = Joi.object().keys({
   department: validators.REQUIRED_STRING,
   isTest: validators.TEST_FLAG,
   dataSource: validators.DATA_SOURCE
@@ -26,7 +26,7 @@ const schemas = {
   department: departmentSchema
 };
 
-const typeSchema = Joi.string().valid(Object.values(contactTypes)).required();
+const typeSchema = Joi.string().required().allow(contactTypes);
 
 /**
  * Validates that an object conforms to the requirements of a contact.
@@ -34,6 +34,11 @@ const typeSchema = Joi.string().valid(Object.values(contactTypes)).required();
 exports.validate = contact => {
   const { type, ...rest } = contact;
   const { error } = typeSchema.validate(type);
+
+  if (schemas[type] === undefined) {
+    return { result: { error: 'schemas[type] is undefined' } };
+  }
+
   if (error) return { error };
   return schemas[type].validate(rest, { abortEarly: false });
 };
