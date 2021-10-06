@@ -26,19 +26,17 @@ const schemas = {
   department: departmentSchema
 };
 
-const typeSchema = Joi.string().required().allow(contactTypes);
-
 /**
  * Validates that an object conforms to the requirements of a contact.
  */
 exports.validate = contact => {
   const { type, ...rest } = contact;
-  const { error } = typeSchema.validate(type);
-
   if (schemas[type] === undefined) {
     return { result: { error: 'schemas[type] is undefined' } };
   }
-
-  if (error) return { error };
-  return schemas[type].validate(rest, { abortEarly: false });
+  const schema = type === contactTypes.PERSON ? personSchema : departmentSchema;
+  const valRes = schema.validate(rest, { abortEarly: false });
+  const { error, value } = valRes;
+  if (error) return valRes;
+  return { value, error: null };
 };

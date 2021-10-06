@@ -1,8 +1,7 @@
-const Joi = require('@hapi/joi');
+const Joi = require('joi');
 const controller = require('./controller');
-
 const entityHandlers = require('../../lib/entity-handlers');
-const validators = require('../../lib/validators');
+const validators = require('../../lib/validators-v2');
 
 exports.getInvoiceAccount = {
   method: 'GET',
@@ -11,9 +10,9 @@ exports.getInvoiceAccount = {
   options: {
     description: 'Get an invoice account by id',
     validate: {
-      params: {
+      params: Joi.object().keys({
         invoiceAccountId: validators.GUID
-      }
+      })
     }
   }
 };
@@ -72,9 +71,9 @@ exports.deleteInvoiceAccount = {
   options: {
     description: 'Delete an invoice account entity by id',
     validate: {
-      params: {
+      params: Joi.object().keys({
         invoiceAccountId: validators.GUID
-      }
+      })
     }
   }
 };

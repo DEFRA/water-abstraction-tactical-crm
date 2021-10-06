@@ -1,5 +1,5 @@
 const { version } = require('../../config');
-const Joi = require('@hapi/joi');
+const Joi = require('joi');
 
 const documentsController = require('../controllers/documents');
 
@@ -13,9 +13,9 @@ module.exports = {
     options: {
       description: 'Get all the users associated with a document via the company',
       validate: {
-        params: {
+        params: Joi.object().keys({
           documentId: Joi.string().guid()
-        }
+        })
       }
     }
   }

@@ -1,8 +1,9 @@
 'use strict';
 
 const entityHandlers = require('../../lib/entity-handlers');
-const validators = require('../../lib/validators');
+const validators = require('../../lib/validators-v2');
 const controller = require('./controller');
+const Joi = require('joi');
 
 exports.postAddress = {
   method: 'POST',
@@ -11,7 +12,7 @@ exports.postAddress = {
   options: {
     description: 'Creates a new address',
     validate: {
-      payload: {
+      payload: Joi.object().keys({
         address1: validators.OPTIONAL_STRING,
         address2: validators.OPTIONAL_STRING,
         address3: validators.OPTIONAL_STRING,
@@ -23,7 +24,7 @@ exports.postAddress = {
         isTest: validators.TEST_FLAG,
         dataSource: validators.ADDRESS_DATA_SOURCE,
         uprn: validators.UPRN
-      }
+      })
     }
   }
 };
@@ -35,9 +36,9 @@ exports.getAddress = {
   options: {
     description: 'Get an address entity',
     validate: {
-      params: {
+      params: Joi.object().keys({
         addressId: validators.GUID
-      }
+      })
     }
   }
 };
@@ -49,9 +50,9 @@ exports.deleteAddress = {
   options: {
     description: 'Delete an address entity by id',
     validate: {
-      params: {
+      params: Joi.object().keys({
         addressId: validators.GUID
-      }
+      })
     }
   }
 };
