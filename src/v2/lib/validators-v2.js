@@ -1,13 +1,13 @@
 const Joi = require('joi').extend(require('@joi/date'));
 
-const nullDefault = (val) => {
+const nullDefault = val => {
   if (val === 'undefined') {
     return val;
   }
   return null;
 };
 
-const falseDefault = (val) => {
+const falseDefault = val => {
   // Note: could be an object
   if (val === 'undefined') {
     return val;
