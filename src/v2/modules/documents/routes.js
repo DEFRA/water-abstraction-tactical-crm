@@ -1,6 +1,6 @@
-const Joi = require('@hapi/joi');
+const Joi = require('joi');
 const controller = require('./controller');
-const validators = require('../../lib/validators');
+const validators = require('../../lib/validators-v2');
 const entityHandlers = require('../../lib/entity-handlers');
 
 exports.getDocument = {
@@ -10,9 +10,9 @@ exports.getDocument = {
   options: {
     description: 'Get document with roles',
     validate: {
-      params: {
+      params: Joi.object().keys({
         documentId: Joi.string().guid().required()
-      }
+      })
     }
   }
 };
@@ -57,14 +57,14 @@ exports.postDocument = {
   options: {
     description: 'Add a document for a licence number',
     validate: {
-      payload: {
+      payload: Joi.object().keys({
         regime: Joi.string().required(),
         documentType: Joi.string().required(),
         documentRef: Joi.string().required(),
         startDate: validators.START_DATE,
         endDate: validators.END_DATE,
         isTest: validators.TEST_FLAG
-      }
+      })
     }
   }
 };
@@ -81,10 +81,10 @@ exports.postDocumentRole = {
   options: {
     description: 'Creates a new document role',
     validate: {
-      params: {
+      params: Joi.object().keys({
         documentId: validators.GUID
-      },
-      payload: {
+      }),
+      payload: Joi.object().keys({
         role: Joi.string().valid('billing', 'licenceHolder').required(),
         startDate: validators.START_DATE,
         endDate: validators.END_DATE,
@@ -93,7 +93,7 @@ exports.postDocumentRole = {
         contactId: Joi.string().uuid().allow(null),
         addressId: Joi.string().uuid().allow(null),
         isTest: validators.TEST_FLAG
-      }
+      })
     }
   }
 };
@@ -105,9 +105,9 @@ exports.getDocumentRole = {
   options: {
     description: 'Get a document role entity',
     validate: {
-      params: {
+      params: Joi.object().keys({
         documentRoleId: validators.GUID
-      }
+      })
     }
   }
 };

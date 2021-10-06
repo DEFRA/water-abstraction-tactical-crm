@@ -1,5 +1,5 @@
 const HAPIRestAPI = require('@envage/hapi-pg-rest-api');
-const Joi = require('@hapi/joi');
+const Joi = require('joi');
 const { createShortCode } = require('../lib/helpers.js');
 const { version } = require('../../config');
 const { pool } = require('../lib/connectors/db');

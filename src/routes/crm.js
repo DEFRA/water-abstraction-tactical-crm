@@ -3,7 +3,7 @@ API operations only - NO UI
 */
 const version = '1.0';
 const CRM = require('../lib/CRM');
-const Joi = require('@hapi/joi');
+const Joi = require('joi');
 
 const documentsRoutes = Object.values(require('./documents'));
 const acceptanceTestRoutes = require('../routes/acceptance-tests');
@@ -59,9 +59,9 @@ module.exports = [
     options: {
       description: 'Get the companies that a user entity is associated with',
       validate: {
-        params: {
+        params: Joi.object().keys({
           entity_id: Joi.string().guid().required()
-        }
+        })
       }
     }
   },
@@ -72,9 +72,9 @@ module.exports = [
     options: {
       description: 'Get the companies that a user entity is associated with',
       validate: {
-        params: {
+        params: Joi.object().keys({
           entity_id: Joi.string().guid().required()
-        }
+        })
       }
     }
   },
@@ -93,10 +93,10 @@ module.exports = [
     options: {
       description: 'Remove specified colleague of entity',
       validate: {
-        params: {
+        params: Joi.object().keys({
           entity_id: Joi.string().guid().required(),
           role_id: Joi.string().guid().required()
-        }
+        })
       }
     }
   },
@@ -107,10 +107,10 @@ module.exports = [
     options: {
       description: 'Create new colleague of entity',
       validate: {
-        payload: {
+        payload: Joi.object().keys({
           colleagueEntityID: Joi.string().uuid().required(),
           role: Joi.string().required().valid('user', 'user_returns').default('user')
-        }
+        })
       }
     }
   },
@@ -137,12 +137,12 @@ module.exports = [
     handler: VerificationDocumentsController.postVerificationDocuments,
     options: {
       validate: {
-        params: {
+        params: Joi.object().keys({
           id: Joi.string().guid().required()
-        },
-        payload: {
+        }),
+        payload: Joi.object().keys({
           document_id: Joi.array().items(Joi.string().guid()).required()
-        }
+        })
       }
     }
   },
@@ -152,9 +152,9 @@ module.exports = [
     handler: VerificationDocumentsController.deleteVerificationDocuments,
     options: {
       validate: {
-        params: {
+        params: Joi.object().keys({
           id: Joi.string().guid().required()
-        }
+        })
       }
     }
   },
@@ -164,9 +164,9 @@ module.exports = [
     handler: VerificationDocumentsController.getVerificationDocuments,
     options: {
       validate: {
-        params: {
+        params: Joi.object().keys({
           id: Joi.string().guid().required()
-        }
+        })
       }
     }
   },

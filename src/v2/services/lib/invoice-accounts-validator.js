@@ -1,14 +1,11 @@
 'use strict';
 
-const Joi = require('@hapi/joi')
-  .extend(require('@hapi/joi-date'));
-
-const validators = require('../../lib/validators');
-
+const Joi = require('joi').extend(require('@joi/date'));
+const validators = require('../../lib/validators-v2');
 const invoiceAccountNumberRegex = /^[ABENSTWY][0-9]{8}A$/;
 const DATE = Joi.date().utc().format('YYYY-MM-DD');
 
-const invoiceAccountSchema = Joi.object({
+const invoiceAccountSchema = Joi.object().keys({
   companyId: Joi.string().guid().required(),
   invoiceAccountNumber: Joi.string().regex(invoiceAccountNumberRegex).required(),
   startDate: DATE.required(),
@@ -20,7 +17,7 @@ const createInvoiceAccountAddressSchema = invoiceAccount => {
   // The agent company ID should not be the same as the LH company
   const { companyId } = invoiceAccount.company;
 
-  return Joi.object({
+  return Joi.object().keys({
     invoiceAccountId: Joi.string().guid().required(),
     addressId: Joi.string().guid().required(),
     startDate: DATE.required(),
@@ -34,11 +31,20 @@ const createInvoiceAccountAddressSchema = invoiceAccount => {
 /**
  * Validates that an object conforms to the requirements of an invoice account.
  */
-exports.validateInvoiceAccount = invoiceAccount =>
-  Joi.validate(invoiceAccount, invoiceAccountSchema, { abortEarly: false });
+exports.validateInvoiceAccount = invoiceAccount => {
+  const valRes = invoiceAccountSchema.validate(invoiceAccount, { abortEarly: false });
+  const { error, value } = valRes;
+  if (error) return valRes;
+  return { value, error: null };
+};
 
 /**
  * Validates that an object conforms to the requirements of an invoice account address.
  */
-exports.validateInvoiceAccountAddress = (invoiceAccountAddress, invoiceAccount) =>
-  Joi.validate(invoiceAccountAddress, createInvoiceAccountAddressSchema(invoiceAccount), { abortEarly: false });
+exports.validateInvoiceAccountAddress = (invoiceAccountAddress, invoiceAccount) => {
+  const typeSchema = createInvoiceAccountAddressSchema(invoiceAccount);
+  const valRes = typeSchema.validate(invoiceAccountAddress, { abortEarly: false });
+  const { error, value } = valRes;
+  if (error) return valRes;
+  return { value, error: null };
+};
