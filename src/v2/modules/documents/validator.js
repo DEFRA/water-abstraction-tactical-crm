@@ -45,7 +45,9 @@ const documentRoleSchema = Joi.object().keys({
 exports.validateDocumentRole = documentRole => {
   const valRes = documentRoleSchema.validate(documentRole, { abortEarly: false });
   const { error, value } = valRes;
-  if (error) return valRes;
+  if (error) {
+    return { value, error };
+  }
   return { value, error: null };
 };
 
@@ -55,6 +57,8 @@ exports.validateDocumentRole = documentRole => {
 exports.validateDocument = document => {
   const valRes = documentSchema.validate(document, { abortEarly: false });
   const { error, value } = valRes;
-  if (error) return valRes;
+  if (error) {
+    return { value, error };
+  }
   return { value, error: null };
 };

@@ -34,7 +34,9 @@ const createInvoiceAccountAddressSchema = invoiceAccount => {
 exports.validateInvoiceAccount = invoiceAccount => {
   const valRes = invoiceAccountSchema.validate(invoiceAccount, { abortEarly: false });
   const { error, value } = valRes;
-  if (error) return valRes;
+  if (error) {
+    return { value, error };
+  }
   return { value, error: null };
 };
 
@@ -45,6 +47,8 @@ exports.validateInvoiceAccountAddress = (invoiceAccountAddress, invoiceAccount) 
   const typeSchema = createInvoiceAccountAddressSchema(invoiceAccount);
   const valRes = typeSchema.validate(invoiceAccountAddress, { abortEarly: false });
   const { error, value } = valRes;
-  if (error) return valRes;
+  if (error) {
+    return { value, error };
+  }
   return { value, error: null };
 };

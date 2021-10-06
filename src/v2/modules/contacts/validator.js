@@ -32,11 +32,13 @@ const schemas = {
 exports.validate = contact => {
   const { type, ...rest } = contact;
   if (schemas[type] === undefined) {
-    return { result: { error: 'schemas[type] is undefined' } };
+    return { value: null, error: null };
   }
   const schema = type === contactTypes.PERSON ? personSchema : departmentSchema;
   const valRes = schema.validate(rest, { abortEarly: false });
   const { error, value } = valRes;
-  if (error) return valRes;
+  if (error) {
+    return { value, error };
+  }
   return { value, error: null };
 };
