@@ -24,11 +24,11 @@ exports.getDocuments = {
   options: {
     description: 'Get all documents for a licence number',
     validate: {
-      query: {
+      query: Joi.object().keys({
         regime: Joi.string().default('water'),
         documentType: Joi.string().default('abstraction_licence'),
         documentRef: Joi.string().required()
-      }
+      })
     }
   }
 };
@@ -40,12 +40,12 @@ exports.getDocumentByRefAndDate = {
   options: {
     description: 'Get single document for a licence number on a particular date with roles',
     validate: {
-      query: {
+      query: Joi.object().keys({
         regime: Joi.string().default('water'),
         documentType: Joi.string().default('abstraction_licence'),
         documentRef: Joi.string().required(),
         date: validators.DATE
-      }
+      })
     }
   }
 };
