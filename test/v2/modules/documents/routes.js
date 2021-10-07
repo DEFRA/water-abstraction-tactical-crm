@@ -59,7 +59,13 @@ experiment('modules/documents/routes', () => {
         .to.equal('/crm/2.0/documents');
     });
     test('validates the expected query filter parameters', async () => {
-      expect(Object.keys(routes.getDocuments.options.validate.query))
+      const query = {
+        regime: 'water',
+        documentType: 'abstraction_licence',
+        documentRef: 'doc-ref'
+      };
+      const { value } = routes.postDocument.options.validate.payload.validate(query);
+      expect(Object.keys(value))
         .to.equal(['regime', 'documentType', 'documentRef']);
     });
   });
