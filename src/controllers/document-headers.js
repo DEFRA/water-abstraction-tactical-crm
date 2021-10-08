@@ -1,6 +1,4 @@
 const HAPIRestAPI = require('@envage/hapi-pg-rest-api');
-
-// invalid schema content - incorrect version of joi?
 const Joi = require('joi');
 const { pool } = require('../lib/connectors/db');
 const { version } = require('../../config');
