@@ -10,5 +10,11 @@ const getDocumentByRefAndDate = async (request) => {
   return docService.getDocumentByRefAndDate(regime, documentType, documentRef, date);
 };
 
+const getDocumentRolesByDocumentRef = async request => {
+  const { documentRef } = request.params;
+  return docService.getDocumentRolesByDocumentRef(decodeURIComponent(documentRef));
+};
+
 exports.getDocuments = getDocuments;
 exports.getDocumentByRefAndDate = getDocumentByRefAndDate;
+exports.getDocumentRolesByDocumentRef = getDocumentRolesByDocumentRef;
