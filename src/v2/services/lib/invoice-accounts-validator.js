@@ -31,9 +31,8 @@ const createInvoiceAccountAddressSchema = invoiceAccount => {
 /**
  * Validates that an object conforms to the requirements of an invoice account.
  */
-exports.validateInvoiceAccount = invoiceAccount => {
-  return invoiceAccountSchema.validate(invoiceAccount, { abortEarly: false });
-};
+exports.validateInvoiceAccount = invoiceAccount =>
+  invoiceAccountSchema.validate(invoiceAccount, { abortEarly: false });
 
 /**
  * Validates that an object conforms to the requirements of an invoice account address.
