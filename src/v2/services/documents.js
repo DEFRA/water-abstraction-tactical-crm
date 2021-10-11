@@ -151,9 +151,15 @@ const getDocumentByRefAndDate = async (regime, documentType, documentRef, date) 
   }
 };
 
+const getDocumentRolesByDocumentRef = async documentRef => {
+  const data = await repo.documents.getDocumentRolesByDocumentRef(documentRef);
+  return { data };
+};
+
 exports.createDocumentRole = createDocumentRole;
 exports.getDocumentRole = getDocumentRole;
 exports.createDocument = createDocument;
 exports.getDocument = getDocument;
 exports.getDocumentsByRef = getDocumentsByRef;
 exports.getDocumentByRefAndDate = getDocumentByRefAndDate;
+exports.getDocumentRolesByDocumentRef = getDocumentRolesByDocumentRef;

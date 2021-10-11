@@ -31,3 +31,32 @@ exports.findDocumentByRefAndDate = `
   ORDER BY docs.start_date, docs.end_date
   LIMIT 1;
 `;
+
+exports.getDocumentRolesByDocumentRef = `
+  select
+     roles.role_id as role_id,
+     roles.name as role_name,
+     roles.label as role_label,
+     contacts.contact_id,
+     contacts.salutation,
+     contacts.first_name,
+     contacts.last_name,
+     companies.company_id,
+     companies.name,
+     companies.type,
+     addresses.address_id,
+     addresses.address_1,
+     addresses.address_2,
+     addresses.address_3,
+     addresses.address_4,
+     addresses.town,
+     addresses.county,
+     addresses.country,
+     addresses.postcode from crm_v2.document_roles dr 
+  join crm_v2.companies companies on companies.company_id  = dr.company_id
+  join crm_v2.contacts contacts on contacts.contact_id  = dr.contact_id
+  join crm_v2.addresses addresses on addresses.address_id = dr.address_id
+  join crm_v2.documents documents on documents.document_id = dr.document_id
+  join crm_v2.roles roles on roles.role_id = dr.role_id 
+  where documents.document_ref = :documentRef and dr.end_date is null;
+`;

@@ -111,3 +111,17 @@ exports.getDocumentRole = {
     }
   }
 };
+
+exports.getDocumentRoles = {
+  method: 'GET',
+  path: '/crm/2.0/document/{documentRef}/document-roles',
+  handler: controller.getDocumentRolesByDocumentRef,
+  options: {
+    description: 'Get a document\'s roles by document Ref',
+    validate: {
+      params: {
+        documentRef: validators.REQUIRED_STRING
+      }
+    }
+  }
+};
