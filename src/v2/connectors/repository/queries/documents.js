@@ -53,10 +53,10 @@ exports.getDocumentRolesByDocumentRef = `
      addresses.county,
      addresses.country,
      addresses.postcode from crm_v2.document_roles dr 
-  join crm_v2.companies companies on companies.company_id  = dr.company_id
-  join crm_v2.contacts contacts on contacts.contact_id  = dr.contact_id
+  left join crm_v2.companies companies on companies.company_id  = dr.company_id
+  left join crm_v2.contacts contacts on contacts.contact_id  = dr.contact_id
   join crm_v2.addresses addresses on addresses.address_id = dr.address_id
   join crm_v2.documents documents on documents.document_id = dr.document_id
   join crm_v2.roles roles on roles.role_id = dr.role_id 
-  where documents.document_ref = :documentRef and dr.end_date is null;
+  where documents.document_ref = :documentRef and (dr.end_date is null or dr.end_date > now());
 `;
