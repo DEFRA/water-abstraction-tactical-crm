@@ -1,23 +1,8 @@
 const Joi = require('joi').extend(require('@joi/date'));
 
-const nullDefault = val => {
-  if (val === 'undefined') {
-    return val;
-  }
-  return null;
-};
-
-const falseDefault = val => {
-  // Note: could be an object
-  if (val === 'undefined') {
-    return val;
-  }
-  return false;
-};
-
-const OPTIONAL_STRING = Joi.string().allow('', null).trim().empty('').default(nullDefault);
+const OPTIONAL_STRING = Joi.string().allow('', null).trim().empty('').default(null);
 const REQUIRED_STRING = Joi.string().trim().required();
-const TEST_FLAG = Joi.boolean().optional().default(falseDefault);
+const TEST_FLAG = Joi.boolean().optional().default(false);
 const DATA_SOURCE = Joi.string().valid('wrls', 'nald').default('wrls');
 
 const DATE = Joi.date().format('YYYY-MM-DD');
