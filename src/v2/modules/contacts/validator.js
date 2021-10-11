@@ -35,10 +35,5 @@ exports.validate = contact => {
     return { value: null, error: null };
   }
   const schema = type === contactTypes.PERSON ? personSchema : departmentSchema;
-  const valRes = schema.validate(rest, { abortEarly: false });
-  const { error, value } = valRes;
-  if (error) {
-    return { value, error };
-  }
-  return { value, error: null };
+  return schema.validate(rest, { abortEarly: false });
 };

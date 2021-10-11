@@ -42,23 +42,11 @@ const documentRoleSchema = Joi.object().keys({
  * Validates that an object conforms to the requirements of a document role
  * based on the role being proposed.
  */
-exports.validateDocumentRole = documentRole => {
-  const valRes = documentRoleSchema.validate(documentRole, { abortEarly: false });
-  const { error, value } = valRes;
-  if (error) {
-    return { value, error };
-  }
-  return { value, error: null };
-};
+exports.validateDocumentRole = documentRole =>
+  documentRoleSchema.validate(documentRole, { abortEarly: false });
 
 /**
  * Validates that an object conforms to the requirements of an document.
  */
-exports.validateDocument = document => {
-  const valRes = documentSchema.validate(document, { abortEarly: false });
-  const { error, value } = valRes;
-  if (error) {
-    return { value, error };
-  }
-  return { value, error: null };
-};
+exports.validateDocument = document =>
+  documentSchema.validate(document, { abortEarly: false });

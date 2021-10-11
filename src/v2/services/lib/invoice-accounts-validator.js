@@ -32,12 +32,7 @@ const createInvoiceAccountAddressSchema = invoiceAccount => {
  * Validates that an object conforms to the requirements of an invoice account.
  */
 exports.validateInvoiceAccount = invoiceAccount => {
-  const valRes = invoiceAccountSchema.validate(invoiceAccount, { abortEarly: false });
-  const { error, value } = valRes;
-  if (error) {
-    return { value, error };
-  }
-  return { value, error: null };
+  return invoiceAccountSchema.validate(invoiceAccount, { abortEarly: false });
 };
 
 /**
@@ -45,10 +40,5 @@ exports.validateInvoiceAccount = invoiceAccount => {
  */
 exports.validateInvoiceAccountAddress = (invoiceAccountAddress, invoiceAccount) => {
   const typeSchema = createInvoiceAccountAddressSchema(invoiceAccount);
-  const valRes = typeSchema.validate(invoiceAccountAddress, { abortEarly: false });
-  const { error, value } = valRes;
-  if (error) {
-    return { value, error };
-  }
-  return { value, error: null };
+  return typeSchema.validate(invoiceAccountAddress, { abortEarly: false });
 };

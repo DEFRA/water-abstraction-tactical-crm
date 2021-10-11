@@ -5,11 +5,5 @@ const schema = require('@envage/water-abstraction-helpers').validators.VALID_ADD
 /**
  * Validates that an object conforms to the requirements of an address.
  */
-exports.validate = address => {
-  const valRes = schema.validate(address, { abortEarly: false });
-  const { error, value } = valRes;
-  if (error) {
-    return valRes;
-  }
-  return { value, error: null };
-};
+exports.validate = address =>
+  schema.validate(address, { abortEarly: false });
