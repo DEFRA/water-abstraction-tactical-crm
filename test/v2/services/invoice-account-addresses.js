@@ -149,7 +149,6 @@ experiment('v2/services/invoice-accounts', () => {
         });
 
         test('a ConflictingDataError is thrown', async () => {
-          // PROBLEM HERE !
           const err = await expect(invoiceAccountsAddressService.createInvoiceAccountAddress(invoiceAccountAddress))
             .to.reject(errors.ConflictingDataError);
           expect(err.message).to.equal(`Specified address ${invoiceAccountAddress.addressId} is not in company ${companyId}`);

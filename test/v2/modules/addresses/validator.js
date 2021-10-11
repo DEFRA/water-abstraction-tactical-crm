@@ -30,14 +30,14 @@ experiment('modules/addresses/validator', () => {
   experiment('.validate', () => {
     test('validates a valid address', async () => {
       const { error } = addressValidator.validate(fullAddress);
-      expect(error).to.be.null();
+      expect(error).to.be.undefined();
     });
 
     test('errors for an invalid address', async () => {
       fullAddress.country = 'United Kingdom';
       fullAddress.postcode = 'XXX XXX';
       const { error } = addressValidator.validate(fullAddress);
-      expect(error).to.not.be.null();
+      expect(error).to.not.be.undefined();
     });
   });
 });

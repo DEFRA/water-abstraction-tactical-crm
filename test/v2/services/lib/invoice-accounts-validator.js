@@ -29,19 +29,19 @@ experiment('v2/services/lib/invoice-accounts-validator', () => {
         delete invoiceAccountData.companyId;
 
         const { error } = invoiceAccountValidator.validateInvoiceAccount(invoiceAccountData, 'invoiceAccount');
-        expect(error).to.not.equal(null);
+        expect(error).to.not.be.undefined();
       });
 
       test('cannot equal a string that is not a guid', async () => {
         invoiceAccountData.companyId = 'test-id';
 
         const { error } = invoiceAccountValidator.validateInvoiceAccount(invoiceAccountData, 'invoiceAccount');
-        expect(error).to.not.equal(null);
+        expect(error).to.not.be.undefined();
       });
 
       test('is valid when present', async () => {
         const { error, value } = invoiceAccountValidator.validateInvoiceAccount(invoiceAccountData, 'invoiceAccount');
-        expect(error).to.equal(null);
+        expect(error).to.be.undefined();
         expect(value.companyId).to.equal(invoiceAccountData.companyId);
       });
     });
@@ -51,19 +51,19 @@ experiment('v2/services/lib/invoice-accounts-validator', () => {
         delete invoiceAccountData.invoiceAccountNumber;
 
         const { error } = invoiceAccountValidator.validateInvoiceAccount(invoiceAccountData, 'invoiceAccount');
-        expect(error).to.not.equal(null);
+        expect(error).to.not.be.undefined();
       });
 
       test('cannot equal a string that does not fit expected pattern', async () => {
         invoiceAccountData.invoiceAccountNumber = '123abc';
 
         const { error } = invoiceAccountValidator.validateInvoiceAccount(invoiceAccountData, 'invoiceAccount');
-        expect(error).to.not.equal(null);
+        expect(error).to.not.be.undefined();
       });
 
       test('is valid when present', async () => {
         const { error, value } = invoiceAccountValidator.validateInvoiceAccount(invoiceAccountData, 'invoiceAccount');
-        expect(error).to.equal(null);
+        expect(error).to.be.undefined();
         expect(value.invoiceAccountNumber).to.equal(invoiceAccountData.invoiceAccountNumber);
       });
     });
@@ -73,19 +73,19 @@ experiment('v2/services/lib/invoice-accounts-validator', () => {
         delete invoiceAccountData.startDate;
 
         const { error } = invoiceAccountValidator.validateInvoiceAccount(invoiceAccountData, 'invoiceAccount');
-        expect(error).to.not.equal(null);
+        expect(error).to.not.be.undefined();
       });
 
       test('must be a valid date', async () => {
         invoiceAccountData.startDate = '2020-04-31';
 
         const { error } = invoiceAccountValidator.validateInvoiceAccount(invoiceAccountData, 'invoiceAccount');
-        expect(error).to.not.equal(null);
+        expect(error).to.not.be.undefined();
       });
 
       test('is valid when present', async () => {
         const { error, value } = invoiceAccountValidator.validateInvoiceAccount(invoiceAccountData, 'invoiceAccount');
-        expect(error).to.equal(null);
+        expect(error).to.be.undefined();
         expect(value.startDate).to.equal(new Date(invoiceAccountData.startDate));
       });
     });
@@ -95,7 +95,7 @@ experiment('v2/services/lib/invoice-accounts-validator', () => {
         delete invoiceAccountData.endDate;
 
         const { error } = invoiceAccountValidator.validateInvoiceAccount(invoiceAccountData, 'invoiceAccount');
-        expect(error).to.equal(null);
+        expect(error).to.be.undefined();
       });
 
       test('defaults to null', async () => {
@@ -109,19 +109,19 @@ experiment('v2/services/lib/invoice-accounts-validator', () => {
         invoiceAccountData.endDate = '2020-12-00';
 
         const { error } = invoiceAccountValidator.validateInvoiceAccount(invoiceAccountData, 'invoiceAccount');
-        expect(error).to.not.equal(null);
+        expect(error).to.not.be.undefined();
       });
 
       test('must be after the start date', async () => {
         invoiceAccountData.endDate = '2020-01-01';
 
         const { error } = invoiceAccountValidator.validateInvoiceAccount(invoiceAccountData, 'invoiceAccount');
-        expect(error).to.not.equal(null);
+        expect(error).to.not.be.undefined();
       });
 
       test('is valid when present', async () => {
         const { error, value } = invoiceAccountValidator.validateInvoiceAccount(invoiceAccountData, 'invoiceAccount');
-        expect(error).to.equal(null);
+        expect(error).to.be.undefined();
         expect(value.endDate).to.equal(new Date(invoiceAccountData.endDate));
       });
     });
@@ -129,7 +129,7 @@ experiment('v2/services/lib/invoice-accounts-validator', () => {
     experiment('isTest', () => {
       test('can be omitted', async () => {
         const { error } = invoiceAccountValidator.validateInvoiceAccount(invoiceAccountData, 'invoiceAccount');
-        expect(error).to.equal(null);
+        expect(error).to.be.undefined();
       });
 
       test('defaults to false', async () => {
@@ -140,14 +140,14 @@ experiment('v2/services/lib/invoice-accounts-validator', () => {
       test('can be set', async () => {
         invoiceAccountData.isTest = true;
         const { error, value } = invoiceAccountValidator.validateInvoiceAccount(invoiceAccountData, 'invoiceAccount');
-        expect(error).to.equal(null);
+        expect(error).to.be.undefined();
         expect(value.isTest).to.equal(true);
       });
 
       test('cannt be a string', async () => {
         invoiceAccountData.isTest = 'yep';
         const { error } = invoiceAccountValidator.validateInvoiceAccount(invoiceAccountData, 'invoiceAccount');
-        expect(error).to.not.equal(null);
+        expect(error).to.not.be.undefined();
       });
     });
   });
@@ -185,19 +185,19 @@ experiment('v2/services/lib/invoice-accounts-validator', () => {
         delete invoiceAccountAddressData.invoiceAccountId;
 
         const { error } = invoiceAccountValidator.validateInvoiceAccountAddress(invoiceAccountAddressData, invoiceAccountData);
-        expect(error).to.not.equal(null);
+        expect(error).to.not.be.undefined();
       });
 
       test('cannot equal a string that is not a guid', async () => {
         invoiceAccountAddressData.invoiceAccountId = 'test-id';
 
         const { error } = invoiceAccountValidator.validateInvoiceAccountAddress(invoiceAccountAddressData, invoiceAccountData);
-        expect(error).to.not.equal(null);
+        expect(error).to.not.be.undefined();
       });
 
       test('is valid when present', async () => {
         const { error, value } = invoiceAccountValidator.validateInvoiceAccountAddress(invoiceAccountAddressData, invoiceAccountData);
-        expect(error).to.equal(null);
+        expect(error).to.be.undefined();
         expect(value.invoiceAccountId).to.equal(invoiceAccountAddressData.invoiceAccountId);
       });
     });
@@ -207,19 +207,19 @@ experiment('v2/services/lib/invoice-accounts-validator', () => {
         delete invoiceAccountAddressData.addressId;
 
         const { error } = invoiceAccountValidator.validateInvoiceAccountAddress(invoiceAccountAddressData, invoiceAccountData);
-        expect(error).to.not.equal(null);
+        expect(error).to.not.be.undefined();
       });
 
       test('cannot equal a string that is not a guid', async () => {
         invoiceAccountAddressData.addressId = 'test-id';
 
         const { error } = invoiceAccountValidator.validateInvoiceAccountAddress(invoiceAccountAddressData, invoiceAccountData);
-        expect(error).to.not.equal(null);
+        expect(error).to.not.be.undefined();
       });
 
       test('is valid when present', async () => {
         const { error, value } = invoiceAccountValidator.validateInvoiceAccountAddress(invoiceAccountAddressData, invoiceAccountData);
-        expect(error).to.equal(null);
+        expect(error).to.be.undefined();
         expect(value.addressId).to.equal(invoiceAccountAddressData.addressId);
       });
     });
@@ -229,19 +229,19 @@ experiment('v2/services/lib/invoice-accounts-validator', () => {
         delete invoiceAccountAddressData.startDate;
 
         const { error } = invoiceAccountValidator.validateInvoiceAccountAddress(invoiceAccountAddressData, invoiceAccountData);
-        expect(error).to.not.equal(null);
+        expect(error).to.not.be.undefined();
       });
 
       test('must be a valid date', async () => {
         invoiceAccountAddressData.startDate = '2020-04-31';
 
         const { error } = invoiceAccountValidator.validateInvoiceAccountAddress(invoiceAccountAddressData, invoiceAccountData);
-        expect(error).to.not.equal(null);
+        expect(error).to.not.be.undefined();
       });
 
       test('is valid when present', async () => {
         const { error, value } = invoiceAccountValidator.validateInvoiceAccountAddress(invoiceAccountAddressData, invoiceAccountData);
-        expect(error).to.equal(null);
+        expect(error).to.be.undefined();
         expect(value.startDate).to.equal(new Date(invoiceAccountAddressData.startDate));
       });
     });
@@ -251,7 +251,7 @@ experiment('v2/services/lib/invoice-accounts-validator', () => {
         delete invoiceAccountAddressData.endDate;
 
         const { error } = invoiceAccountValidator.validateInvoiceAccountAddress(invoiceAccountAddressData, invoiceAccountData);
-        expect(error).to.equal(null);
+        expect(error).to.be.undefined();
       });
 
       test('defaults to null', async () => {
@@ -265,19 +265,19 @@ experiment('v2/services/lib/invoice-accounts-validator', () => {
         invoiceAccountAddressData.endDate = '2020-12-00';
 
         const { error } = invoiceAccountValidator.validateInvoiceAccountAddress(invoiceAccountAddressData, invoiceAccountData);
-        expect(error).to.not.equal(null);
+        expect(error).to.not.be.undefined();
       });
 
       test('must be after the start date', async () => {
         invoiceAccountAddressData.endDate = '2020-01-01';
 
         const { error } = invoiceAccountValidator.validateInvoiceAccountAddress(invoiceAccountAddressData, invoiceAccountData);
-        expect(error).to.not.equal(null);
+        expect(error).to.not.be.undefined();
       });
 
       test('is valid when present', async () => {
         const { error, value } = invoiceAccountValidator.validateInvoiceAccountAddress(invoiceAccountAddressData, invoiceAccountData);
-        expect(error).to.equal(null);
+        expect(error).to.be.undefined();
         expect(value.endDate).to.equal(new Date(invoiceAccountAddressData.endDate));
       });
     });
@@ -285,7 +285,7 @@ experiment('v2/services/lib/invoice-accounts-validator', () => {
     experiment('isTest', () => {
       test('can be omitted', async () => {
         const { error } = invoiceAccountValidator.validateInvoiceAccountAddress(invoiceAccountAddressData, invoiceAccountData);
-        expect(error).to.equal(null);
+        expect(error).to.be.undefined();
       });
 
       test('defaults to false', async () => {
@@ -296,14 +296,14 @@ experiment('v2/services/lib/invoice-accounts-validator', () => {
       test('can be set', async () => {
         invoiceAccountAddressData.isTest = true;
         const { error, value } = invoiceAccountValidator.validateInvoiceAccountAddress(invoiceAccountAddressData, invoiceAccountData);
-        expect(error).to.equal(null);
+        expect(error).to.be.undefined();
         expect(value.isTest).to.equal(true);
       });
 
       test('cannt be a string', async () => {
         invoiceAccountAddressData.isTest = 'yep';
         const { error } = invoiceAccountValidator.validateInvoiceAccountAddress(invoiceAccountAddressData, invoiceAccountData);
-        expect(error).to.not.equal(null);
+        expect(error).to.not.be.undefined();
       });
     });
 
@@ -311,25 +311,25 @@ experiment('v2/services/lib/invoice-accounts-validator', () => {
       test('cannot be omitted', async () => {
         delete invoiceAccountAddressData.agentCompanyId;
         const { error } = invoiceAccountValidator.validateInvoiceAccountAddress(invoiceAccountAddressData, invoiceAccountData);
-        expect(error).to.not.equal(null);
+        expect(error).to.not.be.undefined();
       });
 
       test('can be set to a GUID', async () => {
         invoiceAccountAddressData.agentCompanyId = uuid();
         const { error } = invoiceAccountValidator.validateInvoiceAccountAddress(invoiceAccountAddressData, invoiceAccountData);
-        expect(error).to.equal(null);
+        expect(error).to.be.undefined();
       });
 
       test('can be set to null', async () => {
         invoiceAccountAddressData.agentCompanyId = null;
         const { error } = invoiceAccountValidator.validateInvoiceAccountAddress(invoiceAccountAddressData, invoiceAccountData);
-        expect(error).to.equal(null);
+        expect(error).to.be.undefined();
       });
 
       test('cannot be set to the same GUID as the company ID', async () => {
         invoiceAccountAddressData.agentCompanyId = invoiceAccountData.companyId;
         const { error } = invoiceAccountValidator.validateInvoiceAccountAddress(invoiceAccountAddressData, invoiceAccountData);
-        expect(error).to.not.equal(null);
+        expect(error).to.not.be.undefined();
       });
     });
 
@@ -337,19 +337,19 @@ experiment('v2/services/lib/invoice-accounts-validator', () => {
       test('cannot be omitted', async () => {
         delete invoiceAccountAddressData.contactId;
         const { error } = invoiceAccountValidator.validateInvoiceAccountAddress(invoiceAccountAddressData, invoiceAccountData);
-        expect(error).to.not.equal(null);
+        expect(error).to.not.be.undefined();
       });
 
       test('can be set to a GUID', async () => {
         invoiceAccountAddressData.contactId = uuid();
         const { error } = invoiceAccountValidator.validateInvoiceAccountAddress(invoiceAccountAddressData, invoiceAccountData);
-        expect(error).to.equal(null);
+        expect(error).to.be.undefined();
       });
 
       test('can be set to null', async () => {
         invoiceAccountAddressData.contactId = null;
         const { error } = invoiceAccountValidator.validateInvoiceAccountAddress(invoiceAccountAddressData, invoiceAccountData);
-        expect(error).to.equal(null);
+        expect(error).to.be.undefined();
       });
     });
   });
