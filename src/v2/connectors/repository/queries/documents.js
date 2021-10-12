@@ -16,7 +16,7 @@ exports.findByDocumentRef = `
 `;
 
 exports.findDocumentByRefAndDate = `
-  SELECT docs.*, docRoles.company_id, roles.role_id, roles.name AS role_name
+  SELECT docs.*, docRoles.company_id, docRoles.contact_id, docRoles.address_id, roles.role_id, roles.name AS role_name
   FROM crm_v2.documents docs
     LEFT JOIN crm_v2.document_roles docRoles
       ON docRoles.document_id=docs.document_id AND company_id IS NOT NULL
