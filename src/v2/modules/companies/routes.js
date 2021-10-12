@@ -196,9 +196,9 @@ exports.getCompanyLicences = {
   options: {
     description: 'Returns the licences that belong to a company',
     validate: {
-      params: {
+      params: Joi.object().keys({
         companyId: validators.GUID
-      }
+      })
     }
   }
 };
