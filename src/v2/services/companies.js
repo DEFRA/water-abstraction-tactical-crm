@@ -175,6 +175,11 @@ const getCompanyInvoiceAccounts = async companyId => {
   return repos.invoiceAccounts.findAllByCompanyId(companyId);
 };
 
+const getCompanyLicences = async companyId => {
+  await assertCompanyExists(companyId);
+  return repos.companies.findLicencesByCompanyId(companyId);
+};
+
 exports.getRoleId = getRoleId;
 exports.createPerson = createPerson;
 exports.createOrganisation = createOrganisation;
@@ -188,3 +193,4 @@ exports.deleteCompany = deleteCompany;
 exports.deleteCompanyAddress = deleteCompanyAddress;
 exports.deleteCompanyContact = deleteCompanyContact;
 exports.getCompanyInvoiceAccounts = getCompanyInvoiceAccounts;
+exports.getCompanyLicences = getCompanyLicences;
