@@ -1,23 +1,23 @@
-const Joi = require('@hapi/joi')
-  .extend(require('@hapi/joi-date'));
+const Joi = require('joi').extend(require('@joi/date'));
+
+const OPTIONAL_STRING = Joi.string().allow('', null).trim().empty('').default(null);
+const REQUIRED_STRING = Joi.string().trim().required();
+const TEST_FLAG = Joi.boolean().optional().default(false);
+const DATA_SOURCE = Joi.string().valid('wrls', 'nald').default('wrls');
 
 const DATE = Joi.date().format('YYYY-MM-DD');
 const GUID = Joi.string().uuid().required();
-const TEST_FLAG = Joi.boolean().optional().default(false);
 const DEFAULT_FLAG = Joi.boolean().optional().default(false);
 const START_DATE = DATE.required();
 const END_DATE = DATE.min(Joi.ref('startDate')).optional().default(null).allow(null);
 const EMAIL = Joi.string().email().optional().allow(null);
 const REGIME = Joi.string().required().valid('water');
 const DOC_TYPE = Joi.string().required().valid('abstraction_licence');
-const REQUIRED_STRING = Joi.string().trim().required();
 const INVOICE_ACCOUNT_NUMBER = Joi.string().regex(/^[ABENSTWY][0-9]{8}A$/);
 const REQUIRED_INVOICE_ACCOUNT_NUMBER = Joi.string().regex(/^[ABENSTWY][0-9]{8}A$/).required();
 const REGION_CODE = Joi.string().regex(/^[ABENSTWY]$/);
-const DATA_SOURCE = Joi.string().valid('wrls', 'nald').default('wrls');
 const ADDRESS_DATA_SOURCE = Joi.string().valid('wrls', 'nald', 'ea-address-facade', 'companies-house').default('wrls');
 const UPRN = Joi.number().integer().min(0).default(null).allow(null);
-const OPTIONAL_STRING = Joi.string().allow('', null).trim().empty('').default(null);
 const OPTIONAL_STRING_NO_DEFAULT_VALUE = Joi.string().allow('', null).trim().empty('');
 const CONTACT_TYPE = Joi.string().required().valid('person', 'department');
 const ROLE_NAMES = Joi.string().required().valid('licenceHolder', 'billing');

@@ -8,11 +8,8 @@ const {
 } = exports.lab = require('@hapi/lab').script();
 const sandbox = require('sinon').createSandbox();
 const uuid = require('uuid/v4');
-
 const entityHandler = require('../../../../src/v2/lib/entity-handlers');
-
 const { expect } = require('@hapi/code');
-
 const routes = require('../../../../src/v2/modules/documents/routes');
 const { createServerForRoute } = require('../../../helpers');
 
@@ -62,7 +59,13 @@ experiment('modules/documents/routes', () => {
         .to.equal('/crm/2.0/documents');
     });
     test('validates the expected query filter parameters', async () => {
-      expect(Object.keys(routes.getDocuments.options.validate.query))
+      const query = {
+        regime: 'water',
+        documentType: 'abstraction_licence',
+        documentRef: 'doc-ref'
+      };
+      const { value } = routes.postDocument.options.validate.payload.validate(query);
+      expect(Object.keys(value))
         .to.equal(['regime', 'documentType', 'documentRef']);
     });
   });
@@ -92,7 +95,8 @@ experiment('modules/documents/routes', () => {
     });
 
     test('includes the expected payload ', async () => {
-      expect(Object.keys(routes.postDocument.options.validate.payload))
+      const { value } = routes.postDocument.options.validate.payload.validate(fullPayload);
+      expect(Object.keys(value))
         .to.equal(['regime', 'documentType', 'documentRef', 'startDate', 'endDate', 'isTest']);
     });
 
