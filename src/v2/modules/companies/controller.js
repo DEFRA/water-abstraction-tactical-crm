@@ -66,6 +66,9 @@ const getCompanyInvoiceAccounts = async (request) => {
   return invoiceAccounts;
 };
 
+const getCompanyLicences = request =>
+  companiesService.getCompanyLicences(request.params.companyId);
+
 exports.getCompany = getCompany;
 exports.searchCompaniesByName = searchCompaniesByName;
 exports.postCompany = postCompany;
@@ -74,3 +77,4 @@ exports.postCompanyContact = postCompanyContact;
 exports.getCompanyAddresses = getCompanyAddresses;
 exports.getCompanyContacts = getCompanyContacts;
 exports.getCompanyInvoiceAccounts = getCompanyInvoiceAccounts;
+exports.getCompanyLicences = getCompanyLicences;
