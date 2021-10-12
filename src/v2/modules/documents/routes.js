@@ -119,9 +119,9 @@ exports.getDocumentRoles = {
   options: {
     description: 'Get a document\'s roles by document Ref',
     validate: {
-      params: {
+      params: Joi.object().keys({
         documentRef: validators.REQUIRED_STRING
-      }
+      })
     }
   }
 };
