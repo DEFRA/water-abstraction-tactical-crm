@@ -39,9 +39,13 @@ const deleteTestData = async () => helpers.deleteTestData(Company);
  */
 const findOneByCompanyNumber = async companyNumber => helpers.findOne(Company, 'companyNumber', companyNumber);
 
+const findLicencesByCompanyId = async companyId =>
+  raw.multiRow(queries.findLicencesByCompanyId, { companyId });
+
 exports.create = create;
 exports.deleteTestData = deleteTestData;
 exports.findOne = findOne;
 exports.deleteOne = deleteOne;
 exports.findAllByName = findAllByName;
 exports.findOneByCompanyNumber = findOneByCompanyNumber;
+exports.findLicencesByCompanyId = findLicencesByCompanyId;
