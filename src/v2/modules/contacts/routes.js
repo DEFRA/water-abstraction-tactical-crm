@@ -1,9 +1,9 @@
 'use strict';
 
-const Joi = require('@hapi/joi');
+const Joi = require('joi');
 const controller = require('./controller');
 const entityHandlers = require('../../lib/entity-handlers');
-const validators = require('../../lib/validators');
+const validators = require('../../lib/validators-v2');
 
 exports.getContact = {
   method: 'GET',
@@ -12,9 +12,9 @@ exports.getContact = {
   options: {
     description: 'Get a contact by id',
     validate: {
-      params: {
+      params: Joi.object().keys({
         contactId: Joi.string().guid().required()
-      }
+      })
     }
   }
 };
@@ -26,9 +26,9 @@ exports.getContacts = {
   options: {
     description: 'Get a list of contacts by id',
     validate: {
-      query: {
+      query: Joi.object().keys({
         ids: Joi.array().items(Joi.string().uuid()).required().single()
-      }
+      })
     }
   }
 };
@@ -40,7 +40,7 @@ exports.postContact = {
   options: {
     description: 'Creates a new contact',
     validate: {
-      payload: {
+      payload: Joi.object().keys({
         type: validators.CONTACT_TYPE,
         salutation: validators.OPTIONAL_STRING_NO_DEFAULT_VALUE,
         firstName: validators.OPTIONAL_STRING_NO_DEFAULT_VALUE,
@@ -50,7 +50,7 @@ exports.postContact = {
         suffix: validators.OPTIONAL_STRING_NO_DEFAULT_VALUE,
         isTest: validators.TEST_FLAG,
         dataSource: validators.DATA_SOURCE
-      }
+      })
     }
   }
 };
@@ -62,9 +62,9 @@ exports.deleteContact = {
   options: {
     description: 'Delete a contact entity by id',
     validate: {
-      params: {
+      params: Joi.object().keys({
         contactId: validators.GUID
-      }
+      })
     }
   }
 };

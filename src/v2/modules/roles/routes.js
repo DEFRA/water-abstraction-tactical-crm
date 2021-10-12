@@ -1,7 +1,6 @@
 'use strict';
 
-const Joi = require('@hapi/joi');
-
+const Joi = require('joi');
 const controller = require('./controller');
 
 exports.getRoleByName = {
@@ -11,9 +10,9 @@ exports.getRoleByName = {
   options: {
     description: 'Get a role by name',
     validate: {
-      params: {
+      params: Joi.object().keys({
         roleName: Joi.string().required()
-      }
+      })
     }
   }
 };

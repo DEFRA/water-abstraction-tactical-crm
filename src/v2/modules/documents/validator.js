@@ -1,10 +1,9 @@
 'use strict';
 
-const Joi = require('@hapi/joi')
-  .extend(require('@hapi/joi-date'));
-const validators = require('../../lib/validators');
+const Joi = require('joi').extend(require('@joi/date'));
+const validators = require('../../lib/validators-v2');
 
-const documentSchema = Joi.object({
+const documentSchema = Joi.object().keys({
   regime: Joi.string().required().valid('water'),
   documentType: Joi.string().required().valid('abstraction_licence'),
   documentRef: Joi.string().required(),
@@ -27,7 +26,7 @@ const optionalUuidUnlessRoleIs = role => {
   });
 };
 
-const documentRoleSchema = Joi.object({
+const documentRoleSchema = Joi.object().keys({
   documentId: validators.GUID,
   role: Joi.string().valid('billing', 'licenceHolder').required(),
   startDate: validators.START_DATE,
@@ -44,10 +43,10 @@ const documentRoleSchema = Joi.object({
  * based on the role being proposed.
  */
 exports.validateDocumentRole = documentRole =>
-  Joi.validate(documentRole, documentRoleSchema, { abortEarly: false });
+  documentRoleSchema.validate(documentRole, { abortEarly: false });
 
 /**
  * Validates that an object conforms to the requirements of an document.
  */
 exports.validateDocument = document =>
-  Joi.validate(document, documentSchema, { abortEarly: false });
+  documentSchema.validate(document, { abortEarly: false });

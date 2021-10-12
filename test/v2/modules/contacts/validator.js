@@ -19,14 +19,14 @@ experiment('modules/contacts/validator', () => {
         delete contact[key];
 
         const { error } = contactValidator.validate(contact);
-        expect(error).to.equal(null);
+        expect(error).to.not.exist();
       });
 
       test('empty string is considered null', async () => {
         contact[key] = '';
 
         const { error, value } = contactValidator.validate(contact);
-        expect(error).to.equal(null);
+        expect(error).to.not.exist();
         expect(value[key]).to.equal(null);
       });
 
@@ -34,13 +34,13 @@ experiment('modules/contacts/validator', () => {
         contact[key] = '     ';
 
         const { error, value } = contactValidator.validate(contact);
-        expect(error).to.equal(null);
+        expect(error).to.not.exist();
         expect(value[key]).to.equal(null);
       });
 
       test('is valid when present', async () => {
         const { error, value } = contactValidator.validate(contact);
-        expect(error).to.equal(null);
+        expect(error).to.not.exist();
         expect(value[key]).to.equal(contact[key]);
       });
 
@@ -48,8 +48,7 @@ experiment('modules/contacts/validator', () => {
         contact[key] = '  Test   ';
 
         const { error, value } = contactValidator.validate(contact);
-
-        expect(error).to.equal(null);
+        expect(error).to.not.exist();
         expect(value[key]).to.equal('Test');
       });
     };
@@ -59,8 +58,7 @@ experiment('modules/contacts/validator', () => {
         delete contact[key];
 
         const { error } = contactValidator.validate(contact);
-
-        expect(error).to.not.equal(null);
+        expect(error).to.exist();
         expect(error.details.map(detail => detail.message))
           .to
           .include(`"${key}" is required`);
@@ -70,8 +68,8 @@ experiment('modules/contacts/validator', () => {
         contact[key] = '';
 
         const { error } = contactValidator.validate(contact);
+        expect(error).to.exist();
 
-        expect(error).to.not.equal(null);
         expect(error.details.map(detail => detail.message))
           .to
           .include(`"${key}" is not allowed to be empty`);
@@ -81,8 +79,8 @@ experiment('modules/contacts/validator', () => {
         contact[key] = '    ';
 
         const { error } = contactValidator.validate(contact);
+        expect(error).to.exist();
 
-        expect(error).to.not.equal(null);
         expect(error.details.map(detail => detail.message))
           .to
           .include(`"${key}" is not allowed to be empty`);
@@ -90,7 +88,8 @@ experiment('modules/contacts/validator', () => {
 
       test('is valid when present', async () => {
         const { error, value } = contactValidator.validate(contact);
-        expect(error).to.equal(null);
+        expect(error).to.not.exist();
+
         expect(value[key]).to.equal(contact[key]);
       });
 
@@ -98,8 +97,8 @@ experiment('modules/contacts/validator', () => {
         contact[key] = '  Test   ';
 
         const { error, value } = contactValidator.validate(contact);
+        expect(error).to.not.exist();
 
-        expect(error).to.equal(null);
         expect(value[key]).to.equal('Test');
       });
     };
@@ -108,7 +107,7 @@ experiment('modules/contacts/validator', () => {
       test('can be omitted', async () => {
         delete contact.isTest;
         const { error } = contactValidator.validate(contact);
-        expect(error).to.equal(null);
+        expect(error).to.not.exist();
       });
 
       test('defaults to false', async () => {
@@ -120,14 +119,15 @@ experiment('modules/contacts/validator', () => {
       test('can be set', async () => {
         contact.isTest = true;
         const { error, value } = contactValidator.validate(contact);
-        expect(error).to.equal(null);
+        expect(error).to.not.exist();
+
         expect(value.isTest).to.equal(true);
       });
 
       test('cannot be a string', async () => {
         contact.isTest = 'yep';
         const { error } = contactValidator.validate(contact);
-        expect(error).to.not.equal(null);
+        expect(error).to.exist();
       });
     };
 
@@ -135,7 +135,7 @@ experiment('modules/contacts/validator', () => {
       test('can be omitted', async () => {
         delete contact.dataSource;
         const { error } = contactValidator.validate(contact);
-        expect(error).to.equal(null);
+        expect(error).to.not.exist();
       });
 
       test('defaults to wrls', async () => {
@@ -147,14 +147,15 @@ experiment('modules/contacts/validator', () => {
       test('can be set to a valid value', async () => {
         contact.dataSource = 'nald';
         const { error, value } = contactValidator.validate(contact);
-        expect(error).to.equal(null);
+        expect(error).to.not.exist();
+
         expect(value.dataSource).to.equal('nald');
       });
 
       test('cannot be set to a non-valid value', async () => {
         contact.dataSource = 'not-a-data-source';
         const { error } = contactValidator.validate(contact);
-        expect(error).to.not.equal(null);
+        expect(error).to.exist();
       });
     };
 
@@ -166,8 +167,8 @@ experiment('modules/contacts/validator', () => {
           lastName: 'Last'
         };
 
-        const { error } = contactValidator.validate(contact);
-        expect(error).to.equal(null);
+        const result = contactValidator.validate(contact);
+        expect(result.error).to.not.exist();
       });
 
       test('is valid when it is "department"', () => {
@@ -176,8 +177,8 @@ experiment('modules/contacts/validator', () => {
           department: 'some department'
         };
 
-        const { error } = contactValidator.validate(contact);
-        expect(error).to.equal(null);
+        const result = contactValidator.validate(contact);
+        expect(result.error).to.not.exist();
       });
 
       test('cannot be an unexpected value', () => {
@@ -187,8 +188,8 @@ experiment('modules/contacts/validator', () => {
           lastName: 'Last'
         };
 
-        const { error } = contactValidator.validate(contact);
-        expect(error).to.not.equal(null);
+        const result = contactValidator.validate(contact);
+        expect(result.error).to.not.exist();
       });
     };
 

@@ -1,12 +1,12 @@
 'use strict';
 
-const Joi = require('@hapi/joi');
-
+const Joi = require('joi');
 const companyTypes = require('../../lib/company-types');
-const organisationTypes = require('../../lib/organisation-types');
 const controller = require('./controller');
 const entityHandlers = require('../../lib/entity-handlers');
-const validators = require('../../lib/validators');
+const validators = require('../../lib/validators-v2');
+const { companyTypesArr } = require('../../lib/company-types');
+const { organisationTypesArr } = require('../../lib/organisation-types');
 
 exports.createCompany = {
   method: 'POST',
@@ -15,16 +15,16 @@ exports.createCompany = {
   options: {
     description: 'Creates a company entity',
     validate: {
-      payload: {
+      payload: Joi.object().keys({
         name: Joi.string().required(),
-        type: Joi.string().valid(Object.values(companyTypes)).required(),
+        type: Joi.string().valid(...companyTypesArr).required(),
         companyNumber: Joi.forbidden().when('type', {
           is: companyTypes.ORGANISATION,
           then: Joi.string().allow('').optional()
         }),
-        organisationType: Joi.string().valid(Object.values(organisationTypes)).optional(),
+        organisationType: Joi.string().valid(...organisationTypesArr).optional(),
         isTest: validators.TEST_FLAG
-      }
+      })
     }
   }
 };
@@ -36,10 +36,10 @@ exports.getCompanyByName = {
   options: {
     description: 'Soft-search companies by name',
     validate: {
-      query: {
+      query: Joi.object().keys({
         name: Joi.string().required().min(2),
         soft: Joi.boolean().optional().default(true)
-      }
+      })
     }
   }
 };
@@ -51,9 +51,9 @@ exports.getCompany = {
   options: {
     description: 'Get a company entity',
     validate: {
-      params: {
+      params: Joi.object().keys({
         companyId: validators.GUID
-      }
+      })
     }
   }
 };
@@ -65,17 +65,17 @@ exports.postCompanyAddress = {
   options: {
     description: 'Adds an address to a company entity',
     validate: {
-      params: {
+      params: Joi.object().keys({
         companyId: validators.GUID
-      },
-      payload: {
+      }),
+      payload: Joi.object().keys({
         addressId: validators.GUID,
         roleName: validators.ROLE_NAMES,
         isDefault: validators.DEFAULT_FLAG,
         startDate: validators.START_DATE,
         endDate: validators.END_DATE,
         isTest: validators.TEST_FLAG
-      }
+      })
     }
   }
 };
@@ -87,10 +87,10 @@ exports.postCompanyContact = {
   options: {
     description: 'Add a contact to a company entity',
     validate: {
-      params: {
+      params: Joi.object().keys({
         companyId: validators.GUID
-      },
-      payload: {
+      }),
+      payload: Joi.object().keys({
         contactId: validators.GUID,
         roleName: validators.ROLE_NAMES,
         isDefault: validators.DEFAULT_FLAG,
@@ -98,7 +98,7 @@ exports.postCompanyContact = {
         startDate: validators.START_DATE,
         endDate: validators.END_DATE,
         isTest: validators.TEST_FLAG
-      }
+      })
     }
   }
 };
@@ -110,9 +110,9 @@ exports.getCompanyAddresses = {
   options: {
     description: 'Get the addresses belonging to a company',
     validate: {
-      params: {
+      params: Joi.object().keys({
         companyId: validators.GUID
-      }
+      })
     }
   }
 };
@@ -124,9 +124,9 @@ exports.getCompanyContacts = {
   options: {
     description: 'Get the contacts belonging to a company',
     validate: {
-      params: {
+      params: Joi.object().keys({
         companyId: validators.GUID
-      }
+      })
     }
   }
 };
@@ -138,9 +138,9 @@ exports.deleteCompany = {
   options: {
     description: 'Delete a company entity by id',
     validate: {
-      params: {
+      params: Joi.object().keys({
         companyId: validators.GUID
-      }
+      })
     }
   }
 };
@@ -152,10 +152,10 @@ exports.deleteCompanyAddress = {
   options: {
     description: 'Delete a company address entity by id',
     validate: {
-      params: {
+      params: Joi.object().keys({
         companyId: validators.GUID,
         companyAddressId: validators.GUID
-      }
+      })
     }
   }
 };
@@ -167,10 +167,10 @@ exports.deleteCompanyContact = {
   options: {
     description: 'Delete a company contact entity by id',
     validate: {
-      params: {
+      params: Joi.object().keys({
         companyId: validators.GUID,
         companyContactId: validators.GUID
-      }
+      })
     }
   }
 };
@@ -182,9 +182,9 @@ exports.getCompanyInvoiceAccounts = {
   options: {
     description: 'Returns the contacts that belong to a company',
     validate: {
-      params: {
+      params: Joi.object().keys({
         companyId: validators.GUID
-      }
+      })
     }
   }
 };
