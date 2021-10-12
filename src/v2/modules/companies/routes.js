@@ -188,3 +188,17 @@ exports.getCompanyInvoiceAccounts = {
     }
   }
 };
+
+exports.getCompanyLicences = {
+  method: 'GET',
+  path: '/crm/2.0/companies/{companyId}/licences',
+  handler: controller.getCompanyLicences,
+  options: {
+    description: 'Returns the licences that belong to a company',
+    validate: {
+      params: {
+        companyId: validators.GUID
+      }
+    }
+  }
+};
