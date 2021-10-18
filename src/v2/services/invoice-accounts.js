@@ -81,9 +81,12 @@ const getInvoiceAccountsByIds = async ids => {
 
 const getInvoiceAccountsWithRecentlyUpdatedEntities = () => invoiceAccountsRepo.findAllWhereEntitiesHaveUnmatchingHashes();
 
+const updateInvoiceAccountsWithCustomerFileReference = invoiceAccountsRepo.updateInvoiceAccountsWithCustomerFileReference;
+
 exports.createInvoiceAccount = createInvoiceAccount;
 exports.getInvoiceAccountByRef = getInvoiceAccountByRef;
 exports.deleteInvoiceAccount = deleteInvoiceAccount;
 exports.getInvoiceAccount = getInvoiceAccount;
 exports.getInvoiceAccountsByIds = getInvoiceAccountsByIds;
 exports.getInvoiceAccountsWithRecentlyUpdatedEntities = getInvoiceAccountsWithRecentlyUpdatedEntities;
+exports.updateInvoiceAccountsWithCustomerFileReference = updateInvoiceAccountsWithCustomerFileReference;
