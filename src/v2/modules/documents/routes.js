@@ -121,6 +121,9 @@ exports.getDocumentRoles = {
     validate: {
       params: Joi.object().keys({
         documentRef: validators.REQUIRED_STRING
+      }),
+      query: Joi.object().keys({
+        includeHistoricRoles: validators.OPTIONAL_BOOLEAN
       })
     }
   }
