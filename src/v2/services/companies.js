@@ -160,6 +160,12 @@ const getContacts = async companyId => {
   return repos.companyContacts.findManyByCompanyId(companyId);
 };
 
+const getContactPurpose = async (companyId, companyContactId) => {
+  await assertCompanyExists(companyId);
+  const contacts = await repos.companyContacts.findManyByCompanyId(companyId);
+  return contacts.filter(row => row.companyContactId === companyContactId);
+};
+
 const deleteCompany = companyId => repos.companies.deleteOne(companyId);
 
 const deleteCompanyAddress = companyAddressId => repos.companyAddresses.deleteOne(companyAddressId);
@@ -180,6 +186,7 @@ const getCompanyLicences = async companyId => {
   return repos.companies.findLicencesByCompanyId(companyId);
 };
 
+exports.getContactPurpose = getContactPurpose;
 exports.getRoleId = getRoleId;
 exports.createPerson = createPerson;
 exports.createOrganisation = createOrganisation;

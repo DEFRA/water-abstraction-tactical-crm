@@ -131,6 +131,21 @@ exports.getCompanyContacts = {
   }
 };
 
+exports.getCompanyContactPurpose = {
+  method: 'GET',
+  path: '/crm/2.0/companies/{companyId}/customercontact/{companyContactId}',
+  handler: controller.getCompanyContactPurpose,
+  options: {
+    description: 'Get the contacts details belonging to a company and contactId',
+    validate: {
+      params: Joi.object().keys({
+        companyId: validators.GUID,
+        companyContactId: validators.GUID
+      })
+    }
+  }
+};
+
 exports.deleteCompany = {
   method: 'DELETE',
   path: '/crm/2.0/companies/{companyId}',
