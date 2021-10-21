@@ -160,6 +160,8 @@ const getContacts = async companyId => {
   return repos.companyContacts.findManyByCompanyId(companyId);
 };
 
+const patchCompanyContact = repos.companyContacts.updateOneByCompanyIdAndContactId;
+
 const deleteCompany = companyId => repos.companies.deleteOne(companyId);
 
 const deleteCompanyAddress = companyAddressId => repos.companyAddresses.deleteOne(companyAddressId);
@@ -189,6 +191,7 @@ exports.addAddress = addAddress;
 exports.addContact = addContact;
 exports.getAddresses = getAddresses;
 exports.getContacts = getContacts;
+exports.patchCompanyContact = patchCompanyContact;
 exports.deleteCompany = deleteCompany;
 exports.deleteCompanyAddress = deleteCompanyAddress;
 exports.deleteCompanyContact = deleteCompanyContact;

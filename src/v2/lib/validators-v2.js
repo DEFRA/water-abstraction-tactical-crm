@@ -20,7 +20,7 @@ const ADDRESS_DATA_SOURCE = Joi.string().valid('wrls', 'nald', 'ea-address-facad
 const UPRN = Joi.number().integer().min(0).default(null).allow(null);
 const OPTIONAL_STRING_NO_DEFAULT_VALUE = Joi.string().allow('', null).trim().empty('');
 const CONTACT_TYPE = Joi.string().required().valid('person', 'department');
-const ROLE_NAMES = Joi.string().required().valid('licenceHolder', 'billing');
+const ROLE_NAMES = Joi.string().required().valid('licenceHolder', 'billing', 'additionalContact');
 const NULLABLE_DATE = DATE.required().allow(null);
 
 exports.DATE = DATE;

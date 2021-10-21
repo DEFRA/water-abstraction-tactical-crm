@@ -14,4 +14,8 @@ const getContacts = async request => {
   }
 };
 
+const patchContact = request =>
+  contactService.patchContact(request.params.contactId, request.payload);
+
 exports.getContacts = getContacts;
+exports.patchContact = patchContact;
