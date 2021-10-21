@@ -88,7 +88,7 @@ experiment('v2/modules/documents/controller', () => {
   });
 
   experiment('getDocumentRolesByDocumentRef', () => {
-    let request, documentRef, expectedResponse;
+    let request, documentRef;
 
     beforeEach(async () => {
       documentRef = 'xxyyzz';
