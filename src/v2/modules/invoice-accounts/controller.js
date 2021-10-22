@@ -32,6 +32,18 @@ const getInvoiceAccountByRef = async request => {
     return Boom.boomify(err);
   }
 };
+
+const updateInvoiceAccountsWithCustomerFileReference = async request => {
+  try {
+    const { fileReference, exportedAt, exportedCustomers } = request.payload;
+    return invoiceAccountService.updateInvoiceAccountsWithCustomerFileReference(fileReference, exportedAt, exportedCustomers.join(','));
+  } catch (err) {
+    logger.error('Could not update invoice accounts', err);
+    return Boom.boomify(err);
+  }
+};
+
 exports.getInvoiceAccounts = getInvoiceAccounts;
 exports.getInvoiceAccountsWithRecentlyUpdatedEntities = getInvoiceAccountsWithRecentlyUpdatedEntities;
 exports.getInvoiceAccountByRef = getInvoiceAccountByRef;
+exports.updateInvoiceAccountsWithCustomerFileReference = updateInvoiceAccountsWithCustomerFileReference;

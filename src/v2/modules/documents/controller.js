@@ -12,7 +12,8 @@ const getDocumentByRefAndDate = async (request) => {
 
 const getDocumentRolesByDocumentRef = async request => {
   const { documentRef } = request.params;
-  return docService.getDocumentRolesByDocumentRef(decodeURIComponent(documentRef));
+  const { includeHistoricRoles } = request.query;
+  return docService.getDocumentRolesByDocumentRef(decodeURIComponent(documentRef), includeHistoricRoles);
 };
 
 exports.getDocuments = getDocuments;
