@@ -115,6 +115,11 @@ const findOneByGreatestAccountNumber = async regionCode => {
 
 const findAllWhereEntitiesHaveUnmatchingHashes = () => raw.multiRow(queries.findAllWhereEntitiesHaveUnmatchingHashes);
 
+const updateInvoiceAccountsWithCustomerFileReference = (fileReference, exportedAt, exportedCustomers) =>
+  raw.multiRow(queries.updateInvoiceAccountsWithCustomerFileReference, {
+    fileReference, exportedAt, exportedCustomers
+  });
+
 exports.create = create;
 exports.deleteOne = deleteOne;
 exports.deleteTestData = deleteTestData;
@@ -124,3 +129,4 @@ exports.findWithCurrentAddress = findWithCurrentAddress;
 exports.findOneByGreatestAccountNumber = findOneByGreatestAccountNumber;
 exports.findAllByCompanyId = findAllByCompanyId;
 exports.findAllWhereEntitiesHaveUnmatchingHashes = findAllWhereEntitiesHaveUnmatchingHashes;
+exports.updateInvoiceAccountsWithCustomerFileReference = updateInvoiceAccountsWithCustomerFileReference;

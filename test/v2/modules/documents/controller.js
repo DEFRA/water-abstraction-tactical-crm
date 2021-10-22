@@ -86,4 +86,47 @@ experiment('v2/modules/documents/controller', () => {
       )).to.be.true();
     });
   });
+
+  experiment('getDocumentRolesByDocumentRef', () => {
+    let request, documentRef;
+
+    beforeEach(async () => {
+      documentRef = 'xxyyzz';
+
+      request = {
+        query: {
+          includeHistoricRoles: false
+        },
+        params: {
+          documentRef
+        }
+      };
+      sandbox.stub(repos.documents, 'getDocumentRolesByDocumentRef').resolves([]);
+      sandbox.stub(repos.documents, 'getFullHistoryOfDocumentRolesByDocumentRef').resolves([]);
+    });
+
+    experiment('when includeHistoricRoles is false', () => {
+      beforeEach(async () => {
+        await controller.getDocumentRolesByDocumentRef(request);
+      });
+      test('calls repository method with correct arguments', async () => {
+        expect(repos.documents.getDocumentRolesByDocumentRef.calledWith(
+          documentRef
+        )).to.be.true();
+      });
+    });
+
+    experiment('when includeHistoricRoles is true', () => {
+      beforeEach(async () => {
+        request.query.includeHistoricRoles = true;
+        await controller.getDocumentRolesByDocumentRef(request);
+      });
+
+      test('calls repository method with correct arguments', async () => {
+        expect(repos.documents.getFullHistoryOfDocumentRolesByDocumentRef.calledWith(
+          documentRef
+        )).to.be.true();
+      });
+    });
+  });
 });
