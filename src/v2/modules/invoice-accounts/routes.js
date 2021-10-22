@@ -86,3 +86,19 @@ exports.getInvoiceAccountsWithRecentlyUpdatedEntities = {
     description: 'Get all invoice accounts whose underlying entities have unmatching current_hash vs last_hash'
   }
 };
+
+exports.updateInvoiceAccountsWithCustomerFileReference = {
+  method: 'POST',
+  path: '/crm/2.0/invoice-accounts/customer-file-references',
+  handler: controller.updateInvoiceAccountsWithCustomerFileReference,
+  options: {
+    description: 'Updates invoice accounts with customer file names fetched from the Charging Module',
+    validate: {
+      payload: Joi.object({
+        fileReference: validators.REQUIRED_STRING,
+        exportedAt: validators.DATE,
+        exportedCustomers: Joi.array().items(Joi.string())
+      })
+    }
+  }
+};
