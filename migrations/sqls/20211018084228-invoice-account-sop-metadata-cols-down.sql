@@ -1,0 +1,2 @@
+alter table crm_v2.invoice_accounts drop column last_transaction_file_reference;
+alter table crm_v2.invoice_accounts drop column date_last_transaction_file_reference_updated;
