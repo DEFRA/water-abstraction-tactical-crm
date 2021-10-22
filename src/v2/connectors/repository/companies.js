@@ -1,6 +1,6 @@
 'use strict';
 
-const { Company, CompanyContact } = require('../bookshelf');
+const { Company } = require('../bookshelf');
 const helpers = require('./helpers');
 const queries = require('./queries/companies');
 const raw = require('./lib/raw');

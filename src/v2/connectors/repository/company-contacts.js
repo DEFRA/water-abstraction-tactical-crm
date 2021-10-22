@@ -5,7 +5,7 @@ const helpers = require('./helpers');
 
 /**
  * Insert a new company contact record
- * @param {Object} data - camel case
+ * @param companyContact
  */
 const create = async companyContact => {
   const model = await CompanyContact
