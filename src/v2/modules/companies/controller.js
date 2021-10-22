@@ -56,7 +56,7 @@ const postCompanyContact = async (request, h) => {
   };
 };
 
-const patchCompanyContact = (request, h) => {
+const patchCompanyContact = request => {
   const { companyId, contactId } = request.params;
   return companiesService.patchCompanyContact(companyId, contactId, request.payload);
 };

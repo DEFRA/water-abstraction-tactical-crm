@@ -34,6 +34,7 @@ experiment('modules/companies/controller', () => {
     sandbox.stub(companiesService, 'getAddresses');
     sandbox.stub(companiesService, 'getContacts');
     sandbox.stub(companiesService, 'getCompanyInvoiceAccounts');
+    sandbox.stub(companiesService, 'patchCompanyContact');
     sandbox.stub(companiesService, 'searchCompaniesByName');
   });
 
@@ -374,6 +375,51 @@ experiment('modules/companies/controller', () => {
 
       test('an error is thrown', async () => {
         const func = () => controller.postCompanyContact(request, h);
+        expect(func()).to.reject();
+      });
+    });
+  });
+
+  experiment('.patchCompanyContact', () => {
+    const request = {
+      params: {
+        companyId: 'test-company-id',
+        contactId: 'test-contact-id'
+      },
+      payload: {
+        roleName: 'test-role-name'
+      }
+    };
+
+    beforeEach(async () => {
+      companiesService.patchCompanyContact.resolves({
+        companyContactId: 'test-company-contact-id'
+      });
+    });
+
+    experiment('when there are no errors', () => {
+      beforeEach(async () => {
+        await controller.patchCompanyContact(request, h);
+      });
+
+      test('the service is called with the right params', async () => {
+        expect(companiesService.patchCompanyContact.calledWith(
+          'test-company-id',
+          'test-contact-id',
+          {
+            roleName: 'test-role-name'
+          }
+        )).to.be.true();
+      });
+    });
+
+    experiment('when there is an unknown error', () => {
+      beforeEach(async () => {
+        companiesService.patchCompanyContact.rejects(new Error('oops'));
+      });
+
+      test('an error is thrown', async () => {
+        const func = () => controller.patchCompanyContact(request, h);
         expect(func()).to.reject();
       });
     });
