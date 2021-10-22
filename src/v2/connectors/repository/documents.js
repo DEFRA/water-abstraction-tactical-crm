@@ -49,6 +49,9 @@ const deleteTestData = async () => helpers.deleteTestData(Document);
 const findDocumentByRefAndDate = (regime, documentType, documentRef, date) =>
   raw.singleRow(queries.findDocumentByRefAndDate, { regime, documentType, documentRef, date });
 
+const getFullHistoryOfDocumentRolesByDocumentRef = documentRef =>
+  raw.multiRow(queries.getFullHistoryOfDocumentRolesByDocumentRef, { documentRef });
+
 const getDocumentRolesByDocumentRef = documentRef =>
   raw.multiRow(queries.getDocumentRolesByDocumentRef, { documentRef });
 
@@ -57,4 +60,5 @@ exports.findOne = findOne;
 exports.create = create;
 exports.deleteTestData = deleteTestData;
 exports.findDocumentByRefAndDate = findDocumentByRefAndDate;
+exports.getFullHistoryOfDocumentRolesByDocumentRef = getFullHistoryOfDocumentRolesByDocumentRef;
 exports.getDocumentRolesByDocumentRef = getDocumentRolesByDocumentRef;

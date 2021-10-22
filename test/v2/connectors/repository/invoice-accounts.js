@@ -235,4 +235,15 @@ experiment('v2/connectors/repository/invoice-account', () => {
       expect(query).to.equal(queries.findAllWhereEntitiesHaveUnmatchingHashes);
     });
   });
+
+  experiment('.updateInvoiceAccountsWithCustomerFileReference', () => {
+    beforeEach(async () => {
+      await invoiceAccounts.updateInvoiceAccountsWithCustomerFileReference();
+    });
+
+    test('calls raw.multiRow with the correct query and params', async () => {
+      const [query] = raw.multiRow.lastCall.args;
+      expect(query).to.equal(queries.updateInvoiceAccountsWithCustomerFileReference);
+    });
+  });
 });
