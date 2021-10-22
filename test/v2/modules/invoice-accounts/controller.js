@@ -17,6 +17,7 @@ experiment('v2/modules/invoice-accounts/controller', () => {
   beforeEach(async () => {
     sandbox.stub(invoiceAccountsService, 'getInvoiceAccountsByIds').resolves([]);
     sandbox.stub(invoiceAccountsService, 'getInvoiceAccountsWithRecentlyUpdatedEntities').resolves([]);
+    sandbox.stub(invoiceAccountsService, 'updateInvoiceAccountsWithCustomerFileReference').resolves();
     sandbox.stub(invoiceAccountsService, 'getInvoiceAccountByRef').resolves();
   });
 
@@ -78,6 +79,21 @@ experiment('v2/modules/invoice-accounts/controller', () => {
     test('calls the invoiceAccountsService', async () => {
       await controller.getInvoiceAccountByRef({ query: { ref: 'Y12312301A' } });
       expect(invoiceAccountsService.getInvoiceAccountByRef.called).to.be.true();
+    });
+  });
+
+  experiment('.updateInvoiceAccountsWithCustomerFileReference', () => {
+    test('calls the updateInvoiceAccountsWithCustomerFileReference', async () => {
+      await controller.updateInvoiceAccountsWithCustomerFileReference(
+        {
+          payload: {
+            fileReference: 'Some File',
+            exportedAt: '2010-10-10',
+            exportedCustomers: ['cus1', 'cus2']
+          }
+        }
+      );
+      expect(invoiceAccountsService.updateInvoiceAccountsWithCustomerFileReference.called).to.be.true();
     });
   });
 });
