@@ -60,3 +60,34 @@ exports.getDocumentRolesByDocumentRef = `
   join crm_v2.roles roles on roles.role_id = dr.role_id 
   where documents.document_ref = :documentRef and (dr.end_date is null or dr.end_date > now());
 `;
+
+exports.getFullHistoryOfDocumentRolesByDocumentRef = `
+select
+     roles.role_id as role_id,
+     roles.name as role_name,
+     roles.label as role_label,
+     contacts.contact_id,
+     contacts.salutation,
+     contacts.first_name,
+     contacts.last_name,
+     companies.company_id,
+     companies.name,
+     companies.type,
+     addresses.address_id,
+     addresses.address_1,
+     addresses.address_2,
+     addresses.address_3,
+     addresses.address_4,
+     addresses.town,
+     addresses.county,
+     addresses.country,
+     addresses.postcode,
+     dr.start_date,
+     dr.end_date from crm_v2.document_roles dr 
+  left join crm_v2.companies companies on companies.company_id  = dr.company_id
+  left join crm_v2.contacts contacts on contacts.contact_id  = dr.contact_id
+  join crm_v2.addresses addresses on addresses.address_id = dr.address_id
+  join crm_v2.documents documents on documents.document_id = dr.document_id
+  join crm_v2.roles roles on roles.role_id = dr.role_id 
+  where documents.document_ref = :documentRef;
+`;
