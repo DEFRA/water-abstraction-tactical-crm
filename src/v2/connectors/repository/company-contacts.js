@@ -5,7 +5,7 @@ const helpers = require('./helpers');
 
 /**
  * Insert a new company contact record
- * @param {Object} data - camel case
+ * @param companyContact
  */
 const create = async companyContact => {
   const model = await CompanyContact
@@ -51,8 +51,13 @@ const findOneByCompanyRoleContact = (companyId, contactId, roleId, startDate) =>
     startDate
   });
 
+const updateOneByCompanyIdAndContactId = async (companyId, contactId, payload) => {
+  const row = await helpers.findOneBy(CompanyContact, { companyId, contactId });
+  return helpers.update(CompanyContact, 'companyContactId', row.companyContactId, payload);
+};
 exports.create = create;
 exports.deleteOne = deleteOne;
 exports.deleteTestData = deleteTestData;
 exports.findManyByCompanyId = findManyByCompanyId;
 exports.findOneByCompanyRoleContact = findOneByCompanyRoleContact;
+exports.updateOneByCompanyIdAndContactId = updateOneByCompanyIdAndContactId;

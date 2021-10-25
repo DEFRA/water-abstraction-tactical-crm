@@ -56,6 +56,11 @@ const postCompanyContact = async (request, h) => {
   };
 };
 
+const patchCompanyContact = request => {
+  const { companyId, contactId } = request.params;
+  return companiesService.patchCompanyContact(companyId, contactId, request.payload);
+};
+
 const getCompanyAddresses = wrapServiceCall(companiesService, 'getAddresses', request => [request.params.companyId]);
 
 const getCompanyContacts = wrapServiceCall(companiesService, 'getContacts', request => [request.params.companyId]);
@@ -74,6 +79,7 @@ exports.searchCompaniesByName = searchCompaniesByName;
 exports.postCompany = postCompany;
 exports.postCompanyAddress = postCompanyAddress;
 exports.postCompanyContact = postCompanyContact;
+exports.patchCompanyContact = patchCompanyContact;
 exports.getCompanyAddresses = getCompanyAddresses;
 exports.getCompanyContacts = getCompanyContacts;
 exports.getCompanyInvoiceAccounts = getCompanyInvoiceAccounts;

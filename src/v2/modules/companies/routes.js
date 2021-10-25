@@ -160,6 +160,24 @@ exports.deleteCompanyAddress = {
   }
 };
 
+exports.patchCompanyContact = {
+  method: 'PATCH',
+  path: '/crm/2.0/companies/{companyId}/contacts/{contactId}',
+  handler: controller.patchCompanyContact,
+  options: {
+    description: 'Patches a company contact entity',
+    validate: {
+      params: Joi.object().keys({
+        companyId: validators.GUID,
+        contactId: validators.GUID
+      }),
+      payload: Joi.object().keys({
+        waterAbstractionAlertsEnabled: validators.DEFAULT_FLAG
+      })
+    }
+  }
+};
+
 exports.deleteCompanyContact = {
   method: 'DELETE',
   path: '/crm/2.0/companies/{companyId}/contacts/{companyContactId}',

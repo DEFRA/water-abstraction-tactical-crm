@@ -21,7 +21,10 @@ const getContactsByIds = ids => contactsRepo.findManyByIds(ids);
 
 const deleteContact = contactId => contactsRepo.deleteOne(contactId);
 
+const patchContact = (contactId, payload) => contactsRepo.update(contactId, payload);
+
 exports.createContact = createContact;
 exports.getContact = getContact;
 exports.getContactsByIds = getContactsByIds;
 exports.deleteContact = deleteContact;
+exports.patchContact = patchContact;
