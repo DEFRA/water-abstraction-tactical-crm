@@ -32,6 +32,8 @@ exports.patchContact = {
       payload: Joi.object().keys({
         email: Joi.string().email().optional(),
         firstName: Joi.string().optional(),
+        lastName: Joi.string().optional(),
+        department: Joi.string().optional(),
         middleInitials: Joi.string().optional(),
         suffix: Joi.string().optional()
       })
