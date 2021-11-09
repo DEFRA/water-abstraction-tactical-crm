@@ -89,11 +89,11 @@ const getEntity = async (request, key) => {
 };
 
 /**
- * Helper function to abstract the basic case of fetching
+ * Helper function to abstract the basic case of deleting
  * an entity via a route handler.
  *
  * @param {Object} request HAPI request object
- * @param {String} key The entity type being fetched (e.g. address)
+ * @param {String} key The entity type being deleted (e.g. address)
  */
 const deleteEntity = async (request, h, key) => {
   validateKey(key);
@@ -107,9 +107,13 @@ const deleteEntity = async (request, h, key) => {
 
   // delete the entity through the service
   // e.g. contactsService.deleteContact(id)
-  await services[key][getFn](id);
 
-  return h.response().code(204);
+  try {
+    await services[key][getFn](id);
+    return { [`${key}Id`]: id };
+  } catch ({ message, ...err }) {
+    return Boom.internal(message, err, 500);
+  }
 };
 
 exports.createEntity = createEntity;

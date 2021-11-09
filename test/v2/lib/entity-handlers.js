@@ -28,8 +28,7 @@ experiment('v2/lib/entity-handlers', () => {
 
   beforeEach(async () => {
     responseStub = {
-      created: sandbox.spy(),
-      code: sandbox.spy()
+      created: sandbox.spy()
     };
     h = {
       response: sandbox.stub().returns(responseStub)
@@ -651,160 +650,140 @@ experiment('v2/lib/entity-handlers', () => {
         const [id] = addressService.deleteAddress.lastCall.args;
         expect(id).to.equal('test-address-1');
       });
-
-      test('the a 204 code is returned', async () => {
-        const [code] = responseStub.code.lastCall.args;
-        expect(code).to.equal(204);
-      });
     });
 
     experiment('when deleting a contact', () => {
+      const contactId = 'test-contact-1';
+
       beforeEach(async () => {
         request = {
           path: '/crm/2.0/contacts/test-contact-1',
           params: {
-            contactId: 'test-contact-1'
+            contactId
           }
         };
 
         contactsService.deleteContact.resolves();
-
-        await entityHandlers.deleteEntity(request, h, 'contact');
       });
 
       test('the id is passed to the service', async () => {
+        const data = await entityHandlers.deleteEntity(request, h, 'contact');
+        expect(data).to.equal({ contactId });
         const [id] = contactsService.deleteContact.lastCall.args;
-        expect(id).to.equal('test-contact-1');
-      });
-
-      test('the a 204 code is returned', async () => {
-        const [code] = responseStub.code.lastCall.args;
-        expect(code).to.equal(204);
+        expect(id).to.equal(contactId);
       });
     });
 
     experiment('when deleting an invoice account', () => {
+      const invoiceAccountId = 'test-invoice-account-1';
       beforeEach(async () => {
         request = {
           path: '/crm/2.0/invoice-accounts/test-invoice-account-1',
           params: {
-            invoiceAccountId: 'test-invoice-account-1'
+            invoiceAccountId
           }
         };
 
         invoiceAccountsService.deleteInvoiceAccount.resolves();
-
-        await entityHandlers.deleteEntity(request, h, 'invoiceAccount');
       });
 
       test('the id is passed to the service', async () => {
+        const data = await entityHandlers.deleteEntity(request, h, 'invoiceAccount');
+        expect(data).to.equal({ invoiceAccountId });
         const [id] = invoiceAccountsService.deleteInvoiceAccount.lastCall.args;
-        expect(id).to.equal('test-invoice-account-1');
-      });
-
-      test('the a 204 code is returned', async () => {
-        const [code] = responseStub.code.lastCall.args;
-        expect(code).to.equal(204);
+        expect(id).to.equal(invoiceAccountId);
       });
     });
 
     experiment('when deleting an invoice account address', () => {
+      const invoiceAccountAddressId = 'test-invoice-account-address-1';
+
       beforeEach(async () => {
         request = {
           path: '/crm/2.0/invoice-accounts/test-invoice-account-id/addresses/test-invoice-account-address-1',
           params: {
-            invoiceAccountAddressId: 'test-invoice-account-address-1'
+            invoiceAccountAddressId
           }
         };
 
         invoiceAccountAddressesService.deleteInvoiceAccountAddress.resolves();
-
-        await entityHandlers.deleteEntity(request, h, 'invoiceAccountAddress');
       });
 
       test('the id is passed to the service', async () => {
+        const data = await entityHandlers.deleteEntity(request, h, 'invoiceAccountAddress');
+        expect(data).to.equal({ invoiceAccountAddressId });
         const [id] = invoiceAccountAddressesService.deleteInvoiceAccountAddress.lastCall.args;
-        expect(id).to.equal('test-invoice-account-address-1');
-      });
-
-      test('the a 204 code is returned', async () => {
-        const [code] = responseStub.code.lastCall.args;
-        expect(code).to.equal(204);
+        expect(id).to.equal(invoiceAccountAddressId);
       });
     });
 
     experiment('when deleting a company', () => {
+      const companyId = 'test-company-1';
       beforeEach(async () => {
         request = {
           path: '/crm/2.0/companies/test-company-1',
           params: {
-            companyId: 'test-company-1'
+            companyId
           }
         };
 
         companiesService.deleteCompany.resolves();
-
-        await entityHandlers.deleteEntity(request, h, 'company');
       });
 
       test('the id is passed to the service', async () => {
+        const data = await entityHandlers.deleteEntity(request, h, 'company');
+        expect(data).to.equal({ companyId });
         const [id] = companiesService.deleteCompany.lastCall.args;
-        expect(id).to.equal('test-company-1');
-      });
-
-      test('the a 204 code is returned', async () => {
-        const [code] = responseStub.code.lastCall.args;
-        expect(code).to.equal(204);
+        expect(id).to.equal(companyId);
       });
     });
 
     experiment('when deleting a company address', () => {
+      const companyAddressId = 'test-company-address-1';
+
       beforeEach(async () => {
         request = {
           path: '/crm/2.0/companies/test-company/addresses/test-company-address-1',
           params: {
-            companyAddressId: 'test-company-address-1'
+            companyAddressId
           }
         };
 
         companiesService.deleteCompanyAddress.resolves();
-
-        await entityHandlers.deleteEntity(request, h, 'companyAddress');
       });
 
       test('the id is passed to the service', async () => {
+        const data = await entityHandlers.deleteEntity(request, h, 'companyAddress');
+        expect(data).to.equal({ companyAddressId });
         const [id] = companiesService.deleteCompanyAddress.lastCall.args;
-        expect(id).to.equal('test-company-address-1');
-      });
-
-      test('the a 204 code is returned', async () => {
-        const [code] = responseStub.code.lastCall.args;
-        expect(code).to.equal(204);
+        expect(id).to.equal(companyAddressId);
       });
     });
 
     experiment('when deleting a company contact', () => {
+      const companyContactId = 'test-company-contact-1';
+
       beforeEach(async () => {
         request = {
           path: '/crm/2.0/companies/test-company/contacts/test-company-contact-1',
           params: {
-            companyContactId: 'test-company-contact-1'
+            companyContactId
           }
         };
-
-        companiesService.deleteCompanyContact.resolves();
-
-        await entityHandlers.deleteEntity(request, h, 'companyContact');
       });
 
       test('the id is passed to the service', async () => {
+        companiesService.deleteCompanyContact.resolves();
+        const data = await entityHandlers.deleteEntity(request, h, 'companyContact');
+        expect(data).to.equal({ companyContactId });
         const [id] = companiesService.deleteCompanyContact.lastCall.args;
-        expect(id).to.equal('test-company-contact-1');
+        expect(id).to.equal(companyContactId);
       });
 
-      test('the a 204 code is returned', async () => {
-        const [code] = responseStub.code.lastCall.args;
-        expect(code).to.equal(204);
+      test('the id is passed to the service', async () => {
+        companiesService.deleteCompanyContact.rejects(new Error('Oh Oh'));
+        const result = await entityHandlers.deleteEntity(request, h, 'companyContact');
+        expect(result.output.payload.statusCode).to.equal(500);
       });
     });
   });
