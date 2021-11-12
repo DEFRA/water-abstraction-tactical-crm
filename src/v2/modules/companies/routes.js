@@ -212,7 +212,7 @@ exports.getCompanyLicences = {
   path: '/crm/2.0/companies/{companyId}/licences',
   handler: controller.getCompanyLicences,
   options: {
-    description: 'Returns the licences that belong to a company',
+    description: 'Returns the licences that currently belong to a company',
     validate: {
       params: Joi.object().keys({
         companyId: validators.GUID
