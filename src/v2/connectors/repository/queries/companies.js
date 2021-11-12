@@ -9,4 +9,5 @@ exports.findLicencesByCompanyId = `
   select documents.* from crm_v2.documents 
   join crm_v2.document_roles document_roles on document_roles.document_id = documents.document_id
   where document_roles.company_id = :companyId 
+  and (document_roles.end_date is null or document_roles.end_date > NOW())
 `;
