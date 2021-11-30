@@ -2,7 +2,7 @@ const Joi = require('joi').extend(require('@joi/date'));
 
 const OPTIONAL_STRING = Joi.string().allow('', null).trim().empty('').default(null);
 const REQUIRED_STRING = Joi.string().trim().required();
-const TEST_FLAG = Joi.boolean().optional().default(false);
+const OPTIONAL_BOOLEAN = Joi.boolean().optional().default(false);
 const DATA_SOURCE = Joi.string().valid('wrls', 'nald').default('wrls');
 
 const DATE = Joi.date().format('YYYY-MM-DD');
@@ -20,12 +20,13 @@ const ADDRESS_DATA_SOURCE = Joi.string().valid('wrls', 'nald', 'ea-address-facad
 const UPRN = Joi.number().integer().min(0).default(null).allow(null);
 const OPTIONAL_STRING_NO_DEFAULT_VALUE = Joi.string().allow('', null).trim().empty('');
 const CONTACT_TYPE = Joi.string().required().valid('person', 'department');
-const ROLE_NAMES = Joi.string().required().valid('licenceHolder', 'billing');
+const ROLE_NAMES = Joi.string().required().valid('licenceHolder', 'billing', 'additionalContact');
 const NULLABLE_DATE = DATE.required().allow(null);
 
 exports.DATE = DATE;
 exports.GUID = GUID;
-exports.TEST_FLAG = TEST_FLAG;
+exports.TEST_FLAG = OPTIONAL_BOOLEAN;
+exports.OPTIONAL_BOOLEAN = OPTIONAL_BOOLEAN;
 exports.DEFAULT_FLAG = DEFAULT_FLAG;
 exports.START_DATE = START_DATE;
 exports.END_DATE = END_DATE;

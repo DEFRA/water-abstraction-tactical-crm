@@ -41,9 +41,12 @@ const findOneWithCompanies = async id =>
     'companyContacts'
   ]);
 
+const update = async (id, payload) => helpers.update(Contact, 'contactId', id, payload);
+
 exports.create = create;
 exports.deleteOne = deleteOne;
 exports.deleteTestData = deleteTestData;
 exports.findManyByIds = findManyByIds;
 exports.findOne = findOne;
 exports.findOneWithCompanies = findOneWithCompanies;
+exports.update = update;

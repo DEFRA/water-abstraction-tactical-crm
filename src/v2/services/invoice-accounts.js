@@ -87,3 +87,4 @@ exports.deleteInvoiceAccount = deleteInvoiceAccount;
 exports.getInvoiceAccount = getInvoiceAccount;
 exports.getInvoiceAccountsByIds = getInvoiceAccountsByIds;
 exports.getInvoiceAccountsWithRecentlyUpdatedEntities = getInvoiceAccountsWithRecentlyUpdatedEntities;
+exports.updateInvoiceAccountsWithCustomerFileReference = invoiceAccountsRepo.updateInvoiceAccountsWithCustomerFileReference;

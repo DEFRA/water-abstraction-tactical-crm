@@ -151,9 +151,14 @@ const getDocumentByRefAndDate = async (regime, documentType, documentRef, date) 
   }
 };
 
-const getDocumentRolesByDocumentRef = async documentRef => {
-  const data = await repo.documents.getDocumentRolesByDocumentRef(documentRef);
-  return { data };
+const getDocumentRolesByDocumentRef = async (documentRef, includeHistoricRoles = false) => {
+  if (includeHistoricRoles) {
+    const data = await repo.documents.getFullHistoryOfDocumentRolesByDocumentRef(documentRef);
+    return { data };
+  } else {
+    const data = await repo.documents.getDocumentRolesByDocumentRef(documentRef);
+    return { data };
+  }
 };
 
 exports.createDocumentRole = createDocumentRole;

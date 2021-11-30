@@ -19,6 +19,29 @@ exports.getContact = {
   }
 };
 
+exports.patchContact = {
+  method: 'PATCH',
+  path: '/crm/2.0/contacts/{contactId}',
+  handler: controller.patchContact,
+  options: {
+    description: 'Patches a contact given its id',
+    validate: {
+      params: Joi.object().keys({
+        contactId: Joi.string().guid().required()
+      }),
+      payload: Joi.object().keys({
+        salutation: Joi.string().optional().allow(null),
+        email: Joi.string().email().optional(),
+        firstName: Joi.string().optional().allow(null),
+        lastName: Joi.string().optional().allow(null),
+        department: Joi.string().optional().allow(null),
+        middleInitials: Joi.string().optional().allow(null),
+        suffix: Joi.string().optional().allow(null)
+      })
+    }
+  }
+};
+
 exports.getContacts = {
   method: 'GET',
   path: '/crm/2.0/contacts',
