@@ -33,10 +33,14 @@ const getInvoiceAccountByRef = async request => {
   }
 };
 
-const updateInvoiceAccountsWithCustomerFileReference = async request => {
+const updateInvoiceAccountsWithCustomerFileReference = async (request, h) => {
   try {
     const { fileReference, exportedAt, exportedCustomers } = request.payload;
-    return invoiceAccountService.updateInvoiceAccountsWithCustomerFileReference(fileReference, exportedAt, exportedCustomers.join(','));
+    invoiceAccountService.updateInvoiceAccountsWithCustomerFileReference(fileReference, exportedAt, exportedCustomers.join(','));
+    return h.response({
+      data: {},
+      error: null
+    }).code(202);
   } catch (err) {
     logger.error('Could not update invoice accounts', err);
     return Boom.boomify(err);
