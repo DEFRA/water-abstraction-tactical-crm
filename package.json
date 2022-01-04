@@ -67,6 +67,7 @@
     "moment-range": "^4.0.2",
     "path": "^0.12.7",
     "pg": "^8.0.3",
+    "pluralize": "^8.0.0",
     "request": "^2.88.0",
     "request-promise-native": "^1.0.8",
     "url-join": "^4.0.1",
