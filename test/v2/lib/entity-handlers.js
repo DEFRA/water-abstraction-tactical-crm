@@ -7,7 +7,7 @@ const {
   afterEach
 } = exports.lab = require('@hapi/lab').script();
 
-const uuid = require('uuid/v4');
+const { v4: uuid } = require('uuid');
 const { expect } = require('@hapi/code');
 const sandbox = require('sinon').createSandbox();
 
@@ -280,7 +280,7 @@ experiment('v2/lib/entity-handlers', () => {
 
         test('the params are passed to the service', async () => {
           const [entity] = invoiceAccountAddressesService.createInvoiceAccountAddress.lastCall.args;
-          expect(entity.invoiceAccountId).to.equal(invoiceAccountId); ;
+          expect(entity.invoiceAccountId).to.equal(invoiceAccountId);
         });
 
         test('the saved entity is returned in the response body', async () => {

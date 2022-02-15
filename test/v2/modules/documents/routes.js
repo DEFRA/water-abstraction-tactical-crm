@@ -7,7 +7,7 @@ const {
   afterEach
 } = exports.lab = require('@hapi/lab').script();
 const sandbox = require('sinon').createSandbox();
-const uuid = require('uuid/v4');
+const { v4: uuid } = require('uuid');
 const entityHandler = require('../../../../src/v2/lib/entity-handlers');
 const { expect } = require('@hapi/code');
 const routes = require('../../../../src/v2/modules/documents/routes');

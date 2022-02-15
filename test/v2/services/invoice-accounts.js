@@ -4,7 +4,7 @@ const { experiment, test, beforeEach, afterEach } = exports.lab = require('@hapi
 const { expect } = require('@hapi/code');
 const sandbox = require('sinon').createSandbox();
 
-const uuid = require('uuid/v4');
+const { v4: uuid } = require('uuid');
 
 const invoiceAccountsService = require('../../../src/v2/services/invoice-accounts');
 const invoiceAccountsRepo = require('../../../src/v2/connectors/repository/invoice-accounts');
@@ -107,7 +107,7 @@ experiment('v2/services/invoice-accounts', () => {
       });
     });
 
-    experiment('when an invoice account number is supplied and the invoice account data is valid', async () => {
+    experiment('when an invoice account number is supplied and the invoice account data is valid', () => {
       let result;
       let invoiceAccount;
 
@@ -169,7 +169,7 @@ experiment('v2/services/invoice-accounts', () => {
       });
     });
 
-    experiment('when a valid region code is supplied', async () => {
+    experiment('when a valid region code is supplied', () => {
       let result;
       let invoiceAccount;
 
@@ -186,7 +186,7 @@ experiment('v2/services/invoice-accounts', () => {
         });
       });
 
-      experiment('when invoice accounts exist in this region', async () => {
+      experiment('when invoice accounts exist in this region', () => {
         beforeEach(async () => {
           result = await invoiceAccountsService.createInvoiceAccount(invoiceAccount);
         });
@@ -209,7 +209,7 @@ experiment('v2/services/invoice-accounts', () => {
         });
       });
 
-      experiment('when there are no existing invoice accounts in this region', async () => {
+      experiment('when there are no existing invoice accounts in this region', () => {
         beforeEach(async () => {
           invoiceAccountsRepo.findOneByGreatestAccountNumber.resolves(null);
           await invoiceAccountsService.createInvoiceAccount(invoiceAccount);

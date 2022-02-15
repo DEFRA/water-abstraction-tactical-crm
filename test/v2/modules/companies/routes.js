@@ -1,6 +1,6 @@
 'use strict';
 
-const uuid = require('uuid/v4');
+const { v4: uuid } = require('uuid');
 
 const {
   experiment,
@@ -217,7 +217,7 @@ experiment('modules/companies/routes', () => {
     });
   });
 
-  experiment('postCompanyAddress', async () => {
+  experiment('postCompanyAddress', () => {
     let server;
 
     const getRequest = (companyId, payload = {}) => ({
@@ -436,7 +436,7 @@ experiment('modules/companies/routes', () => {
     });
   });
 
-  experiment('postCompanyContact', async () => {
+  experiment('postCompanyContact', () => {
     let server;
 
     const getRequest = (companyId, payload = {}) => ({

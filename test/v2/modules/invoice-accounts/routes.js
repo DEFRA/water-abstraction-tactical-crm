@@ -2,7 +2,7 @@
 
 const Hapi = require('@hapi/hapi');
 const { cloneDeep } = require('lodash');
-const uuid = require('uuid/v4');
+const { v4: uuid } = require('uuid');
 const qs = require('qs');
 
 const {
@@ -44,7 +44,7 @@ experiment('v2/modules/invoice-account/routes', () => {
     });
   });
 
-  experiment('.getInvoiceAccountByRef', (ref) => {
+  experiment('.getInvoiceAccountByRef', () => {
     let server;
 
     const getRequest = (ref) => {
@@ -127,7 +127,7 @@ experiment('v2/modules/invoice-account/routes', () => {
     });
 
     experiment('returns a 400', () => {
-      experiment('if the companyId', async () => {
+      experiment('if the companyId', () => {
         test('is omitted', async () => {
           const request = getRequest({
             invoiceAccountNumber: 'A12345678A',

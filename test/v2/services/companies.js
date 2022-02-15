@@ -9,7 +9,7 @@ const {
 
 const { expect } = require('@hapi/code');
 const sandbox = require('sinon').createSandbox();
-const uuid = require('uuid/v4');
+const { v4: uuid } = require('uuid');
 
 const companiesService = require('../../../src/v2/services/companies');
 const repos = require('../../../src/v2/connectors/repository');
@@ -190,8 +190,8 @@ experiment('services/companies', () => {
     });
   });
 
-  experiment('.searchCompaniesByName', async () => {
-    experiment('when given a valid string to search', async () => {
+  experiment('.searchCompaniesByName', () => {
+    experiment('when given a valid string to search', () => {
       test('calls the repo with seach string and soft search=true', async () => {
         await companiesService.searchCompaniesByName('test');
         expect(repos.companies.findAllByName.calledWith('test', true)).to.be.true();
@@ -204,7 +204,7 @@ experiment('services/companies', () => {
     });
   });
 
-  experiment('.getCompany', async () => {
+  experiment('.getCompany', () => {
     test('returns the data from the repository', async () => {
       repos.companies.findOne.resolves({
         type: 'person',
@@ -222,7 +222,7 @@ experiment('services/companies', () => {
     });
   });
 
-  experiment('.addAddress', async () => {
+  experiment('.addAddress', () => {
     beforeEach(async () => {
       await companiesService.addAddress('test-company-id', 'test-address-id', 'test-role-name',
         {
@@ -256,7 +256,7 @@ experiment('services/companies', () => {
       expect(companyAddress.isTest).to.equal(false);
     });
 
-    experiment('when there is a unique constraint violation error', async () => {
+    experiment('when there is a unique constraint violation error', () => {
       let result;
       const companyId = 'test-company-id';
       const addressId = 'test-region-id';
@@ -291,7 +291,7 @@ experiment('services/companies', () => {
       });
     });
 
-    experiment('when there is an unknown error', async () => {
+    experiment('when there is an unknown error', () => {
       beforeEach(async () => {
         const err = new Error('oops');
         repos.companyAddresses.create.rejects(err);
@@ -308,7 +308,7 @@ experiment('services/companies', () => {
     });
   });
 
-  experiment('.addContact', async () => {
+  experiment('.addContact', () => {
     beforeEach(async () => {
       await companiesService.addContact('test-company-id', 'test-contact-id', 'test-role-name',
         {
@@ -343,7 +343,7 @@ experiment('services/companies', () => {
       expect(companyContact.isTest).to.equal(false);
     });
 
-    experiment('when there is a unique constraint violation error', async () => {
+    experiment('when there is a unique constraint violation error', () => {
       const existingEntity = {
         companyContactId: uuid()
       };
@@ -368,7 +368,7 @@ experiment('services/companies', () => {
       });
     });
 
-    experiment('when there is an unknown error', async () => {
+    experiment('when there is an unknown error', () => {
       beforeEach(async () => {
         const err = new Error('oops');
         repos.companyContacts.create.rejects(err);
