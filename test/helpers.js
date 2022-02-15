@@ -1,6 +1,6 @@
 'use strict';
 
-const uuidv4 = require('uuid/v4');
+const { v4: uuid } = require('uuid');
 const Hapi = require('@hapi/hapi');
 const { cloneDeep } = require('lodash');
 
@@ -18,8 +18,8 @@ const createDocumentHeader = (regimeEntityId, companyEntityId = null, isCurrent 
       regime_entity_id: regimeEntityId,
       company_entity_id: companyEntityId,
       system_id: 'permit-repo',
-      system_internal_id: uuidv4(),
-      system_external_id: uuidv4(),
+      system_internal_id: uuid(),
+      system_external_id: uuid(),
       metadata: `{"Name":"TEST LICENCE", "IsCurrent" : ${isCurrent}}`
     }
   };
@@ -107,7 +107,7 @@ const deleteEntityRole = (entityId, entityRoleId) => {
 };
 
 const createVerification = (entityId, companyEntityId, verificationCode = 'aBcD1') => {
-  const request = {
+  return {
     method: 'POST',
     url: '/crm/1.0/verification',
     headers: {
@@ -121,8 +121,6 @@ const createVerification = (entityId, companyEntityId, verificationCode = 'aBcD1
       method: 'post'
     }
   };
-
-  return request;
 };
 
 const deleteVerification = (verificationId) => {

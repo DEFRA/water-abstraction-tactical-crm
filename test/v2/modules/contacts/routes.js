@@ -9,7 +9,7 @@ const {
 const sandbox = require('sinon').createSandbox();
 
 const { expect } = require('@hapi/code');
-const uuid = require('uuid/v4');
+const { v4: uuid } = require('uuid');
 const querystring = require('querystring');
 
 const routes = require('../../../../src/v2/modules/contacts/routes');

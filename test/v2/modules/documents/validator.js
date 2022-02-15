@@ -9,7 +9,7 @@ const {
 const { expect } = require('@hapi/code');
 
 const validator = require('../../../../src/v2/modules/documents/validator');
-const uuid = require('uuid/v4');
+const { v4: uuid } = require('uuid');
 
 const documentValidator = require('../../../../src/v2/modules/documents/validator');
 
