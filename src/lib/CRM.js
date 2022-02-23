@@ -3,13 +3,13 @@
  * @module lib/CRM
  */
 const Boom = require('@hapi/boom');
-const uuidv4 = require('uuid/v4');
+const { v4: uuid } = require('uuid');
 const { pool } = require('./connectors/db');
 const entityRoleApi = require('../controllers/entity-roles');
 const { logger } = require('../logger');
 
 function setDocumentOwner (request, h) {
-  const guid = uuidv4();
+  const guid = uuid();
   const query = 'update crm.document_header set company_entity_id=$1 where document_id=$2';
 
   const queryParams = [
@@ -147,7 +147,7 @@ async function createColleague (request, h) {
   }
 
   const { regime_entity_id: userRegimeID, company_entity_id: userCompanyID } = primaryUserRole;
-  const entityRoleID = uuidv4();
+  const entityRoleID = uuid();
 
   const query = `insert into crm.entity_roles(
       entity_role_id, entity_id, role, regime_entity_id,

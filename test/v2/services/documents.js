@@ -7,7 +7,7 @@ const {
   afterEach
 } = exports.lab = require('@hapi/lab').script();
 const Boom = require('@hapi/boom');
-const uuid = require('uuid/v4');
+const { v4: uuid } = require('uuid');
 const { expect, fail } = require('@hapi/code');
 const sandbox = require('sinon').createSandbox();
 
@@ -58,7 +58,7 @@ experiment('services/documents', () => {
       });
     });
 
-    experiment('when the documentRole data is valid', async () => {
+    experiment('when the documentRole data is valid', () => {
       let result;
       let documentRole;
 
@@ -424,7 +424,7 @@ experiment('services/documents', () => {
       });
     });
 
-    experiment('when the document data is valid', async () => {
+    experiment('when the document data is valid', () => {
       let result;
       let document;
 

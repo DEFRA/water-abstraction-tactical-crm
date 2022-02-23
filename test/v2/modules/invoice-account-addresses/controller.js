@@ -3,7 +3,7 @@
 const { experiment, test, beforeEach, afterEach } = exports.lab = require('@hapi/lab').script();
 const { expect } = require('@hapi/code');
 const sandbox = require('sinon').createSandbox();
-const uuid = require('uuid/v4');
+const { v4: uuid } = require('uuid');
 
 const controller = require('../../../../src/v2/modules/invoice-account-addresses/controller');
 const invoiceAccountAddressesService = require('../../../../src/v2/services/invoice-account-addresses');

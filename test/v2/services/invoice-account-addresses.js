@@ -4,7 +4,7 @@ const { experiment, test, beforeEach, afterEach } = exports.lab = require('@hapi
 const { expect } = require('@hapi/code');
 const sandbox = require('sinon').createSandbox();
 
-const uuid = require('uuid/v4');
+const { v4: uuid } = require('uuid');
 
 const invoiceAccountsAddressService = require('../../../src/v2/services/invoice-account-addresses');
 const invoiceAccountsRepo = require('../../../src/v2/connectors/repository/invoice-accounts');
@@ -307,7 +307,7 @@ experiment('v2/services/invoice-accounts', () => {
       });
     });
 
-    experiment('when the invoice account address data is valid', async () => {
+    experiment('when the invoice account address data is valid', () => {
       let result, invoiceAccountId, invoiceAccountAddress;
 
       beforeEach(async () => {
@@ -333,7 +333,7 @@ experiment('v2/services/invoice-accounts', () => {
         ).to.be.true();
       });
 
-      experiment('when there are no date conflicts', async () => {
+      experiment('when there are no date conflicts', () => {
         beforeEach(async () => {
           result = await invoiceAccountsAddressService.createInvoiceAccountAddress(invoiceAccountAddress);
         });
@@ -347,7 +347,7 @@ experiment('v2/services/invoice-accounts', () => {
         });
       });
 
-      experiment('when there are date conflicts', async () => {
+      experiment('when there are date conflicts', () => {
         beforeEach(() => {
           invoiceAccountAddressesRepo.findAll.resolves([
             { startDate: '2016-01-01', endDate: '2018-05-02' },
@@ -371,7 +371,7 @@ experiment('v2/services/invoice-accounts', () => {
         });
       });
 
-      experiment('when there are no address for the invoice account', async () => {
+      experiment('when there are no address for the invoice account', () => {
         beforeEach(async () => {
           invoiceAccountAddressesRepo.findAll.resolves([]);
 
