@@ -7,7 +7,7 @@ const {
   afterEach
 } = exports.lab = require('@hapi/lab').script();
 
-const uuid = require('uuid/v4');
+const { v4: uuid } = require('uuid');
 const { expect } = require('@hapi/code');
 const sandbox = require('sinon').createSandbox();
 
@@ -82,7 +82,7 @@ experiment('services/contacts', () => {
       });
     });
 
-    experiment('when the contact data is valid', async () => {
+    experiment('when the contact data is valid', () => {
       let result;
       let contact;
 

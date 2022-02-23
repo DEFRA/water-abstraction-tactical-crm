@@ -5,7 +5,7 @@ const sandbox = require('sinon').createSandbox();
 const controller = require('../../../src/modules/kpi-reporting/controller');
 const repos = require('../../../src/lib/repo/kpi-reporting');
 
-experiment('./modules/kpi-reporting/controller', async () => {
+experiment('./modules/kpi-reporting/controller', () => {
   const repoData = {
     data: [
       {
@@ -36,12 +36,12 @@ experiment('./modules/kpi-reporting/controller', async () => {
     error: null
   };
 
-  afterEach(async => {
+  afterEach(() => {
     sandbox.restore();
   });
 
-  experiment('when data is returned from the repo', async () => {
-    beforeEach(async => {
+  experiment('when data is returned from the repo', () => {
+    beforeEach(() => {
       sandbox.stub(repos, 'getEntityRolesKPIdata').resolves(repoData);
     });
     test('the right data shape is returned', async () => {
@@ -55,8 +55,8 @@ experiment('./modules/kpi-reporting/controller', async () => {
     });
   });
 
-  experiment('when no data is returned from the repo', async () => {
-    beforeEach(async => {
+  experiment('when no data is returned from the repo', () => {
+    beforeEach(() => {
       sandbox.stub(repos, 'getEntityRolesKPIdata').resolves({ data: null, error: { message: 'blah is broken' } });
     });
     test('the right data shape is returned', async () => {

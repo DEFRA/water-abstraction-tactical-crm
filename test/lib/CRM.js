@@ -13,7 +13,7 @@ const lab = exports.lab = Lab.script();
 const Code = require('@hapi/code');
 const server = require('../../index');
 
-const uuidv4 = require('uuid/v4');
+const { v4: uuid } = require('uuid');
 
 const { createEntity, deleteEntity, createEntityRole, deleteEntityRole, makeRequest } = require('../helpers');
 
@@ -124,7 +124,7 @@ lab.experiment('Test grant/delete colleague roles', () => {
   lab.test('The API should return 404 for role not found when deleting colleague', async () => {
     const request = {
       method: 'DELETE',
-      url: `/crm/1.0/entity/${individualEntityId}/colleagues/${uuidv4()}`,
+      url: `/crm/1.0/entity/${individualEntityId}/colleagues/${uuid()}`,
       headers: {
         Authorization: process.env.JWT_TOKEN
       }

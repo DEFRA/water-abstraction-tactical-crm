@@ -2,7 +2,7 @@
 
 const server = require('../../index');
 const { version } = require('../../config');
-const uuid = require('uuid/v4');
+const { v4: uuid } = require('uuid');
 const Lab = require('@hapi/lab');
 const lab = exports.lab = Lab.script();
 const { pool } = require('../../src/lib/connectors/db');
