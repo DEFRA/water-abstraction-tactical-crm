@@ -25,7 +25,10 @@ const findOne = async id => helpers.findOne(Company, 'companyId', id);
  * @param {String} name
  * @param {Boolean} soft
  */
-const findAllByName = async (name, soft) => raw.multiRow(queries.findByCompanyNameWithSoftSearch, { name: name, soft: soft });
+const findAllByName = async (name, soft) => raw.multiRow(queries.findByCompanyNameWithSoftSearch, {
+  name: name,
+  soft: soft
+});
 
 const deleteOne = async id => helpers.deleteOne(Company, 'companyId', id);
 
@@ -42,6 +45,9 @@ const findOneByCompanyNumber = async companyNumber => helpers.findOne(Company, '
 const findLicencesByCompanyId = async companyId =>
   raw.multiRow(queries.findLicencesByCompanyId, { companyId });
 
+const getCompanyWAAEmailContacts = async companyId =>
+  raw.multiRow(queries.getCompanyWAAEmailContacts, { companyId });
+
 exports.create = create;
 exports.deleteTestData = deleteTestData;
 exports.findOne = findOne;
@@ -49,3 +55,4 @@ exports.deleteOne = deleteOne;
 exports.findAllByName = findAllByName;
 exports.findOneByCompanyNumber = findOneByCompanyNumber;
 exports.findLicencesByCompanyId = findLicencesByCompanyId;
+exports.getCompanyWAAEmailContacts = getCompanyWAAEmailContacts;
