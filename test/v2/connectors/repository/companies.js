@@ -13,6 +13,8 @@ const sandbox = require('sinon').createSandbox();
 const companiesRepo = require('../../../../src/v2/connectors/repository/companies');
 const Company = require('../../../../src/v2/connectors/bookshelf/Company');
 const repoHelpers = require('../../../../src/v2/connectors/repository/helpers');
+const raw = require('../../../../src/v2/connectors/repository/lib/raw');
+const queries = require('../../../../src/v2/connectors/repository/queries/companies');
 
 experiment('v2/connectors/repository/companies', () => {
   let stub, model;
@@ -27,6 +29,7 @@ experiment('v2/connectors/repository/companies', () => {
       fetch: sandbox.stub().resolves(model)
     };
 
+    sandbox.stub(raw, 'multiRow').returns();
     sandbox.stub(Company, 'forge').returns(stub);
     sandbox.stub(repoHelpers, 'deleteTestData');
     sandbox.stub(repoHelpers, 'deleteOne');
@@ -124,6 +127,34 @@ experiment('v2/connectors/repository/companies', () => {
     test('uses the .findOne repo helper', async () => {
       expect(repoHelpers.findOne.calledWith(
         Company, 'companyNumber', COMPANY_NUMBER)
+      ).to.be.true();
+    });
+  });
+
+  experiment('.findLicencesByCompanyId', () => {
+    const companyId = 'test-company-id';
+
+    beforeEach(async () => {
+      await companiesRepo.findLicencesByCompanyId(companyId);
+    });
+
+    test('calls multiRow', async () => {
+      expect(raw.multiRow.calledWith(
+        queries.findLicencesByCompanyId, { companyId })
+      ).to.be.true();
+    });
+  });
+
+  experiment('.getCompanyWAAEmailContacts', () => {
+    const companyId = 'test-company-id';
+
+    beforeEach(async () => {
+      await companiesRepo.getCompanyWAAEmailContacts(companyId);
+    });
+
+    test('calls multiRow', async () => {
+      expect(raw.multiRow.calledWith(
+        queries.getCompanyWAAEmailContacts, { companyId })
       ).to.be.true();
     });
   });
