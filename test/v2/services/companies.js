@@ -34,6 +34,8 @@ experiment('services/companies', () => {
     });
     sandbox.stub(repos.companies, 'findOneByCompanyNumber').resolves(EXISTING_COMPANY);
     sandbox.stub(repos.companies, 'deleteOne').resolves();
+    sandbox.stub(repos.companies, 'findLicencesByCompanyId').resolves();
+    sandbox.stub(repos.companies, 'getCompanyWAAEmailContacts').resolves();
     sandbox.stub(repos.companies, 'findAllByName').resolves();
 
     sandbox.stub(repos.companyAddresses, 'create').resolves({
@@ -492,6 +494,27 @@ experiment('services/companies', () => {
     test('responds with an array of invoice accounts', async () => {
       const result = await companiesService.getCompanyInvoiceAccounts(companyId);
       expect(result).to.equal([tempInvoiceAccount]);
+    });
+  });
+
+  experiment('.getCompanyLicences', () => {
+    beforeEach(() => companiesService.getCompanyLicences('test-company-contact-id'));
+
+    test('checks that the company exists', async () => {
+      expect(repos.companies.findOne.calledWith('test-company-contact-id')).to.be.true();
+    });
+    test('calls the findLicencesByCompanyId repo method', async () => {
+      expect(repos.companies.findLicencesByCompanyId.calledWith('test-company-contact-id')).to.be.true();
+    });
+  });
+
+  experiment('.getCompanyWAAEmailContacts', () => {
+    beforeEach(() => companiesService.getCompanyWAAEmailContacts('test-company-contact-id'));
+    test('checks that the company exists', async () => {
+      expect(repos.companies.findOne.calledWith('test-company-contact-id')).to.be.true();
+    });
+    test('calls the getCompanyWAAEmailContacts repo method', async () => {
+      expect(repos.companies.getCompanyWAAEmailContacts.calledWith('test-company-contact-id')).to.be.true();
     });
   });
 });
