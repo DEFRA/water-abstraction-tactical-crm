@@ -11,3 +11,10 @@ exports.findLicencesByCompanyId = `
   where document_roles.company_id = :companyId 
   and (document_roles.end_date is null or document_roles.end_date > NOW())
 `;
+
+exports.getCompanyWAAEmailContacts = `
+  select c.email from crm_v2.contacts c
+  join crm_v2.company_contacts cc on cc.contact_id = c.contact_id 
+  join crm_v2.companies c2 on cc.company_id = c2.company_id 
+  where c.email is not null and c2.company_id = :companyId
+`;

@@ -220,3 +220,17 @@ exports.getCompanyLicences = {
     }
   }
 };
+
+exports.getCompanyWAAEmailContacts = {
+  method: 'GET',
+  path: '/crm/2.0/companies/{companyId}/contacts/water-abstraction-alert-email-recipients',
+  handler: controller.getCompanyWAAEmailContacts,
+  options: {
+    description: 'Returns the contacts under the company which have an email and are opted into Water Abstraction alerts',
+    validate: {
+      params: Joi.object().keys({
+        companyId: validators.GUID
+      })
+    }
+  }
+};

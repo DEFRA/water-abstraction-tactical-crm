@@ -182,6 +182,11 @@ const getCompanyLicences = async companyId => {
   return repos.companies.findLicencesByCompanyId(companyId);
 };
 
+const getCompanyWAAEmailContacts = async companyId => {
+  await assertCompanyExists(companyId);
+  return repos.companies.getCompanyWAAEmailContacts(companyId);
+};
+
 exports.getRoleId = getRoleId;
 exports.createPerson = createPerson;
 exports.createOrganisation = createOrganisation;
@@ -197,3 +202,4 @@ exports.deleteCompanyAddress = deleteCompanyAddress;
 exports.deleteCompanyContact = deleteCompanyContact;
 exports.getCompanyInvoiceAccounts = getCompanyInvoiceAccounts;
 exports.getCompanyLicences = getCompanyLicences;
+exports.getCompanyWAAEmailContacts = getCompanyWAAEmailContacts;
