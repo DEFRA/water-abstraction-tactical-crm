@@ -28,7 +28,7 @@ exports.findDocumentByRefAndDate = `
   AND docs.start_date<=:date
   AND (docs.end_date>=:date OR docs.end_date IS NULL)
   AND docs.date_deleted is null
-  ORDER BY docs.start_date, docs.end_date
+  ORDER BY docs.start_date, docs.end_date, docRoles.start_date DESC
   LIMIT 1;
 `;
 
