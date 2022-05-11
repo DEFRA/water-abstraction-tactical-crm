@@ -142,18 +142,22 @@ experiment('v2/connectors/repository/invoice-account', () => {
         expect(values).to.equal(invoiceAccountIds);
       });
 
-      test('.fetch() called with correct related models', async () => {
+      test.only('.fetch() called with correct related models', async () => {
         const { withRelated } = stub.fetch.lastCall.args[0];
         expect(withRelated).to.include('company');
-        expect(withRelated[1].invoiceAccountAddresses).to.be.a.function();
+        expect(withRelated).to.include('company.companyContact');
+        expect(withRelated).to.include('company.companyContact.role');
         expect(withRelated).to.include('invoiceAccountAddresses.address');
+        expect(withRelated).to.include('invoiceAccountAddresses.agentCompany');
+        expect(withRelated).to.include('invoiceAccountAddresses.contact');
+        expect(withRelated[4].invoiceAccountAddresses).to.be.a.function();
       });
 
-      test('.invoiceAccountAddresses selected are current - when end date is null', async () => {
+      test.only('.invoiceAccountAddresses selected are current - when end date is null', async () => {
         const qbStub = {
           where: sandbox.stub()
         };
-        const { invoiceAccountAddresses } = stub.fetch.lastCall.args[0].withRelated[1];
+        const { invoiceAccountAddresses } = stub.fetch.lastCall.args[0].withRelated[4];
         invoiceAccountAddresses(qbStub);
         expect(qbStub.where.calledWith(
           'end_date', null
