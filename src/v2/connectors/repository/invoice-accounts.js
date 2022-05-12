@@ -76,6 +76,9 @@ const findWithCurrentAddress = async ids => {
     .fetch({
       withRelated: [
         'company',
+        'company.companyContact',
+        'company.companyContact.contact',
+        'company.companyContact.role',
         {
           invoiceAccountAddresses: qb => qb
             .where('end_date', null)
