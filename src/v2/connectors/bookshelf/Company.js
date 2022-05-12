@@ -12,5 +12,8 @@ module.exports = bookshelf.model('Company', {
 
   invoiceAccounts () {
     return this.hasMany('InvoiceAccount', 'company_id', 'company_id');
+  },
+  companyContact () {
+    return this.hasMany('CompanyContact', 'company_id', 'company_id');
   }
 });
