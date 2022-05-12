@@ -142,7 +142,7 @@ experiment('v2/connectors/repository/invoice-account', () => {
         expect(values).to.equal(invoiceAccountIds);
       });
 
-      test.only('.fetch() called with correct related models', async () => {
+      test('.fetch() called with correct related models', async () => {
         const { withRelated } = stub.fetch.lastCall.args[0];
         expect(withRelated).to.include('company');
         expect(withRelated).to.include('company.companyContact');
@@ -153,7 +153,7 @@ experiment('v2/connectors/repository/invoice-account', () => {
         expect(withRelated[4].invoiceAccountAddresses).to.be.a.function();
       });
 
-      test.only('.invoiceAccountAddresses selected are current - when end date is null', async () => {
+      test('.invoiceAccountAddresses selected are current - when end date is null', async () => {
         const qbStub = {
           where: sandbox.stub()
         };
