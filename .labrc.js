@@ -10,6 +10,7 @@ module.exports = {
   'silent-skips': true,
   // lcov reporter required for SonarCloud
   reporter: ['console', 'html', 'lcov'],
+  output: ['stdout', 'coverage/coverage.html', 'coverage/lcov.info'],
   // This version global seems to be introduced by sinon.
   globals: ['version', 'fetch', 'Response', 'Headers', 'Request', 'WeakRef', 'FinalizationRegistry'].join(',')
 };
