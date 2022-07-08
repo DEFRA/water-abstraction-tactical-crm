@@ -11,5 +11,5 @@ module.exports = {
   // lcov reporter required for SonarCloud
   reporter: ['console', 'html', 'lcov'],
   // This version global seems to be introduced by sinon.
-  globals: ['version', 'fetch', 'Response', 'Headers', 'Request', 'WeakRef', 'FinalizationRegistry'].joins(',')
+  globals: ['version', 'fetch', 'Response', 'Headers', 'Request', 'WeakRef', 'FinalizationRegistry'].join(',')
 };
