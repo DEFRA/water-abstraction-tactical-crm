@@ -1,8 +1,8 @@
-'use strict';
+'use strict'
 
-const { v4: uuid } = require('uuid');
-const Hapi = require('@hapi/hapi');
-const { cloneDeep } = require('lodash');
+const { v4: uuid } = require('uuid')
+const Hapi = require('@hapi/hapi')
+const { cloneDeep } = require('lodash')
 
 /**
  * Create a document header for testing purposes
@@ -22,8 +22,8 @@ const createDocumentHeader = (regimeEntityId, companyEntityId = null, isCurrent 
       system_external_id: uuid(),
       metadata: `{"Name":"TEST LICENCE", "IsCurrent" : ${isCurrent}}`
     }
-  };
-};
+  }
+}
 
 /**
  * Create an entity of the specified type for test
@@ -43,8 +43,8 @@ const createEntity = (entityType, overrides) => {
       entity_type: entityType,
       entity_definition: '{}'
     }, overrides)
-  };
-};
+  }
+}
 
 /**
  * Delete entity
@@ -57,8 +57,8 @@ const deleteEntity = (entityGuid) => {
     headers: {
       Authorization: process.env.JWT_TOKEN
     }
-  };
-};
+  }
+}
 
 /**
  * Delete document
@@ -71,15 +71,15 @@ const deleteDocumentHeader = (documentId) => {
     headers: {
       Authorization: process.env.JWT_TOKEN
     }
-  };
-};
+  }
+}
 
 const createEntityRole = (regimeId, companyEntityId, entityId, role = 'test_role') => {
   const payload = {
     regime_entity_id: regimeId,
     company_entity_id: companyEntityId,
     role
-  };
+  }
   const request = {
     method: 'POST',
     url: `/crm/1.0/entity/${entityId}/roles`,
@@ -87,9 +87,9 @@ const createEntityRole = (regimeId, companyEntityId, entityId, role = 'test_role
       Authorization: process.env.JWT_TOKEN
     },
     payload
-  };
-  return request;
-};
+  }
+  return request
+}
 
 /**
  * Delete entity role
@@ -102,9 +102,9 @@ const deleteEntityRole = (entityId, entityRoleId) => {
     headers: {
       Authorization: process.env.JWT_TOKEN
     }
-  };
-  return request;
-};
+  }
+  return request
+}
 
 const createVerification = (entityId, companyEntityId, verificationCode = 'aBcD1') => {
   return {
@@ -120,8 +120,8 @@ const createVerification = (entityId, companyEntityId, verificationCode = 'aBcD1
       date_verified: null,
       method: 'post'
     }
-  };
-};
+  }
+}
 
 const deleteVerification = (verificationId) => {
   const request = {
@@ -130,10 +130,10 @@ const deleteVerification = (verificationId) => {
     headers: {
       Authorization: process.env.JWT_TOKEN
     }
-  };
+  }
 
-  return request;
-};
+  return request
+}
 
 const createVerificationDocument = (verificationId, documentId) => {
   const request = {
@@ -145,10 +145,10 @@ const createVerificationDocument = (verificationId, documentId) => {
     payload: {
       document_id: [documentId]
     }
-  };
+  }
 
-  return request;
-};
+  return request
+}
 
 const deleteVerificationDocument = verificationId => {
   const request = {
@@ -157,10 +157,10 @@ const deleteVerificationDocument = verificationId => {
     headers: {
       Authorization: process.env.JWT_TOKEN
     }
-  };
+  }
 
-  return request;
-};
+  return request
+}
 
 /**
  * Creates a HAPI server to allow a single route to be
@@ -171,39 +171,39 @@ const deleteVerificationDocument = verificationId => {
  * @param {Object} route The HAPI route definition
  */
 const createServerForRoute = route => {
-  const server = Hapi.server();
-  const testRoute = cloneDeep(route);
-  testRoute.handler = async () => 'ok';
+  const server = Hapi.server()
+  const testRoute = cloneDeep(route)
+  testRoute.handler = async () => 'ok'
 
-  server.route(testRoute);
+  server.route(testRoute)
 
-  return server;
-};
+  return server
+}
 
-const parseResponsePayload = res => res.payload && JSON.parse(res.payload);
+const parseResponsePayload = res => res.payload && JSON.parse(res.payload)
 
 const makeRequest = async (server, func, ...args) => {
-  const request = func(...args);
-  const res = await server.inject(request);
-  return parseResponsePayload(res).data;
-};
+  const request = func(...args)
+  const res = await server.inject(request)
+  return parseResponsePayload(res).data
+}
 
-exports.createServerForRoute = createServerForRoute;
+exports.createServerForRoute = createServerForRoute
 
-exports.createVerificationDocument = createVerificationDocument;
-exports.deleteVerificationDocument = deleteVerificationDocument;
+exports.createVerificationDocument = createVerificationDocument
+exports.deleteVerificationDocument = deleteVerificationDocument
 
-exports.createVerification = createVerification;
-exports.deleteVerification = deleteVerification;
+exports.createVerification = createVerification
+exports.deleteVerification = deleteVerification
 
-exports.createDocumentHeader = createDocumentHeader;
-exports.deleteDocumentHeader = deleteDocumentHeader;
+exports.createDocumentHeader = createDocumentHeader
+exports.deleteDocumentHeader = deleteDocumentHeader
 
-exports.createEntity = createEntity;
-exports.deleteEntity = deleteEntity;
+exports.createEntity = createEntity
+exports.deleteEntity = deleteEntity
 
-exports.createEntityRole = createEntityRole;
-exports.deleteEntityRole = deleteEntityRole;
+exports.createEntityRole = createEntityRole
+exports.deleteEntityRole = deleteEntityRole
 
-exports.parseResponsePayload = parseResponsePayload;
-exports.makeRequest = makeRequest;
+exports.parseResponsePayload = parseResponsePayload
+exports.makeRequest = makeRequest

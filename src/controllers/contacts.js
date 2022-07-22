@@ -1,8 +1,8 @@
-'use strict';
+'use strict'
 
-const { pool } = require('../lib/connectors/db');
-const mongoSql = require('mongo-sql');
-const { logger } = require('../logger');
+const { pool } = require('../lib/connectors/db')
+const mongoSql = require('mongo-sql')
+const { logger } = require('../logger')
 
 /**
  * Get licence holder postal address contact from row
@@ -10,10 +10,10 @@ const { logger } = require('../logger');
  * @return {Object} contact
  */
 function getLicenceHolderContact (row) {
-  const { Salutation, Forename, Name } = row.metadata;
+  const { Salutation, Forename, Name } = row.metadata
 
-  const person = { salutation: Salutation, forename: Forename, name: Name };
-  const address = getAddress(row);
+  const person = { salutation: Salutation, forename: Forename, name: Name }
+  const address = getAddress(row)
 
   return {
     entity_id: null,
@@ -22,7 +22,7 @@ function getLicenceHolderContact (row) {
     source: 'nald',
     ...person,
     ...address
-  };
+  }
 }
 
 /**
@@ -31,8 +31,8 @@ function getLicenceHolderContact (row) {
  * @return {Object} formatted address
  */
 function getAddress (row) {
-  const { AddressLine1, AddressLine2 } = row.metadata;
-  const { AddressLine3, AddressLine4, Town, County, Postcode, Country } = row.metadata;
+  const { AddressLine1, AddressLine2 } = row.metadata
+  const { AddressLine3, AddressLine4, Town, County, Postcode, Country } = row.metadata
   return {
     address_1: AddressLine1,
     address_2: AddressLine2,
@@ -42,7 +42,7 @@ function getAddress (row) {
     county: County,
     postcode: Postcode,
     country: Country
-  };
+  }
 }
 
 /**
@@ -59,7 +59,7 @@ function getBlankAddress () {
     county: null,
     postcode: null,
     country: null
-  };
+  }
 }
 
 /**
@@ -68,7 +68,7 @@ function getBlankAddress () {
  * @return {Object} contact
  */
 function getEntityContact (row) {
-  const address = row.role === 'primary_user' ? getAddress(row) : getBlankAddress();
+  const address = row.role === 'primary_user' ? getAddress(row) : getBlankAddress()
 
   return {
     entity_id: row.entity_id,
@@ -79,7 +79,7 @@ function getEntityContact (row) {
     forename: null,
     name: null,
     ...address
-  };
+  }
 }
 
 /**
@@ -88,7 +88,7 @@ function getEntityContact (row) {
  * @return {Object} contact
  */
 function getCompanyContact (row) {
-  const address = getBlankAddress();
+  const address = getBlankAddress()
 
   return {
     entity_id: row.entity_id,
@@ -99,7 +99,7 @@ function getCompanyContact (row) {
     forename: null,
     name: row.entity_nm,
     ...address
-  };
+  }
 }
 
 /**
@@ -109,9 +109,9 @@ function getCompanyContact (row) {
  */
 function getContact (row) {
   if (row.entity_id === row.company_entity_id) {
-    return getCompanyContact(row);
+    return getCompanyContact(row)
   }
-  return getEntityContact(row);
+  return getEntityContact(row)
 }
 
 /**
@@ -122,12 +122,12 @@ function getContact (row) {
  * @return {Array} - array of licence contacts
  */
 function getNaldContacts (row) {
-  const { metadata: { contacts } } = row;
+  const { metadata: { contacts } } = row
 
   // New field in metadata
   if (contacts) {
     return contacts.map(contact => {
-      const { addressLine1, addressLine2, addressLine3, addressLine4, role, initials, type, ...rest } = contact;
+      const { addressLine1, addressLine2, addressLine3, addressLine4, role, initials, type, ...rest } = contact
       return {
         entity_id: null,
         source: 'nald',
@@ -139,10 +139,10 @@ function getNaldContacts (row) {
         address_4: addressLine4,
         initials,
         ...rest
-      };
-    });
+      }
+    })
   } else {
-    return [getLicenceHolderContact(row)];
+    return [getLicenceHolderContact(row)]
   }
 }
 
@@ -154,7 +154,7 @@ function getNaldContacts (row) {
  */
 function mapRowsToEntities (rows) {
   const licences = rows.reduce((acc, row) => {
-    const { system_external_id: systemExternalId, entity_id: entityId } = row;
+    const { system_external_id: systemExternalId, entity_id: entityId } = row
 
     // Add licence holder to list
     if (!Object.keys(acc).includes(systemExternalId)) {
@@ -165,17 +165,17 @@ function mapRowsToEntities (rows) {
         document_name: row.document_name,
         company_entity_id: row.company_entity_id,
         contacts: getNaldContacts(row)
-      };
+      }
     }
 
     // Add entity email address contact to list
     if (entityId) {
-      acc[systemExternalId].contacts.push(getContact(row));
+      acc[systemExternalId].contacts.push(getContact(row))
     }
-    return acc;
-  }, {});
+    return acc
+  }, {})
 
-  return Object.values(licences);
+  return Object.values(licences)
 }
 
 /**
@@ -204,7 +204,7 @@ function getMongoSqlQuery (filter) {
       target: 'crm.entity',
       on: { entity_id: '$crm.entity_roles.entity_id$' }
     }]
-  };
+  }
 }
 
 /**
@@ -230,7 +230,7 @@ function getDocumentEntitySqlQuery (filter) {
       target: 'crm.entity',
       on: { entity_id: '$crm.document_entity.entity_id$' }
     }]
-  };
+  }
 }
 
 /**
@@ -249,7 +249,7 @@ function getCompanySqlQuery (filter) {
       target: 'crm.entity',
       on: { entity_id: '$crm.document_header.company_entity_id$' }
     }]
-  };
+  }
 }
 
 /**
@@ -258,47 +258,47 @@ function getCompanySqlQuery (filter) {
  */
 async function getContacts (request, h) {
   try {
-    const filter = JSON.parse(request.query.filter || '{}');
-    filter.date_deleted = null;
+    const filter = JSON.parse(request.query.filter || '{}')
+    filter.date_deleted = null
 
     // Do initial query to find documents and entities linked via roles
-    const query = getMongoSqlQuery(filter);
-    const result = mongoSql.sql(query);
-    const { rows, error } = await pool.query(result.toString(), result.values);
+    const query = getMongoSqlQuery(filter)
+    const result = mongoSql.sql(query)
+    const { rows, error } = await pool.query(result.toString(), result.values)
 
     if (error) {
-      throw error;
+      throw error
     }
 
     // Do second query to find additional contacts linked to the documents
     // this will be the case for imported contacts
-    const query2 = getDocumentEntitySqlQuery(filter);
-    const result2 = mongoSql.sql(query2);
-    const { rows: rows2, error: error2 } = await pool.query(result2.toString(), result2.values);
+    const query2 = getDocumentEntitySqlQuery(filter)
+    const result2 = mongoSql.sql(query2)
+    const { rows: rows2, error: error2 } = await pool.query(result2.toString(), result2.values)
     if (error2) {
-      throw error2;
+      throw error2
     }
 
     // Do query to get company entities
-    const query3 = getCompanySqlQuery(filter);
-    const result3 = mongoSql.sql(query3);
-    const { rows: rows3, error: error3 } = await pool.query(result3.toString(), result3.values);
+    const query3 = getCompanySqlQuery(filter)
+    const result3 = mongoSql.sql(query3)
+    const { rows: rows3, error: error3 } = await pool.query(result3.toString(), result3.values)
     if (error3) {
-      throw error3;
+      throw error3
     }
 
     return {
       error,
       data: mapRowsToEntities([...rows, ...rows2, ...rows3])
-    };
+    }
   } catch (error) {
-    logger.error('getContacts error', error, { filter: request.query.filter });
-    return h.response({ error, data: null }).code(500);
+    logger.error('getContacts error', error, { filter: request.query.filter })
+    return h.response({ error, data: null }).code(500)
   }
 }
 
 const getDocumentsForContact = async (request, h) => {
-  const { entity_id: entityId } = request.params;
+  const { entity_id: entityId } = request.params
   const sql = `
     select dh.system_external_id, dh.metadata, de.role, de.document_id
     from crm.document_header dh
@@ -306,16 +306,16 @@ const getDocumentsForContact = async (request, h) => {
     on dh.document_id = de.document_id
     where de.entity_id = $1
     and dh.date_deleted is null;
-  `;
+  `
 
   try {
-    const { rows: documents } = await pool.query(sql, [entityId]);
-    return documents;
+    const { rows: documents } = await pool.query(sql, [entityId])
+    return documents
   } catch (error) {
-    logger.error('getDocumentsForContact error', error);
-    throw error;
+    logger.error('getDocumentsForContact error', error)
+    throw error
   }
-};
+}
 
-exports.getContacts = getContacts;
-exports.getDocumentsForContact = getDocumentsForContact;
+exports.getContacts = getContacts
+exports.getDocumentsForContact = getDocumentsForContact

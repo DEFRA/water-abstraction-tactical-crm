@@ -1,6 +1,6 @@
-const { pool } = require('../lib/connectors/db');
-const mongoSql = require('mongo-sql');
-const { logger } = require('../logger');
+const { pool } = require('../lib/connectors/db')
+const mongoSql = require('mongo-sql')
+const { logger } = require('../logger')
 
 /**
  * Get verifications by document id
@@ -8,7 +8,7 @@ const { logger } = require('../logger');
  */
 async function getVerificationsByDocumentID (request, h) {
   try {
-    const filter = JSON.parse(request.query.filter || '{}');
+    const filter = JSON.parse(request.query.filter || '{}')
 
     const query = {
       type: 'select',
@@ -43,18 +43,18 @@ async function getVerificationsByDocumentID (request, h) {
           }
         }
       ]
-    };
-    const result = mongoSql.sql(query);
+    }
+    const result = mongoSql.sql(query)
 
-    const { rows, error } = await pool.query(result.toString(), result.values);
+    const { rows, error } = await pool.query(result.toString(), result.values)
 
-    return { error, data: rows };
+    return { error, data: rows }
   } catch (error) {
-    logger.error('getVerificationsByDocumentID error', error);
-    h.response({ error, data: null }).statusCode(500);
+    logger.error('getVerificationsByDocumentID error', error)
+    h.response({ error, data: null }).statusCode(500)
   }
 }
 
 module.exports = {
   getVerificationsByDocumentID
-};
+}

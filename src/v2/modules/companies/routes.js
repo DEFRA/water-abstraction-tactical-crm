@@ -1,12 +1,12 @@
-'use strict';
+'use strict'
 
-const Joi = require('joi');
-const companyTypes = require('../../lib/company-types');
-const controller = require('./controller');
-const entityHandlers = require('../../lib/entity-handlers');
-const validators = require('../../lib/validators-v2');
-const { companyTypesArr } = require('../../lib/company-types');
-const { organisationTypesArr } = require('../../lib/organisation-types');
+const Joi = require('joi')
+const companyTypes = require('../../lib/company-types')
+const controller = require('./controller')
+const entityHandlers = require('../../lib/entity-handlers')
+const validators = require('../../lib/validators-v2')
+const { companyTypesArr } = require('../../lib/company-types')
+const { organisationTypesArr } = require('../../lib/organisation-types')
 
 exports.createCompany = {
   method: 'POST',
@@ -27,7 +27,7 @@ exports.createCompany = {
       })
     }
   }
-};
+}
 
 exports.getCompanyByName = {
   method: 'GET',
@@ -42,7 +42,7 @@ exports.getCompanyByName = {
       })
     }
   }
-};
+}
 
 exports.getCompany = {
   method: 'GET',
@@ -56,7 +56,7 @@ exports.getCompany = {
       })
     }
   }
-};
+}
 
 exports.postCompanyAddress = {
   method: 'POST',
@@ -78,7 +78,7 @@ exports.postCompanyAddress = {
       })
     }
   }
-};
+}
 
 exports.postCompanyContact = {
   method: 'POST',
@@ -101,7 +101,7 @@ exports.postCompanyContact = {
       })
     }
   }
-};
+}
 
 exports.getCompanyAddresses = {
   method: 'GET',
@@ -115,7 +115,7 @@ exports.getCompanyAddresses = {
       })
     }
   }
-};
+}
 
 exports.getCompanyContacts = {
   method: 'GET',
@@ -129,7 +129,7 @@ exports.getCompanyContacts = {
       })
     }
   }
-};
+}
 
 exports.deleteCompany = {
   method: 'DELETE',
@@ -143,7 +143,7 @@ exports.deleteCompany = {
       })
     }
   }
-};
+}
 
 exports.deleteCompanyAddress = {
   method: 'DELETE',
@@ -158,7 +158,7 @@ exports.deleteCompanyAddress = {
       })
     }
   }
-};
+}
 
 exports.patchCompanyContact = {
   method: 'PATCH',
@@ -176,7 +176,7 @@ exports.patchCompanyContact = {
       })
     }
   }
-};
+}
 
 exports.deleteCompanyContact = {
   method: 'DELETE',
@@ -191,7 +191,7 @@ exports.deleteCompanyContact = {
       })
     }
   }
-};
+}
 
 exports.getCompanyInvoiceAccounts = {
   method: 'GET',
@@ -205,7 +205,7 @@ exports.getCompanyInvoiceAccounts = {
       })
     }
   }
-};
+}
 
 exports.getCompanyLicences = {
   method: 'GET',
@@ -219,7 +219,7 @@ exports.getCompanyLicences = {
       })
     }
   }
-};
+}
 
 exports.getCompanyWAAEmailContacts = {
   method: 'GET',
@@ -233,4 +233,4 @@ exports.getCompanyWAAEmailContacts = {
       })
     }
   }
-};
+}

@@ -1,23 +1,23 @@
-const HAPIRestAPI = require('@envage/hapi-pg-rest-api');
-const Joi = require('joi');
-const { get } = require('lodash');
-const { version } = require('../../config');
-const { pool } = require('../lib/connectors/db');
-const { groupBy, reduce } = require('lodash');
-const Boom = require('@hapi/boom');
+const HAPIRestAPI = require('@envage/hapi-pg-rest-api')
+const Joi = require('joi')
+const { get } = require('lodash')
+const { version } = require('../../config')
+const { pool } = require('../lib/connectors/db')
+const { groupBy, reduce } = require('lodash')
+const Boom = require('@hapi/boom')
 
 const isIndividual = entity => {
-  return get(entity, 'entity_type', '').toLowerCase() === 'individual';
-};
+  return get(entity, 'entity_type', '').toLowerCase() === 'individual'
+}
 
 const lowerCaseEntityName = entity => {
-  const name = get(entity, 'entity_nm', '');
+  const name = get(entity, 'entity_nm', '')
 
   if (name && isIndividual(entity)) {
-    entity.entity_nm = name.toLowerCase();
+    entity.entity_nm = name.toLowerCase()
   }
-  return entity;
-};
+  return entity
+}
 
 const entitiesApi = new HAPIRestAPI({
   table: 'crm.entity',
@@ -34,20 +34,20 @@ const entitiesApi = new HAPIRestAPI({
     entity_definition: Joi.string(),
     source: Joi.string()
   }
-});
+})
 
 const loadEntity = async entityId => {
-  const response = await entitiesApi.repo.find({ entity_id: entityId });
-  const entityResponse = { data: null, error: null };
+  const response = await entitiesApi.repo.find({ entity_id: entityId })
+  const entityResponse = { data: null, error: null }
 
   if (response.rowCount === 0) {
-    entityResponse.error = Boom.notFound(`No entity found for ${entityId}`);
+    entityResponse.error = Boom.notFound(`No entity found for ${entityId}`)
   } else {
-    entityResponse.data = response.rows[0];
+    entityResponse.data = response.rows[0]
   }
 
-  return entityResponse;
-};
+  return entityResponse
+}
 
 const getEntityCompaniesQuery = `
     select
@@ -61,36 +61,36 @@ const getEntityCompaniesQuery = `
             on er.company_entity_id = e.entity_id
         inner join crm.entity ee
             on er.entity_id = ee.entity_id
-    where er.entity_id = $1`;
+    where er.entity_id = $1`
 
 const formatEntityCompaniesResponse = rows => {
   return reduce(
     groupBy(rows, 'company_entity_id'),
     (acc, companyRows) => {
       const company = reduce(companyRows, (companyAcc, row) => {
-        companyAcc.userRoles.push(row.role);
-        companyAcc.entityId = row.company_entity_id;
-        companyAcc.name = row.company_name;
-        return companyAcc;
-      }, { userRoles: [] });
+        companyAcc.userRoles.push(row.role)
+        companyAcc.entityId = row.company_entity_id
+        companyAcc.name = row.company_name
+        return companyAcc
+      }, { userRoles: [] })
 
-      return [...acc, company];
+      return [...acc, company]
     },
     []
-  );
-};
+  )
+}
 
 entitiesApi.getEntityCompanies = async (request, h) => {
-  const { entity_id: entityId } = request.params;
-  const entityResponse = await loadEntity(entityId);
+  const { entity_id: entityId } = request.params
+  const entityResponse = await loadEntity(entityId)
 
   if (entityResponse.error) {
-    return entityResponse.error;
+    return entityResponse.error
   }
 
-  const result = await pool.query(getEntityCompaniesQuery, [entityId]);
+  const result = await pool.query(getEntityCompaniesQuery, [entityId])
 
-  const companies = formatEntityCompaniesResponse(result.rows);
+  const companies = formatEntityCompaniesResponse(result.rows)
 
   return {
     data: {
@@ -99,7 +99,7 @@ entitiesApi.getEntityCompanies = async (request, h) => {
       companies
     },
     error: null
-  };
-};
+  }
+}
 
-module.exports = entitiesApi;
+module.exports = entitiesApi

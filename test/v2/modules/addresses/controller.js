@@ -3,15 +3,15 @@ const {
   test,
   beforeEach,
   afterEach
-} = exports.lab = require('@hapi/lab').script();
-const { expect } = require('@hapi/code');
-const sinon = require('sinon');
-const sandbox = sinon.createSandbox();
-const { omit } = require('lodash');
+} = exports.lab = require('@hapi/lab').script()
+const { expect } = require('@hapi/code')
+const sinon = require('sinon')
+const sandbox = sinon.createSandbox()
+const { omit } = require('lodash')
 
-const controller = require('../../../../src/v2/modules/addresses/controller');
-const addressService = require('../../../../src/v2/services/address');
-const { UniqueConstraintViolation } = require('../../../../src/v2/lib/errors');
+const controller = require('../../../../src/v2/modules/addresses/controller')
+const addressService = require('../../../../src/v2/services/address')
+const { UniqueConstraintViolation } = require('../../../../src/v2/lib/errors')
 
 const addressData = {
   addressId: 'test-address-id',
@@ -23,84 +23,84 @@ const addressData = {
   postcode: 'TT1 1TT',
   isTest: true,
   uprn: 123456
-};
+}
 
 experiment('v2/modules/addresses/controller', () => {
-  let h, responseStub;
+  let h, responseStub
   beforeEach(async () => {
     responseStub = {
       created: sandbox.spy(),
       code: sandbox.spy()
-    };
+    }
 
     h = {
       response: sandbox.stub().returns(responseStub)
-    };
+    }
 
-    sandbox.stub(addressService, 'createAddress');
-  });
+    sandbox.stub(addressService, 'createAddress')
+  })
 
   afterEach(async () => {
-    sandbox.restore();
-  });
+    sandbox.restore()
+  })
 
   experiment('.postAddress', () => {
-    let payload;
+    let payload
     experiment('when the address is created without issue', () => {
       beforeEach(async () => {
-        payload = omit(addressData, 'addressId');
+        payload = omit(addressData, 'addressId')
 
-        const request = { payload, method: 'post' };
+        const request = { payload, method: 'post' }
 
-        addressService.createAddress.resolves(addressData);
-        await controller.postAddress(request, h);
-      });
+        addressService.createAddress.resolves(addressData)
+        await controller.postAddress(request, h)
+      })
 
       test('calls address service to create a new address record', async () => {
         expect(addressService.createAddress.calledWith(
           payload
-        )).to.be.true();
-      });
+        )).to.be.true()
+      })
 
       test('the response header contains the new entity', async () => {
         expect(h.response.calledWith(
           addressData
-        )).to.be.true();
-      });
+        )).to.be.true()
+      })
 
       test('the location header points to the saved entity', async () => {
-        const [location] = responseStub.created.lastCall.args;
-        expect(location).to.equal('/crm/2.0/addresses/test-address-id');
-      });
-    });
+        const [location] = responseStub.created.lastCall.args
+        expect(location).to.equal('/crm/2.0/addresses/test-address-id')
+      })
+    })
 
     experiment('when a record with that uprn already exists', () => {
-      const ERROR = new UniqueConstraintViolation('Message', addressData);
-      let result;
+      const ERROR = new UniqueConstraintViolation('Message', addressData)
+      let result
 
       beforeEach(async () => {
-        payload = omit(addressData, 'id');
-        const request = { payload, method: 'post' };
+        payload = omit(addressData, 'id')
+        const request = { payload, method: 'post' }
 
-        addressService.createAddress.rejects(ERROR);
-        result = await controller.postAddress(request, h);
-      });
+        addressService.createAddress.rejects(ERROR)
+        result = await controller.postAddress(request, h)
+      })
 
       test('the response is a Boom error', async () => {
-        expect(result.isBoom).to.be.true();
-      });
+        expect(result.isBoom).to.be.true()
+      })
 
       test('the response contains the existing entity', async () => {
-        expect(result.output.payload.existingEntity).to.equal(addressData);
-      });
+        expect(result.output.payload.existingEntity).to.equal(addressData)
+      })
 
       test('the response header contains the expected error message', async () => {
-        expect(result.message).to.equal(ERROR.message);
-      });
+        expect(result.message).to.equal(ERROR.message)
+      })
 
       test('the Boom error has a 409 conflict status code', async () => {
-        expect(result.output.statusCode).to.equal(409);
-      });
-    });
-  });
-});
+        expect(result.output.statusCode).to.equal(409)
+      })
+    })
+  })
+})

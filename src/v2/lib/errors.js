@@ -1,24 +1,24 @@
-'use strict';
+'use strict'
 
 class DBError extends Error {
   constructor (message) {
-    super(message);
-    this.name = 'DBError';
+    super(message)
+    this.name = 'DBError'
   }
 }
 
 class UniqueConstraintViolation extends DBError {
   constructor (message, existingEntity) {
-    super(message);
-    this.name = 'UniqueConstraintViolation';
-    this.existingEntity = existingEntity;
+    super(message)
+    this.name = 'UniqueConstraintViolation'
+    this.existingEntity = existingEntity
   }
 }
 
 class ForeignKeyConstraintViolation extends DBError {
   constructor (message) {
-    super(message);
-    this.name = 'ForeignKeyConstraintViolation';
+    super(message)
+    this.name = 'ForeignKeyConstraintViolation'
   }
 }
 
@@ -32,28 +32,28 @@ class EntityValidationError extends Error {
    * @param {Array<String>} validationDetails A list of validation failure details
    */
   constructor (message, validationDetails) {
-    super(message);
-    this.name = 'EntityValidationError';
-    this.validationDetails = validationDetails;
+    super(message)
+    this.name = 'EntityValidationError'
+    this.validationDetails = validationDetails
   }
 }
 
 class ConflictingDataError extends Error {
   constructor (message) {
-    super(message);
-    this.name = 'ConflictingDataError';
+    super(message)
+    this.name = 'ConflictingDataError'
   }
 }
 
 class NotFoundError extends Error {
   constructor (message) {
-    super(message);
-    this.name = 'NotFoundError';
+    super(message)
+    this.name = 'NotFoundError'
   }
 }
 
-exports.ConflictingDataError = ConflictingDataError;
-exports.EntityValidationError = EntityValidationError;
-exports.ForeignKeyConstraintViolation = ForeignKeyConstraintViolation;
-exports.UniqueConstraintViolation = UniqueConstraintViolation;
-exports.NotFoundError = NotFoundError;
+exports.ConflictingDataError = ConflictingDataError
+exports.EntityValidationError = EntityValidationError
+exports.ForeignKeyConstraintViolation = ForeignKeyConstraintViolation
+exports.UniqueConstraintViolation = UniqueConstraintViolation
+exports.NotFoundError = NotFoundError

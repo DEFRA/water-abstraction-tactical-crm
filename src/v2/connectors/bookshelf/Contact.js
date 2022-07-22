@@ -1,6 +1,6 @@
-'use strict';
+'use strict'
 
-const { bookshelf } = require('./bookshelf.js');
+const { bookshelf } = require('./bookshelf.js')
 
 module.exports = bookshelf.model('Contact', {
   tableName: 'crm_v2.contacts',
@@ -8,6 +8,6 @@ module.exports = bookshelf.model('Contact', {
   hasTimestamps: ['date_created', 'date_updated'],
 
   companyContacts () {
-    return this.hasMany('CompanyContact', 'contact_id', 'contact_id');
+    return this.hasMany('CompanyContact', 'contact_id', 'contact_id')
   }
-});
+})

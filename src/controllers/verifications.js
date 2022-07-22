@@ -1,8 +1,8 @@
-const HAPIRestAPI = require('@envage/hapi-pg-rest-api');
-const Joi = require('joi');
-const { createShortCode } = require('../lib/helpers.js');
-const { version } = require('../../config');
-const { pool } = require('../lib/connectors/db');
+const HAPIRestAPI = require('@envage/hapi-pg-rest-api')
+const Joi = require('joi')
+const { createShortCode } = require('../lib/helpers.js')
+const { version } = require('../../config')
+const { pool } = require('../lib/connectors/db')
 
 const verificationsApi = new HAPIRestAPI({
   table: 'crm.verification',
@@ -20,8 +20,8 @@ const verificationsApi = new HAPIRestAPI({
     method: Joi.string()
   },
   preInsert: (data) => {
-    return Object.assign({ verification_code: createShortCode() }, data);
+    return Object.assign({ verification_code: createShortCode() }, data)
   }
-});
+})
 
-module.exports = verificationsApi;
+module.exports = verificationsApi

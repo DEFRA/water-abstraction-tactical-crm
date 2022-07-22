@@ -1,7 +1,7 @@
-'use strict';
+'use strict'
 
-const knex = require('./knex');
-const { db } = require('@envage/water-abstraction-helpers');
+const knex = require('./knex')
+const { db } = require('@envage/water-abstraction-helpers')
 
 /**
  * Allows a query to be run with same arguments
@@ -13,8 +13,8 @@ const { db } = require('@envage/water-abstraction-helpers');
  * @param {Array} [params] - array params
  * @return {Promise<Object>} query result
  */
-const query = (...args) => knex.knex.raw(...db.mapQueryToKnex(...args));
+const query = (...args) => knex.knex.raw(...db.mapQueryToKnex(...args))
 
 exports.pool = {
   query
-};
+}
