@@ -1,10 +1,8 @@
-const dbm = global.dbm || require('db-migrate')
-const type = dbm.dataType
 const fs = require('fs')
 const path = require('path')
 
 exports.up = function (db, callback) {
-  const filePath = path.join(__dirname + '/sqls/20171204151443-add-colleague-up.sql')
+  const filePath = path.join(__dirname, '/sqls/20171204151443-add-colleague-up.sql')
   fs.readFile(filePath, { encoding: 'utf-8' }, function (err, data) {
     if (err) return callback(err)
     console.log('received data: ' + data)
@@ -17,7 +15,7 @@ exports.up = function (db, callback) {
 }
 
 exports.down = function (db, callback) {
-  const filePath = path.join(__dirname + '/sqls/20171204151443-add-colleague-down.sql')
+  const filePath = path.join(__dirname, '/sqls/20171204151443-add-colleague-down.sql')
   fs.readFile(filePath, { encoding: 'utf-8' }, function (err, data) {
     if (err) return callback(err)
     console.log('received data: ' + data)
