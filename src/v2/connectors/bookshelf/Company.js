@@ -1,4 +1,4 @@
-const { bookshelf } = require('./bookshelf.js');
+const { bookshelf } = require('./bookshelf.js')
 
 module.exports = bookshelf.model('Company', {
 
@@ -11,9 +11,9 @@ module.exports = bookshelf.model('Company', {
   requireFetch: false,
 
   invoiceAccounts () {
-    return this.hasMany('InvoiceAccount', 'company_id', 'company_id');
+    return this.hasMany('InvoiceAccount', 'company_id', 'company_id')
   },
   companyContact () {
-    return this.hasMany('CompanyContact', 'company_id', 'company_id');
+    return this.hasMany('CompanyContact', 'company_id', 'company_id')
   }
-});
+})

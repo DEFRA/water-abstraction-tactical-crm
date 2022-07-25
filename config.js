@@ -1,8 +1,8 @@
-'use strict';
-require('dotenv').config();
+'use strict'
+require('dotenv').config()
 
-const testMode = parseInt(process.env.TEST_MODE) === 1;
-const isAcceptanceTestTarget = ['local', 'dev', 'development', 'test', 'qa', 'preprod'].includes(process.env.NODE_ENV);
+const testMode = parseInt(process.env.TEST_MODE) === 1
+const isAcceptanceTestTarget = ['local', 'dev', 'development', 'test', 'qa', 'preprod'].includes(process.env.NODE_ENV)
 
 module.exports = {
   version: '1.0',
@@ -37,4 +37,4 @@ module.exports = {
   },
 
   isAcceptanceTestTarget
-};
+}

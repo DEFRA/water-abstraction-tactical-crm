@@ -1,26 +1,26 @@
 /*
 API operations only - NO UI
 */
-const version = '1.0';
-const CRM = require('../lib/CRM');
-const Joi = require('joi');
+const version = '1.0'
+const CRM = require('../lib/CRM')
+const Joi = require('joi')
 
-const documentsRoutes = Object.values(require('./documents'));
-const acceptanceTestRoutes = require('../routes/acceptance-tests');
-const KPIReportingRoutes = require('../modules/kpi-reporting/routes');
+const documentsRoutes = Object.values(require('./documents'))
+const acceptanceTestRoutes = require('../routes/acceptance-tests')
+const KPIReportingRoutes = require('../modules/kpi-reporting/routes')
 
-const EntityApi = require('../controllers/entities.js');
-const VerificationApi = require('../controllers/verifications.js');
-const DocumentHeaderApi = require('../controllers/document-headers.js');
-const DocumentEntitiesApi = require('../controllers/document-entities.js');
-const EntityRolesApi = require('../controllers/entity-roles.js');
-const RoleEntityView = require('../controllers/role-entities-view.js');
-const RolesApi = require('../controllers/roles.js');
-const VerificationDocumentsController = require('../controllers/verification-documents.js');
-const { getContacts, getDocumentsForContact } = require('../controllers/contacts');
-const { getVerificationsByDocumentID } = require('../controllers/verifications-by-document.js');
-const KpiApi = require('../controllers/kpi-reports.js');
-const statusController = require('../controllers/status');
+const EntityApi = require('../controllers/entities.js')
+const VerificationApi = require('../controllers/verifications.js')
+const DocumentHeaderApi = require('../controllers/document-headers.js')
+const DocumentEntitiesApi = require('../controllers/document-entities.js')
+const EntityRolesApi = require('../controllers/entity-roles.js')
+const RoleEntityView = require('../controllers/role-entities-view.js')
+const RolesApi = require('../controllers/roles.js')
+const VerificationDocumentsController = require('../controllers/verification-documents.js')
+const { getContacts, getDocumentsForContact } = require('../controllers/contacts')
+const { getVerificationsByDocumentID } = require('../controllers/verifications-by-document.js')
+const KpiApi = require('../controllers/kpi-reports.js')
+const statusController = require('../controllers/status')
 
 module.exports = [
   {
@@ -189,4 +189,4 @@ module.exports = [
   ...Object.values(KPIReportingRoutes),
   ...Object.values(documentsRoutes),
   ...Object.values(acceptanceTestRoutes)
-];
+]

@@ -1,7 +1,7 @@
-'use strict';
+'use strict'
 
-const rolesRepo = require('../connectors/repository/roles');
+const rolesRepo = require('../connectors/repository/roles')
 
-const getRoleByName = roleName => rolesRepo.findOneByName(roleName);
+const getRoleByName = roleName => rolesRepo.findOneByName(roleName)
 
-exports.getRoleByName = getRoleByName;
+exports.getRoleByName = getRoleByName

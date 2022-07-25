@@ -15,7 +15,8 @@
     "migrate": "node scripts/create-schema && db-migrate up --verbose",
     "migrate:down": "db-migrate down --verbose",
     "migrate:create": "db-migrate create --sql-file --",
-    "lint": "eslint ."
+    "lint": "standard",
+    "lint:fix": "standard --fix"
   },
   "dependencies": {
     "@envage/hapi-pg-rest-api": "^7.0.0",
@@ -56,12 +57,7 @@
     "@hapi/lab": "^24.5.1",
     "auto-changelog": "^1.16.4",
     "codecov": "^3.8.3",
-    "eslint": "^8.13.0",
-    "eslint-config-standard": "^14.1.1",
-    "eslint-plugin-import": "^2.26.0",
-    "eslint-plugin-node": "^11.1.0",
-    "eslint-plugin-promise": "^6.0.0",
-    "eslint-plugin-standard": "^5.0.0",
-    "sinon": "^12.0.1"
+    "sinon": "^12.0.1",
+    "standard": "^17.0.0"
   }
 }

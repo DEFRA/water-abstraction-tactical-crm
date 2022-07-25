@@ -1,7 +1,7 @@
-'use strict';
+'use strict'
 
-const CompanyContact = require('../bookshelf/CompanyContact');
-const helpers = require('./helpers');
+const CompanyContact = require('../bookshelf/CompanyContact')
+const helpers = require('./helpers')
 
 /**
  * Insert a new company contact record
@@ -10,13 +10,13 @@ const helpers = require('./helpers');
 const create = async companyContact => {
   const model = await CompanyContact
     .forge(companyContact)
-    .save();
-  return model.toJSON();
-};
+    .save()
+  return model.toJSON()
+}
 
-const deleteOne = async id => helpers.deleteOne(CompanyContact, 'companyContactId', id);
+const deleteOne = async id => helpers.deleteOne(CompanyContact, 'companyContactId', id)
 
-const deleteTestData = async () => helpers.deleteTestData(CompanyContact);
+const deleteTestData = async () => helpers.deleteTestData(CompanyContact)
 
 /**
  * Finds many company contacts, including related company, by company ID
@@ -29,10 +29,10 @@ const findManyByCompanyId = async companyId => {
     .where('company_id', companyId)
     .fetch({
       withRelated: ['contact', 'role']
-    });
+    })
 
-  return collection.toJSON();
-};
+  return collection.toJSON()
+}
 
 /**
  * Finds one for the supplied company_role_contact constraint values
@@ -49,15 +49,15 @@ const findOneByCompanyRoleContact = (companyId, contactId, roleId, startDate) =>
     contactId,
     roleId,
     startDate
-  });
+  })
 
 const updateOneByCompanyIdAndContactId = async (companyId, contactId, payload) => {
-  const row = await helpers.findOneBy(CompanyContact, { companyId, contactId });
-  return helpers.update(CompanyContact, 'companyContactId', row.companyContactId, payload);
-};
-exports.create = create;
-exports.deleteOne = deleteOne;
-exports.deleteTestData = deleteTestData;
-exports.findManyByCompanyId = findManyByCompanyId;
-exports.findOneByCompanyRoleContact = findOneByCompanyRoleContact;
-exports.updateOneByCompanyIdAndContactId = updateOneByCompanyIdAndContactId;
+  const row = await helpers.findOneBy(CompanyContact, { companyId, contactId })
+  return helpers.update(CompanyContact, 'companyContactId', row.companyContactId, payload)
+}
+exports.create = create
+exports.deleteOne = deleteOne
+exports.deleteTestData = deleteTestData
+exports.findManyByCompanyId = findManyByCompanyId
+exports.findOneByCompanyRoleContact = findOneByCompanyRoleContact
+exports.updateOneByCompanyIdAndContactId = updateOneByCompanyIdAndContactId
