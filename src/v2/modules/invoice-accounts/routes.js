@@ -1,7 +1,7 @@
-const Joi = require('joi');
-const controller = require('./controller');
-const entityHandlers = require('../../lib/entity-handlers');
-const validators = require('../../lib/validators-v2');
+const Joi = require('joi')
+const controller = require('./controller')
+const entityHandlers = require('../../lib/entity-handlers')
+const validators = require('../../lib/validators-v2')
 
 exports.getInvoiceAccount = {
   method: 'GET',
@@ -15,7 +15,7 @@ exports.getInvoiceAccount = {
       })
     }
   }
-};
+}
 
 exports.getInvoiceAccountByRef = {
   method: 'GET',
@@ -29,7 +29,7 @@ exports.getInvoiceAccountByRef = {
       })
     }
   }
-};
+}
 
 exports.getInvoiceAccounts = {
   method: 'GET',
@@ -43,7 +43,7 @@ exports.getInvoiceAccounts = {
       }).rename('id[]', 'id', { ignoreUndefined: true })
     }
   }
-};
+}
 
 exports.createInvoiceAccount = {
   method: 'POST',
@@ -62,7 +62,7 @@ exports.createInvoiceAccount = {
       }).xor('invoiceAccountNumber', 'regionCode')
     }
   }
-};
+}
 
 exports.deleteInvoiceAccount = {
   method: 'DELETE',
@@ -76,7 +76,7 @@ exports.deleteInvoiceAccount = {
       })
     }
   }
-};
+}
 
 exports.getInvoiceAccountsWithRecentlyUpdatedEntities = {
   method: 'GET',
@@ -85,7 +85,7 @@ exports.getInvoiceAccountsWithRecentlyUpdatedEntities = {
   options: {
     description: 'Get all invoice accounts whose underlying entities have unmatching current_hash vs last_hash'
   }
-};
+}
 
 exports.updateInvoiceAccountsWithCustomerFileReference = {
   method: 'POST',
@@ -101,4 +101,4 @@ exports.updateInvoiceAccountsWithCustomerFileReference = {
       })
     }
   }
-};
+}

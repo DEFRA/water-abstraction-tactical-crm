@@ -1,130 +1,130 @@
-'use strict';
+'use strict'
 
-const Hapi = require('@hapi/hapi');
-const { cloneDeep } = require('lodash');
-const { v4: uuid } = require('uuid');
-const qs = require('qs');
+const Hapi = require('@hapi/hapi')
+const { cloneDeep } = require('lodash')
+const { v4: uuid } = require('uuid')
+const qs = require('qs')
 
 const {
   experiment,
   test,
   beforeEach
-} = exports.lab = require('@hapi/lab').script();
+} = exports.lab = require('@hapi/lab').script()
 
-const { expect } = require('@hapi/code');
-const routes = require('../../../../src/v2/modules/invoice-accounts/routes');
+const { expect } = require('@hapi/code')
+const routes = require('../../../../src/v2/modules/invoice-accounts/routes')
 
 const createServer = route => {
-  const server = Hapi.server();
-  const testRoute = cloneDeep(route);
-  testRoute.handler = async () => 'ok';
+  const server = Hapi.server()
+  const testRoute = cloneDeep(route)
+  testRoute.handler = async () => 'ok'
 
-  server.route(testRoute);
+  server.route(testRoute)
 
-  return server;
-};
+  return server
+}
 
 experiment('v2/modules/invoice-account/routes', () => {
   experiment('.getInvoiceAccount', () => {
-    let server;
+    let server
 
     const getRequest = invoiceAccountId => ({
       method: 'GET',
       url: `/crm/2.0/invoice-accounts/${invoiceAccountId}`
-    });
+    })
 
     beforeEach(() => {
-      server = createServer(routes.getInvoiceAccount);
-    });
+      server = createServer(routes.getInvoiceAccount)
+    })
 
     test('returns a 400 if the invoice account id is not a guid', async () => {
-      const request = getRequest(123);
-      const response = await server.inject(request);
-      expect(response.statusCode).to.equal(400);
-    });
-  });
+      const request = getRequest(123)
+      const response = await server.inject(request)
+      expect(response.statusCode).to.equal(400)
+    })
+  })
 
   experiment('.getInvoiceAccountByRef', () => {
-    let server;
+    let server
 
     const getRequest = (ref) => {
-      const query = qs.stringify({ ref: ref });
+      const query = qs.stringify({ ref })
       return ({
         method: 'GET',
         url: `/crm/2.0/invoice-account?${query}`
-      });
-    };
+      })
+    }
 
     beforeEach(() => {
-      server = createServer(routes.getInvoiceAccountByRef);
-    });
+      server = createServer(routes.getInvoiceAccountByRef)
+    })
 
     test('returns a 400 if the invoice account ref is undefined', async () => {
-      const request = getRequest(undefined);
-      const response = await server.inject(request);
-      expect(response.statusCode).to.equal(400);
-    });
+      const request = getRequest(undefined)
+      const response = await server.inject(request)
+      expect(response.statusCode).to.equal(400)
+    })
 
     test('returns a 400 if the invoice account ref is invalid', async () => {
-      const request = getRequest('Y010A');
-      const response = await server.inject(request);
-      expect(response.statusCode).to.equal(400);
-    });
+      const request = getRequest('Y010A')
+      const response = await server.inject(request)
+      expect(response.statusCode).to.equal(400)
+    })
 
     test('returns a 200 if the invoice account ref is valid', async () => {
-      const request = getRequest('Y00000000A');
-      const response = await server.inject(request);
-      expect(response.statusCode).to.equal(200);
-    });
-  });
+      const request = getRequest('Y00000000A')
+      const response = await server.inject(request)
+      expect(response.statusCode).to.equal(200)
+    })
+  })
 
   experiment('.getInvoiceAccounts', () => {
-    let server;
+    let server
 
     const getRequest = id => {
-      const query = qs.stringify({ id }, { arrayFormat: 'brackets', encode: false });
+      const query = qs.stringify({ id }, { arrayFormat: 'brackets', encode: false })
       return {
         method: 'GET',
         url: `/crm/2.0/invoice-accounts?${query}`
-      };
-    };
+      }
+    }
 
     beforeEach(() => {
-      server = createServer(routes.getInvoiceAccounts);
-    });
+      server = createServer(routes.getInvoiceAccounts)
+    })
 
     test('returns a 400 if the query ids are not valid', async () => {
-      const request = getRequest([uuid(), 123]);
-      const response = await server.inject(request);
-      expect(response.statusCode).to.equal(400);
-    });
+      const request = getRequest([uuid(), 123])
+      const response = await server.inject(request)
+      expect(response.statusCode).to.equal(400)
+    })
 
     test('returns a 200 if the query ids are valid', async () => {
-      const request = getRequest([uuid(), uuid()]);
-      console.log(request);
-      const response = await server.inject(request);
-      expect(response.statusCode).to.equal(200);
-    });
+      const request = getRequest([uuid(), uuid()])
+      console.log(request)
+      const response = await server.inject(request)
+      expect(response.statusCode).to.equal(200)
+    })
 
     test('returns a 200 if a single value is provided', async () => {
-      const request = getRequest(uuid());
-      const response = await server.inject(request);
-      expect(response.statusCode).to.equal(200);
-    });
-  });
+      const request = getRequest(uuid())
+      const response = await server.inject(request)
+      expect(response.statusCode).to.equal(200)
+    })
+  })
 
   experiment('.createInvoiceAccount', () => {
-    let server;
+    let server
 
     const getRequest = payload => ({
       method: 'POST',
       url: '/crm/2.0/invoice-accounts',
       payload
-    });
+    })
 
     beforeEach(() => {
-      server = createServer(routes.createInvoiceAccount);
-    });
+      server = createServer(routes.createInvoiceAccount)
+    })
 
     experiment('returns a 400', () => {
       experiment('if the companyId', () => {
@@ -132,23 +132,23 @@ experiment('v2/modules/invoice-account/routes', () => {
           const request = getRequest({
             invoiceAccountNumber: 'A12345678A',
             startDate: '2020-04-01'
-          });
+          })
 
-          const response = await server.inject(request);
-          expect(response.statusCode).to.equal(400);
-        });
+          const response = await server.inject(request)
+          expect(response.statusCode).to.equal(400)
+        })
 
         test('is not a guid', async () => {
           const request = getRequest({
             companyId: '123abc',
             invoiceAccountNumber: 'A12345678A',
             startDate: '2020-04-01'
-          });
+          })
 
-          const response = await server.inject(request);
-          expect(response.statusCode).to.equal(400);
-        });
-      });
+          const response = await server.inject(request)
+          expect(response.statusCode).to.equal(400)
+        })
+      })
 
       experiment('if the invoiceAccountNumber', () => {
         test('is omitted', async () => {
@@ -157,11 +157,11 @@ experiment('v2/modules/invoice-account/routes', () => {
             startDate: '2020-04-01',
             endDate: '2020-12-31',
             isTest: true
-          });
+          })
 
-          const response = await server.inject(request);
-          expect(response.statusCode).to.equal(400);
-        });
+          const response = await server.inject(request)
+          expect(response.statusCode).to.equal(400)
+        })
 
         test('is not valid', async () => {
           const request = getRequest({
@@ -170,35 +170,35 @@ experiment('v2/modules/invoice-account/routes', () => {
             startDate: '2020-04-01',
             endDate: '2020-12-31',
             isTest: true
-          });
+          })
 
-          const response = await server.inject(request);
-          expect(response.statusCode).to.equal(400);
-        });
-      });
+          const response = await server.inject(request)
+          expect(response.statusCode).to.equal(400)
+        })
+      })
 
       experiment('if the startDate', () => {
         test('is omitted', async () => {
           const request = getRequest({
             companyId: uuid(),
             invoiceAccountNumber: 'A12345678A'
-          });
+          })
 
-          const response = await server.inject(request);
-          expect(response.statusCode).to.equal(400);
-        });
+          const response = await server.inject(request)
+          expect(response.statusCode).to.equal(400)
+        })
 
         test('is not valid', async () => {
           const request = getRequest({
             companyId: uuid(),
             invoiceAccountNumber: 'A12345678A',
             startDate: '2020-04-31'
-          });
+          })
 
-          const response = await server.inject(request);
-          expect(response.statusCode).to.equal(400);
-        });
-      });
+          const response = await server.inject(request)
+          expect(response.statusCode).to.equal(400)
+        })
+      })
 
       experiment('if the endDate', () => {
         test('is not valid', async () => {
@@ -207,11 +207,11 @@ experiment('v2/modules/invoice-account/routes', () => {
             invoiceAccountNumber: 'A12345678A',
             startDate: '2020-04-01',
             endDate: '2020-12-35'
-          });
+          })
 
-          const response = await server.inject(request);
-          expect(response.statusCode).to.equal(400);
-        });
+          const response = await server.inject(request)
+          expect(response.statusCode).to.equal(400)
+        })
 
         test('is before the startDate', async () => {
           const request = getRequest({
@@ -219,12 +219,12 @@ experiment('v2/modules/invoice-account/routes', () => {
             invoiceAccountNumber: 'A12345678A',
             startDate: '2020-04-01',
             endDate: '2020-01-01'
-          });
+          })
 
-          const response = await server.inject(request);
-          expect(response.statusCode).to.equal(400);
-        });
-      });
+          const response = await server.inject(request)
+          expect(response.statusCode).to.equal(400)
+        })
+      })
 
       experiment('if isTest', () => {
         test('is not valid', async () => {
@@ -233,11 +233,11 @@ experiment('v2/modules/invoice-account/routes', () => {
             invoiceAccountNumber: 'A12345678A',
             startDate: '2020-04-31',
             isTest: 'yes'
-          });
+          })
 
-          const response = await server.inject(request);
-          expect(response.statusCode).to.equal(400);
-        });
+          const response = await server.inject(request)
+          expect(response.statusCode).to.equal(400)
+        })
 
         test('is valid but account number is also supplied', async () => {
           const request = getRequest({
@@ -246,12 +246,12 @@ experiment('v2/modules/invoice-account/routes', () => {
             regionCode: 'A',
             startDate: '2020-04-31',
             isTest: 'yes'
-          });
+          })
 
-          const response = await server.inject(request);
-          expect(response.statusCode).to.equal(400);
-        });
-      });
+          const response = await server.inject(request)
+          expect(response.statusCode).to.equal(400)
+        })
+      })
 
       experiment('if regionCode', () => {
         test('is not valid', async () => {
@@ -260,13 +260,13 @@ experiment('v2/modules/invoice-account/routes', () => {
             regionCode: 'X',
             startDate: '2020-04-31',
             isTest: 'yes'
-          });
+          })
 
-          const response = await server.inject(request);
-          expect(response.statusCode).to.equal(400);
-        });
-      });
-    });
+          const response = await server.inject(request)
+          expect(response.statusCode).to.equal(400)
+        })
+      })
+    })
 
     experiment('the endDate', () => {
       test('can be set to null', async () => {
@@ -275,22 +275,22 @@ experiment('v2/modules/invoice-account/routes', () => {
           invoiceAccountNumber: 'A12345678A',
           startDate: '2020-04-01',
           endDate: null
-        });
+        })
 
-        const response = await server.inject(request);
-        expect(response.statusCode).to.equal(200);
-      });
+        const response = await server.inject(request)
+        expect(response.statusCode).to.equal(200)
+      })
 
       test('defaults to null if not provided', async () => {
         const request = getRequest({
           companyId: uuid(),
           invoiceAccountNumber: 'A12345678A',
           startDate: '2020-04-01'
-        });
+        })
 
-        const response = await server.inject(request);
-        expect(response.request.payload.endDate).to.be.null();
-      });
+        const response = await server.inject(request)
+        expect(response.request.payload.endDate).to.be.null()
+      })
 
       test('can be set to a valid date', async () => {
         const request = getRequest({
@@ -298,12 +298,12 @@ experiment('v2/modules/invoice-account/routes', () => {
           invoiceAccountNumber: 'A12345678A',
           startDate: '2020-04-01',
           endDate: '2020-12-31'
-        });
+        })
 
-        const response = await server.inject(request);
-        expect(response.statusCode).to.equal(200);
-      });
-    });
+        const response = await server.inject(request)
+        expect(response.statusCode).to.equal(200)
+      })
+    })
 
     experiment('isTest', () => {
       test('defaults to false if not provided', async () => {
@@ -312,11 +312,11 @@ experiment('v2/modules/invoice-account/routes', () => {
           invoiceAccountNumber: 'A12345678A',
           startDate: '2020-04-01',
           endDate: '2020-12-31'
-        });
+        })
 
-        const response = await server.inject(request);
-        expect(response.request.payload.isTest).to.be.false();
-      });
+        const response = await server.inject(request)
+        expect(response.request.payload.isTest).to.be.false()
+      })
 
       test('can be set to a boolean', async () => {
         const request = getRequest({
@@ -325,36 +325,36 @@ experiment('v2/modules/invoice-account/routes', () => {
           startDate: '2020-04-01',
           endDate: '2020-12-31',
           isTest: true
-        });
+        })
 
-        const response = await server.inject(request);
-        expect(response.statusCode).to.equal(200);
-      });
-    });
-  });
+        const response = await server.inject(request)
+        expect(response.statusCode).to.equal(200)
+      })
+    })
+  })
 
   experiment('.deleteInvoiceAccount', () => {
-    let server;
+    let server
 
     const getRequest = invoiceAccountId => ({
       method: 'DELETE',
       url: `/crm/2.0/invoice-accounts/${invoiceAccountId}`
-    });
+    })
 
     beforeEach(() => {
-      server = createServer(routes.deleteInvoiceAccount);
-    });
+      server = createServer(routes.deleteInvoiceAccount)
+    })
 
     test('returns a 400 if the invoice account id is not a guid', async () => {
-      const request = getRequest(123);
-      const response = await server.inject(request);
-      expect(response.statusCode).to.equal(400);
-    });
+      const request = getRequest(123)
+      const response = await server.inject(request)
+      expect(response.statusCode).to.equal(400)
+    })
 
     test('returns a 200 if the invoice account id is a guid', async () => {
-      const request = getRequest(uuid());
-      const response = await server.inject(request);
-      expect(response.statusCode).to.equal(200);
-    });
-  });
-});
+      const request = getRequest(uuid())
+      const response = await server.inject(request)
+      expect(response.statusCode).to.equal(200)
+    })
+  })
+})

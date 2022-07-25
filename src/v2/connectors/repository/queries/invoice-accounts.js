@@ -5,7 +5,7 @@ select ia.invoice_account_number
     and ia.is_test=false 
   order by regexp_replace(ia.invoice_account_number, '[^0-9]+', '', 'g')::integer desc 
   limit 1
-`;
+`
 
 exports.findAllWhereEntitiesHaveUnmatchingHashes = `
 select distinct ia.invoice_account_id, ia.invoice_account_number, com.external_id as company_legacy_id
@@ -19,14 +19,14 @@ left join crm_v2.addresses add on add.address_id = iaa.address_id or comadd.addr
 where com.last_hash <> com.current_hash
 or con.last_hash <> con.current_hash
 or add.last_hash <> add.current_hash
-`;
+`
 
 exports.deleteTestInvoiceAccounts = `
-DELETE from crm_v2.invoice_accounts where company_id IN (SELECT company_id from crm_v2.companies where is_test = true);`;
+DELETE from crm_v2.invoice_accounts where company_id IN (SELECT company_id from crm_v2.companies where is_test = true);`
 
 exports.updateInvoiceAccountsWithCustomerFileReference = `
 UPDATE crm_v2.invoice_accounts SET 
 last_transaction_file_reference = :fileReference,
 date_last_transaction_file_reference_updated = :exportedAt
 WHERE invoice_account_number = ANY(string_to_array(:exportedCustomers, ','))
-`;
+`

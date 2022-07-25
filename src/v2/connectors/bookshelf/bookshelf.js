@@ -1,10 +1,10 @@
-'use strict';
+'use strict'
 
-const bookshelf = require('bookshelf');
-const { knex } = require('../../../lib/connectors/knex');
+const bookshelf = require('bookshelf')
+const { knex } = require('../../../lib/connectors/knex')
 
 // Create instance and register camel case converter
-const bookshelfInstance = bookshelf(knex);
-bookshelfInstance.plugin('bookshelf-case-converter-plugin');
+const bookshelfInstance = bookshelf(knex)
+bookshelfInstance.plugin('bookshelf-case-converter-plugin')
 
-exports.bookshelf = bookshelfInstance;
+exports.bookshelf = bookshelfInstance

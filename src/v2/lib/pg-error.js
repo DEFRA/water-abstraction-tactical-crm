@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 /**
  * Checks if the PG error is a constraint error
@@ -8,6 +8,6 @@
  * @return {Boolean}
  */
 const isConstraintViolationError = (err, constraint) =>
-  err.code === '23505' && err.constraint === constraint;
+  err.code === '23505' && err.constraint === constraint
 
-exports.isConstraintViolationError = isConstraintViolationError;
+exports.isConstraintViolationError = isConstraintViolationError

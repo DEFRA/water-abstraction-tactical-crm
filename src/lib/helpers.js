@@ -8,14 +8,14 @@
  * @return {String} - the random code
  */
 function createShortCode (length = 5) {
-  const alphabet = '23456789abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ';
-  let str = '';
+  const alphabet = '23456789abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ'
+  let str = ''
   for (let i = 0; i < length; i++) {
-    str += alphabet.charAt(Math.floor(Math.random() * alphabet.length));
+    str += alphabet.charAt(Math.floor(Math.random() * alphabet.length))
   }
-  return str;
+  return str
 }
 
 module.exports = {
   createShortCode
-};
+}

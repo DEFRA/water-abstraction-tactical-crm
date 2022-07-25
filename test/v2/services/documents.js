@@ -1,66 +1,66 @@
-'use strict';
+'use strict'
 
 const {
   experiment,
   test,
   beforeEach,
   afterEach
-} = exports.lab = require('@hapi/lab').script();
-const Boom = require('@hapi/boom');
-const { v4: uuid } = require('uuid');
-const { expect, fail } = require('@hapi/code');
-const sandbox = require('sinon').createSandbox();
+} = exports.lab = require('@hapi/lab').script()
+const Boom = require('@hapi/boom')
+const { v4: uuid } = require('uuid')
+const { expect, fail } = require('@hapi/code')
+const sandbox = require('sinon').createSandbox()
 
-const errors = require('../../../src/v2/lib/errors');
-const documentRolesRepo = require('../../../src/v2/connectors/repository/document-roles');
-const rolesRepo = require('../../../src/v2/connectors/repository/roles');
-const documentsService = require('../../../src/v2/services/documents');
-const documentRepo = require('../../../src/v2/connectors/repository/documents');
-const { documentRoles: oldDocRolesRepo } = require('../../../src/v2/connectors/repository');
+const errors = require('../../../src/v2/lib/errors')
+const documentRolesRepo = require('../../../src/v2/connectors/repository/document-roles')
+const rolesRepo = require('../../../src/v2/connectors/repository/roles')
+const documentsService = require('../../../src/v2/services/documents')
+const documentRepo = require('../../../src/v2/connectors/repository/documents')
+const { documentRoles: oldDocRolesRepo } = require('../../../src/v2/connectors/repository')
 
 experiment('services/documents', () => {
   beforeEach(async () => {
-    sandbox.stub(documentRolesRepo, 'create');
-    sandbox.stub(documentRolesRepo, 'findByDocumentId');
+    sandbox.stub(documentRolesRepo, 'create')
+    sandbox.stub(documentRolesRepo, 'findByDocumentId')
     sandbox.stub(rolesRepo, 'findOneByName').resolves({
       roleId: 'test-role-id'
-    });
-    sandbox.stub(documentRepo, 'findOne').resolves();
-    sandbox.stub(documentRepo, 'findByDocumentRef').resolves();
-    sandbox.stub(documentRepo, 'create').resolves();
-  });
+    })
+    sandbox.stub(documentRepo, 'findOne').resolves()
+    sandbox.stub(documentRepo, 'findByDocumentRef').resolves()
+    sandbox.stub(documentRepo, 'create').resolves()
+  })
 
   afterEach(async () => {
-    sandbox.restore();
-  });
+    sandbox.restore()
+  })
 
   experiment('.createDocumentRole', () => {
     experiment('when the documentRole data is invalid', () => {
-      let documentRole;
+      let documentRole
 
       beforeEach(async () => {
         documentRole = {
           role: 'billing',
           invoiceAccountId: uuid()
-        };
-      });
+        }
+      })
 
       test('any EntityValidationError is thrown', async () => {
         const err = await expect(documentsService.createDocumentRole(documentRole))
           .to
-          .reject(errors.EntityValidationError, 'Document Role not valid');
+          .reject(errors.EntityValidationError, 'Document Role not valid')
 
-        expect(err.validationDetails).to.be.an.array();
-      });
+        expect(err.validationDetails).to.be.an.array()
+      })
 
       test('the document role is not saved', async () => {
-        expect(documentRolesRepo.create.called).to.equal(false);
-      });
-    });
+        expect(documentRolesRepo.create.called).to.equal(false)
+      })
+    })
 
     experiment('when the documentRole data is valid', () => {
-      let result;
-      let documentRole;
+      let result
+      let documentRole
 
       beforeEach(async () => {
         documentRole = {
@@ -70,39 +70,39 @@ experiment('services/documents', () => {
           endDate: '2020-03-01',
           invoiceAccountId: uuid(),
           isTest: true
-        };
+        }
 
         documentRolesRepo.create.resolves({
           documentRoleId: 'test-id',
           ...documentRole
-        });
-      });
+        })
+      })
 
       experiment('if there are no existing document roles for the document and role', () => {
         beforeEach(async () => {
-          documentRolesRepo.findByDocumentId.resolves([]);
+          documentRolesRepo.findByDocumentId.resolves([])
 
-          result = await documentsService.createDocumentRole(documentRole);
-        });
+          result = await documentsService.createDocumentRole(documentRole)
+        })
 
         test('the document role is saved via the repository', async () => {
-          expect(documentRolesRepo.create.called).to.equal(true);
-        });
+          expect(documentRolesRepo.create.called).to.equal(true)
+        })
 
         test('the document role being saved does not have a role property', async () => {
-          const [docRole] = documentRolesRepo.create.lastCall.args;
-          expect(docRole.role).to.equal(undefined);
-        });
+          const [docRole] = documentRolesRepo.create.lastCall.args
+          expect(docRole.role).to.equal(undefined)
+        })
 
         test('the document role have the role id from the roles repo', async () => {
-          const [docRole] = documentRolesRepo.create.lastCall.args;
-          expect(docRole.roleId).to.equal('test-role-id');
-        });
+          const [docRole] = documentRolesRepo.create.lastCall.args
+          expect(docRole.roleId).to.equal('test-role-id')
+        })
 
         test('the saved document role is returned', async () => {
-          expect(result.documentRoleId).to.equal('test-id');
-        });
-      });
+          expect(result.documentRoleId).to.equal('test-id')
+        })
+      })
 
       experiment('if there are no existing document roles for the document and role type', () => {
         beforeEach(async () => {
@@ -121,19 +121,19 @@ experiment('services/documents', () => {
                 name: 'licenceHolder'
               }
             }
-          ]);
+          ])
 
-          result = await documentsService.createDocumentRole(documentRole);
-        });
+          result = await documentsService.createDocumentRole(documentRole)
+        })
 
         test('the document role is saved via the repository', async () => {
-          expect(documentRolesRepo.create.called).to.equal(true);
-        });
+          expect(documentRolesRepo.create.called).to.equal(true)
+        })
 
         test('the saved document role is returned', async () => {
-          expect(result.documentRoleId).to.equal('test-id');
-        });
-      });
+          expect(result.documentRoleId).to.equal('test-id')
+        })
+      })
 
       experiment('if there are existing document roles for the document and role type', () => {
         experiment('and the dates do not overlap', () => {
@@ -148,19 +148,19 @@ experiment('services/documents', () => {
                   name: 'licenceHolder'
                 }
               }
-            ]);
+            ])
 
-            result = await documentsService.createDocumentRole(documentRole);
-          });
+            result = await documentsService.createDocumentRole(documentRole)
+          })
 
           test('the document role is saved via the repository', async () => {
-            expect(documentRolesRepo.create.called).to.equal(true);
-          });
+            expect(documentRolesRepo.create.called).to.equal(true)
+          })
 
           test('the saved document role is returned', async () => {
-            expect(result.documentRoleId).to.equal('test-id');
-          });
-        });
+            expect(result.documentRoleId).to.equal('test-id')
+          })
+        })
 
         experiment('and the dates do overlap', () => {
           // the test data has a start and end date of
@@ -177,11 +177,11 @@ experiment('services/documents', () => {
 
             // starts and ends within existing data
             { startDate: new Date(2020, 1, 20), endDate: new Date(2020, 1, 25) }
-          ];
+          ]
 
           overlapScenarios.forEach(scenario => {
-            const { startDate, endDate } = scenario;
-            const testName = `throws for start ${startDate} and end ${endDate}`;
+            const { startDate, endDate } = scenario
+            const testName = `throws for start ${startDate} and end ${endDate}`
             test(testName, async () => {
               const documentRole = {
                 startDate: '2020-02-01',
@@ -189,7 +189,7 @@ experiment('services/documents', () => {
                 role: 'billing',
                 invoiceAccountId: uuid(),
                 documentId: uuid()
-              };
+              }
 
               documentRolesRepo.findByDocumentId.resolves([
                 {
@@ -201,15 +201,15 @@ experiment('services/documents', () => {
                     name: 'billing'
                   }
                 }
-              ]);
+              ])
 
-              const error = await expect(documentsService.createDocumentRole(documentRole)).reject();
+              const error = await expect(documentsService.createDocumentRole(documentRole)).reject()
 
-              expect(error).to.be.instanceOf(errors.ConflictingDataError);
-              expect(error.message).to.equal('Existing document role exists for date range');
-            });
-          });
-        });
+              expect(error).to.be.instanceOf(errors.ConflictingDataError)
+              expect(error.message).to.equal('Existing document role exists for date range')
+            })
+          })
+        })
 
         experiment('and the proposed role has no end date and the dates do overlap', () => {
           // the test data has a start and end date of
@@ -223,11 +223,11 @@ experiment('services/documents', () => {
             // starts after existing started, but before finished
             { startDate: new Date(2020, 1, 20), endDate: new Date(2022, 1, 2) },
             { startDate: new Date(2020, 1, 20), endDate: null }
-          ];
+          ]
 
           overlapScenarios.forEach(scenario => {
-            const { startDate, endDate } = scenario;
-            const testName = `throws for start ${startDate} and end ${endDate}`;
+            const { startDate, endDate } = scenario
+            const testName = `throws for start ${startDate} and end ${endDate}`
             test(testName, async () => {
               const documentRole = {
                 startDate: '2020-02-01',
@@ -235,7 +235,7 @@ experiment('services/documents', () => {
                 role: 'billing',
                 invoiceAccountId: uuid(),
                 documentId: uuid()
-              };
+              }
 
               documentRolesRepo.findByDocumentId.resolves([
                 {
@@ -247,53 +247,53 @@ experiment('services/documents', () => {
                     name: 'billing'
                   }
                 }
-              ]);
+              ])
 
-              const error = await expect(documentsService.createDocumentRole(documentRole)).reject();
+              const error = await expect(documentsService.createDocumentRole(documentRole)).reject()
 
-              expect(error).to.be.instanceOf(errors.ConflictingDataError);
-              expect(error.message).to.equal('Existing document role exists for date range');
-            });
-          });
-        });
-      });
-    });
-  });
+              expect(error).to.be.instanceOf(errors.ConflictingDataError)
+              expect(error.message).to.equal('Existing document role exists for date range')
+            })
+          })
+        })
+      })
+    })
+  })
 
   experiment('getDocument', () => {
-    let request, response;
+    let request, response
 
     experiment('when document is not found', () => {
       beforeEach(async () => {
-        documentRepo.findOne.resolves();
+        documentRepo.findOne.resolves()
         request = {
           params: {
             documentId: 'doc_1'
           }
-        };
-      });
+        }
+      })
 
       test('throws a Boom 404 error', async () => {
         try {
-          await documentsService.getDocument(request);
-          fail();
+          await documentsService.getDocument(request)
+          fail()
         } catch (err) {
-          expect(err.isBoom).to.be.true();
-          expect(err.output.statusCode).to.equal(404);
+          expect(err.isBoom).to.be.true()
+          expect(err.output.statusCode).to.equal(404)
         }
-      });
-    });
+      })
+    })
 
     experiment('when document is found', () => {
-      let documentId;
+      let documentId
       beforeEach(async () => {
-        documentId = 'doc_1';
+        documentId = 'doc_1'
         documentRepo.findOne.resolves({
           documentId: 'doc_1',
           role: {
             name: 'licenceHolder'
           }
-        });
+        })
         oldDocRolesRepo.findByDocumentId.resolves([{
           document_id: 'doc_1',
           role: {
@@ -304,129 +304,129 @@ experiment('services/documents', () => {
           role: {
             name: 'licenceHolder'
           }
-        }]);
+        }])
 
-        response = await documentsService.getDocument(documentId);
-      });
+        response = await documentsService.getDocument(documentId)
+      })
 
       test('calls repository methods with correct arguments', async () => {
-        expect(documentRepo.findOne.calledWith(documentId)).to.be.true();
-        expect(oldDocRolesRepo.findByDocumentId.calledWith(documentId)).to.be.true();
-      });
+        expect(documentRepo.findOne.calledWith(documentId)).to.be.true()
+        expect(oldDocRolesRepo.findByDocumentId.calledWith(documentId)).to.be.true()
+      })
 
       test('responds with mapped object', async () => {
-        expect(response.documentId).to.equal(documentId);
-        expect(response.documentRoles).to.be.an.array();
-      });
-    });
-  });
+        expect(response.documentId).to.equal(documentId)
+        expect(response.documentRoles).to.be.an.array()
+      })
+    })
+  })
 
   experiment('.getDocumentsByRef', () => {
-    let result;
+    let result
 
     beforeEach(async () => {
-      const regime = 'water';
-      const documentType = 'water_abstraction';
-      const documentRef = '01/115';
+      const regime = 'water'
+      const documentType = 'water_abstraction'
+      const documentRef = '01/115'
 
       await documentRepo.findByDocumentRef.resolves([{
         documentId: 'doc_1'
       }, {
         documentId: 'doc_2'
-      }]);
+      }])
 
-      result = await documentsService.getDocumentsByRef(regime, documentType, documentRef);
-    });
+      result = await documentsService.getDocumentsByRef(regime, documentType, documentRef)
+    })
 
     test('calls repository method with correct arguments', async () => {
       expect(documentRepo.findByDocumentRef.calledWith(
         'water',
         'water_abstraction',
         '01/115'
-      )).to.be.true();
-    });
+      )).to.be.true()
+    })
 
     test('resolves with mapped response', async () => {
       expect(result).to.equal([{
         documentId: 'doc_1'
       }, {
         documentId: 'doc_2'
-      }]);
-    });
-  });
+      }])
+    })
+  })
 
   experiment('.getDocumentByRefAndDate', () => {
-    const regime = 'water';
-    const documentType = 'abstraction_licence';
-    const date = '2000-01-01';
-    const UUIDRegExp = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+    const regime = 'water'
+    const documentType = 'abstraction_licence'
+    const date = '2000-01-01'
+    const UUIDRegExp = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$/i
 
     experiment('when no matches are found', () => {
-      const documentRef = '01/115/xzxz';
+      const documentRef = '01/115/xzxz'
       beforeEach(async () => {
-        await sandbox.stub(documentsService, 'getDocumentByRefAndDate').rejects(Boom.notFound(`Document for licence ${documentRef} dated ${date} could not be found`));
-      });
+        await sandbox.stub(documentsService, 'getDocumentByRefAndDate').rejects(Boom.notFound(`Document for licence ${documentRef} dated ${date} could not be found`))
+      })
       test('responds with Boom error', async () => {
         try {
-          await documentsService.getDocumentByRefAndDate(regime, documentType, documentRef, date);
-          fail();
+          await documentsService.getDocumentByRefAndDate(regime, documentType, documentRef, date)
+          fail()
         } catch (err) {
-          expect(err.isBoom).to.be.true();
-          expect(err.output.statusCode).to.equal(404);
+          expect(err.isBoom).to.be.true()
+          expect(err.output.statusCode).to.equal(404)
         }
-      });
-    });
+      })
+    })
 
     experiment('when the document exists', () => {
-      const documentRef = '01/115';
-      let response;
+      const documentRef = '01/115'
+      let response
       beforeEach(async () => {
         await sandbox.stub(documentsService, 'getDocumentByRefAndDate').resolves({
           documentId: uuid(),
-          documentRef: documentRef,
+          documentRef,
           companyId: uuid()
-        });
+        })
 
-        response = await documentsService.getDocumentByRefAndDate(regime, documentType, documentRef, date);
-      });
+        response = await documentsService.getDocumentByRefAndDate(regime, documentType, documentRef, date)
+      })
 
       test('responds with a single row', async () => {
-        expect(typeof response).to.equal('object');
-      });
+        expect(typeof response).to.equal('object')
+      })
 
       test('responds with a company GUID', async () => {
-        expect(typeof response.companyId).to.equal('string');
-        expect(response.companyId).to.match(UUIDRegExp);
-      });
-    });
-  });
+        expect(typeof response.companyId).to.equal('string')
+        expect(response.companyId).to.match(UUIDRegExp)
+      })
+    })
+  })
 
   experiment('.createDocument', () => {
     experiment('when the document data is invalid', () => {
-      let document;
+      let document
 
       beforeEach(async () => {
         document = {
           regime: 'water'
-        };
-      });
+        }
+      })
 
       test('any EntityValidationError is thrown', async () => {
         const err = await expect(documentsService.createDocument(document))
           .to
-          .reject(errors.EntityValidationError, 'Document not valid');
+          .reject(errors.EntityValidationError, 'Document not valid')
 
-        expect(err.validationDetails).to.be.an.array();
-      });
+        expect(err.validationDetails).to.be.an.array()
+      })
 
       test('the document is not saved', async () => {
-        expect(documentRepo.create.called).to.equal(false);
-      });
-    });
+        expect(documentRepo.create.called).to.equal(false)
+      })
+    })
 
     experiment('when the document data is valid', () => {
-      let result;
-      let document;
+      let result
+      let document
 
       beforeEach(async () => {
         document = {
@@ -436,24 +436,24 @@ experiment('services/documents', () => {
           startDate: '2000-01-13',
           endDate: '2010-01-18',
           isTest: true
-        };
-        documentRepo.findByDocumentRef.resolves([]);
+        }
+        documentRepo.findByDocumentRef.resolves([])
 
-        documentRepo.create.resolves({ documentId: 'test-id' });
-        result = await documentsService.createDocument(document);
-      });
+        documentRepo.create.resolves({ documentId: 'test-id' })
+        result = await documentsService.createDocument(document)
+      })
 
       test('the document is saved via the repository', async () => {
-        expect(documentRepo.create.called).to.equal(true);
-      });
+        expect(documentRepo.create.called).to.equal(true)
+      })
 
       test('the document has the id from the documents repo', async () => {
-        expect(result.documentId).to.equal('test-id');
-      });
+        expect(result.documentId).to.equal('test-id')
+      })
 
       test('the saved document is returned', async () => {
-        expect(result.documentId).to.equal('test-id');
-      });
-    });
-  });
-});
+        expect(result.documentId).to.equal('test-id')
+      })
+    })
+  })
+})

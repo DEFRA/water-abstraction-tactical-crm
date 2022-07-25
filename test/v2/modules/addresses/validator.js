@@ -1,17 +1,17 @@
-'use strict';
+'use strict'
 
 const {
   experiment,
   test,
   beforeEach
-} = exports.lab = require('@hapi/lab').script();
+} = exports.lab = require('@hapi/lab').script()
 
-const { expect } = require('@hapi/code');
+const { expect } = require('@hapi/code')
 
-const addressValidator = require('../../../../src/v2/modules/addresses/validator');
+const addressValidator = require('../../../../src/v2/modules/addresses/validator')
 
 experiment('modules/addresses/validator', () => {
-  let fullAddress;
+  let fullAddress
 
   beforeEach(async () => {
     fullAddress = {
@@ -24,20 +24,20 @@ experiment('modules/addresses/validator', () => {
       country: 'test-country',
       postcode: 'E20 3EL',
       uprn: 1234
-    };
-  });
+    }
+  })
 
   experiment('.validate', () => {
     test('validates a valid address', async () => {
-      const { error } = addressValidator.validate(fullAddress);
-      expect(error).to.be.undefined();
-    });
+      const { error } = addressValidator.validate(fullAddress)
+      expect(error).to.be.undefined()
+    })
 
     test('errors for an invalid address', async () => {
-      fullAddress.country = 'United Kingdom';
-      fullAddress.postcode = 'XXX XXX';
-      const { error } = addressValidator.validate(fullAddress);
-      expect(error).to.not.be.undefined();
-    });
-  });
-});
+      fullAddress.country = 'United Kingdom'
+      fullAddress.postcode = 'XXX XXX'
+      const { error } = addressValidator.validate(fullAddress)
+      expect(error).to.not.be.undefined()
+    })
+  })
+})

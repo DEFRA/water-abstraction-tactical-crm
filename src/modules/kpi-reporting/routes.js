@@ -1,5 +1,5 @@
-const controller = require('./controller');
-const { version } = require('../../../config');
+const controller = require('./controller')
+const { version } = require('../../../config')
 
 module.exports = [{
   method: 'GET',
@@ -8,4 +8,4 @@ module.exports = [{
   options: {
     description: 'Get access requests data for KPI reporting'
   }
-}];
+}]

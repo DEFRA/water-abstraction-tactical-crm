@@ -1,8 +1,8 @@
-'use strict';
+'use strict'
 
-const controller = require('./controller');
-const validators = require('../../lib/validators-v2');
-const Joi = require('joi');
+const controller = require('./controller')
+const validators = require('../../lib/validators-v2')
+const Joi = require('joi')
 
 exports.postInvoiceAccountAddress = {
   method: 'POST',
@@ -24,7 +24,7 @@ exports.postInvoiceAccountAddress = {
       })
     }
   }
-};
+}
 
 exports.deleteInvoiceAccountAddress = {
   method: 'DELETE',
@@ -38,7 +38,7 @@ exports.deleteInvoiceAccountAddress = {
       })
     }
   }
-};
+}
 
 exports.patchInvoiceAccountAddress = {
   method: 'PATCH',
@@ -55,4 +55,4 @@ exports.patchInvoiceAccountAddress = {
       })
     }
   }
-};
+}

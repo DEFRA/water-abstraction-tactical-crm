@@ -1,5 +1,5 @@
-'use strict';
-const { snakeCase } = require('lodash');
+'use strict'
+const { snakeCase } = require('lodash')
 
 const findOneBy = async (bookshelfModel, query = {}, withRelated = []) => {
   const result = await bookshelfModel
@@ -7,55 +7,55 @@ const findOneBy = async (bookshelfModel, query = {}, withRelated = []) => {
     .fetch({
       withRelated,
       require: false
-    });
+    })
 
-  return result && result.toJSON();
-};
+  return result && result.toJSON()
+}
 
 exports.findOne = async (bookshelfModel, idKey, id, withRelated = []) =>
-  findOneBy(bookshelfModel, { [idKey]: id }, withRelated);
+  findOneBy(bookshelfModel, { [idKey]: id }, withRelated)
 
 exports.findAll = async (bookshelfModel, idKey, id) => {
   const result = await bookshelfModel
     .forge()
     .where({ [snakeCase(idKey)]: id })
-    .fetchAll({ require: false });
+    .fetchAll({ require: false })
 
-  return result.toJSON();
-};
+  return result.toJSON()
+}
 
 exports.findMany = async (bookShelfModel, conditions = {}, withRelated = []) => {
   const result = await bookShelfModel
     .forge()
     .where(conditions)
-    .fetchAll({ require: false, withRelated });
+    .fetchAll({ require: false, withRelated })
 
-  return result.toJSON();
-};
+  return result.toJSON()
+}
 
 exports.create = async (bookShelfModel, data) => {
-  const model = await bookShelfModel.forge(data).save();
-  return model.toJSON();
-};
+  const model = await bookShelfModel.forge(data).save()
+  return model.toJSON()
+}
 
 exports.deleteOne = async (bookShelfModel, idKey, id) => {
   return bookShelfModel
     .forge({ [idKey]: id })
-    .destroy();
-};
+    .destroy()
+}
 
 exports.deleteTestData = async (bookShelfModel) => {
   return bookShelfModel.forge().where({ is_test: true }).destroy({
     require: false
-  });
-};
+  })
+}
 
 exports.update = async (bookshelfModel, idKey, id, changes) => {
   const result = await bookshelfModel
     .forge({ [idKey]: id })
-    .save(changes);
+    .save(changes)
 
-  return result && result.toJSON();
-};
+  return result && result.toJSON()
+}
 
-exports.findOneBy = findOneBy;
+exports.findOneBy = findOneBy

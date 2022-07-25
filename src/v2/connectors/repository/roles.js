@@ -1,6 +1,6 @@
-'use strict';
+'use strict'
 
-const Role = require('../bookshelf/Role');
+const Role = require('../bookshelf/Role')
 
 /**
  * Find single Role by name
@@ -8,8 +8,8 @@ const Role = require('../bookshelf/Role');
  * @return {Promise<Object>}
  */
 const findOneByName = async name => {
-  const role = await Role.forge().where({ name }).fetch({ require: false });
-  return role && role.toJSON();
-};
+  const role = await Role.forge().where({ name }).fetch({ require: false })
+  return role && role.toJSON()
+}
 
-exports.findOneByName = findOneByName;
+exports.findOneByName = findOneByName

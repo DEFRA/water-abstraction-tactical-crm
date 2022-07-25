@@ -1,5 +1,5 @@
-'use-strict';
-const { pool } = require('../connectors/db');
+'use-strict'
+const { pool } = require('../connectors/db')
 
 /**
  * returns the total number of delegated access
@@ -13,10 +13,10 @@ const getEntityRolesKPIdata = async () => {
     FROM
        (SELECT distinct entity_id, created_at FROM crm.entity_roles where role <> 'primary_user') AS tbl
        GROUP BY month, current_year, year
-    ORDER BY year desc, month desc;`;
+    ORDER BY year desc, month desc;`
 
-  const { rows: data, error } = await pool.query(query);
-  return { data, error };
-};
+  const { rows: data, error } = await pool.query(query)
+  return { data, error }
+}
 
-module.exports.getEntityRolesKPIdata = getEntityRolesKPIdata;
+module.exports.getEntityRolesKPIdata = getEntityRolesKPIdata
