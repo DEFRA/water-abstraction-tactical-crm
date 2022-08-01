@@ -2,33 +2,33 @@
  * Provides HAPI HTTP handlers for working with CRM data
  * @module lib/CRM
  */
-const Boom = require('@hapi/boom');
-const { v4: uuid } = require('uuid');
-const { pool } = require('./connectors/db');
-const entityRoleApi = require('../controllers/entity-roles');
-const { logger } = require('../logger');
+const Boom = require('@hapi/boom')
+const { v4: uuid } = require('uuid')
+const { pool } = require('./connectors/db')
+const entityRoleApi = require('../controllers/entity-roles')
+const { logger } = require('../logger')
 
 function setDocumentOwner (request, h) {
-  const guid = uuid();
-  const query = 'update crm.document_header set company_entity_id=$1 where document_id=$2';
+  const guid = uuid()
+  const query = 'update crm.document_header set company_entity_id=$1 where document_id=$2'
 
   const queryParams = [
     request.payload.entity_id,
     request.params.document_id,
     guid
-  ];
+  ]
 
   return pool.query(query, queryParams)
     .then((res) => {
       return {
         error: res.error,
         document_id: request.params.document_id
-      };
-    });
+      }
+    })
 }
 
 function getColleagues (request, h) {
-  const entityId = request.params.entity_id;
+  const entityId = request.params.entity_id
   /**
   identify user roles who the supplied user can admin
     i.e. users with a different entity id who have role that have the same company
@@ -54,22 +54,22 @@ join crm.entity entity on
 where
 granter_role.role = 'primary_user'
 and grantee_role.entity_id != $1
-and granter_role.entity_id = $1 `;
+and granter_role.entity_id = $1 `
 
-  const queryParams = [entityId];
+  const queryParams = [entityId]
   if (request.query.direction === 1) {
-    query += ' order by ' + request.query.sort + ' asc';
+    query += ' order by ' + request.query.sort + ' asc'
   } else {
-    query += ' order by ' + request.query.sort + ' desc';
+    query += ' order by ' + request.query.sort + ' desc'
   }
 
   return pool.query(query, queryParams)
     .then((res) => {
-      return res.rows;
+      return res.rows
     }).catch((err) => {
-      logger.error('getColleagues error', err);
-      return h.response(err);
-    });
+      logger.error('getColleagues error', err)
+      return h.response(err)
+    })
 }
 
 /**
@@ -86,42 +86,42 @@ WHERE r.entity_role_id=$1
 AND r.company_entity_id=r2.company_entity_id
 AND (r.regime_entity_id=r2.regime_entity_id OR (r.regime_entity_id IS NULL AND r2.regime_entity_id IS NULL))
 AND r2.entity_id=$2 AND r2.role='primary_user'
-RETURNING r.*;`;
+RETURNING r.*;`
 
-  const params = [roleId, entityId];
+  const params = [roleId, entityId]
 
-  return pool.query(query, params);
-};
+  return pool.query(query, params)
+}
 
 /**
  * @param {String} request.params.entity_id the entity ID of the primary user
  * @param {String} request.params.role_id the role ID to delete
  */
 const deleteColleague = async (request, h) => {
-  const { entity_id: entityId, role_id: roleId } = request.params;
+  const { entity_id: entityId, role_id: roleId } = request.params
 
-  const { rows: [data], error, rowCount } = await deleteColleagueQuery(roleId, entityId);
+  const { rows: [data], error, rowCount } = await deleteColleagueQuery(roleId, entityId)
 
   // SQL error
   if (error) {
     return h.response({
       error,
       data: null
-    }).code(500);
+    }).code(500)
   }
   // No role deleted
   if (rowCount !== 1) {
     return h.response({
       error: 'Role not found',
       data: null
-    }).code(404);
+    }).code(404)
   }
   // OK
   return {
     error: null,
     data
-  };
-};
+  }
+}
 
 /**
  * Creates a new entity role for a colleague.
@@ -137,17 +137,17 @@ const deleteColleague = async (request, h) => {
  * An empty role value will default to 'user'.
  * */
 async function createColleague (request, h) {
-  const entityID = request.params.entity_id;
-  const { role, colleagueEntityID } = request.payload;
+  const entityID = request.params.entity_id
+  const { role, colleagueEntityID } = request.payload
 
-  const { rows: [primaryUserRole] } = await entityRoleApi.repo.find({ entity_id: entityID, role: 'primary_user' });
+  const { rows: [primaryUserRole] } = await entityRoleApi.repo.find({ entity_id: entityID, role: 'primary_user' })
 
   if (!primaryUserRole) {
-    throw Boom.unauthorized('Only a primary user can grant access');
+    throw Boom.unauthorized('Only a primary user can grant access')
   }
 
-  const { regime_entity_id: userRegimeID, company_entity_id: userCompanyID } = primaryUserRole;
-  const entityRoleID = uuid();
+  const { regime_entity_id: userRegimeID, company_entity_id: userCompanyID } = primaryUserRole
+  const entityRoleID = uuid()
 
   const query = `insert into crm.entity_roles(
       entity_role_id, entity_id, role, regime_entity_id,
@@ -155,16 +155,16 @@ async function createColleague (request, h) {
     )
     values ($1, $2, $3, $4, $5, CURRENT_TIMESTAMP, $6) on conflict (entity_id, coalesce(regime_entity_id, '00000000-0000-0000-0000-000000000000'), company_entity_id, role)
     do nothing
-    returning *;`;
+    returning *;`
 
-  const params = [entityRoleID, colleagueEntityID, role, userRegimeID, userCompanyID, entityID];
+  const params = [entityRoleID, colleagueEntityID, role, userRegimeID, userCompanyID, entityID]
 
-  const { rows: [data], error } = await pool.query(query, params);
+  const { rows: [data], error } = await pool.query(query, params)
 
-  return h.response({ data, error }).code(error ? 500 : 201);
+  return h.response({ data, error }).code(error ? 500 : 201)
 }
 
-exports.setDocumentOwner = setDocumentOwner;
-exports.getColleagues = getColleagues;
-exports.deleteColleague = deleteColleague;
-exports.createColleague = createColleague;
+exports.setDocumentOwner = setDocumentOwner
+exports.getColleagues = getColleagues
+exports.deleteColleague = deleteColleague
+exports.createColleague = createColleague

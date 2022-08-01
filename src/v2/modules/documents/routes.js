@@ -1,7 +1,7 @@
-const Joi = require('joi');
-const controller = require('./controller');
-const validators = require('../../lib/validators-v2');
-const entityHandlers = require('../../lib/entity-handlers');
+const Joi = require('joi')
+const controller = require('./controller')
+const validators = require('../../lib/validators-v2')
+const entityHandlers = require('../../lib/entity-handlers')
 
 exports.getDocument = {
   method: 'GET',
@@ -15,7 +15,7 @@ exports.getDocument = {
       })
     }
   }
-};
+}
 
 exports.getDocuments = {
   method: 'GET',
@@ -31,7 +31,7 @@ exports.getDocuments = {
       })
     }
   }
-};
+}
 
 exports.getDocumentByRefAndDate = {
   method: 'GET',
@@ -48,7 +48,7 @@ exports.getDocumentByRefAndDate = {
       })
     }
   }
-};
+}
 
 exports.postDocument = {
   method: 'POST',
@@ -67,7 +67,7 @@ exports.postDocument = {
       })
     }
   }
-};
+}
 
 exports.postDocumentRole = {
   method: 'POST',
@@ -96,7 +96,7 @@ exports.postDocumentRole = {
       })
     }
   }
-};
+}
 
 exports.getDocumentRole = {
   method: 'GET',
@@ -110,7 +110,7 @@ exports.getDocumentRole = {
       })
     }
   }
-};
+}
 
 exports.getDocumentRoles = {
   method: 'GET',
@@ -127,4 +127,4 @@ exports.getDocumentRoles = {
       })
     }
   }
-};
+}

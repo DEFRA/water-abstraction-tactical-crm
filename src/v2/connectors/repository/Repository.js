@@ -1,4 +1,4 @@
-const { pool } = require('../../../lib/connectors/db');
+const { pool } = require('../../../lib/connectors/db')
 
 class Repository {
   /**
@@ -8,8 +8,8 @@ class Repository {
    * @param {Array?} params Optional array of parameters
    */
   async findOne (query, params) {
-    const { rows: [row] } = await pool.query(query, params);
-    return row;
+    const { rows: [row] } = await pool.query(query, params)
+    return row
   }
 
   /**
@@ -19,9 +19,9 @@ class Repository {
    * @param {Array?} params Optional array of parameters
    */
   async findMany (query, params) {
-    const { rows } = await pool.query(query, params);
-    return rows;
+    const { rows } = await pool.query(query, params)
+    return rows
   }
 }
 
-module.exports = Repository;
+module.exports = Repository

@@ -1,15 +1,15 @@
 /**
  * Tests that users can view documents depending on their roles within a company
  */
-'use strict';
+'use strict'
 const {
   before,
   after,
   experiment,
   test
-} = exports.lab = require('@hapi/lab').script();
-const { expect } = require('@hapi/code');
-const server = require('../../index');
+} = exports.lab = require('@hapi/lab').script()
+const { expect } = require('@hapi/code')
+const server = require('../../index')
 
 const {
   createDocumentHeader,
@@ -19,20 +19,20 @@ const {
   createEntityRole,
   deleteEntityRole,
   makeRequest
-} = require('../helpers');
+} = require('../helpers')
 
-const { getSearchFilter } = require('../../src/controllers/document-headers');
+const { getSearchFilter } = require('../../src/controllers/document-headers')
 
-let unclaimedDocumentId;
-let claimedDocumentId;
-let regimeEntityId;
-let companyEntityId;
-let individualEntityId;
-let entityRoleId;
-let expiredDocument;
+let unclaimedDocumentId
+let claimedDocumentId
+let regimeEntityId
+let companyEntityId
+let individualEntityId
+let entityRoleId
+let expiredDocument
 
 const createDocumentRequest = (filter = {}) => {
-  const filterStr = JSON.stringify(filter);
+  const filterStr = JSON.stringify(filter)
 
   const request = {
     method: 'GET',
@@ -40,142 +40,142 @@ const createDocumentRequest = (filter = {}) => {
     headers: {
       Authorization: process.env.JWT_TOKEN
     }
-  };
+  }
 
-  return server.inject(request);
-};
+  return server.inject(request)
+}
 
 experiment('Test document filter', () => {
   before(async () => {
-    await server._start();
+    await server._start()
 
     // Create entities
     {
-      const { entity_id: entityId } = await makeRequest(server, createEntity, 'regime');
-      regimeEntityId = entityId;
+      const { entity_id: entityId } = await makeRequest(server, createEntity, 'regime')
+      regimeEntityId = entityId
     }
     {
-      const { entity_id: entityId } = await makeRequest(server, createEntity, 'company');
-      companyEntityId = entityId;
+      const { entity_id: entityId } = await makeRequest(server, createEntity, 'company')
+      companyEntityId = entityId
     }
     {
-      const { entity_id: entityId } = await makeRequest(server, createEntity, 'individual');
-      individualEntityId = entityId;
+      const { entity_id: entityId } = await makeRequest(server, createEntity, 'individual')
+      individualEntityId = entityId
     }
     {
-      const { document_id: documentId } = await makeRequest(server, createDocumentHeader, regimeEntityId);
-      unclaimedDocumentId = documentId;
+      const { document_id: documentId } = await makeRequest(server, createDocumentHeader, regimeEntityId)
+      unclaimedDocumentId = documentId
     }
     {
-      const { document_id: documentId } = await makeRequest(server, createDocumentHeader, regimeEntityId, companyEntityId);
-      claimedDocumentId = documentId;
+      const { document_id: documentId } = await makeRequest(server, createDocumentHeader, regimeEntityId, companyEntityId)
+      claimedDocumentId = documentId
     }
-    expiredDocument = await makeRequest(server, createDocumentHeader, regimeEntityId, companyEntityId, false);
-    const entityRole = await makeRequest(server, createEntityRole, regimeEntityId, companyEntityId, individualEntityId);
-    entityRoleId = entityRole.entity_role_id;
-  });
+    expiredDocument = await makeRequest(server, createDocumentHeader, regimeEntityId, companyEntityId, false)
+    const entityRole = await makeRequest(server, createEntityRole, regimeEntityId, companyEntityId, individualEntityId)
+    entityRoleId = entityRole.entity_role_id
+  })
 
   test('The document filter should find document by ID', async () => {
     const filter = {
       document_id: unclaimedDocumentId
-    };
-    const res = await createDocumentRequest(filter);
-    expect(res.statusCode).to.equal(200);
+    }
+    const res = await createDocumentRequest(filter)
+    expect(res.statusCode).to.equal(200)
 
     // Check payload
-    const payload = JSON.parse(res.payload);
-    expect(payload.data[0].document_id).to.equal(unclaimedDocumentId);
-  });
+    const payload = JSON.parse(res.payload)
+    expect(payload.data[0].document_id).to.equal(unclaimedDocumentId)
+  })
 
   test('The document filter should not find document when entity has no role on company', async () => {
     const filter = {
       document_id: unclaimedDocumentId,
       entity_id: individualEntityId
-    };
+    }
 
-    const res = await createDocumentRequest(filter);
-    expect(res.statusCode).to.equal(200);
+    const res = await createDocumentRequest(filter)
+    expect(res.statusCode).to.equal(200)
 
     // Check payload
-    const payload = JSON.parse(res.payload);
-    expect(payload.data.length).to.equal(0);
-  });
+    const payload = JSON.parse(res.payload)
+    expect(payload.data.length).to.equal(0)
+  })
 
   test('The document filter should find document when entity has any role on company', async () => {
     const filter = {
       document_id: claimedDocumentId,
       entity_id: individualEntityId
-    };
+    }
 
-    const res = await createDocumentRequest(filter);
-    expect(res.statusCode).to.equal(200);
+    const res = await createDocumentRequest(filter)
+    expect(res.statusCode).to.equal(200)
 
     // Check payload
-    const payload = JSON.parse(res.payload);
-    expect(payload.data[0].document_id).to.equal(claimedDocumentId);
-  });
+    const payload = JSON.parse(res.payload)
+    expect(payload.data[0].document_id).to.equal(claimedDocumentId)
+  })
 
   test('The document filter should find document when entity has specific role on company', async () => {
     const filter = {
       document_id: claimedDocumentId,
       entity_id: individualEntityId,
       roles: ['test_role']
-    };
+    }
 
-    const res = await createDocumentRequest(filter);
-    expect(res.statusCode).to.equal(200);
+    const res = await createDocumentRequest(filter)
+    expect(res.statusCode).to.equal(200)
 
     // Check payload
-    const payload = JSON.parse(res.payload);
-    expect(payload.data[0].document_id).to.equal(claimedDocumentId);
-  });
+    const payload = JSON.parse(res.payload)
+    expect(payload.data[0].document_id).to.equal(claimedDocumentId)
+  })
 
   test('The document filter should not find document when entity does not have specific role on company', async () => {
     const filter = {
       document_id: claimedDocumentId,
       entity_id: individualEntityId,
       roles: ['unknown_role']
-    };
+    }
 
-    const res = await createDocumentRequest(filter);
-    expect(res.statusCode).to.equal(200);
+    const res = await createDocumentRequest(filter)
+    expect(res.statusCode).to.equal(200)
 
     // Check payload
-    const payload = JSON.parse(res.payload);
-    expect(payload.data.length).to.equal(0);
-  });
+    const payload = JSON.parse(res.payload)
+    expect(payload.data.length).to.equal(0)
+  })
 
   test('returns an expired document if requested', async () => {
     const filter = {
       string: expiredDocument.system_external_id,
       includeExpired: true
-    };
+    }
 
-    const res = await createDocumentRequest(filter);
-    const payload = JSON.parse(res.payload);
-    expect(payload.data.length).to.equal(1);
-    expect(payload.data[0].document_id).to.equal(expiredDocument.document_id);
-  });
+    const res = await createDocumentRequest(filter)
+    const payload = JSON.parse(res.payload)
+    expect(payload.data.length).to.equal(1)
+    expect(payload.data[0].document_id).to.equal(expiredDocument.document_id)
+  })
 
   after(async () => {
     // Delete all temporary entities
-    const entityIds = [regimeEntityId, individualEntityId, companyEntityId];
+    const entityIds = [regimeEntityId, individualEntityId, companyEntityId]
     await Promise.all(entityIds, (entityId) => {
-      return deleteEntity(entityId);
-    });
+      return deleteEntity(entityId)
+    })
 
-    const docIds = [unclaimedDocumentId, claimedDocumentId];
+    const docIds = [unclaimedDocumentId, claimedDocumentId]
     await Promise.all(docIds, (docId) => {
-      return deleteDocumentHeader(docId);
-    });
+      return deleteDocumentHeader(docId)
+    })
 
-    await deleteEntityRole(individualEntityId, entityRoleId);
-  });
-});
+    await deleteEntityRole(individualEntityId, entityRoleId)
+  })
+})
 
 experiment('getSearchFilter', () => {
   test('It should format a filter object to search by licence number, document name, or licence holder', async () => {
-    const result = getSearchFilter('Test');
+    const result = getSearchFilter('Test')
     expect(result).to.equal([
       {
         system_external_id: {
@@ -192,6 +192,6 @@ experiment('getSearchFilter', () => {
           $ilike: '%Test%'
         }
       }
-    ]);
-  });
-});
+    ])
+  })
+})

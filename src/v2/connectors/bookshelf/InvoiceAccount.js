@@ -1,13 +1,13 @@
-const { bookshelf } = require('./bookshelf.js');
+const { bookshelf } = require('./bookshelf.js')
 
 module.exports = bookshelf.model('InvoiceAccount', {
   tableName: 'crm_v2.invoice_accounts',
   idAttribute: 'invoice_account_id',
   hasTimestamps: ['date_created', 'date_updated'],
   company () {
-    return this.hasOne('Company', 'company_id', 'company_id');
+    return this.hasOne('Company', 'company_id', 'company_id')
   },
   invoiceAccountAddresses () {
-    return this.hasMany('InvoiceAccountAddress', 'invoice_account_id', 'invoice_account_id');
+    return this.hasMany('InvoiceAccountAddress', 'invoice_account_id', 'invoice_account_id')
   }
-});
+})

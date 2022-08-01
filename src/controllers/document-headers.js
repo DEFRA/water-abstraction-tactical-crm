@@ -1,7 +1,7 @@
-const HAPIRestAPI = require('@envage/hapi-pg-rest-api');
-const Joi = require('joi');
-const { pool } = require('../lib/connectors/db');
-const { version } = require('../../config');
+const HAPIRestAPI = require('@envage/hapi-pg-rest-api')
+const Joi = require('joi')
+const { pool } = require('../lib/connectors/db')
+const { version } = require('../../config')
 
 /**
  * Function to map a data row from the roles table into a mongo-sql
@@ -12,11 +12,11 @@ const { version } = require('../../config');
  */
 /* eslint-disable camelcase */
 function mapRole (row) {
-  const { regime_entity_id, company_entity_id } = row;
+  const { regime_entity_id, company_entity_id } = row
 
   return company_entity_id
     ? { company_entity_id }
-    : { regime_entity_id };
+    : { regime_entity_id }
 }
 /* eslint-enable camelcase */
 
@@ -42,8 +42,8 @@ const getSearchFilter = (string) => {
         $ilike: `%${string}%`
       }
     }
-  ];
-};
+  ]
+}
 
 /**
  * Get company_entity_id query fragments for a user either by
@@ -53,31 +53,31 @@ const getSearchFilter = (string) => {
  * @return {Promise} resolves with object - mongo-sql query fragment
  */
 async function getEntityFilter (mode, value, roles = null) {
-  let query;
-  const params = [value];
+  let query
+  const params = [value]
   if (mode === 'email') {
     query = `SELECT r.* FROM crm.entity e
               JOIN crm.entity_roles r ON e.entity_id=r.entity_id
-              WHERE LOWER(e.entity_nm)=LOWER($1) AND e.entity_type='individual' `;
+              WHERE LOWER(e.entity_nm)=LOWER($1) AND e.entity_type='individual' `
   }
   if (mode === 'individual') {
     // individual entity ID
-    query = 'SELECT * FROM crm.entity_roles r WHERE entity_id=$1';
+    query = 'SELECT * FROM crm.entity_roles r WHERE entity_id=$1'
   }
   if (roles) {
-    const roleStr = roles.map((role, i) => (`$${params.length + i + 1}`)).join(',');
-    query += ` AND r.role IN ( ${roleStr} )`;
-    params.push(...roles);
+    const roleStr = roles.map((role, i) => (`$${params.length + i + 1}`)).join(',')
+    query += ` AND r.role IN ( ${roleStr} )`
+    params.push(...roles)
   }
 
-  const { rows, error } = await pool.query(query, params);
+  const { rows, error } = await pool.query(query, params)
   if (error) {
-    throw error;
+    throw error
   }
   if (rows.length === 0) {
-    return { $or: { company_entity_id: 'no-company-entity-found' } };
+    return { $or: { company_entity_id: 'no-company-entity-found' } }
   }
-  return { $or: rows.map(mapRole) };
+  return { $or: rows.map(mapRole) }
 }
 
 /**
@@ -88,36 +88,36 @@ async function getEntityFilter (mode, value, roles = null) {
  * @return {Promise} resolves with filter for query on document headers table
  */
 const getPreQueryFilter = async (result) => {
-  const { string, email, roles, entity_id: entityId, includeExpired = false, ...filter } = result.filter;
+  const { string, email, roles, entity_id: entityId, includeExpired = false, ...filter } = result.filter
 
   // don't include soft deleted records
   if (!includeExpired) {
-    filter.date_deleted = null;
+    filter.date_deleted = null
   }
 
   // Only display current licences
   if (!includeExpired) {
-    filter['metadata->>IsCurrent'] = { $ne: 'false' };
+    filter['metadata->>IsCurrent'] = { $ne: 'false' }
   }
 
   // Search by string - can be licence number/name
   if (string) {
-    filter.$or = getSearchFilter(string);
+    filter.$or = getSearchFilter(string)
   };
 
   // Search by entity ID / entity email address (can be combined)
   if (email) {
-    filter.$and = [];
-    filter.$and.push(await getEntityFilter('email', email, roles));
+    filter.$and = []
+    filter.$and.push(await getEntityFilter('email', email, roles))
   }
 
   if (entityId) {
-    filter.$and = filter.$and || [];
-    filter.$and.push(await getEntityFilter('individual', entityId, roles));
+    filter.$and = filter.$and || []
+    filter.$and.push(await getEntityFilter('individual', entityId, roles))
   }
 
-  return filter;
-};
+  return filter
+}
 
 /**
  * Given the supplied 'result' from hapi-pg-rest-api hook, gets the sort object to use
@@ -126,12 +126,12 @@ const getPreQueryFilter = async (result) => {
  * @return {Object} sort object for query on document headers table
  */
 const getPreQuerySort = (result) => {
-  const { document_expires: documentExpires, ...sort } = result.sort || {};
+  const { document_expires: documentExpires, ...sort } = result.sort || {}
   if (documentExpires) {
-    sort['metadata->>Expires'] = documentExpires;
+    sort['metadata->>Expires'] = documentExpires
   }
-  return sort;
-};
+  return sort
+}
 
 /**
  * Pre-query hook for document headers
@@ -140,13 +140,13 @@ const getPreQuerySort = (result) => {
  * @return {Promise}            resolves with modified hapi-pg-rest-api pre-query result
  */
 async function preQuery (result, hapiRequest) {
-  const filter = await getPreQueryFilter(result);
-  const sort = await getPreQuerySort(result);
+  const filter = await getPreQueryFilter(result)
+  const sort = await getPreQuerySort(result)
   return {
     ...result,
     filter,
     sort
-  };
+  }
 }
 
 const documentHeadersApi = new HAPIRestAPI({
@@ -173,8 +173,8 @@ const documentHeadersApi = new HAPIRestAPI({
     verification_id: Joi.string().guid().allow(null),
     document_name: Joi.string().allow(null)
   }
-});
+})
 
-module.exports = documentHeadersApi;
+module.exports = documentHeadersApi
 
-module.exports.getSearchFilter = getSearchFilter;
+module.exports.getSearchFilter = getSearchFilter

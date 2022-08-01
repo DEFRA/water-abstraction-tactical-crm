@@ -1,7 +1,7 @@
-'use strict';
+'use strict'
 
-const { CompanyAddress } = require('../bookshelf');
-const helpers = require('./helpers');
+const { CompanyAddress } = require('../bookshelf')
+const helpers = require('./helpers')
 
 /**
  * Create a new company address and saves in crm_v2.company_addresses
@@ -10,13 +10,13 @@ const helpers = require('./helpers');
  * @returns {Promise<Object>} The created company address from the database, camel-cased
  */
 const create = async companyAddress => {
-  const model = await CompanyAddress.forge(companyAddress).save();
-  return model.toJSON();
-};
+  const model = await CompanyAddress.forge(companyAddress).save()
+  return model.toJSON()
+}
 
-const deleteOne = async id => helpers.deleteOne(CompanyAddress, 'companyAddressId', id);
+const deleteOne = async id => helpers.deleteOne(CompanyAddress, 'companyAddressId', id)
 
-const deleteTestData = async () => helpers.deleteTestData(CompanyAddress);
+const deleteTestData = async () => helpers.deleteTestData(CompanyAddress)
 
 /**
  * Finds many company addresses, including related company, by company ID
@@ -32,19 +32,19 @@ const findManyByCompanyId = async companyId => {
         'address',
         'role'
       ]
-    });
-  return collection.toJSON();
-};
+    })
+  return collection.toJSON()
+}
 
 const findOneByCompanyAddressAndRoleId = (companyId, addressId, roleId) =>
   helpers.findOneBy(CompanyAddress, {
     companyId,
     addressId,
     roleId
-  });
+  })
 
-exports.create = create;
-exports.deleteOne = deleteOne;
-exports.deleteTestData = deleteTestData;
-exports.findManyByCompanyId = findManyByCompanyId;
-exports.findOneByCompanyAddressAndRoleId = findOneByCompanyAddressAndRoleId;
+exports.create = create
+exports.deleteOne = deleteOne
+exports.deleteTestData = deleteTestData
+exports.findManyByCompanyId = findManyByCompanyId
+exports.findOneByCompanyAddressAndRoleId = findOneByCompanyAddressAndRoleId

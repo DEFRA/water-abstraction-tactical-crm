@@ -1,6 +1,6 @@
-const { version } = require('../../config');
-const controller = require('../controllers/acceptance-tests');
-const config = require('../../config');
+const { version } = require('../../config')
+const controller = require('../controllers/acceptance-tests')
+const config = require('../../config')
 
 if (config.isAcceptanceTestTarget) {
   exports.acceptanceTestTearDownDocuments = {
@@ -10,7 +10,7 @@ if (config.isAcceptanceTestTarget) {
     options: {
       description: 'Deletes any document data setup for acceptance test execution'
     }
-  };
+  }
 
   exports.acceptanceTestTearDownEntities = {
     method: 'DELETE',
@@ -19,7 +19,7 @@ if (config.isAcceptanceTestTarget) {
     options: {
       description: 'Deletes any entity data setup for acceptance test execution'
     }
-  };
+  }
 
   /* TODO this is a V2 action. Ideally this should live in the /v2 folder
   * It is currently here to keep this endpoint in the same place as the
@@ -32,5 +32,5 @@ if (config.isAcceptanceTestTarget) {
     options: {
       description: 'Deletes any company data setup for acceptance test execution'
     }
-  };
+  }
 }

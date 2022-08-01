@@ -3,7 +3,7 @@ exports.findOneById = `
   from crm_v2.documents
   where document_id = $1
   and date_deleted is null;
-`;
+`
 
 exports.findByDocumentRef = `
   select *
@@ -13,7 +13,7 @@ exports.findByDocumentRef = `
   and document_ref = :documentRef
   and date_deleted is null
   order by start_date, end_date;
-`;
+`
 
 exports.findDocumentByRefAndDate = `
   SELECT docs.*, docRoles.company_id, docRoles.contact_id, docRoles.address_id, roles.role_id, roles.name AS role_name
@@ -30,7 +30,7 @@ exports.findDocumentByRefAndDate = `
   AND docs.date_deleted is null
   ORDER BY docs.start_date, docs.end_date, docRoles.start_date DESC
   LIMIT 1;
-`;
+`
 
 exports.getDocumentRolesByDocumentRef = `
   select
@@ -59,7 +59,7 @@ exports.getDocumentRolesByDocumentRef = `
   join crm_v2.documents documents on documents.document_id = dr.document_id
   join crm_v2.roles roles on roles.role_id = dr.role_id 
   where documents.document_ref = :documentRef and (dr.end_date is null or dr.end_date > now());
-`;
+`
 
 exports.getFullHistoryOfDocumentRolesByDocumentRef = `
 select
@@ -90,4 +90,4 @@ select
   join crm_v2.documents documents on documents.document_id = dr.document_id
   join crm_v2.roles roles on roles.role_id = dr.role_id 
   where documents.document_ref = :documentRef;
-`;
+`

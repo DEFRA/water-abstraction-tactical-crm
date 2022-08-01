@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
-exports.DEPARTMENT = 'department';
-exports.PERSON = 'person';
+exports.DEPARTMENT = 'department'
+exports.PERSON = 'person'

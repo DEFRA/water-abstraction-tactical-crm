@@ -1,9 +1,9 @@
-const { version } = require('../../config');
-const Joi = require('joi');
+const { version } = require('../../config')
+const Joi = require('joi')
 
-const documentsController = require('../controllers/documents');
+const documentsController = require('../controllers/documents')
 
-const basePath = `/crm/${version}/documents`;
+const basePath = `/crm/${version}/documents`
 
 module.exports = {
   '/crm/{documentId}/users': {
@@ -19,4 +19,4 @@ module.exports = {
       }
     }
   }
-};
+}

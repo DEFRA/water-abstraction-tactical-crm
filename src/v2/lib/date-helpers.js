@@ -1,5 +1,5 @@
-const MomentRange = require('moment-range');
-const moment = MomentRange.extendMoment(require('moment'));
+const MomentRange = require('moment-range')
+const moment = MomentRange.extendMoment(require('moment'))
 
 /**
  * Returns a moment range for the startDate and endDate
@@ -9,10 +9,10 @@ const moment = MomentRange.extendMoment(require('moment'));
  * @return {MomentRange}
  */
 const getDateRange = obj => {
-  const start = moment(obj.startDate, 'YYYY-MM-DD');
-  const end = obj.endDate ? moment(obj.endDate, 'YYYY-MM-DD') : null;
-  return moment.range(start, end);
-};
+  const start = moment(obj.startDate, 'YYYY-MM-DD')
+  const end = obj.endDate ? moment(obj.endDate, 'YYYY-MM-DD') : null
+  return moment.range(start, end)
+}
 
 /**
  * Checks whether or not the date range in the existing entity
@@ -23,12 +23,12 @@ const getDateRange = obj => {
  * @return {Boolean}
  */
 const hasOverlap = (incomingEntity, existingEntities) => {
-  const incomingDateRange = getDateRange(incomingEntity);
+  const incomingDateRange = getDateRange(incomingEntity)
 
   return existingEntities
     .map(entity => getDateRange(entity))
-    .some(range => range.overlaps(incomingDateRange));
-};
+    .some(range => range.overlaps(incomingDateRange))
+}
 
-exports.getDateRange = getDateRange;
-exports.hasOverlap = hasOverlap;
+exports.getDateRange = getDateRange
+exports.hasOverlap = hasOverlap

@@ -37,4 +37,4 @@ select iaa.invoice_account_id, a.*
 ) iaa on i.invoice_account_id=iaa.invoice_account_id
 
 where document_id=$1
-`;
+`

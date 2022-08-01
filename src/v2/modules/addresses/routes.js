@@ -1,9 +1,9 @@
-'use strict';
+'use strict'
 
-const entityHandlers = require('../../lib/entity-handlers');
-const validators = require('../../lib/validators-v2');
-const controller = require('./controller');
-const Joi = require('joi');
+const entityHandlers = require('../../lib/entity-handlers')
+const validators = require('../../lib/validators-v2')
+const controller = require('./controller')
+const Joi = require('joi')
 
 exports.postAddress = {
   method: 'POST',
@@ -27,7 +27,7 @@ exports.postAddress = {
       })
     }
   }
-};
+}
 
 exports.getAddress = {
   method: 'GET',
@@ -41,7 +41,7 @@ exports.getAddress = {
       })
     }
   }
-};
+}
 
 exports.deleteAddress = {
   method: 'DELETE',
@@ -55,4 +55,4 @@ exports.deleteAddress = {
       })
     }
   }
-};
+}

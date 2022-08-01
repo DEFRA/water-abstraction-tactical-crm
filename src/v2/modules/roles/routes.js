@@ -1,7 +1,7 @@
-'use strict';
+'use strict'
 
-const Joi = require('joi');
-const controller = require('./controller');
+const Joi = require('joi')
+const controller = require('./controller')
 
 exports.getRoleByName = {
   method: 'GET',
@@ -15,4 +15,4 @@ exports.getRoleByName = {
       })
     }
   }
-};
+}

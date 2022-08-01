@@ -1,7 +1,7 @@
-'use strict';
+'use strict'
 
-const DocumentRole = require('../bookshelf/DocumentRole');
-const helpers = require('./helpers');
+const DocumentRole = require('../bookshelf/DocumentRole')
+const helpers = require('./helpers')
 
 /**
  * Find single DocumentRole by ID
@@ -13,7 +13,7 @@ const findOne = async id => helpers.findOne(
   'documentRoleId',
   id,
   ['role', 'document']
-);
+)
 
 /**
  * Create a new document role in crm_v2.document_roles
@@ -21,7 +21,7 @@ const findOne = async id => helpers.findOne(
  * @param {Object} documentRole An object to persist to crm_v2.document_roles
  * @returns {Object} The created address from the database
  */
-const create = async documentRole => helpers.create(DocumentRole, documentRole);
+const create = async documentRole => helpers.create(DocumentRole, documentRole)
 
 const findByDocumentId = async documentId => {
   const documentRoles = await DocumentRole
@@ -29,13 +29,13 @@ const findByDocumentId = async documentId => {
     .where({ document_id: documentId })
     .fetch({
       withRelated: ['role', 'company', 'contact', 'address', 'invoiceAccount']
-    });
-  return documentRoles.toJSON();
-};
+    })
+  return documentRoles.toJSON()
+}
 
-const deleteTestData = async () => helpers.deleteTestData(DocumentRole);
+const deleteTestData = async () => helpers.deleteTestData(DocumentRole)
 
-exports.create = create;
-exports.deleteTestData = deleteTestData;
-exports.findByDocumentId = findByDocumentId;
-exports.findOne = findOne;
+exports.create = create
+exports.deleteTestData = deleteTestData
+exports.findByDocumentId = findByDocumentId
+exports.findOne = findOne
