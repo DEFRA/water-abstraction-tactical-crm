@@ -1,6 +1,6 @@
 # Water Abstraction Tactical CRM
 
-![Build Status](https://github.com/DEFRA/water-abstraction-tactical-crm/workflows/CI/badge.svg?branch=develop)
+![Build Status](https://github.com/DEFRA/water-abstraction-tactical-crm/workflows/CI/badge.svg?branch=main)
 [![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=DEFRA_water-abstraction-tactical-crm&metric=sqale_rating)](https://sonarcloud.io/dashboard?id=DEFRA_water-abstraction-tactical-crm)
 [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=DEFRA_water-abstraction-tactical-crm&metric=coverage)](https://sonarcloud.io/dashboard?id=DEFRA_water-abstraction-tactical-crm)
 [![Known Vulnerabilities](https://snyk.io/test/github/DEFRA/water-abstraction-tactical-crm/badge.svg)](https://snyk.io/test/github/DEFRA/water-abstraction-tactical-crm)
