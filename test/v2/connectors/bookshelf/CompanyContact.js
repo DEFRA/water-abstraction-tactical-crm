@@ -3,85 +3,85 @@ const {
   test,
   beforeEach,
   afterEach
-} = exports.lab = require('@hapi/lab').script();
-const { expect } = require('@hapi/code');
-const sandbox = require('sinon').createSandbox();
+} = exports.lab = require('@hapi/lab').script()
+const { expect } = require('@hapi/code')
+const sandbox = require('sinon').createSandbox()
 
-const CompanyContact = require('../../../../src/v2/connectors/bookshelf/CompanyContact');
+const CompanyContact = require('../../../../src/v2/connectors/bookshelf/CompanyContact')
 
 experiment('v2/connectors/bookshelf/CompanyContact', () => {
-  let instance;
+  let instance
 
   beforeEach(async () => {
-    instance = CompanyContact.forge();
-    sandbox.stub(instance, 'hasOne');
-    sandbox.stub(instance, 'belongsTo');
-  });
+    instance = CompanyContact.forge()
+    sandbox.stub(instance, 'hasOne')
+    sandbox.stub(instance, 'belongsTo')
+  })
 
   afterEach(async () => {
-    sandbox.restore();
-  });
+    sandbox.restore()
+  })
 
   test('uses the company_contacts table', async () => {
-    expect(instance.tableName).to.equal('crm_v2.company_contacts');
-  });
+    expect(instance.tableName).to.equal('crm_v2.company_contacts')
+  })
 
   test('uses the correct ID attribute', async () => {
-    expect(instance.idAttribute).to.equal('company_contact_id');
-  });
+    expect(instance.idAttribute).to.equal('company_contact_id')
+  })
 
   test('uses the correct timestamp fields', async () => {
-    expect(instance.hasTimestamps).to.equal(['date_created', 'date_updated']);
-  });
+    expect(instance.hasTimestamps).to.equal(['date_created', 'date_updated'])
+  })
 
   experiment('the .company() relation', () => {
     beforeEach(async () => {
-      instance.company();
-    });
+      instance.company()
+    })
 
     test('is a function', async () => {
-      expect(instance.company).to.be.a.function();
-    });
+      expect(instance.company).to.be.a.function()
+    })
 
     test('calls .belongsTo with correct params', async () => {
-      const [model, foreignKey, foreignKeyTarget] = instance.belongsTo.lastCall.args;
-      expect(model).to.equal('Company');
-      expect(foreignKey).to.equal('company_id');
-      expect(foreignKeyTarget).to.equal('company_id');
-    });
-  });
+      const [model, foreignKey, foreignKeyTarget] = instance.belongsTo.lastCall.args
+      expect(model).to.equal('Company')
+      expect(foreignKey).to.equal('company_id')
+      expect(foreignKeyTarget).to.equal('company_id')
+    })
+  })
 
   experiment('the .contact() relation', () => {
     beforeEach(async () => {
-      instance.contact();
-    });
+      instance.contact()
+    })
 
     test('is a function', async () => {
-      expect(instance.contact).to.be.a.function();
-    });
+      expect(instance.contact).to.be.a.function()
+    })
 
     test('calls .hasOne with correct params', async () => {
-      const [model, foreignKey, foreignKeyTarget] = instance.hasOne.lastCall.args;
-      expect(model).to.equal('Contact');
-      expect(foreignKey).to.equal('contact_id');
-      expect(foreignKeyTarget).to.equal('contact_id');
-    });
-  });
+      const [model, foreignKey, foreignKeyTarget] = instance.hasOne.lastCall.args
+      expect(model).to.equal('Contact')
+      expect(foreignKey).to.equal('contact_id')
+      expect(foreignKeyTarget).to.equal('contact_id')
+    })
+  })
 
   experiment('the .role() relation', () => {
     beforeEach(async () => {
-      instance.role();
-    });
+      instance.role()
+    })
 
     test('is a function', async () => {
-      expect(instance.role).to.be.a.function();
-    });
+      expect(instance.role).to.be.a.function()
+    })
 
     test('calls .hasOne with correct params', async () => {
-      const [model, foreignKey, foreignKeyTarget] = instance.hasOne.lastCall.args;
-      expect(model).to.equal('Role');
-      expect(foreignKey).to.equal('role_id');
-      expect(foreignKeyTarget).to.equal('role_id');
-    });
-  });
-});
+      const [model, foreignKey, foreignKeyTarget] = instance.hasOne.lastCall.args
+      expect(model).to.equal('Role')
+      expect(foreignKey).to.equal('role_id')
+      expect(foreignKeyTarget).to.equal('role_id')
+    })
+  })
+})

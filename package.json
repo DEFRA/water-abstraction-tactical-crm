@@ -2,44 +2,21 @@
   "name": "water-abstraction-tactical-crm",
   "version": "2.24.0",
   "description": "Tactical CRM implementation for water abstraction service",
+  "homepage": "https://github.com/DEFRA/water-abstraction-team",
   "main": "index.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/DEFRA/water-abstraction-tactical-crm"
   },
+  "author": "WRLS service team",
+  "license": "OGL-UK-3.0",
   "scripts": {
     "test": "lab",
-    "test:bail": "lab --bail",
-    "test:ci": "lab -t 55 -m 0 --coverage-path ./src/ -r lcov -o coverage/lcov.info -r console -o stdout",
-    "test-cov-html": "lab -r html -o coverage.html",
-    "codecov": "codecov",
-    "docs": "jsdoc -c conf.jsdoc.json && cd ./out && serve -o -p 3012",
     "migrate": "node scripts/create-schema && db-migrate up --verbose",
     "migrate:down": "db-migrate down --verbose",
     "migrate:create": "db-migrate create --sql-file --",
-    "lint": "eslint .",
-    "version": "auto-changelog -p --commit-limit false && git add CHANGELOG.md"
-  },
-  "engines": {
-    "node": ">=8.0"
-  },
-  "author": "",
-  "license": "ISC",
-  "devDependencies": {
-    "@hapi/code": "^8.0.7",
-    "@hapi/lab": "^24.5.1",
-    "auto-changelog": "^1.16.4",
-    "codecov": "^3.8.3",
-    "db-migrate": "^0.11.13",
-    "db-migrate-pg": "^1.2.2",
-    "eslint": "^8.13.0",
-    "eslint-config-standard": "^14.1.1",
-    "eslint-plugin-import": "^2.26.0",
-    "eslint-plugin-node": "^11.1.0",
-    "eslint-plugin-promise": "^6.0.0",
-    "eslint-plugin-standard": "^5.0.0",
-    "sinon": "^12.0.1",
-    "snyk": "^1.852.0"
+    "lint": "standard",
+    "lint:fix": "standard --fix"
   },
   "dependencies": {
     "@envage/hapi-pg-rest-api": "^7.0.0",
@@ -52,6 +29,8 @@
     "blipp": "^4.0.2",
     "bookshelf": "^1.2.0",
     "bookshelf-case-converter-plugin": "^1.0.0",
+    "db-migrate": "^0.11.13",
+    "db-migrate-pg": "^1.2.2",
     "deep-map-keys": "^2.0.1",
     "dotenv": "^8.2.0",
     "eslint-utils": "^2.1.0",
@@ -72,5 +51,13 @@
     "request-promise-native": "^1.0.9",
     "url-join": "^4.0.1",
     "uuid": "^8.3.2"
+  },
+  "devDependencies": {
+    "@hapi/code": "^8.0.7",
+    "@hapi/lab": "^24.5.1",
+    "auto-changelog": "^1.16.4",
+    "codecov": "^3.8.3",
+    "sinon": "^12.0.1",
+    "standard": "^17.0.0"
   }
 }

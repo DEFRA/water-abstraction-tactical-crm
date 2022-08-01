@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 module.exports = [
   ...Object.values(require('./modules/addresses/routes')),
@@ -9,4 +9,4 @@ module.exports = [
   ...Object.values(require('./modules/invoice-account-addresses/routes')),
   ...Object.values(require('./modules/roles/routes')),
   ...Object.values(require('./modules/test-data/routes'))
-];
+]

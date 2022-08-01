@@ -1,7 +1,7 @@
-'use strict';
+'use strict'
 
-const controller = require('./controller');
-const config = require('../../../../config');
+const controller = require('./controller')
+const config = require('../../../../config')
 
 if (config.isAcceptanceTestTarget) {
   exports.deleteTestData = {
@@ -11,5 +11,5 @@ if (config.isAcceptanceTestTarget) {
     options: {
       description: 'Deletes all the test data'
     }
-  };
+  }
 }

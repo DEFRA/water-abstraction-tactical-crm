@@ -1,4 +1,4 @@
-const { bookshelf } = require('./bookshelf.js');
+const { bookshelf } = require('./bookshelf.js')
 
 module.exports = bookshelf.model('CompanyAddress', {
 
@@ -7,14 +7,14 @@ module.exports = bookshelf.model('CompanyAddress', {
   hasTimestamps: ['date_created', 'date_updated'],
 
   company () {
-    return this.belongsTo('Company', 'company_id', 'company_id');
+    return this.belongsTo('Company', 'company_id', 'company_id')
   },
 
   address () {
-    return this.hasOne('Address', 'address_id', 'address_id');
+    return this.hasOne('Address', 'address_id', 'address_id')
   },
 
   role () {
-    return this.hasOne('Role', 'role_id', 'role_id');
+    return this.hasOne('Role', 'role_id', 'role_id')
   }
-});
+})

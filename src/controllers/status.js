@@ -1,8 +1,8 @@
-const pkg = require('../../package.json');
-const { pick } = require('lodash');
+const pkg = require('../../package.json')
+const { pick } = require('lodash')
 
-const statusResponse = pick(pkg, 'version');
+const statusResponse = pick(pkg, 'version')
 
-const getStatus = () => statusResponse;
+const getStatus = () => statusResponse
 
-exports.getStatus = getStatus;
+exports.getStatus = getStatus

@@ -1,7 +1,7 @@
-const HAPIRestAPI = require('@envage/hapi-pg-rest-api');
-const Joi = require('joi');
-const { version } = require('../../config');
-const { pool } = require('../lib/connectors/db');
+const HAPIRestAPI = require('@envage/hapi-pg-rest-api')
+const Joi = require('joi')
+const { version } = require('../../config')
+const { pool } = require('../lib/connectors/db')
 
 const documentEntitiesApi = new HAPIRestAPI({
   table: 'crm.document_entity',
@@ -11,9 +11,9 @@ const documentEntitiesApi = new HAPIRestAPI({
   onCreateTimestamp: 'created_at',
   onUpdateTimestamp: 'updated_at',
   preQuery: (result, hapiRequest) => {
-    result.filter.document_id = hapiRequest.params.document_id;
-    result.data.document_id = hapiRequest.params.document_id;
-    return result;
+    result.filter.document_id = hapiRequest.params.document_id
+    result.data.document_id = hapiRequest.params.document_id
+    return result
   },
   validation: {
     document_entity_id: Joi.string().guid(),
@@ -23,6 +23,6 @@ const documentEntitiesApi = new HAPIRestAPI({
     created_at: Joi.string(),
     modified_at: Joi.string()
   }
-});
+})
 
-module.exports = documentEntitiesApi;
+module.exports = documentEntitiesApi

@@ -1,17 +1,17 @@
-'use strict';
+'use strict'
 
-const urlJoin = require('url-join');
-const Boom = require('@hapi/boom');
+const urlJoin = require('url-join')
+const Boom = require('@hapi/boom')
 
-const { startCase, lowerCase } = require('lodash');
-const { mapErrorResponse } = require('./map-error-response');
-const contactsService = require('../services/contacts');
-const addressService = require('../services/address');
-const documentService = require('../services/documents');
-const invoiceAccountsService = require('../services/invoice-accounts');
-const documentsService = require('../services/documents');
-const companiesService = require('../services/companies');
-const invoiceAccountAddressesService = require('../services/invoice-account-addresses');
+const { startCase, lowerCase } = require('lodash')
+const { mapErrorResponse } = require('./map-error-response')
+const contactsService = require('../services/contacts')
+const addressService = require('../services/address')
+const documentService = require('../services/documents')
+const invoiceAccountsService = require('../services/invoice-accounts')
+const documentsService = require('../services/documents')
+const companiesService = require('../services/companies')
+const invoiceAccountAddressesService = require('../services/invoice-account-addresses')
 
 const services = {
   contact: contactsService,
@@ -23,18 +23,18 @@ const services = {
   company: companiesService,
   companyAddress: companiesService,
   companyContact: companiesService
-};
+}
 
 const validateKey = key => {
-  const knownKeys = Object.keys(services);
+  const knownKeys = Object.keys(services)
   if (!knownKeys.includes(key)) {
-    throw new Error(`Unknown key (${key}) passed to entity-handlers`);
+    throw new Error(`Unknown key (${key}) passed to entity-handlers`)
   }
-};
+}
 
 const getFunctionName = (action, entityKey) => {
-  return `${action}${startCase(entityKey)}`.replace(/\s/g, '');
-};
+  return `${action}${startCase(entityKey)}`.replace(/\s/g, '')
+}
 
 /**
  * Helper function to abstract common entity creation for the controllers
@@ -46,23 +46,23 @@ const getFunctionName = (action, entityKey) => {
  *  created entity for greater control when forming the location URL
  */
 const createEntity = async (request, h, key, locationCallback) => {
-  validateKey(key);
+  validateKey(key)
 
   try {
-    const createFn = getFunctionName('create', key);
+    const createFn = getFunctionName('create', key)
 
-    const data = { ...request.params, ...request.payload };
-    const entity = await services[key][createFn](data);
+    const data = { ...request.params, ...request.payload }
+    const entity = await services[key][createFn](data)
 
     const location = locationCallback
       ? locationCallback(entity)
-      : urlJoin(request.path, entity[`${key}Id`]);
+      : urlJoin(request.path, entity[`${key}Id`])
 
-    return h.response(entity).created(location);
+    return h.response(entity).created(location)
   } catch (error) {
-    return mapErrorResponse(error);
+    return mapErrorResponse(error)
   }
-};
+}
 
 /**
  * Helper function to abstract the basic case of fetching
@@ -72,21 +72,21 @@ const createEntity = async (request, h, key, locationCallback) => {
  * @param {String} key The entity type being fetched (e.g. address)
  */
 const getEntity = async (request, key) => {
-  validateKey(key);
+  validateKey(key)
 
   // get the entity id from the request e.g. request.params.contactId
-  const id = request.params[`${key}Id`];
+  const id = request.params[`${key}Id`]
 
   // create the name of the function to call on the service
   // e.g. getContact
-  const getFn = getFunctionName('get', key);
+  const getFn = getFunctionName('get', key)
 
   // retrieve the entity from the service
   // e.g. contactsService.getContact(id)
-  const entity = await services[key][getFn](id);
+  const entity = await services[key][getFn](id)
 
-  return entity || Boom.notFound(`No ${lowerCase(key)} found for ${id}`);
-};
+  return entity || Boom.notFound(`No ${lowerCase(key)} found for ${id}`)
+}
 
 /**
  * Helper function to abstract the basic case of deleting
@@ -96,26 +96,26 @@ const getEntity = async (request, key) => {
  * @param {String} key The entity type being deleted (e.g. address)
  */
 const deleteEntity = async (request, h, key) => {
-  validateKey(key);
+  validateKey(key)
 
   // get the entity id from the request e.g. request.params.contactId
-  const id = request.params[`${key}Id`];
+  const id = request.params[`${key}Id`]
 
   // create the name of the function to call on the service
   // e.g. deleteContact
-  const getFn = getFunctionName('delete', key);
+  const getFn = getFunctionName('delete', key)
 
   // delete the entity through the service
   // e.g. contactsService.deleteContact(id)
 
   try {
-    await services[key][getFn](id);
-    return { [`${key}Id`]: id };
+    await services[key][getFn](id)
+    return { [`${key}Id`]: id }
   } catch ({ message, ...err }) {
-    return Boom.internal(message, err, 500);
+    return Boom.internal(message, err, 500)
   }
-};
+}
 
-exports.createEntity = createEntity;
-exports.getEntity = getEntity;
-exports.deleteEntity = deleteEntity;
+exports.createEntity = createEntity
+exports.getEntity = getEntity
+exports.deleteEntity = deleteEntity

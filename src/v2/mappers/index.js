@@ -1,3 +1,3 @@
-'use strict';
+'use strict'
 
-exports.invoiceAccount = require('./invoice-account');
+exports.invoiceAccount = require('./invoice-account')

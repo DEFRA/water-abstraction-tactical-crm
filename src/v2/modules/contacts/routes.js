@@ -1,9 +1,9 @@
-'use strict';
+'use strict'
 
-const Joi = require('joi');
-const controller = require('./controller');
-const entityHandlers = require('../../lib/entity-handlers');
-const validators = require('../../lib/validators-v2');
+const Joi = require('joi')
+const controller = require('./controller')
+const entityHandlers = require('../../lib/entity-handlers')
+const validators = require('../../lib/validators-v2')
 
 exports.getContact = {
   method: 'GET',
@@ -17,7 +17,7 @@ exports.getContact = {
       })
     }
   }
-};
+}
 
 exports.patchContact = {
   method: 'PATCH',
@@ -40,7 +40,7 @@ exports.patchContact = {
       })
     }
   }
-};
+}
 
 exports.getContacts = {
   method: 'GET',
@@ -54,7 +54,7 @@ exports.getContacts = {
       })
     }
   }
-};
+}
 
 exports.postContact = {
   method: 'POST',
@@ -76,7 +76,7 @@ exports.postContact = {
       })
     }
   }
-};
+}
 
 exports.deleteContact = {
   method: 'DELETE',
@@ -90,4 +90,4 @@ exports.deleteContact = {
       })
     }
   }
-};
+}

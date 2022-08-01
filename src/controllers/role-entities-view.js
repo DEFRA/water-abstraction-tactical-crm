@@ -1,7 +1,7 @@
-const HAPIRestAPI = require('@envage/hapi-pg-rest-api');
-const Joi = require('joi');
-const { version } = require('../../config');
-const { pool } = require('../lib/connectors/db');
+const HAPIRestAPI = require('@envage/hapi-pg-rest-api')
+const Joi = require('joi')
+const { version } = require('../../config')
+const { pool } = require('../lib/connectors/db')
 
 const entityRolesViewApi = new HAPIRestAPI({
   table: 'crm.entity_roles_view',
@@ -18,6 +18,6 @@ const entityRolesViewApi = new HAPIRestAPI({
     company_entity_id: Joi.string(),
     role: Joi.string()
   }
-});
+})
 
-module.exports = entityRolesViewApi;
+module.exports = entityRolesViewApi
