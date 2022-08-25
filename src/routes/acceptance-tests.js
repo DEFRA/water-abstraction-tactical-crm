@@ -2,7 +2,7 @@ const { version } = require('../../config')
 const controller = require('../controllers/acceptance-tests')
 const config = require('../../config')
 
-if (config.isAcceptanceTestTarget) {
+if (!config.isProduction) {
   exports.acceptanceTestTearDownDocuments = {
     method: 'DELETE',
     path: `/crm/${version}/acceptance-tests/documents`,

@@ -1,7 +1,7 @@
 'use strict'
-require('dotenv').config()
 
-const isAcceptanceTestTarget = ['local', 'dev', 'development', 'test', 'qa', 'preprod'].includes(process.env.NODE_ENV)
+const environment = process.env.ENVIRONMENT
+const isProduction = environment === 'prd'
 
 module.exports = {
   version: '1.0',
@@ -35,5 +35,5 @@ module.exports = {
     max: process.env.NODE_ENV === 'local' ? 20 : 7
   },
 
-  isAcceptanceTestTarget
+  isProduction
 }
