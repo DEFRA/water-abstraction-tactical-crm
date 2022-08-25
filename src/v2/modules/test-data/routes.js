@@ -3,7 +3,7 @@
 const controller = require('./controller')
 const config = require('../../../../config')
 
-if (config.isAcceptanceTestTarget) {
+if (!config.isProduction) {
   exports.deleteTestData = {
     method: 'DELETE',
     path: '/crm/2.0/test-data',
