@@ -51,7 +51,7 @@ const deleteAcceptanceTestCompanies = async (request, h) => {
   return h.response().code(204)
 }
 
-if (config.isAcceptanceTestTarget) {
+if (!config.isProduction) {
   exports.deleteAcceptanceTestDataDocuments = deleteAcceptanceTestDataDocuments
   exports.deleteAcceptanceTestDataEntities = deleteAcceptanceTestDataEntities
   exports.deleteAcceptanceTestCompanies = deleteAcceptanceTestCompanies
