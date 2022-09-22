@@ -33,7 +33,6 @@
     "db-migrate-pg": "^1.2.2",
     "deep-map-keys": "^2.0.1",
     "dotenv": "^8.2.0",
-    "eslint-utils": "^2.1.0",
     "good-winston": "^4.0.0",
     "hapi-auth-cookie": "^9.1.0",
     "hapi-auth-jwt2": "^8.8.1",
