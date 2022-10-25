@@ -7,6 +7,7 @@ const Joi = require('joi')
 
 const documentsRoutes = Object.values(require('./documents'))
 const acceptanceTestRoutes = require('../routes/acceptance-tests')
+const healthRoutes = require('../modules/health/routes')
 const KPIReportingRoutes = require('../modules/kpi-reporting/routes')
 
 const EntityApi = require('../controllers/entities.js')
@@ -188,5 +189,6 @@ module.exports = [
   KpiApi.findManyRoute(),
   ...Object.values(KPIReportingRoutes),
   ...Object.values(documentsRoutes),
-  ...Object.values(acceptanceTestRoutes)
+  ...Object.values(acceptanceTestRoutes),
+  ...Object.values(healthRoutes)
 ]
