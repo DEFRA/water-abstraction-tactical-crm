@@ -15,7 +15,7 @@ const getRoleByName = async request => {
     }
     return role
   } catch (err) {
-    logger.error('Error getting role', err)
+    logger.error('Error getting role', err.stack)
     return Boom.boomify(err)
   }
 }

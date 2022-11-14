@@ -26,7 +26,7 @@ async function postVerificationDocuments (request, h) {
     const { rows: data } = await pool.query(query, params)
     return { error: null, data }
   } catch (error) {
-    logger.error('postVerificationDocuments error', error)
+    logger.error('postVerificationDocuments error', error.stack)
     h.response({ error, data: null }).code(500)
   }
 }
@@ -45,7 +45,7 @@ async function getVerificationDocuments (request, h) {
     const { rows: data } = await pool.query(query, params)
     return { error: null, data }
   } catch (error) {
-    logger.error('getVerificationDocuments error', error)
+    logger.error('getVerificationDocuments error', error.stack)
     h.response({ error, data: null }).code(500)
   }
 }
@@ -58,7 +58,7 @@ const deleteVerificationDocuments = async (request, h) => {
     await pool.query(query, params)
     return h.response().code(204)
   } catch (error) {
-    logger.error('getVerificationDocuments error', error)
+    logger.error('getVerificationDocuments error', error.stack)
     h.response({ error, data: null }).code(500)
   }
 }
@@ -113,7 +113,7 @@ const getUserVerifications = async (request, h) => {
 
     return { data, error: null }
   } catch (error) {
-    logger.error('getVerificationDocuments error', error)
+    logger.error('getVerificationDocuments error', error.stack)
     h.response({ error, data: null }).code(500)
   }
 }
