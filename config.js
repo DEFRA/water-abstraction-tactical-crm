@@ -1,5 +1,8 @@
 'use strict'
 
+// TODO: Figure out why we need this for the tests to pass!
+require('dotenv').config()
+
 const environment = process.env.ENVIRONMENT
 const isProduction = environment === 'prd'
 
