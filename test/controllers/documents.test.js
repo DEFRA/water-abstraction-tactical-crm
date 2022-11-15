@@ -76,13 +76,14 @@ experiment('getDocumentUsers', () => {
   })
 
   test('logs any unexpected error', async () => {
-    sandbox.stub(pool, 'query').rejects({ name: 'error' })
+    const err = new Error('oops')
+    sandbox.stub(pool, 'query').rejects(err)
     const request = { params: { documentId: '00000000-0000-0000-0000-000000000000' } }
     const response = await controller.getDocumentUsers(request)
 
     const [message, error] = logger.error.lastCall.args
     expect(message).to.equal('Error getting document users')
-    expect(error.name).to.equal('error')
+    expect(error).to.equal(err.stack)
 
     expect(response.output.statusCode).to.equal(500)
   })
