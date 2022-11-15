@@ -292,7 +292,7 @@ async function getContacts (request, h) {
       data: mapRowsToEntities([...rows, ...rows2, ...rows3])
     }
   } catch (error) {
-    logger.error('getContacts error', error, { filter: request.query.filter })
+    logger.error('getContacts error', error.stack, { filter: request.query.filter })
     return h.response({ error, data: null }).code(500)
   }
 }
@@ -312,7 +312,7 @@ const getDocumentsForContact = async (request, h) => {
     const { rows: documents } = await pool.query(sql, [entityId])
     return documents
   } catch (error) {
-    logger.error('getDocumentsForContact error', error)
+    logger.error('getDocumentsForContact error', error.stack)
     throw error
   }
 }

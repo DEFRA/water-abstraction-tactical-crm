@@ -9,7 +9,7 @@ const getContacts = async request => {
   try {
     return contactService.getContactsByIds(request.query.ids)
   } catch (err) {
-    logger.error('Could not get contacts', err)
+    logger.error('Could not get contacts', err.stack)
     return Boom.boomify(err)
   }
 }

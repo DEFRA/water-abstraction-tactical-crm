@@ -67,7 +67,7 @@ and granter_role.entity_id = $1 `
     .then((res) => {
       return res.rows
     }).catch((err) => {
-      logger.error('getColleagues error', err)
+      logger.error('getColleagues error', err.stack)
       return h.response(err)
     })
 }

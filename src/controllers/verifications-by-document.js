@@ -50,7 +50,7 @@ async function getVerificationsByDocumentID (request, h) {
 
     return { error, data: rows }
   } catch (error) {
-    logger.error('getVerificationsByDocumentID error', error)
+    logger.error('getVerificationsByDocumentID error', error.stack)
     h.response({ error, data: null }).statusCode(500)
   }
 }

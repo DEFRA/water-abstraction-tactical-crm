@@ -50,7 +50,7 @@ experiment('controllers/contacts', () => {
     test('the error is logged', async () => {
       const [msg, err, params] = logger.error.lastCall.args
       expect(msg).to.equal('getContacts error')
-      expect(err).to.equal(error)
+      expect(err).to.equal(error.stack)
       expect(params).to.equal({
         filter: null
       })

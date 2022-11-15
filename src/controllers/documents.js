@@ -38,7 +38,7 @@ const getDocumentUsers = async (request, h) => {
     return { data, error: null }
   } catch (error) {
     const msg = 'Error getting document users'
-    logger.error(msg, error)
+    logger.error(msg, error.stack)
     return Boom.badImplementation(msg, error)
   }
 }
