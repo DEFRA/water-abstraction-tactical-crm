@@ -22,7 +22,7 @@
   "dependencies": {
     "@envage/hapi-pg-rest-api": "^7.0.0",
     "@envage/water-abstraction-helpers": "4.8.1",
-    "@hapi/boom": "^9.1.4",
+    "@hapi/boom": "^10.0.0",
     "@hapi/good": "^9.0.1",
     "@hapi/hapi": "^20.2.2",
     "@joi/date": "^2.1.0",
