@@ -22,21 +22,21 @@
   "dependencies": {
     "@envage/hapi-pg-rest-api": "^7.0.0",
     "@envage/water-abstraction-helpers": "4.8.1",
-    "@hapi/boom": "^9.1.4",
+    "@hapi/boom": "^10.0.0",
     "@hapi/good": "^9.0.1",
-    "@hapi/hapi": "^20.2.2",
+    "@hapi/hapi": "^21.0.0",
     "@joi/date": "^2.1.0",
     "blipp": "^4.0.2",
     "bookshelf": "^1.2.0",
-    "bookshelf-case-converter-plugin": "^1.0.0",
+    "bookshelf-case-converter-plugin": "^2.0.0",
     "db-migrate": "^0.11.13",
     "db-migrate-pg": "^1.2.2",
     "deep-map-keys": "^2.0.1",
-    "dotenv": "^8.2.0",
+    "dotenv": "^16.0.3",
     "good-winston": "^4.0.0",
-    "hapi-auth-jwt2": "^8.8.1",
-    "joi": "^17.6.1",
-    "knex": "^0.21.1",
+    "hapi-auth-jwt2": "^10.2.0",
+    "joi": "^17.7.0",
+    "knex": "^0.21.21",
     "lodash": "^4.17.21",
     "moment": "^2.29.4",
     "moment-range": "^4.0.2",
@@ -46,12 +46,12 @@
     "pluralize": "^8.0.0",
     "qs": "^6.11.0",
     "url-join": "^4.0.1",
-    "uuid": "^8.3.2"
+    "uuid": "^9.0.0"
   },
   "devDependencies": {
-    "@hapi/code": "^8.0.7",
-    "@hapi/lab": "^24.5.1",
-    "sinon": "^12.0.1",
+    "@hapi/code": "^9.0.1",
+    "@hapi/lab": "^25.0.1",
+    "sinon": "^14.0.2",
     "standard": "^17.0.0"
   }
 }
