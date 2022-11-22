@@ -3,7 +3,7 @@
 const urlJoin = require('url-join')
 const Boom = require('@hapi/boom')
 
-const { startCase, lowerCase } = require('lodash')
+const { startCase } = require('lodash')
 const { mapErrorResponse } = require('./map-error-response')
 const contactsService = require('../services/contacts')
 const addressService = require('../services/address')
@@ -85,7 +85,12 @@ const getEntity = async (request, key) => {
   // e.g. contactsService.getContact(id)
   const entity = await services[key][getFn](id)
 
-  return entity || Boom.notFound(`No ${lowerCase(key)} found for ${id}`)
+  return entity || Boom.notFound(`No ${splitUppercase(key)} found for ${id}`)
+}
+
+function splitUppercase (key) {
+  const results = key.replace(/([A-Z])/g, ' $1')
+  return results.toLowerCase()
 }
 
 /**
