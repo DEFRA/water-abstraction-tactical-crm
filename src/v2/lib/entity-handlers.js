@@ -3,7 +3,6 @@
 const urlJoin = require('url-join')
 const Boom = require('@hapi/boom')
 
-const { startCase } = require('lodash')
 const { mapErrorResponse } = require('./map-error-response')
 const contactsService = require('../services/contacts')
 const addressService = require('../services/address')
@@ -36,6 +35,12 @@ const getFunctionName = (action, entityKey) => {
   return `${action}${startCase(entityKey)}`.replace(/\s/g, '')
 }
 
+function startCase (key) {
+  const words = key.split(' ')
+  return words.map((word) => {
+    return word[0].toUpperCase() + word.substring(1)
+  }).join(' ')
+}
 /**
  * Helper function to abstract common entity creation for the controllers
  *
