@@ -1,7 +1,7 @@
 'use strict'
 
 const Hapi = require('@hapi/hapi')
-const { cloneDeep, omit } = require('lodash')
+const { cloneDeep } = require('lodash')
 const { v4: uuid } = require('uuid')
 
 const {
@@ -41,8 +41,14 @@ experiment('v2/modules/invoice-account-addresses/routes', () => {
       payload: omit({
         ...defaults,
         ...payload
-      }, omitKeys)
+      }, [omitKeys])
     })
+
+    const omit = (obj, props) => {
+      obj = { ...obj }
+      props.forEach(prop => delete obj[prop])
+      return obj
+    }
 
     beforeEach(() => {
       server = createServer(routes.postInvoiceAccountAddress)
@@ -59,6 +65,10 @@ experiment('v2/modules/invoice-account-addresses/routes', () => {
         test('is omitted', async () => {
           const request = getRequest(uuid(), {}, 'addressId')
           const response = await server.inject(request)
+          console.log('========================HERE==================')
+          console.log(getRequest.payload)
+          console.log(getRequest.method)
+          console.log(getRequest.url)
           expect(response.statusCode).to.equal(400)
         })
 

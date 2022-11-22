@@ -7,7 +7,6 @@ const {
 const { expect } = require('@hapi/code')
 const sinon = require('sinon')
 const sandbox = sinon.createSandbox()
-const { omit } = require('lodash')
 
 const controller = require('../../../../src/v2/modules/addresses/controller')
 const addressService = require('../../../../src/v2/services/address')
@@ -48,7 +47,8 @@ experiment('v2/modules/addresses/controller', () => {
     let payload
     experiment('when the address is created without issue', () => {
       beforeEach(async () => {
-        payload = omit(addressData, 'addressId')
+        payload = { ...addressData }
+        delete payload.addressId
 
         const request = { payload, method: 'post' }
 
@@ -79,7 +79,8 @@ experiment('v2/modules/addresses/controller', () => {
       let result
 
       beforeEach(async () => {
-        payload = omit(addressData, 'id')
+        delete addressData.id
+        payload = addressData
         const request = { payload, method: 'post' }
 
         addressService.createAddress.rejects(ERROR)
