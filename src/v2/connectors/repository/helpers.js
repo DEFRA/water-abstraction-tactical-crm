@@ -1,5 +1,4 @@
 'use strict'
-const { snakeCase } = require('lodash')
 
 const findOneBy = async (bookshelfModel, query = {}, withRelated = []) => {
   const result = await bookshelfModel
@@ -18,10 +17,15 @@ exports.findOne = async (bookshelfModel, idKey, id, withRelated = []) =>
 exports.findAll = async (bookshelfModel, idKey, id) => {
   const result = await bookshelfModel
     .forge()
-    .where({ [snakeCase(idKey)]: id })
+    .where({ [camelToSnakeCase(idKey)]: id })
     .fetchAll({ require: false })
 
   return result.toJSON()
+}
+
+function camelToSnakeCase (key) {
+  const result = key.replace(/([A-Z])/g, ' $1')
+  return result.split(' ').join('_').toLowerCase()
 }
 
 exports.findMany = async (bookShelfModel, conditions = {}, withRelated = []) => {
