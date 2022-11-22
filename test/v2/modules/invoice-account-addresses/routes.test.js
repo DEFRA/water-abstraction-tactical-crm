@@ -65,10 +65,6 @@ experiment('v2/modules/invoice-account-addresses/routes', () => {
         test('is omitted', async () => {
           const request = getRequest(uuid(), {}, 'addressId')
           const response = await server.inject(request)
-          console.log('========================HERE==================')
-          console.log(getRequest.payload)
-          console.log(getRequest.method)
-          console.log(getRequest.url)
           expect(response.statusCode).to.equal(400)
         })
 
