@@ -2,7 +2,6 @@
 
 const { v4: uuid } = require('uuid')
 const Hapi = require('@hapi/hapi')
-const { cloneDeep } = require('lodash')
 
 /**
  * Create a document header for testing purposes
@@ -172,7 +171,7 @@ const deleteVerificationDocument = verificationId => {
  */
 const createServerForRoute = route => {
   const server = Hapi.server()
-  const testRoute = cloneDeep(route)
+  const testRoute = { ...route }
   testRoute.handler = async () => 'ok'
 
   server.route(testRoute)

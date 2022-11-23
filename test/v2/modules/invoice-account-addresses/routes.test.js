@@ -1,7 +1,6 @@
 'use strict'
 
 const Hapi = require('@hapi/hapi')
-const { cloneDeep } = require('lodash')
 const { v4: uuid } = require('uuid')
 
 const {
@@ -15,7 +14,7 @@ const routes = require('../../../../src/v2/modules/invoice-account-addresses/rou
 
 const createServer = route => {
   const server = Hapi.server()
-  const testRoute = cloneDeep(route)
+  const testRoute = { ...route }
   testRoute.handler = async () => 'ok'
 
   server.route(testRoute)
