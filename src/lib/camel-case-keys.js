@@ -1,4 +1,3 @@
-const { camelCase } = require('lodash')
 const deepMapKeys = require('deep-map-keys')
 
 /**
@@ -7,7 +6,12 @@ const deepMapKeys = require('deep-map-keys')
  * have it's keys camel cased
  */
 const camelCaseKeys = data => {
-  return deepMapKeys(data, camelCase)
+  return deepMapKeys(data, toCamelCase)
+}
+
+function toCamelCase (key) {
+  key.toLowerCase()
+  return key.replace(/[^a-zA-Z0-9]+(.)/g, (match, char) => char.toUpperCase())
 }
 
 module.exports = camelCaseKeys
