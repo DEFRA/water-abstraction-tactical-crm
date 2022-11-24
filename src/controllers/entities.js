@@ -2,7 +2,6 @@ const HAPIRestAPI = require('@envage/hapi-pg-rest-api')
 const Joi = require('joi')
 const { version } = require('../../config')
 const { pool } = require('../lib/connectors/db')
-const { groupBy, reduce } = require('lodash')
 const Boom = require('@hapi/boom')
 
 const isIndividual = entity => {
@@ -64,20 +63,28 @@ const getEntityCompaniesQuery = `
     where er.entity_id = $1`
 
 const formatEntityCompaniesResponse = rows => {
-  return reduce(
-    groupBy(rows, 'company_entity_id'),
+  const groupedByCompanyEntityId = rows.reduce((group, row) => {
+    const { company_entity_id: companyEntityId } = row
+    group[companyEntityId] = group[companyEntityId] ?? []
+    group[companyEntityId].push(row)
+    return group
+  }, {})
+
+  const result = Object.values(groupedByCompanyEntityId).reduce(
     (acc, companyRows) => {
-      const company = reduce(companyRows, (companyAcc, row) => {
+      const company = companyRows.reduce((companyAcc, row) => {
         companyAcc.userRoles.push(row.role)
         companyAcc.entityId = row.company_entity_id
         companyAcc.name = row.company_name
         return companyAcc
       }, { userRoles: [] })
 
-      return [...acc, company]
+      acc.push(company)
+      return acc
     },
     []
   )
+  return result
 }
 
 entitiesApi.getEntityCompanies = async (request, h) => {
