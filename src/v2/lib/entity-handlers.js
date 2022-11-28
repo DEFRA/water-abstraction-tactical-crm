@@ -93,6 +93,14 @@ const getEntity = async (request, key) => {
   return entity || Boom.notFound(`No ${splitUppercase(key)} found for ${id}`)
 }
 
+/**
+ * The regex below is split into two parts
+ * The first part /([A-Z])/g is matching any uppercase character in the whole string
+ * (the /g means global so it matches every character not just the first one)
+ * The next part ' $1' is then inserting a space after each matched character
+ * This regex is therefore splitting the uppercase characters into its own words
+ */
+
 function splitUppercase (key) {
   const results = key.replace(/([A-Z])/g, ' $1')
   return results.toLowerCase()

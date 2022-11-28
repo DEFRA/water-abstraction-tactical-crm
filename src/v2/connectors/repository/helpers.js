@@ -23,9 +23,18 @@ exports.findAll = async (bookshelfModel, idKey, id) => {
   return result.toJSON()
 }
 
+/**
+ * The regex below is split into two parts
+ * The first part /([A-Z])/g is matching any uppercase character in the whole string
+ * (the /g means global so it matches every character not just the first one)
+ * The next part '_$1' is then inserting an underscore after each matched character
+ * We then convert this new string into lower case
+ * This changes it from camelCase to snake_case
+ */
+
 function camelToSnakeCase (key) {
-  const result = key.replace(/([A-Z])/g, ' $1')
-  return result.split(' ').join('_').toLowerCase()
+  const result = key.replace(/([A-Z])/g, '_$1')
+  return result.toLowerCase()
 }
 
 exports.findMany = async (bookShelfModel, conditions = {}, withRelated = []) => {
