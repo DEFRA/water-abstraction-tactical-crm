@@ -5,12 +5,12 @@ const { pool } = require('../lib/connectors/db')
 const Boom = require('@hapi/boom')
 
 const isIndividual = entity => {
-  const entityType = entity.entity_type ? entity.entity_type : ''
+  const entityType = entity.entity_type ?? ''
   return entityType.toLowerCase() === 'individual'
 }
 
 const lowerCaseEntityName = entity => {
-  const name = entity.entity_nm ? entity.entity_nm : ''
+  const name = entity.entity_nm ?? ''
 
   if (name && isIndividual(entity)) {
     entity.entity_nm = name.toLowerCase()
