@@ -79,8 +79,8 @@ experiment('v2/modules/addresses/controller', () => {
       let result
 
       beforeEach(async () => {
-        delete addressData.id
-        payload = addressData
+        payload = { ...addressData }
+        delete payload.id
         const request = { payload, method: 'post' }
 
         addressService.createAddress.rejects(ERROR)
