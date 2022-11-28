@@ -41,6 +41,7 @@ function startCase (key) {
     return word[0].toUpperCase() + word.substring(1)
   }).join(' ')
 }
+
 /**
  * Helper function to abstract common entity creation for the controllers
  *
@@ -100,7 +101,6 @@ const getEntity = async (request, key) => {
  * The next part ' $1' is then inserting a space after each matched character
  * This regex is therefore splitting the uppercase characters into its own words
  */
-
 function splitUppercase (key) {
   const results = key.replace(/([A-Z])/g, ' $1')
   return results.toLowerCase()

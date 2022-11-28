@@ -31,7 +31,6 @@ exports.findAll = async (bookshelfModel, idKey, id) => {
  * We then convert this new string into lower case
  * This changes it from camelCase to snake_case
  */
-
 function camelToSnakeCase (key) {
   const result = key.replace(/([A-Z])/g, '_$1')
   return result.toLowerCase()
