@@ -34,19 +34,15 @@ experiment('v2/modules/invoice-account-addresses/routes', () => {
       contactId: null
     }
 
-    const getRequest = (invoiceAccountId, payload = {}, omitKeys = []) => ({
-      method: 'POST',
-      url: `/crm/2.0/invoice-accounts/${invoiceAccountId}/addresses`,
-      payload: omit({
-        ...defaults,
-        ...payload
-      }, [omitKeys])
-    })
+    const getRequest = (invoiceAccountId, requestData = {}, omitKey = '') => {
+      const payload = { ...defaults, ...requestData }
+      delete payload[omitKey]
 
-    const omit = (obj, props) => {
-      obj = { ...obj }
-      props.forEach(prop => delete obj[prop])
-      return obj
+      return {
+        method: 'POST',
+        url: `/crm/2.0/invoice-accounts/${invoiceAccountId}/addresses`,
+        payload
+      }
     }
 
     beforeEach(() => {
