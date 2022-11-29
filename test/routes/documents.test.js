@@ -1,6 +1,5 @@
 const Hapi = require('@hapi/hapi')
 const { expect } = require('@hapi/code')
-const { cloneDeep } = require('lodash')
 
 const {
   beforeEach,
@@ -14,7 +13,7 @@ experiment('/documents/{documentId}/users', () => {
   let server
 
   beforeEach(async () => {
-    const getDocumentUsersRoute = cloneDeep(routes['/crm/{documentId}/users'])
+    const getDocumentUsersRoute = { ...routes['/crm/{documentId}/users'] }
     getDocumentUsersRoute.handler = () => 'ok'
     server = Hapi.server()
     server.route(getDocumentUsersRoute)

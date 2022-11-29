@@ -1,7 +1,6 @@
 const pkg = require('../../package.json')
-const { pick } = require('lodash')
 
-const statusResponse = pick(pkg, 'version')
+const statusResponse = { version: pkg.version }
 
 const getStatus = () => statusResponse
 

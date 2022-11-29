@@ -4,7 +4,6 @@ const Moment = require('moment')
 const MomentRange = require('moment-range')
 
 const moment = MomentRange.extendMoment(Moment)
-const { omit } = require('lodash')
 
 const documentValidator = require('../modules/documents/validator')
 const documentRoleRepo = require('../connectors/repository/document-roles')
@@ -101,10 +100,10 @@ const ensureDateRangeDoesNotOverlapWithExistingRoles = async documentRole => {
  */
 const replaceRoleNameWithRoleId = async documentRole => {
   const roleEntity = await rolesRepo.findOneByName(documentRole.role)
-
+  delete documentRole.role
   return {
     roleId: roleEntity.roleId,
-    ...omit(documentRole, 'role')
+    ...documentRole
   }
 }
 

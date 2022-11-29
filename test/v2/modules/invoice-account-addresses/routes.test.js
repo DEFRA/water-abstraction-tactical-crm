@@ -1,7 +1,6 @@
 'use strict'
 
 const Hapi = require('@hapi/hapi')
-const { cloneDeep, omit } = require('lodash')
 const { v4: uuid } = require('uuid')
 
 const {
@@ -15,7 +14,7 @@ const routes = require('../../../../src/v2/modules/invoice-account-addresses/rou
 
 const createServer = route => {
   const server = Hapi.server()
-  const testRoute = cloneDeep(route)
+  const testRoute = { ...route }
   testRoute.handler = async () => 'ok'
 
   server.route(testRoute)
@@ -35,14 +34,16 @@ experiment('v2/modules/invoice-account-addresses/routes', () => {
       contactId: null
     }
 
-    const getRequest = (invoiceAccountId, payload = {}, omitKeys = []) => ({
-      method: 'POST',
-      url: `/crm/2.0/invoice-accounts/${invoiceAccountId}/addresses`,
-      payload: omit({
-        ...defaults,
-        ...payload
-      }, omitKeys)
-    })
+    const getRequest = (invoiceAccountId, requestData = {}, omitKey = '') => {
+      const payload = { ...defaults, ...requestData }
+      delete payload[omitKey]
+
+      return {
+        method: 'POST',
+        url: `/crm/2.0/invoice-accounts/${invoiceAccountId}/addresses`,
+        payload
+      }
+    }
 
     beforeEach(() => {
       server = createServer(routes.postInvoiceAccountAddress)
