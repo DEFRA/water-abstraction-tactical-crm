@@ -3,7 +3,6 @@
 const urlJoin = require('url-join')
 const Boom = require('@hapi/boom')
 
-const { startCase, lowerCase } = require('lodash')
 const { mapErrorResponse } = require('./map-error-response')
 const contactsService = require('../services/contacts')
 const addressService = require('../services/address')
@@ -34,6 +33,13 @@ const validateKey = key => {
 
 const getFunctionName = (action, entityKey) => {
   return `${action}${startCase(entityKey)}`.replace(/\s/g, '')
+}
+
+function startCase (key) {
+  const words = key.split(' ')
+  return words.map((word) => {
+    return word[0].toUpperCase() + word.substring(1)
+  }).join(' ')
 }
 
 /**
@@ -85,7 +91,19 @@ const getEntity = async (request, key) => {
   // e.g. contactsService.getContact(id)
   const entity = await services[key][getFn](id)
 
-  return entity || Boom.notFound(`No ${lowerCase(key)} found for ${id}`)
+  return entity || Boom.notFound(`No ${splitUppercase(key)} found for ${id}`)
+}
+
+/**
+ * The regex below is split into two parts
+ * The first part /([A-Z])/g is matching any uppercase character in the whole string
+ * (the /g means global so it matches every character not just the first one)
+ * The next part ' $1' is then inserting a space after each matched character
+ * This regex is therefore splitting the uppercase characters into its own words
+ */
+function splitUppercase (key) {
+  const results = key.replace(/([A-Z])/g, ' $1')
+  return results.toLowerCase()
 }
 
 /**

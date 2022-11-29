@@ -37,7 +37,6 @@
     "hapi-auth-jwt2": "^10.2.0",
     "joi": "^17.7.0",
     "knex": "^0.21.21",
-    "lodash": "^4.17.21",
     "moment": "^2.29.4",
     "moment-range": "^4.0.2",
     "mongo-sql": "^6.2.0",
