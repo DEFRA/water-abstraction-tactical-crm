@@ -26,12 +26,6 @@ module.exports = {
     airbrakeLevel: 'error'
   },
 
-  good: {
-    ops: {
-      interval: 10000
-    }
-  },
-
   server: {
     router: {
       stripTrailingSlash: true
