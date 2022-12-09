@@ -23,7 +23,6 @@
     "@envage/hapi-pg-rest-api": "^7.0.0",
     "@envage/water-abstraction-helpers": "4.8.3",
     "@hapi/boom": "^10.0.0",
-    "@hapi/good": "^9.0.1",
     "@hapi/hapi": "^21.0.0",
     "@joi/date": "^2.1.0",
     "blipp": "^4.0.2",
@@ -33,8 +32,8 @@
     "db-migrate-pg": "^1.2.2",
     "deep-map-keys": "^2.0.1",
     "dotenv": "^16.0.3",
-    "good-winston": "^4.0.0",
     "hapi-auth-jwt2": "^10.2.0",
+    "hapi-pino": "^11.0.1",
     "joi": "^17.7.0",
     "knex": "^0.21.21",
     "moment": "^2.29.4",
@@ -50,6 +49,7 @@
   "devDependencies": {
     "@hapi/code": "^9.0.1",
     "@hapi/lab": "^25.0.1",
+    "pino-pretty": "^9.1.1",
     "sinon": "^14.0.2",
     "standard": "^17.0.0"
   }
