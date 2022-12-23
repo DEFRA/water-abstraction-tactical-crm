@@ -12,8 +12,8 @@
   "license": "OGL-UK-3.0",
   "scripts": {
     "test": "lab",
-    "migrate": "node scripts/create-schema && db-migrate up --verbose",
-    "migrate:down": "db-migrate down --verbose",
+    "migrate": "node scripts/create-schema && db-migrate up",
+    "migrate:down": "db-migrate down",
     "migrate:create": "db-migrate create --sql-file --",
     "lint": "standard",
     "lint:fix": "standard --fix",
