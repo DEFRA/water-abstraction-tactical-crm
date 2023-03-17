@@ -52,17 +52,22 @@ function startCase (key) {
  *  created entity for greater control when forming the location URL
  */
 const createEntity = async (request, h, key, locationCallback) => {
+  console.log('🚀 ~ file: entity-handlers.js:55 ~ createEntity ~ key:', key)
   validateKey(key)
 
   try {
     const createFn = getFunctionName('create', key)
 
     const data = { ...request.params, ...request.payload }
+    console.log('🚀 ~ file: entity-handlers.js:62 ~ createEntity ~ data:', data)
     const entity = await services[key][createFn](data)
+    console.log('🚀 ~ file: entity-handlers.js:64 ~ createEntity ~ entity:', entity)
 
     const location = locationCallback
       ? locationCallback(entity)
       : urlJoin(request.path, entity[`${key}Id`])
+
+    console.log('🚀 ~ file: entity-handlers.js:70 ~ createEntity ~ location:', location)
 
     return h.response(entity).created(location)
   } catch (error) {
