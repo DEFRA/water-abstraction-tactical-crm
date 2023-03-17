@@ -13,8 +13,12 @@ const handleRepoError = require('./lib/error-handler')
  * @param {Number} accountNumber
  * @return {String} formatted invoice account number
  */
-const createAccountNumber = (regionCode, accountNumber = 0) =>
-  `${regionCode}${accountNumber.toString().padStart(8, '0')}A`
+const createAccountNumber = (regionCode, accountNumber = 0) => {
+  const result = `${regionCode}${accountNumber.toString().padStart(8, '0')}A`
+
+  console.log('🚀 ~ file: invoice-accounts.js:19 ~ createAccountNumber ~ result:', result)
+  return result
+}
 
 /**
  * Parses an invoice account number into an alphabetic region code
@@ -38,6 +42,7 @@ const getInvoiceAccountData = async invoiceAccount => {
   // Auto-generate invoice account number
   if (regionCode) {
     const currentMaxAccount = await invoiceAccountsRepo.findOneByGreatestAccountNumber(regionCode)
+    console.log('🚀 ~ file: invoice-accounts.js:41 ~ getInvoiceAccountData ~ currentMaxAccount:', currentMaxAccount)
     const currentMaxAccountNumber = currentMaxAccount
       ? parseAccountNumber(currentMaxAccount.invoiceAccountNumber).number
       : 0

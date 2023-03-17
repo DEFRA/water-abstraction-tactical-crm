@@ -113,7 +113,10 @@ const deleteTestData = async () => {
  */
 const findOneByGreatestAccountNumber = async regionCode => {
   const query = `${regionCode}%`
-  return raw.singleRow(queries.findOneByGreatestAccountNumber, { query })
+  console.log('🚀 ~ file: invoice-accounts.js:117 ~ findOneByGreatestAccountNumber ~ query:', query)
+  const result = raw.singleRow(queries.findOneByGreatestAccountNumber, { query })
+
+  return result
 }
 
 const findAllWhereEntitiesHaveUnmatchingHashes = () => raw.multiRow(queries.findAllWhereEntitiesHaveUnmatchingHashes)
