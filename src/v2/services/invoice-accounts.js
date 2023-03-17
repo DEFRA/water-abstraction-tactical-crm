@@ -52,16 +52,20 @@ const getInvoiceAccountData = async invoiceAccount => {
 }
 
 const createInvoiceAccount = async payload => {
+  console.log('🚀 ~ file: invoice-accounts.js:55 ~ createInvoiceAccount ~ payload:', payload)
   const invoiceAccount = await getInvoiceAccountData(payload)
+  console.log('🚀 ~ file: invoice-accounts.js:57 ~ createInvoiceAccount ~ invoiceAccount:', invoiceAccount)
 
   const { error, value: validatedInvoiceAccount } = invoiceAccountValidator.validateInvoiceAccount(invoiceAccount)
 
   if (error) {
+    console.log('🚀 ~ file: invoice-accounts.js:62 ~ createInvoiceAccount ~ error:', error)
     throw new errors.EntityValidationError('Invoice account not valid', mapValidationErrorDetails(error))
   }
 
   try {
     const data = await invoiceAccountsRepo.create(validatedInvoiceAccount)
+    console.log('🚀 ~ file: invoice-accounts.js:68 ~ createInvoiceAccount ~ data:', data)
     return data
   } catch (err) {
     handleRepoError(err)
