@@ -12,9 +12,7 @@ async function generate (region) {
     const checklist = _generateChecklist(region, start)
     const existingMatches = await _findExistingMatches(checklist)
 
-    if (existingMatches.length === 0) {
-      invoiceAccountNumber = checklist[0]
-    } else if (existingMatches.length < checklist.length) {
+    if (existingMatches.length < checklist.length) {
       invoiceAccountNumber = _findFirstAvailable(checklist, existingMatches)
     }
     start += CHECKLIST_SIZE
@@ -24,47 +22,35 @@ async function generate (region) {
 }
 
 function _generateChecklist (region, start) {
-  const checklist = [...Array(CHECKLIST_SIZE - start + 1).keys()].map((x) => {
-    const paddedNumber = _leftPadZeroes(x + 1, 8)
+  const checklist = new Array(CHECKLIST_SIZE)
+  const end = start + CHECKLIST_SIZE
 
-    return `${region}${paddedNumber}A`
-  })
+  for (let i = start; i < end; i++) {
+    const paddedNumber = _leftPadZeroes(i, 8)
+
+    checklist[i - 1] = `${region}${paddedNumber}A`
+  }
 
   return checklist
 }
 
 function _findFirstAvailable (checklist, existingMatches) {
-  let firstNonMatch
-
-  for (let cx = 0; cx < checklist.length; cx++) {
-    const found = existingMatches.find((existingMatch) => {
-      return existingMatch === checklist[cx]
-    })
-
-    if (!found) {
-      firstNonMatch = checklist[cx]
-      break
+  for (let i = 0; i < checklist.length; i++) {
+    if (existingMatches.indexOf(checklist[i]) === -1) {
+      return checklist[i]
     }
   }
-
-  return firstNonMatch
 }
 
 async function _findExistingMatches (checklist) {
-  let checklistAsArg = ''
-  for (const item of checklist) {
-    checklistAsArg = `${checklistAsArg},'${item}'`
-  }
-  checklistAsArg = checklistAsArg.slice(1)
+  // NOTE: pluck() instead of select() means the result we get back for each row is just the value, rather than an
+  // object that has the property `invoice_account_number:` and the value
+  const rows = await bookshelf.knex
+    .pluck('invoice_account_number')
+    .from('crm_v2.invoice_accounts')
+    .whereIn('invoice_account_number', checklist)
 
-  const query = `SELECT ia.invoice_account_number FROM crm_v2.invoice_accounts ia WHERE ia.invoice_account_number IN (${checklistAsArg})`
-  const { rows } = await bookshelf.knex.raw(query)
-
-  const mappedRows = rows.map((row) => {
-    return row.invoice_account_number
-  })
-
-  return mappedRows
+  return rows
 }
 
 /**
