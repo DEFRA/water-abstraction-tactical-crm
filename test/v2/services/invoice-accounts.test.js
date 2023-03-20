@@ -6,6 +6,7 @@ const sandbox = require('sinon').createSandbox()
 
 const { v4: uuid } = require('uuid')
 
+const InvoiceAccountNumber = require('../../../src/v2/services/invoice-account-number.js')
 const invoiceAccountsService = require('../../../src/v2/services/invoice-accounts')
 const invoiceAccountsRepo = require('../../../src/v2/connectors/repository/invoice-accounts')
 const invoiceAccountAddressesRepo = require('../../../src/v2/connectors/repository/invoice-account-addresses')
@@ -78,9 +79,7 @@ experiment('v2/services/invoice-accounts', () => {
       }]
     })
 
-    sandbox.stub(invoiceAccountsRepo, 'findOneByGreatestAccountNumber').resolves({
-      invoiceAccountNumber: 'A12345678A'
-    })
+    sandbox.stub(InvoiceAccountNumber, 'generate').resolves('A12345678A')
   })
 
   afterEach(() => sandbox.restore())
@@ -191,13 +190,13 @@ experiment('v2/services/invoice-accounts', () => {
           result = await invoiceAccountsService.createInvoiceAccount(invoiceAccount)
         })
 
-        test('the invoice account with the greatest numeric account number is loaded', async () => {
-          expect(invoiceAccountsRepo.findOneByGreatestAccountNumber.calledWith('A')).to.be.true()
+        test('the invoice account number generate() method is called with the region code', async () => {
+          expect(InvoiceAccountNumber.generate.calledWith('A')).to.be.true()
         })
 
         test('the invoice account number used is the next one available', async () => {
           const { invoiceAccountNumber } = invoiceAccountsRepo.create.lastCall.args[0]
-          expect(invoiceAccountNumber).to.equal('A12345679A')
+          expect(invoiceAccountNumber).to.equal('A12345678A')
         })
 
         test('the invoice account is saved via the repository', async () => {
