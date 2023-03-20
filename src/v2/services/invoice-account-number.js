@@ -68,5 +68,6 @@ function _leftPadZeroes (number, length) {
 }
 
 module.exports = {
-  generate
+  generate,
+  _findExistingMatches
 }
