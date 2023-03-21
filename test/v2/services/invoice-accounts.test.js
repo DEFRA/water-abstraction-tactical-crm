@@ -210,7 +210,6 @@ experiment('v2/services/invoice-accounts', () => {
 
       experiment('when there are no existing invoice accounts in this region', () => {
         beforeEach(async () => {
-          invoiceAccountsRepo.findOneByGreatestAccountNumber.resolves(null)
           await invoiceAccountsService.createInvoiceAccount(invoiceAccount)
         })
 
