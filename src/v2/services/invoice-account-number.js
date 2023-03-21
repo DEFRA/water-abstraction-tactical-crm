@@ -41,8 +41,8 @@ async function generate (region) {
     const checklist = _generateChecklist(region, start)
     const existingMatches = await _findExistingMatches(checklist)
 
-    // The result from the Db must be less than our checklist to be worth looking at. If not move onto checking the
-    // next range of invoice account numbers
+    // If the db returns the same number of results as is in our checklist then that means there are no available gaps.
+    // So, we move onto checking the next range of invoice account numbers
     if (existingMatches.length < checklist.length) {
       invoiceAccountNumber = _findFirstAvailable(checklist, existingMatches)
     }
