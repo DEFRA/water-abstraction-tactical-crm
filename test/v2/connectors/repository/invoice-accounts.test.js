@@ -215,20 +215,6 @@ experiment('v2/connectors/repository/invoice-account', () => {
     })
   })
 
-  experiment('.findOneByGreatestAccountNumber', () => {
-    beforeEach(async () => {
-      await invoiceAccounts.findOneByGreatestAccountNumber('A')
-    })
-
-    test('calls raw.singleRow with the correct query and params', async () => {
-      const [query, params] = raw.singleRow.lastCall.args
-      expect(query).to.equal(queries.findOneByGreatestAccountNumber)
-      expect(params).to.equal({
-        query: 'A%'
-      })
-    })
-  })
-
   experiment('.findAllWhereEntitiesHaveUnmatchingHashes', () => {
     beforeEach(async () => {
       await invoiceAccounts.findAllWhereEntitiesHaveUnmatchingHashes()

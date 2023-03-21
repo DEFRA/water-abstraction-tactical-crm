@@ -78,10 +78,6 @@ experiment('v2/services/invoice-accounts', () => {
         companyId
       }]
     })
-
-    sandbox.stub(invoiceAccountsRepo, 'findOneByGreatestAccountNumber').resolves({
-      invoiceAccountNumber: 'A12345678A'
-    })
   })
 
   afterEach(() => sandbox.restore())
