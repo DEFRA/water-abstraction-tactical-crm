@@ -69,12 +69,12 @@ function _generateChecklist (region, start) {
 
 function _findFirstAvailable (checklist, existingMatches) {
   // Iterate through our checklist
-  for (let i = 0; i < checklist.length; i++) {
+  for (const checkAccountNumber of checklist) {
     // For each item in the checklist see if existingMatches contains it. indexOf() will return -1 if it cannot find
     // the value. For us that means we have our invoice account number that does not currently exist so immediately
     // return it
-    if (existingMatches.indexOf(checklist[i]) === -1) {
-      return checklist[i]
+    if (existingMatches.indexOf(checkAccountNumber) === -1) {
+      return checkAccountNumber
     }
   }
 }
