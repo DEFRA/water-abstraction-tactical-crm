@@ -106,16 +106,6 @@ const deleteTestData = async () => {
   await helpers.deleteTestData(InvoiceAccount)
 }
 
-/**
- * Finds the invoice account with the largest numeric account number in a particular region
- * @param {String} regionCode
- * @return {Promise<Object|null>}
- */
-const findOneByGreatestAccountNumber = async regionCode => {
-  const query = `${regionCode}%`
-  return raw.singleRow(queries.findOneByGreatestAccountNumber, { query })
-}
-
 const findAllWhereEntitiesHaveUnmatchingHashes = () => raw.multiRow(queries.findAllWhereEntitiesHaveUnmatchingHashes)
 
 const updateInvoiceAccountsWithCustomerFileReference = (fileReference, exportedAt, exportedCustomers) =>
@@ -129,7 +119,6 @@ exports.deleteTestData = deleteTestData
 exports.findOne = findOne
 exports.findOneByAccountNumber = findOneByAccountNumber
 exports.findWithCurrentAddress = findWithCurrentAddress
-exports.findOneByGreatestAccountNumber = findOneByGreatestAccountNumber
 exports.findAllByCompanyId = findAllByCompanyId
 exports.findAllWhereEntitiesHaveUnmatchingHashes = findAllWhereEntitiesHaveUnmatchingHashes
 exports.updateInvoiceAccountsWithCustomerFileReference = updateInvoiceAccountsWithCustomerFileReference

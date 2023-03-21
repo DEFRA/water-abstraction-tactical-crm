@@ -78,8 +78,6 @@ experiment('v2/services/invoice-accounts', () => {
         companyId
       }]
     })
-
-    sandbox.stub(InvoiceAccountNumber, 'generate').resolves('A12345678A')
   })
 
   afterEach(() => sandbox.restore())
@@ -187,6 +185,8 @@ experiment('v2/services/invoice-accounts', () => {
 
       experiment('when invoice accounts exist in this region', () => {
         beforeEach(async () => {
+          sandbox.stub(InvoiceAccountNumber, 'generate').resolves('A12345678A')
+
           result = await invoiceAccountsService.createInvoiceAccount(invoiceAccount)
         })
 
@@ -210,6 +210,8 @@ experiment('v2/services/invoice-accounts', () => {
 
       experiment('when there are no existing invoice accounts in this region', () => {
         beforeEach(async () => {
+          sandbox.stub(InvoiceAccountNumber, 'generate').resolves('A00000001A')
+
           await invoiceAccountsService.createInvoiceAccount(invoiceAccount)
         })
 
