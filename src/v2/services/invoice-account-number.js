@@ -22,16 +22,11 @@ async function generate (region) {
 }
 
 function _generateChecklist (region, start) {
-  const checklist = new Array(CHECKLIST_SIZE)
-  const end = start + CHECKLIST_SIZE
+  return Array.from({ length: CHECKLIST_SIZE }, (_value, i) => {
+    const paddedNumber = (i + start).toString().padStart(8, '0')
 
-  for (let i = start; i < end; i++) {
-    const paddedNumber = _leftPadZeroes(i, 8)
-
-    checklist[i - 1] = `${region}${paddedNumber}A`
-  }
-
-  return checklist
+    return `${region}${paddedNumber}A`
+  })
 }
 
 function _findFirstAvailable (checklist, existingMatches) {
@@ -53,21 +48,6 @@ async function _findExistingMatches (checklist) {
   return rows
 }
 
-/**
- * Pads a number to a given length with leading zeroes and returns the result as a string
- *
- * @param {Number} number The number to be padded
- * @param {Number} length How many characters in length the final string should be
- *
- * @returns {string} The number padded with zeros to the specified length
- */
-function _leftPadZeroes (number, length) {
-  return number
-    .toString()
-    .padStart(length, '0')
-}
-
 module.exports = {
-  generate,
-  _findExistingMatches
+  generate
 }
