@@ -51,6 +51,6 @@
     "@hapi/lab": "^25.0.1",
     "pino-pretty": "^9.1.1",
     "sinon": "^14.0.2",
-    "standard": "^17.0.0"
+    "standard": "^17.1.0"
   }
 }
