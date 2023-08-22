@@ -1,6 +1,6 @@
 'use strict'
 
-async function getStatus () {
+function getStatus () {
   return { status: 'alive' }
 }
 
