@@ -106,8 +106,6 @@ const deleteTestData = async () => {
   await helpers.deleteTestData(InvoiceAccount)
 }
 
-const findAllWhereEntitiesHaveUnmatchingHashes = () => raw.multiRow(queries.findAllWhereEntitiesHaveUnmatchingHashes)
-
 const updateInvoiceAccountsWithCustomerFileReference = (fileReference, exportedAt, exportedCustomers) =>
   raw.multiRow(queries.updateInvoiceAccountsWithCustomerFileReference, {
     fileReference, exportedAt, exportedCustomers
@@ -120,5 +118,4 @@ exports.findOne = findOne
 exports.findOneByAccountNumber = findOneByAccountNumber
 exports.findWithCurrentAddress = findWithCurrentAddress
 exports.findAllByCompanyId = findAllByCompanyId
-exports.findAllWhereEntitiesHaveUnmatchingHashes = findAllWhereEntitiesHaveUnmatchingHashes
 exports.updateInvoiceAccountsWithCustomerFileReference = updateInvoiceAccountsWithCustomerFileReference

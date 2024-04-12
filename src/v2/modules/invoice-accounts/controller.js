@@ -14,15 +14,6 @@ const getInvoiceAccounts = async request => {
   }
 }
 
-const getInvoiceAccountsWithRecentlyUpdatedEntities = async () => {
-  try {
-    return invoiceAccountService.getInvoiceAccountsWithRecentlyUpdatedEntities()
-  } catch (err) {
-    logger.error('Could not get recently updated invoice accounts', err.stack)
-    return Boom.boomify(err)
-  }
-}
-
 const getInvoiceAccountByRef = async request => {
   try {
     const { ref } = request.query
@@ -48,6 +39,5 @@ const updateInvoiceAccountsWithCustomerFileReference = async (request, h) => {
 }
 
 exports.getInvoiceAccounts = getInvoiceAccounts
-exports.getInvoiceAccountsWithRecentlyUpdatedEntities = getInvoiceAccountsWithRecentlyUpdatedEntities
 exports.getInvoiceAccountByRef = getInvoiceAccountByRef
 exports.updateInvoiceAccountsWithCustomerFileReference = updateInvoiceAccountsWithCustomerFileReference

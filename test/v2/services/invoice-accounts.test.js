@@ -288,11 +288,4 @@ experiment('v2/services/invoice-accounts', () => {
       expect(invoiceAccountsRepo.deleteOne.calledWith('test-invoice-account-id')).to.be.true()
     })
   })
-
-  experiment('.getInvoiceAccountsWithRecentlyUpdatedEntities', () => {
-    test('calls the findAllWhereEntitiesHaveUnmatchingHashes repo method', async () => {
-      await invoiceAccountsService.getInvoiceAccountsWithRecentlyUpdatedEntities()
-      expect(invoiceAccountsRepo.findAllWhereEntitiesHaveUnmatchingHashes.called).to.be.true()
-    })
-  })
 })
