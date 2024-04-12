@@ -78,15 +78,6 @@ exports.deleteInvoiceAccount = {
   }
 }
 
-exports.getInvoiceAccountsWithRecentlyUpdatedEntities = {
-  method: 'GET',
-  path: '/crm/2.0/invoice-accounts/recently-updated',
-  handler: controller.getInvoiceAccountsWithRecentlyUpdatedEntities,
-  options: {
-    description: 'Get all invoice accounts whose underlying entities have unmatching current_hash vs last_hash'
-  }
-}
-
 exports.updateInvoiceAccountsWithCustomerFileReference = {
   method: 'POST',
   path: '/crm/2.0/invoice-accounts/customer-file-references',
