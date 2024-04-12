@@ -64,7 +64,6 @@ experiment('v2/services/invoice-accounts', () => {
     sandbox.stub(invoiceAccountsRepo, 'findOneByAccountNumber')
     sandbox.stub(invoiceAccountsRepo, 'findWithCurrentAddress')
     sandbox.stub(invoiceAccountsRepo, 'deleteOne')
-    sandbox.stub(invoiceAccountsRepo, 'findAllWhereEntitiesHaveUnmatchingHashes').resolves([])
     sandbox.stub(invoiceAccountAddressesRepo, 'findAll').resolves([{ startDate: '2018-05-03', endDate: '2020-03-31' }])
     sandbox.stub(invoiceAccountAddressesRepo, 'create')
     sandbox.stub(invoiceAccountAddressesRepo, 'deleteOne')
