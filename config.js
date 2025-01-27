@@ -34,10 +34,6 @@ module.exports = {
     port: 8002
   },
 
-  blipp: {
-    showAuth: true
-  },
-
   pg: {
     connectionString: process.env.DATABASE_URL,
     max: 7
