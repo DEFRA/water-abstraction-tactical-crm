@@ -3,7 +3,6 @@
 ![Build Status](https://github.com/DEFRA/water-abstraction-tactical-crm/actions/workflows/ci.yml/badge.svg?branch=main)
 [![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=DEFRA_water-abstraction-tactical-crm&metric=sqale_rating)](https://sonarcloud.io/dashboard?id=DEFRA_water-abstraction-tactical-crm)
 [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=DEFRA_water-abstraction-tactical-crm&metric=coverage)](https://sonarcloud.io/dashboard?id=DEFRA_water-abstraction-tactical-crm)
-[![Known Vulnerabilities](https://snyk.io/test/github/DEFRA/water-abstraction-tactical-crm/badge.svg)](https://snyk.io/test/github/DEFRA/water-abstraction-tactical-crm)
 [![Licence](https://img.shields.io/badge/Licence-OGLv3-blue.svg)](http://www.nationalarchives.gov.uk/doc/open-government-licence/version/3)
 
 This component is one of 3 that combine to give you the ability to store a document or details of a permit or pass, to link those documents to users that can view and be able to have different access for internal and external users. With a front end it will enable most processes to capture, share and view details of permits and or licence style information
