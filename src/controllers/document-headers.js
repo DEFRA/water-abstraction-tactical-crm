@@ -146,6 +146,8 @@ const getPreQuerySort = (result) => {
  */
 async function preQuery (result, hapiRequest) {
   const filter = await getPreQueryFilter(result)
+  console.log('🚀🚀🚀 ~ filter:')
+  console.dir(filter, { depth: null, colors: true })
   const sort = await getPreQuerySort(result)
   return {
     ...result,
