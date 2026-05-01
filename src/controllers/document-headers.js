@@ -53,6 +53,7 @@ const getSearchFilter = (string) => {
  * @return {Promise} resolves with object - mongo-sql query fragment
  */
 async function getEntityFilter (mode, value, roles = null) {
+  console.log('🚀🚀🚀 ~ mode:', mode, value, roles)
   let query
   const params = [value]
   if (mode === 'email') {
@@ -71,6 +72,8 @@ async function getEntityFilter (mode, value, roles = null) {
   }
 
   const { rows, error } = await pool.query(query, params)
+  console.log('🚀🚀🚀 ~ rows:')
+  console.dir(rows, { depth: null, colors: true })
   if (error) {
     throw error
   }
@@ -88,6 +91,8 @@ async function getEntityFilter (mode, value, roles = null) {
  * @return {Promise} resolves with filter for query on document headers table
  */
 const getPreQueryFilter = async (result) => {
+  console.log('🚀🚀🚀 ~ result:')
+  console.dir(result, { depth: null, colors: true })
   const { string, email, roles, entity_id: entityId, includeExpired = false, ...filter } = result.filter
 
   // don't include soft deleted records
