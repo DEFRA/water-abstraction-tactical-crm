@@ -13,7 +13,7 @@ exports.setup = function (options, seedLink) {
 }
 
 exports.up = function (db) {
-  const filePath = path.join(__dirname, 'sqls', '20260603121018-alter-crm-2-company-contacts-add-licences-column-up.sql')
+  const filePath = path.join(__dirname, 'sqls', '20260603121018-alter-crm-2-company-contacts-add-abstraction-alert-licences-column-up.sql')
   return new Promise(function (resolve, reject) {
     fs.readFile(filePath, { encoding: 'utf-8' }, function (err, data) {
       if (err) return reject(err)
@@ -27,7 +27,7 @@ exports.up = function (db) {
 }
 
 exports.down = function (db) {
-  const filePath = path.join(__dirname, 'sqls', '20260603121018-alter-crm-2-company-contacts-add-licences-column-down.sql')
+  const filePath = path.join(__dirname, 'sqls', '20260603121018-alter-crm-2-company-contacts-add-abstraction-alert-licences-column-down.sql')
   return new Promise(function (resolve, reject) {
     fs.readFile(filePath, { encoding: 'utf-8' }, function (err, data) {
       if (err) return reject(err)
