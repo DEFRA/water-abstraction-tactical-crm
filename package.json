@@ -51,5 +51,9 @@
     "pino-pretty": "^9.1.1",
     "sinon": "^14.0.2",
     "standard": "^17.1.0"
+  },
+  "allowScripts": {
+    "es5-ext@0.10.64": true,
+    "ssh2@1.4.0": true
   }
 }
