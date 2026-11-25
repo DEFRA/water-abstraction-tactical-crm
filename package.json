@@ -54,6 +54,7 @@
   },
   "allowScripts": {
     "es5-ext@0.10.64": true,
-    "ssh2@1.4.0": true
+    "ssh2@1.4.0": true,
+    "cpu-features@0.0.2": true
   }
 }
